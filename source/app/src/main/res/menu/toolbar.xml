@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_search"
+        android:enabled="true"
+        android:icon="@drawable/ic_toolbar_search"
+        android:title="@string/toolbar_title_search"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_list"
+        android:enabled="true"
+        android:icon="@drawable/ic_toolbar_list"
+        android:title="@string/toolbar_title_lists"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_auto_connection"
+        android:enabled="true"
+        android:icon="@drawable/ic_toolbar_auto_connection_enabled"
+        android:title="@string/toolbar_title_auto_connection"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_manual"
+        android:enabled="true"
+        android:title="@string/toolbar_title_manual"
+        android:visible="true"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_support"
+        android:enabled="true"
+        android:title="@string/toolbar_title_customer_support"
+        android:visible="false"
+        app:showAsAction="never" />
+</menu>

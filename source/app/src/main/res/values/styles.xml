@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme. -->
+    <style name="Theme.RemoteApp" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimaryDark">@color/color_primary_dark</item>
+        <item name="colorAccent">@color/color_accent</item>
+        <item name="actionBarPopupTheme">@style/MyToolbarPopupOverlay</item>
+        <item name="android:textColorSecondary">@color/black</item>
+    </style>
+
+    <!-- 툴바 테마 -->
+    <style name="MyToolbarPopupOverlay" parent="ThemeOverlay.AppCompat.Light">
+        <item name="iconTint">@color/black</item>
+        <item name="android:textColorSecondary">@color/black</item>
+    </style>
+
+    <!-- 경고 다이얼로그 테마 -->
+    <style name="MyAlertDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:textColorPrimary">#1E1E1E</item>
+        <item name="android:textColor">#1E1E1E</item>
+        <item name="android:colorAccent">#E91E63</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/MyAlertDialogPositiveButtonTheme
+        </item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/MyAlertDialogNegaitiveButtonTheme
+        </item>
+    </style>
+
+    <!-- 다이얼로그 긍정 버튼 테마 -->
+    <style name="MyAlertDialogPositiveButtonTheme" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">#E91E63</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- 다이얼로그 부정 버튼 테마 -->
+    <style name="MyAlertDialogNegaitiveButtonTheme" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">#E91E63</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+</resources>

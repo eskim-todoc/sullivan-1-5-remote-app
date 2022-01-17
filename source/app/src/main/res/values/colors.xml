@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Application color palette -->
+    <color name="color_primary_level_0">#B8A2CF</color>
+    <color name="color_primary_level_1">#9988BD</color>
+    <color name="color_primary_level_3">#62569F</color>
+    <color name="color_primary_level_4">#392F6C</color>
+    <color name="color_primary_level_5">#251E4D</color>
+    <color name="color_primary_level_6">#161031</color>
+
+    <color name="color_accent_level_0">#BCC8C4</color>
+    <color name="color_accent_level_1">#6D8273</color>
+    <color name="color_accent_level_2">#2B4A3F</color>
+    <color name="color_accent_level_3">#0E2D23</color>
+
+    <!-- Colors -->
+    <color name="color_primary">#251E4D</color>
+    <color name="color_primary_dark">#161031</color>
+    <color name="color_accent">#6D8273</color>
+
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+
+    <color name="color_status_bar">#000000</color>
+    <color name="color_bottom_navigation">#FFFFFF</color>
+
+    <!-- 줄 관련 -->
+    <color name="color_line_color">#444444</color>
+
+    <!-- 텍스트뷰 관련 -->
+    <color name="color_small_title_text_color">#888888</color>
+    <color name="color_medium_description_text_color">#888888</color>
+    <color name="color_medium_warning_text_color">#FF9800</color>
+    <color name="color_medium_error_text_color">#F44336</color>
+    <color name="color_home_device_name_text_color">#000000</color>
+    <color name="color_home_battery_value_text_color">#000000</color>
+    <color name="color_home_program_value_text_color">#000000</color>
+    <color name="color_home_sensitivity_and_volume_value_text_color">#000000</color>
+    <color name="color_device_list_value_text_color">#000000</color>
+    <color name="color_search_device_name_text_color">#000000</color>
+
+    <!-- 다이얼로그 관련 -->
+    <color name="color_dialog_positive_button_text_color">#3949AB</color>
+    <color name="color_dialog_negaitive_button_text_color">#FB8C00</color>
+
+    <!-- Fragment : Home -->
+    <color name="color_home_volume_sensitivity_button">#CDCDCD</color>
+    <color name="color_home_enabled_button_tint">#FFCA28</color>
+    <color name="color_home_disabled_button_tint">#444444</color>
+    <color name="color_home_cardview_title_text_view">#444444</color>
+    <color name="color_home_cardview_value_text_view">#111111</color>
+
+</resources>

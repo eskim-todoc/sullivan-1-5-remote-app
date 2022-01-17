@@ -1,0 +1,585 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="todoc.cochlear.remoteapp.fragment.HomeFragment">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_line_width_height_size"
+            android:contentDescription="@string/warning_message_image_content_description"
+            android:src="@color/color_line_color" />
+
+        <!-- 사운드처리기 종합 정보 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- 사운드처리기 이름 -->
+            <TextView
+                android:id="@+id/home_sound_processor_device_name_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_margin_top_between_views"
+                android:text=""
+                android:textColor="@color/color_home_device_name_text_color"
+                android:textSize="@dimen/dimen_home_device_name_text_size_sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="12345678" />
+
+            <!-- 사운드처리기 이미지 -->
+            <ImageView
+                android:id="@+id/home_sound_processor_device_image"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginTop="@dimen/dimen_margin_top_between_views"
+                android:layout_marginEnd="18dp"
+                android:contentDescription="@string/warning_message_image_content_description"
+                android:src="@drawable/drawable_model_unknown"
+                app:layout_constraintEnd_toStartOf="@id/home_sound_processor_battery_progressbar"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/home_sound_processor_device_name_text" />
+
+            <!-- 배터리 -->
+            <ProgressBar
+                android:id="@+id/home_sound_processor_battery_progressbar"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="120dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="18dp"
+                android:max="100"
+                android:progress="0"
+                android:progressDrawable="@drawable/custom_progressbar_battery_level_low"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="@id/home_sound_processor_device_image"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/home_sound_processor_device_image"
+                app:layout_constraintTop_toTopOf="@id/home_sound_processor_device_image"
+                tools:progressDrawable="@drawable/custom_progressbar_battery_level_low" />
+
+            <ImageView
+                android:layout_width="8dp"
+                android:layout_height="18dp"
+                android:contentDescription="@string/fragment_password_layout_message_secured_password"
+                android:src="@drawable/drawable_home_battery_tap"
+                app:layout_constraintBottom_toBottomOf="@id/home_sound_processor_battery_progressbar"
+                app:layout_constraintStart_toEndOf="@id/home_sound_processor_battery_progressbar"
+                app:layout_constraintTop_toTopOf="@id/home_sound_processor_battery_progressbar" />
+
+            <TextView
+                android:id="@+id/home_sound_processor_battery_value_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/color_home_battery_value_text_color"
+                android:textSize="@dimen/dimen_home_battery_value_text_size_sp"
+                app:layout_constraintBottom_toBottomOf="@id/home_sound_processor_battery_progressbar"
+                app:layout_constraintEnd_toEndOf="@id/home_sound_processor_battery_progressbar"
+                app:layout_constraintStart_toStartOf="@id/home_sound_processor_battery_progressbar"
+                app:layout_constraintTop_toTopOf="@id/home_sound_processor_battery_progressbar"
+                tools:text="0%" />
+
+            <!-- 각종 알림 및 텔레코일 -->
+            <TextView
+                android:id="@+id/home_stim_alarm_title_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_margin_top_between_views"
+                android:gravity="center"
+                android:text="@string/fragment_home_layout_title_stimulation"
+                android:textColor="@color/color_small_title_text_color"
+                android:textSize="@dimen/dimen_small_title_text_size_sp"
+                app:layout_constraintEnd_toEndOf="@id/home_stim_alarm_image_button"
+                app:layout_constraintStart_toStartOf="@id/home_stim_alarm_image_button"
+                app:layout_constraintTop_toBottomOf="@id/home_sound_processor_device_image" />
+
+            <TextView
+                android:id="@+id/home_led_alarm_title_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_margin_top_between_views"
+                android:gravity="center"
+                android:text="@string/fragment_home_layout_title_led"
+                android:textColor="@color/color_small_title_text_color"
+                android:textSize="@dimen/dimen_small_title_text_size_sp"
+                app:layout_constraintEnd_toEndOf="@id/home_led_alarm_image_button"
+                app:layout_constraintStart_toStartOf="@id/home_led_alarm_image_button"
+                app:layout_constraintTop_toBottomOf="@id/home_sound_processor_device_image" />
+
+            <TextView
+                android:id="@+id/home_telecoil_title_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_margin_top_between_views"
+                android:gravity="center"
+                android:text="@string/fragment_home_layout_title_telecoil"
+                android:textColor="@color/color_small_title_text_color"
+                android:textSize="@dimen/dimen_small_title_text_size_sp"
+                app:layout_constraintEnd_toEndOf="@id/home_telecoil_image_button"
+                app:layout_constraintStart_toStartOf="@id/home_telecoil_image_button"
+                app:layout_constraintTop_toBottomOf="@id/home_sound_processor_device_image" />
+
+            <TextView
+                android:id="@+id/home_low_power_title_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_margin_top_between_views"
+                android:gravity="center"
+                android:text="@string/fragment_home_layout_title_low_power"
+                android:textColor="@color/color_small_title_text_color"
+                android:textSize="@dimen/dimen_small_title_text_size_sp"
+                app:layout_constraintEnd_toEndOf="@id/home_low_power_image_button"
+                app:layout_constraintStart_toStartOf="@id/home_low_power_image_button"
+                app:layout_constraintTop_toBottomOf="@id/home_sound_processor_device_image" />
+
+            <ImageButton
+                android:id="@+id/home_stim_alarm_image_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="@dimen/dimen_margin_top_between_image_button_and_title"
+                android:layout_marginBottom="@dimen/dimen_margin_top_between_views"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/warning_message_image_content_description"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_home_stimulation"
+                android:tint="@color/color_home_disabled_button_tint"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/home_led_alarm_image_button"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/home_stim_alarm_title_textview"
+                tools:src="@drawable/ic_home_stimulation" />
+
+            <ImageButton
+                android:id="@+id/home_led_alarm_image_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="@dimen/dimen_margin_top_between_image_button_and_title"
+                android:layout_marginBottom="@dimen/dimen_margin_top_between_views"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/warning_message_image_content_description"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_home_led"
+                android:tint="@color/color_home_disabled_button_tint"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/home_telecoil_image_button"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toEndOf="@id/home_stim_alarm_image_button"
+                app:layout_constraintTop_toBottomOf="@id/home_led_alarm_title_textview"
+                tools:src="@drawable/ic_home_led" />
+
+            <ImageButton
+                android:id="@+id/home_telecoil_image_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="@dimen/dimen_margin_top_between_image_button_and_title"
+                android:layout_marginBottom="@dimen/dimen_margin_top_between_views"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/warning_message_image_content_description"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_home_telecoil"
+                android:tint="@color/color_home_disabled_button_tint"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/home_low_power_image_button"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toEndOf="@id/home_led_alarm_image_button"
+                app:layout_constraintTop_toBottomOf="@id/home_telecoil_title_textview"
+                tools:src="@drawable/ic_home_telecoil" />
+
+            <ImageButton
+                android:id="@+id/home_low_power_image_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="@dimen/dimen_margin_top_between_image_button_and_title"
+                android:layout_marginBottom="@dimen/dimen_margin_top_between_views"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/warning_message_image_content_description"
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/icon_low_power_disabled"
+                android:tint="@color/color_home_disabled_button_tint"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toEndOf="@id/home_telecoil_image_button"
+                app:layout_constraintTop_toBottomOf="@id/home_telecoil_title_textview"
+                tools:src="@drawable/icon_low_power_disabled" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_line_width_height_size"
+            android:contentDescription="@string/warning_message_image_content_description"
+            android:src="@color/color_line_color"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/home_stim_alarm_image_button" />
+
+        <!-- 프로그램 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/home_program_title_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_margin_top_between_views"
+                android:layout_marginBottom="@dimen/dimen_margin_bottom_between_program_title_and_value"
+                android:text="@string/fragment_home_layout_title_program"
+                android:textColor="@color/color_small_title_text_color"
+                android:textSize="@dimen/dimen_small_title_text_size_sp"
+                app:layout_constraintBottom_toTopOf="@id/home_program_value_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageButton
+                android:id="@+id/home_program_minus_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_margin="16dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/warning_message_image_content_description"
+                android:padding="14dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_home_program_previous"
+                android:tint="@color/black"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/home_program_value_text"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/home_program_value_text"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dimen_margin_top_between_views"
+                android:gravity="center"
+                android:textColor="@color/color_home_program_value_text_color"
+                android:textSize="@dimen/dimen_home_program_value_text_size_sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/home_program_plus_button"
+                app:layout_constraintStart_toEndOf="@id/home_program_minus_button"
+                tools:text="1" />
+
+            <ImageButton
+                android:id="@+id/home_program_plus_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_margin="16dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/warning_message_image_content_description"
+                android:padding="14dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_home_program_next"
+                android:tint="@color/black"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/home_program_value_text"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_line_width_height_size"
+            android:contentDescription="@string/warning_message_image_content_description"
+            android:src="@color/color_line_color" />
+
+        <!-- 감도와 볼륨 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:paddingTop="@dimen/dimen_margin_top_between_views"
+            android:paddingBottom="@dimen/dimen_margin_top_between_views">
+
+            <ImageView
+                android:id="@+id/home_guide_sensitivity_volume"
+                android:layout_width="1px"
+                android:layout_height="0dp"
+                android:contentDescription="@string/warning_message_image_content_description"
+                android:src="@android:color/transparent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/home_volume_progressbar"
+                app:layout_constraintStart_toEndOf="@id/home_sensitivity_progressbar"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- 감도 -->
+            <TextView
+                android:id="@+id/home_sensitivity_title_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fragment_home_layout_title_sensitivity"
+                android:textColor="@color/color_small_title_text_color"
+                android:textSize="@dimen/dimen_small_title_text_size_sp"
+                app:layout_constraintEnd_toEndOf="@id/home_sensitivity_progressbar"
+                app:layout_constraintStart_toStartOf="@id/home_sensitivity_progressbar"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ProgressBar
+                android:id="@+id/home_sensitivity_progressbar"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="@dimen/dimen_margin_top_between_progress_bar_and_title"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:max="4"
+                android:progress="2"
+                android:progressDrawable="@drawable/custom_progressbar_sensitivity"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/home_guide_sensitivity_volume"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/home_sensitivity_title_textview"
+                tools:progressDrawable="@drawable/custom_progressbar_sensitivity" />
+
+            <TextView
+                android:id="@+id/home_sensitivity_value_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/color_home_sensitivity_and_volume_value_text_color"
+                android:textSize="@dimen/dimen_home_sensitivity_and_volume_value_text_size_sp"
+                app:layout_constraintBottom_toBottomOf="@id/home_sensitivity_progressbar"
+                app:layout_constraintEnd_toEndOf="@id/home_sensitivity_progressbar"
+                app:layout_constraintStart_toStartOf="@id/home_sensitivity_progressbar"
+                app:layout_constraintTop_toTopOf="@id/home_sensitivity_progressbar"
+                tools:text="1" />
+
+            <ImageButton
+                android:id="@+id/home_sensitivity_plus_button"
+                android:layout_width="00dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/warning_message_image_content_description"
+                app:layout_constraintBottom_toTopOf="@id/home_sensitivity_minus_button"
+                app:layout_constraintEnd_toEndOf="@id/home_sensitivity_progressbar"
+                app:layout_constraintStart_toStartOf="@id/home_sensitivity_progressbar"
+                app:layout_constraintTop_toTopOf="@id/home_sensitivity_progressbar" />
+
+            <ImageButton
+                android:id="@+id/home_sensitivity_minus_button"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/warning_message_image_content_description"
+                app:layout_constraintBottom_toBottomOf="@id/home_sensitivity_progressbar"
+                app:layout_constraintEnd_toEndOf="@id/home_sensitivity_progressbar"
+                app:layout_constraintStart_toStartOf="@id/home_sensitivity_progressbar"
+                app:layout_constraintTop_toBottomOf="@id/home_sensitivity_plus_button" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/warning_message_image_content_description"
+                android:src="@drawable/ic_home_volume_plus"
+                app:layout_constraintEnd_toEndOf="@id/home_sensitivity_plus_button"
+                app:layout_constraintStart_toStartOf="@id/home_sensitivity_plus_button"
+                app:layout_constraintTop_toTopOf="@id/home_sensitivity_plus_button"
+                app:tint="@color/black" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:contentDescription="@string/warning_message_image_content_description"
+                android:src="@drawable/ic_home_volume_minus"
+                app:layout_constraintBottom_toBottomOf="@id/home_sensitivity_minus_button"
+                app:layout_constraintEnd_toEndOf="@id/home_sensitivity_minus_button"
+                app:layout_constraintStart_toStartOf="@id/home_sensitivity_minus_button"
+                app:tint="@color/black" />
+
+            <!-- 볼륨 -->
+            <TextView
+                android:id="@+id/home_volume_title_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/fragment_home_layout_title_volume"
+                android:textColor="@color/color_small_title_text_color"
+                android:textSize="@dimen/dimen_small_title_text_size_sp"
+                app:layout_constraintEnd_toEndOf="@id/home_volume_progressbar"
+                app:layout_constraintStart_toStartOf="@id/home_volume_progressbar"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ProgressBar
+                android:id="@+id/home_volume_progressbar"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="@dimen/dimen_margin_top_between_progress_bar_and_title"
+                android:layout_marginEnd="32dp"
+                android:layout_marginBottom="16dp"
+                android:max="10"
+                android:progress="1"
+                android:progressDrawable="@drawable/custom_progressbar_volume"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/home_guide_sensitivity_volume"
+                app:layout_constraintTop_toBottomOf="@id/home_volume_title_textview"
+                tools:progressDrawable="@drawable/custom_progressbar_volume" />
+
+            <TextView
+                android:id="@+id/home_volume_value_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/color_home_sensitivity_and_volume_value_text_color"
+                android:textSize="@dimen/dimen_home_sensitivity_and_volume_value_text_size_sp"
+                app:layout_constraintBottom_toBottomOf="@id/home_volume_progressbar"
+                app:layout_constraintEnd_toEndOf="@id/home_volume_progressbar"
+                app:layout_constraintStart_toStartOf="@id/home_volume_progressbar"
+                app:layout_constraintTop_toTopOf="@id/home_volume_progressbar"
+                tools:text="1" />
+
+            <ImageButton
+                android:id="@+id/home_volume_plus_button"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/warning_message_image_content_description"
+                app:layout_constraintBottom_toTopOf="@id/home_volume_minus_button"
+                app:layout_constraintEnd_toEndOf="@id/home_volume_progressbar"
+                app:layout_constraintStart_toStartOf="@id/home_volume_progressbar"
+                app:layout_constraintTop_toTopOf="@id/home_volume_progressbar"
+                app:layout_constraintVertical_weight="1" />
+
+            <ImageButton
+                android:id="@+id/home_volume_minus_button"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/warning_message_image_content_description"
+                app:layout_constraintBottom_toBottomOf="@id/home_volume_progressbar"
+                app:layout_constraintEnd_toEndOf="@id/home_volume_progressbar"
+                app:layout_constraintStart_toStartOf="@id/home_volume_progressbar"
+                app:layout_constraintTop_toBottomOf="@id/home_volume_plus_button"
+                app:layout_constraintVertical_weight="1" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/warning_message_image_content_description"
+                android:src="@drawable/ic_home_volume_plus"
+                app:layout_constraintEnd_toEndOf="@id/home_volume_plus_button"
+                app:layout_constraintStart_toStartOf="@id/home_volume_plus_button"
+                app:layout_constraintTop_toTopOf="@id/home_volume_plus_button"
+                app:tint="@color/black" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:contentDescription="@string/warning_message_image_content_description"
+                android:src="@drawable/ic_home_volume_minus"
+                app:layout_constraintBottom_toBottomOf="@id/home_volume_minus_button"
+                app:layout_constraintEnd_toEndOf="@id/home_volume_minus_button"
+                app:layout_constraintStart_toStartOf="@id/home_volume_minus_button"
+                app:tint="@color/black" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_line_width_height_size"
+            android:contentDescription="@string/warning_message_image_content_description"
+            android:src="@color/color_line_color" />
+    </LinearLayout>
+
+    <!-- 연결할 사운드프로세서를 찾는 레이아웃 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/home_not_yet_connected_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:elevation="8dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:clickable="true"
+            android:contentDescription="@string/warning_message_image_content_description"
+            android:focusable="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/drawable_home_searching"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ProgressBar
+            android:id="@+id/home_not_yet_progress"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginBottom="8dp"
+            android:indeterminateTint="#D81B60"
+            app:layout_constraintBottom_toTopOf="@id/home_not_yet_textview"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/home_not_yet_textview"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="32dp"
+            android:gravity="center"
+            android:text="@string/fragment_home_layout_message_searching_to_connect"
+            android:textColor="#D81B60"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/home_not_yet_progress" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dimen_line_width_height_size"
+            android:contentDescription="@string/warning_message_image_content_description"
+            android:src="@color/color_line_color"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dimen_line_width_height_size"
+            android:contentDescription="@string/warning_message_image_content_description"
+            android:src="@color/color_line_color"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
