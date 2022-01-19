@@ -1,5 +1,7 @@
 package todoc.cochlear.remoteapp.params;
 
+import androidx.appcompat.app.AlertDialog;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -113,6 +115,20 @@ public class AppParam
     // Used for sending a new status for Sound Processor using BLE packet.
     public DeviceParam sendingStatusParams;
 
+    // 잠금화면을 위한 플래스
+    public boolean appLock;
+    public boolean appLockPasswordRegister;
+    public boolean appLockNumVerify;
+    public String strFirstLockNum;
+    public String strSecondLockNum;
+    public int appLockNumIdx = 0;
+    public String appLockNum1 = " ";
+    public String appLockNum2 = " ";
+    public String appLockNum3 = " ";
+    public String appLockNum4 = " ";
+
+    public android.app.AlertDialog lastDialog;
+
     public AppParam()
     {
         callCounter = 0;
@@ -144,6 +160,17 @@ public class AppParam
         sendingStatusParams = new DeviceParam();
 
         invalidValueDialog = null;
+
+        appLock = false;
+        appLockPasswordRegister = false;
+        appLockNumVerify = false;
+        strFirstLockNum = "";
+        strSecondLockNum = "";
+        appLockNumIdx = 0;
+        appLockNum1 = " ";
+        appLockNum2 = " ";
+        appLockNum3 = " ";
+        appLockNum4 = " ";
     }
 
     @Override

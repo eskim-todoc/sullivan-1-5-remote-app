@@ -183,7 +183,8 @@ public class SearchFragment extends Fragment
 
         builder.setNegativeButton(getString(R.string.dialog_message_no), null);
 
-        builder.create().show();
+        AppParam.getInstance().lastDialog = builder.create();
+        AppParam.getInstance().lastDialog.show();
     }
 
     /**
@@ -235,7 +236,8 @@ public class SearchFragment extends Fragment
 
         builder.setNegativeButton(getString(R.string.dialog_message_no), null);
 
-        builder.create().show();
+        AppParam.getInstance().lastDialog = builder.create();
+        AppParam.getInstance().lastDialog.show();
     }
 
     /**
@@ -246,7 +248,8 @@ public class SearchFragment extends Fragment
         android.app.AlertDialog.Builder builder = new AlertDialog.Builder(mMainActivity, R.style.MyAlertDialogTheme);
         builder.setMessage(getString(R.string.fragment_search_dialog_message_communication_error));
         builder.setPositiveButton(getString(R.string.dialog_message_yes), null);
-        builder.create().show();
+        AppParam.getInstance().lastDialog = builder.create();
+        AppParam.getInstance().lastDialog.show();
     }
 
     /**

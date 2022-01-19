@@ -385,7 +385,8 @@ public class DeviceListFragment extends Fragment
 
                 builder.setNegativeButton(getString(R.string.dialog_message_no), null);
 
-                builder.create().show();
+                AppParam.getInstance().lastDialog = builder.create();
+                AppParam.getInstance().lastDialog.show();
             }
         });
     }

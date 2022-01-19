@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 
 import todoc.cochlear.remoteapp.fragment.HomeFragment;
 
@@ -18,10 +20,41 @@ public class AppPreferences
     private final static String NAME = "sharedPreferences";
     private final static String AUTO_CONNECTION = "autoConnection";
     private final static String MANUAL = "manual";
+    private final static String PASSWORD = "password";
 
     public static AppPreferences getInstance()
     {
         return mInstance;
+    }
+
+    public boolean isTherePassword(Context context)
+    {
+        String password;
+        boolean ret;
+
+        password = context.getSharedPreferences(NAME, Context.MODE_PRIVATE).getString(PASSWORD, "");
+        ret = password.equals("");
+
+        Log.d(TAG, "Is there password? = " + ret);
+        return !ret;
+    }
+
+    public boolean isPasswordCorrect(Context context, String password)
+    {
+        String savedPassword;
+        boolean ret;
+
+        savedPassword = context.getSharedPreferences(NAME, Context.MODE_PRIVATE).getString(PASSWORD, "");
+        ret = savedPassword.equals(password);
+
+        Log.d(TAG, "Is password correct? = " + ret);
+        return ret;
+    }
+
+    public void setNewPassword(Context context, String newPassword)
+    {
+        Log.d(TAG, "Set new password = " + newPassword);
+        (((context.getSharedPreferences(NAME, Context.MODE_PRIVATE)).edit()).putString(PASSWORD, newPassword)).apply();
     }
 
     public boolean isAutoConnectionEnabled(Context context)

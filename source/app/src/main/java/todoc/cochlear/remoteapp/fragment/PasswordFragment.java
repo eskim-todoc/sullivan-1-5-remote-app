@@ -212,7 +212,8 @@ public class PasswordFragment extends Fragment
 
                 builder.setNegativeButton(getString(R.string.dialog_message_no), null);
 
-                builder.create().show();
+                AppParam.getInstance().lastDialog = builder.create();
+                AppParam.getInstance().lastDialog.show();
             }
         });
     }
@@ -234,7 +235,8 @@ public class PasswordFragment extends Fragment
                 mMainActivity.sendBroadcast(new Intent(ActionMessage.NEW_FRAGMENT_SEARCH_WITH_DISCONNECT_BLE));
             }
         });
-        builder.create().show();
+        AppParam.getInstance().lastDialog = builder.create();
+        AppParam.getInstance().lastDialog.show();
     }
 
     /**
@@ -286,7 +288,8 @@ public class PasswordFragment extends Fragment
                     }
                 });
 
-                builder.create().show();
+                AppParam.getInstance().lastDialog = builder.create();
+                AppParam.getInstance().lastDialog.show();
             }
         });
     }
@@ -344,7 +347,8 @@ public class PasswordFragment extends Fragment
                     }
                 });
 
-                builder.create().show();
+                AppParam.getInstance().lastDialog = builder.create();
+                AppParam.getInstance().lastDialog.show();
             }
         });
     }

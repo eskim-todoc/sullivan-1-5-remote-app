@@ -348,6 +348,380 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 
+    <!-- 앱 잠금 화면 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main_applock_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#ffffffff"
+        android:orientation="vertical"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/main_applock_reset_btn"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_margin="8dp"
+            android:background="@android:color/transparent"
+            android:padding="16dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_round_lock_reset_24"
+            android:onClick="onClickAppLockReset"
+            android:tint="@drawable/app_lock_number_text_selector"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/main_applock_upper_layout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toTopOf="@id/main_applock_lower_layout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_weight="60">
+
+            <TextView
+                android:id="@+id/main_applock_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/app_font"
+                android:text="잠금 해제"
+                android:textColor="@color/black"
+                android:textSize="24dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/main_applock_desc"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="packed" />
+
+            <TextView
+                android:id="@+id/main_applock_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="24dp"
+                android:fontFamily="@font/app_font"
+                android:gravity="center"
+                android:lineSpacingMultiplier="1.4"
+                android:text="앱 비밀번호를 입력해주세요."
+                android:textColor="#555555"
+                android:textSize="18dp"
+                app:layout_constraintBottom_toTopOf="@id/main_applock_password_1_val"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/main_applock_title" />
+
+            <TextView
+                android:id="@+id/main_applock_password_1_val"
+                android:layout_width="56dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/app_font"
+                android:gravity="center"
+                android:text=" "
+                android:textColor="#004D40"
+                android:textSize="28dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/main_applock_password_2_val"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/main_applock_desc" />
+
+            <TextView
+                android:id="@+id/main_applock_password_2_val"
+                android:layout_width="56dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/app_font"
+                android:gravity="center"
+                android:text=" "
+                android:textColor="#004D40"
+                android:textSize="28dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_password_1_val"
+                app:layout_constraintEnd_toStartOf="@id/main_applock_password_3_val"
+                app:layout_constraintStart_toEndOf="@id/main_applock_password_1_val"
+                app:layout_constraintTop_toTopOf="@id/main_applock_password_1_val" />
+
+            <TextView
+                android:id="@+id/main_applock_password_3_val"
+                android:layout_width="56dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/app_font"
+                android:gravity="center"
+                android:text=" "
+                android:textColor="#004D40"
+                android:textSize="28dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_password_1_val"
+                app:layout_constraintEnd_toStartOf="@id/main_applock_password_4_val"
+                app:layout_constraintStart_toEndOf="@id/main_applock_password_2_val"
+                app:layout_constraintTop_toTopOf="@id/main_applock_password_1_val" />
+
+            <TextView
+                android:id="@+id/main_applock_password_4_val"
+                android:layout_width="56dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/app_font"
+                android:gravity="center"
+                android:text=" "
+                android:textColor="#004D40"
+                android:textSize="28dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_password_1_val"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/main_applock_password_3_val"
+                app:layout_constraintTop_toTopOf="@id/main_applock_password_1_val" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                android:src="#004D40"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_password_1_val"
+                app:layout_constraintStart_toStartOf="@id/main_applock_password_1_val"
+                app:layout_constraintTop_toBottomOf="@id/main_applock_password_1_val" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                android:src="#004D40"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_password_2_val"
+                app:layout_constraintStart_toStartOf="@id/main_applock_password_2_val"
+                app:layout_constraintTop_toBottomOf="@id/main_applock_password_2_val" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                android:src="#004D40"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_password_3_val"
+                app:layout_constraintStart_toStartOf="@id/main_applock_password_3_val"
+                app:layout_constraintTop_toBottomOf="@id/main_applock_password_3_val" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                android:src="#004D40"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_password_4_val"
+                app:layout_constraintStart_toStartOf="@id/main_applock_password_4_val"
+                app:layout_constraintTop_toBottomOf="@id/main_applock_password_4_val" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/main_applock_lower_layout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/main_applock_upper_layout"
+            app:layout_constraintVertical_weight="40">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_1_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="1"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_num_2_btn"
+                app:layout_constraintEnd_toStartOf="@id/main_applock_num_2_btn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/main_applock_num_2_btn" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_2_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="2"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/main_applock_num_5_btn"
+                app:layout_constraintEnd_toStartOf="@id/main_applock_num_3_btn"
+                app:layout_constraintStart_toEndOf="@id/main_applock_num_1_btn"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_3_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="3"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_num_2_btn"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/main_applock_num_2_btn"
+                app:layout_constraintTop_toTopOf="@id/main_applock_num_2_btn" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_4_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="4"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_num_5_btn"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_num_1_btn"
+                app:layout_constraintStart_toStartOf="@id/main_applock_num_1_btn"
+                app:layout_constraintTop_toTopOf="@id/main_applock_num_5_btn" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_5_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="5"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/main_applock_num_8_btn"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_num_2_btn"
+                app:layout_constraintStart_toStartOf="@id/main_applock_num_2_btn"
+                app:layout_constraintTop_toBottomOf="@id/main_applock_num_2_btn" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_6_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="6"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_num_5_btn"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_num_3_btn"
+                app:layout_constraintStart_toStartOf="@id/main_applock_num_3_btn"
+                app:layout_constraintTop_toTopOf="@id/main_applock_num_5_btn" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_7_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="7"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_num_8_btn"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_num_4_btn"
+                app:layout_constraintStart_toStartOf="@id/main_applock_num_4_btn"
+                app:layout_constraintTop_toTopOf="@id/main_applock_num_8_btn" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_8_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="8"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/main_applock_num_0_btn"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_num_5_btn"
+                app:layout_constraintStart_toStartOf="@id/main_applock_num_5_btn"
+                app:layout_constraintTop_toBottomOf="@id/main_applock_num_5_btn" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_9_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="9"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_num_8_btn"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_num_6_btn"
+                app:layout_constraintStart_toStartOf="@id/main_applock_num_6_btn"
+                app:layout_constraintTop_toTopOf="@id/main_applock_num_8_btn" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_0_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="0"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_num_8_btn"
+                app:layout_constraintStart_toStartOf="@id/main_applock_num_8_btn"
+                app:layout_constraintTop_toBottomOf="@id/main_applock_num_8_btn" />
+
+            <ImageButton
+                android:id="@+id/main_applock_num_del_btn"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:onClick="onClickPassNumDelete"
+                android:padding="16dp"
+                android:scaleType="center"
+                android:src="@drawable/ic_round_backspace_24"
+                android:tint="@drawable/app_lock_number_text_selector"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_num_0_btn"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_num_9_btn"
+                app:layout_constraintStart_toStartOf="@id/main_applock_num_9_btn"
+                app:layout_constraintTop_toTopOf="@id/main_applock_num_0_btn" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main_please_wait_layout"
         android:layout_width="0dp"

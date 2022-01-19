@@ -3,6 +3,9 @@ package todoc.cochlear.remoteapp.activity;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.room.Room;
@@ -46,12 +49,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import todoc.cochlear.remoteapp.database.AppDatabase;
@@ -153,6 +158,9 @@ public class MainActivity extends AppCompatActivity
             appParam.isDisconnectedByUser = true;
             mBluetoothGatt.disconnect();
         }
+
+        AppParam.getInstance().appLock = true;
+        initAppLockNums();
     }
 
     /**
@@ -334,6 +342,8 @@ public class MainActivity extends AppCompatActivity
         // Manual... shared preferences
         enableScreenUserGuide(AppPreferences.getInstance().isManualEnabled(getApplicationContext()));
 
+        AppParam.getInstance().appLock = true;
+        initAppLockNums();
     } // initMainActivity
 
     /**
@@ -379,6 +389,430 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
+     * 앱 완전 초기화 함수
+     */
+    public void initAllForApp()
+    {
+        // 1. 등록된 사운드처리기 정보 가지고 오기.
+        List<Device> devices = AppParam.getInstance().database.deviceDao().findAll();
+
+        // 2. 본딩된 블루투스 기기 가지고 오기.
+        Set<BluetoothDevice> bondedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
+
+        // 3. 등록된 사운드처리기를 가지고 본딩된 블루투스 기기 목록에서 일치하는 기기를 찾아내고,
+        // 해당 기기의 본딩을 해제한다.
+        for (int i = 0; i < devices.size(); i++)
+        {
+            if (bondedDevices.size() > 0)
+            {
+                for (BluetoothDevice bluetoothDevice : bondedDevices)
+                {
+                    if (bluetoothDevice.getAddress().equals(devices.get(i).getDeviceMacAddress()))
+                    {
+                        try
+                        {
+                            Log.d(TAG, "본딩 장치 = " + bluetoothDevice.getAddress() + "를 본딩 해제 합니다.");
+                            Method m = bluetoothDevice.getClass().getMethod("removeBond", (Class[]) null);
+                            m.invoke(bluetoothDevice, (Object[]) null);
+                        }
+                        catch (Exception e)
+                        {
+                            Log.d(TAG, "본딩 장치 = " + bluetoothDevice.getAddress() + " 본딩 해제 실패.");
+                            Log.e(TAG, e.getMessage());
+                        }
+
+                        break;
+                    }
+                }
+            }
+        } // 본딩 해제 끝
+
+        // 4. 앱 데이터 베이스의 모든 사운드처리기를 삭제
+        for (int i = 0; i < devices.size(); i++)
+        {
+            Log.d(TAG, "사운드처리기 = " + devices.get(i).getDeviceMacAddress() + "를 삭제합니다.");
+            AppParam.getInstance().database.deviceDao().delete(devices.get(i));
+        }
+
+        // 5. 데이터베이스 다시 로드하여 현재 정보 업데이트
+        AppParam.getInstance().registeredDevices = AppParam.getInstance().database.deviceDao().findAll();
+        Log.d(TAG, "데이터베이스 다시 로드");
+
+        // 6. 앱 비밀번호 초기화
+        AppPreferences.getInstance().setNewPassword(getApplicationContext(), "");
+        Log.d(TAG, "앱 비밀번호 초기화");
+
+        // 7. 매뉴얼 값 초기화
+        AppPreferences.getInstance().setManualToEnabled(getApplicationContext(), true);
+        Log.d(TAG, "앱 매뉴얼 값 초기화");
+
+        // 8. 자동 연결 값 초기화
+        AppPreferences.getInstance().setAutoConnectionToEnabled(getApplicationContext(), true);
+        Log.d(TAG, "앱 자동연결 값 초기화");
+
+        // 9. 화면을 home 화면으로 변경
+        getSupportFragmentManager().beginTransaction().replace(R.id.main_frame, new HomeFragment()).commitAllowingStateLoss();
+        Log.d(TAG, "Home 화면으로 설정");
+
+        // 10. NO 디바이스 화면 활성화
+        enableScreenNoDeviceRegistered(AppParam.getInstance().registeredDevices.size() == 0);
+        Log.d(TAG, "등록된 장치 없을 때 화면 활성화");
+
+        // 11. 매뉴얼 화면 활성화 (상태 값에 따름)
+        enableScreenUserGuide(AppPreferences.getInstance().isManualEnabled(getApplicationContext()));
+        Log.d(TAG, "매뉴얼 화면 활성화");
+
+        // 12. BLE 연결 중인 장치가 있다면 연결 해제
+        if (AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED
+                && mBluetoothDevice != null && mBluetoothGatt != null)
+        {
+            // 단, 현재 연결 중인 장치가 있다면 본딩까지 됐는지 확인후 본딩 제거
+            if (bondedDevices.size() > 0)
+            {
+                for (BluetoothDevice bluetoothDevice : bondedDevices)
+                {
+                    if (bluetoothDevice.getAddress().equals(mBluetoothDevice.getAddress()))
+                    {
+                        try
+                        {
+                            Log.d(TAG, "본딩 장치 = " + bluetoothDevice.getAddress() + "를 본딩 해제 합니다.");
+                            Method m = bluetoothDevice.getClass().getMethod("removeBond", (Class[]) null);
+                            m.invoke(bluetoothDevice, (Object[]) null);
+                        }
+                        catch (Exception e)
+                        {
+                            Log.d(TAG, "본딩 장치 = " + bluetoothDevice.getAddress() + " 본딩 해제 실패.");
+                            Log.e(TAG, e.getMessage());
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            AppParam.getInstance().isDisconnectedByUser = true;
+            mBluetoothGatt.disconnect();
+            Log.d(TAG, "연결된 장치 있으므로 해제");
+        }
+
+        // 13. 앱 비밀번호 플래그 설정
+        AppParam.getInstance().appLockPasswordRegister = true;
+        AppParam.getInstance().appLockNumVerify = false;
+        ConstraintLayout passLockLayout = findViewById(R.id.main_applock_layout); // 잠금 화면 켜기
+        passLockLayout.setVisibility(View.VISIBLE);
+        ((TextView) findViewById(R.id.main_applock_desc)).setText("등록할 앱 비밀번호를 입력해주세요."); // 텍스트뷰 설정
+        Log.d(TAG, "앱 비밀번호 플래그 설정 완료");
+
+        // 14. 앱 비밀번호 화면 초기화
+        initAppLockNums();
+
+        // 15. 확인 다이얼로그 생성
+        android.app.AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.MyAlertDialogTheme);
+
+        builder.setMessage("앱에 등록된 모든 사운드처리기의 정보를 삭제하고 앱 비밀번호를 초기화 하였습니다.");
+        builder.setPositiveButton("확인", new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i)
+            {
+                scanLe(false);
+            }
+        });
+        AppParam.getInstance().lastDialog = builder.create();
+        AppParam.getInstance().lastDialog.show();
+        Log.d(TAG, "앱 비밀번호 초기화 확인 다이얼로그 생성");
+    }
+
+    /**
+     * Callback - 잠금 해제 화면에서 앱 비밀번호 초기화 버튼의 콜백 함수
+     */
+    public void onClickAppLockReset(View view)
+    {
+        Log.d(TAG, "앱 비밀번호 초기화 버튼 클릭!");
+        vibrator(5);
+
+        runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                android.app.AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.MyAlertDialogTheme);
+
+                builder.setMessage("앱에 등록된 모든 사운드처리기의 정보를 삭제하고 앱 비밀번호를 초기화 할 수 있습니다. 비밀번호를 초기화 하시겠습니까?");
+                builder.setPositiveButton("네", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
+                        initAllForApp();
+                    }
+                });
+                builder.setNegativeButton("아니오", null);
+                AppParam.getInstance().lastDialog = builder.create();
+                AppParam.getInstance().lastDialog.show();
+                Log.d(TAG, "앱 비밀번호 초기화 다이얼로그 생성");
+            }
+        });
+    }
+
+    /**
+     * Callback - 잠금 해제 화면의 기능을 테스트 하기 위한 클릭 콜백 함수
+     */
+    public void onClickPassNumDelete(View view)
+    {
+        vibrator(5);
+
+        switch (AppParam.getInstance().appLockNumIdx)
+        {
+            case 0:
+                break;
+            case 1:
+                AppParam.getInstance().appLockNum1 = " ";
+                ((TextView) findViewById(R.id.main_applock_password_1_val)).setText(" ");
+                AppParam.getInstance().appLockNumIdx = 0;
+                break;
+            case 2:
+                AppParam.getInstance().appLockNum2 = " ";
+                ((TextView) findViewById(R.id.main_applock_password_2_val)).setText(" ");
+                AppParam.getInstance().appLockNumIdx = 1;
+                break;
+            case 3:
+                AppParam.getInstance().appLockNum3 = " ";
+                ((TextView) findViewById(R.id.main_applock_password_3_val)).setText(" ");
+                AppParam.getInstance().appLockNumIdx = 2;
+                break;
+            case 4:
+                AppParam.getInstance().appLockNum4 = " ";
+                ((TextView) findViewById(R.id.main_applock_password_4_val)).setText(" ");
+                AppParam.getInstance().appLockNumIdx = 3;
+                break;
+        }
+
+        /*
+        LinearLayout passLockLayout = findViewById(R.id.main_applock_layout);
+
+        if (passLockLayout.getVisibility() == View.VISIBLE)
+        {
+            passLockLayout.setVisibility(View.GONE);
+        }
+        */
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+
+        initAppLockNums();
+        AppParam.getInstance().appLock = true;
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        if (AppParam.getInstance().lastDialog != null)
+        {
+            if (AppParam.getInstance().lastDialog.isShowing())
+            {
+                AppParam.getInstance().lastDialog.dismiss();
+            }
+        }
+
+        // 1. 앱에 등록된 패스워드가 있는지 검사
+        if (AppPreferences.getInstance().isTherePassword(getApplicationContext()))
+        {
+            Log.d(TAG, "등록된 앱 비밀번호가 있습니다.");
+            // 2. 등록된 패스워드가 있다면 패스워드 입력 화면을 출력
+            if (AppParam.getInstance().appLock)
+            {
+                ConstraintLayout passLockLayout = findViewById(R.id.main_applock_layout);
+                passLockLayout.setVisibility(View.VISIBLE);
+
+                ((TextView) findViewById(R.id.main_applock_desc)).setText("앱 비밀번호를 입력해주세요.");
+                initAppLockNums();
+            }
+        }
+        else
+        {
+            Log.d(TAG, "등록된 앱 비밀번호가 없습니다.");
+            // 3. 등록된 패스워드가 없다면 패스워드 등록 화면을 출력
+            AppParam.getInstance().appLockPasswordRegister = true;
+            AppParam.getInstance().appLockNumVerify = false;
+            // 잠금 화면 켜기
+            ConstraintLayout passLockLayout = findViewById(R.id.main_applock_layout);
+            passLockLayout.setVisibility(View.VISIBLE);
+            // 텍스트뷰 설정
+            ((TextView) findViewById(R.id.main_applock_desc)).setText("등록할 앱 비밀번호를 입력해주세요.");
+            // 번호 초기화
+            initAppLockNums();
+        }
+
+    }
+
+    public void initAppLockNums()
+    {
+        Log.d(TAG, "앱 잠금 화면을 초기화 합니다.");
+
+        AppParam.getInstance().appLockNumIdx = 0;
+
+        AppParam.getInstance().appLockNum1 = " ";
+        AppParam.getInstance().appLockNum2 = " ";
+        AppParam.getInstance().appLockNum3 = " ";
+        AppParam.getInstance().appLockNum4 = " ";
+
+        TextView appLockNum1Tv = findViewById(R.id.main_applock_password_1_val);
+        TextView appLockNum2Tv = findViewById(R.id.main_applock_password_2_val);
+        TextView appLockNum3Tv = findViewById(R.id.main_applock_password_3_val);
+        TextView appLockNum4Tv = findViewById(R.id.main_applock_password_4_val);
+
+        appLockNum1Tv.setText(AppParam.getInstance().appLockNum1);
+        appLockNum2Tv.setText(AppParam.getInstance().appLockNum2);
+        appLockNum3Tv.setText(AppParam.getInstance().appLockNum3);
+        appLockNum4Tv.setText(AppParam.getInstance().appLockNum4);
+    }
+
+    public void inputUnlockNum(int num)
+    {
+        String strNum = "" + num;
+
+        Log.d(TAG, "번호 입력 = " + strNum);
+
+        switch (AppParam.getInstance().appLockNumIdx)
+        {
+            case 0:
+                AppParam.getInstance().appLockNum1 = strNum;
+                ((TextView) findViewById(R.id.main_applock_password_1_val)).setText("*");
+                AppParam.getInstance().appLockNumIdx = 1;
+                break;
+            case 1:
+                AppParam.getInstance().appLockNum2 = strNum;
+                ((TextView) findViewById(R.id.main_applock_password_2_val)).setText("*");
+                AppParam.getInstance().appLockNumIdx = 2;
+                break;
+            case 2:
+                AppParam.getInstance().appLockNum3 = strNum;
+                ((TextView) findViewById(R.id.main_applock_password_3_val)).setText("*");
+                AppParam.getInstance().appLockNumIdx = 3;
+                break;
+            case 3:
+                AppParam.getInstance().appLockNum4 = strNum;
+                ((TextView) findViewById(R.id.main_applock_password_4_val)).setText("*");
+                AppParam.getInstance().appLockNumIdx = 4;
+                break;
+            default:
+                break;
+        }
+
+        if (AppParam.getInstance().appLockNumIdx == 4)
+        {
+            // 앱 비밀번호 등록 과정
+            if (AppParam.getInstance().appLockPasswordRegister)
+            {
+                // 확인을 위한 재 입력 과정
+                if (AppParam.getInstance().appLockNumVerify)
+                {
+                    AppParam.getInstance().strSecondLockNum = AppParam.getInstance().appLockNum1 + AppParam.getInstance().appLockNum2 +
+                            AppParam.getInstance().appLockNum3 + AppParam.getInstance().appLockNum4;
+
+                    // 두 비밀번호 비교
+                    if (AppParam.getInstance().strFirstLockNum.equals(AppParam.getInstance().strSecondLockNum))
+                    {
+                        Log.d(TAG, "등록을 위한 앱 비밀번호의 확인용 비밀번호가 일치합니다.");
+                        // 비밀번호가 같을 때
+                        AppPreferences.getInstance().setNewPassword(getApplicationContext(), AppParam.getInstance().strFirstLockNum);
+                        AppParam.getInstance().appLockNumVerify = false;
+                        AppParam.getInstance().appLockPasswordRegister = false;
+
+                        initAppLockNums();
+
+                        // 잠금 화면 해제
+                        ConstraintLayout passLockLayout = findViewById(R.id.main_applock_layout);
+                        passLockLayout.setVisibility(View.GONE);
+                    }
+                    else
+                    {
+                        // 비밓번호가 다를 때
+                        AppParam.getInstance().appLockNumVerify = false;
+                        ((TextView) findViewById(R.id.main_applock_desc)).setText("비밀번호가 다릅니다.\n등록할 앱 비밀번호를 다시 입력해주세요.");
+                        initAppLockNums();
+                    }
+                }
+                else // 비밀번호 첫 입력 과정
+                {
+                    Log.d(TAG, "등록을 위한 앱 비밀번호를 입력했습니다.");
+                    AppParam.getInstance().strFirstLockNum = AppParam.getInstance().appLockNum1 + AppParam.getInstance().appLockNum2 +
+                            AppParam.getInstance().appLockNum3 + AppParam.getInstance().appLockNum4;
+                    AppParam.getInstance().appLockNumVerify = true;
+                    ((TextView) findViewById(R.id.main_applock_desc)).setText("확인을 위해 앱 비밀번호를 다시 입력해주세요.");
+                    initAppLockNums();
+                }
+            }
+            else // 일반적인 앱 비밀번호 확인 과정
+            {
+                AppParam.getInstance().strFirstLockNum = AppParam.getInstance().appLockNum1 + AppParam.getInstance().appLockNum2 +
+                        AppParam.getInstance().appLockNum3 + AppParam.getInstance().appLockNum4;
+
+                if (AppPreferences.getInstance().isPasswordCorrect(getApplicationContext(), AppParam.getInstance().strFirstLockNum))
+                {
+                    Log.d(TAG, "앱 비밀번호가 일치합니다.");
+                    initAppLockNums();
+
+                    // 잠금 화면 해제
+                    ConstraintLayout passLockLayout = findViewById(R.id.main_applock_layout);
+                    passLockLayout.setVisibility(View.GONE);
+                }
+                else
+                {
+                    Log.d(TAG, "앱 비밀번호가 일치하지 않습니다.");
+                    ((TextView) findViewById(R.id.main_applock_desc)).setText("앱 비밀번호가 다릅니다.\n앱 비밀번호를 다시 입력해주세요.");
+                    initAppLockNums();
+                }
+            }
+        }
+    }
+
+    public void onClickPassNumClicked(View view)
+    {
+        vibrator(5);
+
+        switch (view.getId())
+        {
+            case R.id.main_applock_num_1_btn:
+                inputUnlockNum(1);
+                break;
+            case R.id.main_applock_num_2_btn:
+                inputUnlockNum(2);
+                break;
+            case R.id.main_applock_num_3_btn:
+                inputUnlockNum(3);
+                break;
+            case R.id.main_applock_num_4_btn:
+                inputUnlockNum(4);
+                break;
+            case R.id.main_applock_num_5_btn:
+                inputUnlockNum(5);
+                break;
+            case R.id.main_applock_num_6_btn:
+                inputUnlockNum(6);
+                break;
+            case R.id.main_applock_num_7_btn:
+                inputUnlockNum(7);
+                break;
+            case R.id.main_applock_num_8_btn:
+                inputUnlockNum(8);
+                break;
+            case R.id.main_applock_num_9_btn:
+                inputUnlockNum(9);
+                break;
+            case R.id.main_applock_num_0_btn:
+                inputUnlockNum(0);
+                break;
+        }
+    }
+
+    /**
      * Enable or disable showing no device screen on MainActivity
      */
     public void enableScreenNoDeviceRegistered(boolean enable)
@@ -394,6 +828,11 @@ public class MainActivity extends AppCompatActivity
         {
             findViewById(R.id.main_no_device_layout).setVisibility(View.GONE);
         }
+    }
+
+    public boolean isNoDeviceRegisteredScreenEnabled()
+    {
+        return findViewById(R.id.main_no_device_layout).getVisibility() == View.VISIBLE;
     }
 
 
@@ -810,7 +1249,8 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 builder.setMessage(message);
-                builder.create().show();
+                AppParam.getInstance().lastDialog = builder.create();
+                AppParam.getInstance().lastDialog.show();
             }
             break;
 
@@ -1410,6 +1850,12 @@ public class MainActivity extends AppCompatActivity
                             }
                             break;
                         } // switch
+
+                        // "NO 장치 등록 화면"이 활성화 중이면 스캔을 안한다.
+                        if (isNoDeviceRegisteredScreenEnabled())
+                        {
+                            scanLe(false);
+                        }
                     }
                     // CONNECTED
                     else if (newState == BluetoothProfile.STATE_CONNECTED)
@@ -2466,7 +2912,8 @@ public class MainActivity extends AppCompatActivity
 
         builder.setPositiveButton(getString(R.string.dialog_message_ok), null);
 
-        builder.create().show();
+        AppParam.getInstance().lastDialog = builder.create();
+        AppParam.getInstance().lastDialog.show();
     }
 
     /**
@@ -2497,6 +2944,7 @@ public class MainActivity extends AppCompatActivity
         });
 
         AppParam.getInstance().invalidValueDialog = builder.create();
+        AppParam.getInstance().lastDialog = AppParam.getInstance().invalidValueDialog;
         AppParam.getInstance().invalidValueDialog.show();
     }
 
@@ -2536,6 +2984,7 @@ public class MainActivity extends AppCompatActivity
             } // onClick
         }); // OnClickListener() for dialog positive button
 
-        builder.create().show();
+        AppParam.getInstance().lastDialog = builder.create();
+        AppParam.getInstance().lastDialog.show();
     }
 }
