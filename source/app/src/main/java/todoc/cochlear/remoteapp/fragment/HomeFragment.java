@@ -234,6 +234,8 @@ public class HomeFragment extends Fragment
         @Override
         public void onClick(View view)
         {
+            mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
+
             if (AppParam.getInstance().isBleBusy)
             {
                 Log.d(TAG, "Fragment Home : onClick is ignored because BLE is busy.");
@@ -625,12 +627,18 @@ public class HomeFragment extends Fragment
             @Override
             public void onClick(DialogInterface dialogInterface, int i)
             {
+                mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
                 // Send broadcast for finishing activity.
                 requireActivity().sendBroadcast(new Intent(ActionMessage.ACTIVITY_FINISH));
             }
         });
 
-        builder.setNegativeButton(getString(R.string.dialog_message_no), null);
+        builder.setNegativeButton(getString(R.string.dialog_message_no), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
+            }
+        });
 
         AppParam.getInstance().lastDialog = builder.create();
         AppParam.getInstance().lastDialog.show();

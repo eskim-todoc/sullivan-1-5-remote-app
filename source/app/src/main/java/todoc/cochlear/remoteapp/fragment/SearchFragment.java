@@ -153,6 +153,7 @@ public class SearchFragment extends Fragment
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
         {
+            mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
             SearchItem item = (SearchItem) adapterView.getAdapter().getItem(i);
 
             makeDialogTryConnect(item);
@@ -176,12 +177,18 @@ public class SearchFragment extends Fragment
             @Override
             public void onClick(DialogInterface dialogInterface, int i)
             {
+                mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
                 // Stop scan and show Home screen.
-                Objects.requireNonNull(getActivity()).sendBroadcast(new Intent(ActionMessage.NEW_FRAGMENT_HOME_WITH_STOP_BLE_SCAN));
+                requireActivity().sendBroadcast(new Intent(ActionMessage.NEW_FRAGMENT_HOME_WITH_STOP_BLE_SCAN));
             }
         });
 
-        builder.setNegativeButton(getString(R.string.dialog_message_no), null);
+        builder.setNegativeButton(getString(R.string.dialog_message_no), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
+            }
+        });
 
         AppParam.getInstance().lastDialog = builder.create();
         AppParam.getInstance().lastDialog.show();
@@ -212,8 +219,9 @@ public class SearchFragment extends Fragment
             @Override
             public void onClick(DialogInterface dialogInterface, int i)
             {
+                mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
                 // Stop scan
-                Objects.requireNonNull(getActivity()).sendBroadcast(new Intent(ActionMessage.BLE_SCAN_STOP));
+                requireActivity().sendBroadcast(new Intent(ActionMessage.BLE_SCAN_STOP));
 
                 // Request connection to Sound Processor through Activity.
                 if (AppParam.getInstance().bleConnectionState == AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
@@ -234,7 +242,12 @@ public class SearchFragment extends Fragment
             }
         });
 
-        builder.setNegativeButton(getString(R.string.dialog_message_no), null);
+        builder.setNegativeButton(getString(R.string.dialog_message_no), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
+            }
+        });
 
         AppParam.getInstance().lastDialog = builder.create();
         AppParam.getInstance().lastDialog.show();
@@ -247,7 +260,12 @@ public class SearchFragment extends Fragment
     {
         android.app.AlertDialog.Builder builder = new AlertDialog.Builder(mMainActivity, R.style.MyAlertDialogTheme);
         builder.setMessage(getString(R.string.fragment_search_dialog_message_communication_error));
-        builder.setPositiveButton(getString(R.string.dialog_message_yes), null);
+        builder.setPositiveButton(getString(R.string.dialog_message_yes), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
+            }
+        });
         AppParam.getInstance().lastDialog = builder.create();
         AppParam.getInstance().lastDialog.show();
     }

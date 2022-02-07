@@ -29,6 +29,7 @@ import todoc.cochlear.remoteapp.activity.MainActivity;
 import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.database.Device;
 import todoc.cochlear.remoteapp.list.DeviceListItemAdapter;
+import todoc.cochlear.remoteapp.logging.LoggingUtils;
 import todoc.cochlear.remoteapp.params.ActionMessage;
 import todoc.cochlear.remoteapp.params.AppParam;
 
@@ -274,6 +275,7 @@ public class DeviceListFragment extends Fragment
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
         {
+            mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
             Toast.makeText(getContext(), "Item must not be clicked because it was disabled when initialize it.", Toast.LENGTH_SHORT).show();
             adapterView.getAdapter().getItem(i);
         }
@@ -284,6 +286,7 @@ public class DeviceListFragment extends Fragment
      */
     public void onButtonClicked(Device device)
     {
+        mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
         //Toast.makeText(getContext(), "이름 : " + device.getDeviceName() + ", 일련번호 : " + device.getDeviceSerial(), Toast.LENGTH_SHORT).show();
         Log.d(TAG, "Sound Processor name = " + device.getDeviceName() + ", serial = " + device.getDeviceSerial());
         makeDialogToRemoveDevice(device);
@@ -330,18 +333,26 @@ public class DeviceListFragment extends Fragment
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i)
                     {
+                        mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
                         AppParam appParam = AppParam.getInstance();
-
-                        if (AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
-                        {
-                            mMainActivity.sendBroadcast(new Intent(ActionMessage.BLE_DISCONNECT));
-                        }
 
                         AppParam.getInstance().database.deviceDao().delete(device);
                         AppParam.getInstance().registeredDevices = AppParam.getInstance().database.deviceDao().findAll();
+
+                        writeMessage(LoggingUtils.LOGGING_DEVICE_REMOVED,
+                                "serial=" + device.getDeviceSerial() + "user=" + device.getImplantUserName()); // Logging
+
                         mDeviceListItemAdapter.clearAllItem();
                         mDeviceListView.setAdapter(mDeviceListItemAdapter);
                         listViewUpdate();
+
+                        if (AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
+                        {
+                            if (AppParam.getInstance().currentConnectDevice.getDeviceMacAddress().equals(device.getDeviceMacAddress()))
+                            {
+                                mMainActivity.sendBroadcast(new Intent(ActionMessage.BLE_DISCONNECT));
+                            }
+                        }
 
                         mMainActivity.sendBroadcast(new Intent(ActionMessage.DATABASE_CHECK_EMPTY));
 
@@ -383,7 +394,14 @@ public class DeviceListFragment extends Fragment
                     }
                 });
 
-                builder.setNegativeButton(getString(R.string.dialog_message_no), null);
+                builder.setNegativeButton(getString(R.string.dialog_message_no), new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
+                        mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
+                    }
+                });
 
                 AppParam.getInstance().lastDialog = builder.create();
                 AppParam.getInstance().lastDialog.show();
@@ -424,5 +442,10 @@ public class DeviceListFragment extends Fragment
             listView.setLayoutParams(params);
             listView.requestLayout();
         }
+    }
+
+    public void writeMessage(int type, String message)
+    {
+        LoggingUtils.getInstance().writeMessage(LoggingUtils.getInstance().typeMessage(type) + " : " + message);
     }
 }

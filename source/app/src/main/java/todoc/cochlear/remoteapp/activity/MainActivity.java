@@ -3,11 +3,11 @@ package todoc.cochlear.remoteapp.activity;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.ContextThemeWrapper;
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -42,10 +42,12 @@ import android.os.Vibrator;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,17 +61,22 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
+import todoc.cochlear.remoteapp.bluetooth.BtUtils;
 import todoc.cochlear.remoteapp.database.AppDatabase;
 import todoc.cochlear.remoteapp.database.Device;
+import todoc.cochlear.remoteapp.databinding.MainData;
 import todoc.cochlear.remoteapp.fragment.DeviceListFragment;
 import todoc.cochlear.remoteapp.fragment.HomeFragment;
 import todoc.cochlear.remoteapp.fragment.PasswordFragment;
 import todoc.cochlear.remoteapp.fragment.SearchFragment;
+import todoc.cochlear.remoteapp.logging.LoggingUtils;
 import todoc.cochlear.remoteapp.params.AppParam;
 import todoc.cochlear.remoteapp.params.DeviceParam;
 import todoc.cochlear.remoteapp.params.ActionMessage;
 import todoc.cochlear.remoteapp.service.TerminationService;
 import todoc.cochlear.remoteapp.shared_preferences.AppPreferences;
+import todoc.cochlear.remoteapp.viewmodel.MyModel;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -115,6 +122,41 @@ public class MainActivity extends AppCompatActivity
     BluetoothGattCharacteristic mCharClientToServer;
     BluetoothGattCharacteristic mCharServerToClient;
 
+    // //TODO: ViewModel 테스트
+    private MyModel myModel;
+
+    // TODO: DataBinding 테스트
+    private ActivityMainBinding activityMainBinding;
+    private MainData mainData;
+
+    //
+    // Long time idle state handler
+    //
+    Handler longTimeIdleHandler = new Handler();
+
+    //
+    // Long time idle state runner
+    //
+    Runnable longTimeIdleRunner = new Runnable()
+    {
+        @Override
+        public void run()
+        {
+            Log.d(TAG, "longTimeIdleRunner() called.");
+            AppParam.getInstance().longTimeIdle.setValue(true);
+        }
+    };
+
+    //
+    // Long time idle handler updater
+    //
+    public void updateLongTimeIdleHandler()
+    {
+        Log.d(TAG, "updateLongTimeIdleHandler() called.");
+        longTimeIdleHandler.removeCallbacks(longTimeIdleRunner);
+        longTimeIdleHandler.postDelayed(longTimeIdleRunner, 30000);
+    }
+
     /**
      * Callback - onDestroy
      */
@@ -140,6 +182,8 @@ public class MainActivity extends AppCompatActivity
             appParam.database = null;
         }
 
+        LoggingUtils.getInstance().closeLoggingDatabase(getApplicationContext()); // 로깅 데이터베이스 닫기.
+
         //if (appParam.isTerminationServiceStarted)
         //{
         //Intent intent = new Intent(this, TerminationService.class);
@@ -161,6 +205,8 @@ public class MainActivity extends AppCompatActivity
 
         AppParam.getInstance().appLock = true;
         initAppLockNums();
+
+        longTimeIdleHandler.removeCallbacks(longTimeIdleRunner); // Remove long time idle handler
     }
 
     /**
@@ -170,7 +216,10 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        //setContentView(R.layout.activity_main);
+        activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        mainData = new MainData();
+        activityMainBinding.setMainData(mainData);
 
         AppParam.getInstance().bleConnectionState = AppParam.BLE_CONNECTION_STATE_DISCONNECTED;
 
@@ -272,68 +321,12 @@ public class MainActivity extends AppCompatActivity
             Log.d(TAG, "database = " + AppParam.getInstance().database);
         }
 
-        // ESKIM start
-        /*
-        Device device1 = new Device();
-        device1.setDeviceName("12345678");
-        device1.setDevicePassword("1234");
-        device1.setMapCount("4");
-        device1.setDeviceModel("01");
-        device1.setDeviceSerial("0102030405060708");
-        device1.setMapDate("20/2/3/14/41");
-        device1.setImplantUserName("홍길동");
-        device1.setDeviceFwType("01");
-        device1.setDeviceFwVersion("01");
-        device1.setImplantDirection("1");
-        device1.setDeviceMacAddress("12:34:56:78:90:12");
+        initNumberLongClick();
 
-        Device device2 = new Device();
-        device2.setDeviceName("abcdefgh");
-        device2.setDevicePassword("4321");
-        device2.setMapCount("4");
-        device2.setDeviceModel("01");
-        device2.setDeviceSerial("1020304050607080");
-        device2.setMapDate("20/2/3/14/41");
-        device2.setImplantUserName("홍길동");
-        device2.setDeviceFwType("01");
-        device2.setDeviceFwVersion("01");
-        device2.setImplantDirection("2");
-        device2.setDeviceMacAddress("ab:cd:ef:ab:cd:ef");
-
-        AppParam.getInstance().database.deviceDao().insert(device1);
-        AppParam.getInstance().database.deviceDao().insert(device2);
-
-        List<Device> devices = AppParam.getInstance().registeredDevices = AppParam.getInstance().database.deviceDao().findAll();
-        Log.d(TAG, "Database size = " + devices.size());
-
-        for (int i = 0; i < devices.size(); i++)
-        {
-            Log.d(TAG, "Device (" + i + ") = " + devices.get(i).toString());
-        }
-
-        //AppParam.getInstance().database.deviceDao().delete(device1);
-        //AppParam.getInstance().database.deviceDao().delete(device2);
-
-        devices = AppParam.getInstance().registeredDevices = AppParam.getInstance().database.deviceDao().findAll();
-        Log.d(TAG, "Database size = " + devices.size());
-
-        AppParam.getInstance().database.close();
-        AppParam.getInstance().database = null;
-
-        Log.d(TAG, "database = " + AppParam.getInstance().database);
-        AppParam.getInstance().database = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, AppDatabase.DATABASE_NAME)
-                .addCallback(new RoomDatabase.Callback()
-                {
-                    @Override
-                    public void onCreate(@NonNull SupportSQLiteDatabase db)
-                    {
-                        super.onCreate(db);
-                        db.execSQL(AppDatabase.DATABASE_ENCODING);
-                    }
-                })
-                .fallbackToDestructiveMigration().allowMainThreadQueries().build();
-        */
-        // ESKIM end
+        // 로깅 관련 초기화
+        LoggingUtils.getInstance().openLoggingDatabase(getApplicationContext()); // 로깅 데이터베이스 불러오기 + 번호 ROW 초기화.
+        //LoggingUtils.getInstance().writeMessage(LoggingUtils.getInstance().getCurrentDate()); // 테스트 메시지 입력
+        LoggingUtils.getInstance().printAllMessages(); // 테스트 메시지 출력
 
         AppParam.getInstance().registeredDevices = AppParam.getInstance().database.deviceDao().findAll();
 
@@ -344,13 +337,141 @@ public class MainActivity extends AppCompatActivity
 
         AppParam.getInstance().appLock = true;
         initAppLockNums();
+
+        //TODO: Live Data를 이용한 장시간 미사용 테스트
+        final Observer<Boolean> longTimeIdleObserver = new Observer<Boolean>()
+        {
+            @Override
+            public void onChanged(Boolean aBoolean)
+            {
+                if (aBoolean != null && aBoolean.booleanValue())
+                {
+                    // Make Dialog
+                    androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(MainActivity.this);
+                    builder.setCancelable(false);
+                    builder.setMessage("장시간 미사용으로 인해 앱이 절전모드로 진입했습니다.\n절전모드 해제 버튼을 누르면 다시 정상동작을 시작합니다.");
+                    builder.setPositiveButton("절전모드 해제", new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i)
+                        {
+                            AppParam.getInstance().longTimeIdle.setValue(Boolean.valueOf(false));
+                        }
+                    });
+                    builder.create().show();
+
+                    AppParam.getInstance().setAutoConnectionEnabled(false);
+                    if (AppParam.getInstance().isBleScanning)
+                    {
+                        scanLe(false);
+                    }
+
+                    // Disconnect BLE if connected
+                    if (AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
+                    {
+                        AppParam.getInstance().isDisconnectedByUser = true;
+                        mBluetoothGatt.disconnect();
+                    }
+
+                    // Do BackPressed if screen shows PASSWORD fragment currently
+                    if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_PASSWORD)
+                    {
+                        getSupportFragmentManager().beginTransaction().replace(R.id.main_frame, new SearchFragment()).commitAllowingStateLoss();
+
+                        // Remove bonded state
+                        if (AppParam.getInstance().currentConnectDevice != null)
+                        {
+                            boolean isBondedDevice = false;
+                            BluetoothDevice bondedDevice = null;
+                            Set<BluetoothDevice> bondedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
+
+                            if (bondedDevices.size() > 0)
+                            {
+                                for (BluetoothDevice bluetoothDevice : bondedDevices)
+                                {
+                                    if (bluetoothDevice.getAddress().equals(AppParam.getInstance().currentConnectDevice.getDeviceMacAddress()))
+                                    {
+                                        Log.d(TAG, "Found bonded device.");
+                                        bondedDevice = bluetoothDevice;
+                                        isBondedDevice = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (isBondedDevice && bondedDevice != null)
+                            {
+                                Log.d(TAG, "Try to unpair the device.");
+
+                                try
+                                {
+                                    Method m = bondedDevice.getClass().getMethod("removeBond", (Class[]) null);
+                                    m.invoke(bondedDevice, (Object[]) null);
+                                }
+                                catch (Exception e)
+                                {
+                                    Log.e(TAG, e.getMessage());
+                                }
+
+                                Log.d(TAG, "Removed the boned device.");
+                            }
+                        } //본딩 제거 끝
+                    } // PASSWORD 프래그먼트 끝
+                }
+                else if (aBoolean != null && !aBoolean.booleanValue())
+                {
+                    // 자동 검색 설정을 데이터베이스 값으로 확인한다
+                    if (AppPreferences.getInstance().isAutoConnectionEnabled(getApplicationContext()))
+                    {
+                        AppParam.getInstance().setAutoConnectionEnabled(true);
+                    }
+
+                    // 등록된 장치가 있거나, 검색 화면이라면 스캔을 시작한다
+                    if (AppParam.getInstance().registeredDevices.size() > 0)
+                    {
+                        scanLe(true);
+                    }
+                    else
+                    {
+                        if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_SEARCH)
+                        {
+                            scanLe(true);
+                        }
+                    }
+
+                    updateLongTimeIdleHandler();
+                }
+            } // onChanged 끝.
+        }; // 옵저버 끝.
+
+        AppParam.getInstance().longTimeIdle.observe(this, longTimeIdleObserver);
+
+        // Start & update long time idle handler
+        updateLongTimeIdleHandler();
     } // initMainActivity
+
+    public void onClickLiveData(View view)
+    {
+
+        Log.d(TAG, "onClickLiveData");
+
+        AppParam.getInstance().longTimeIdle.setValue(Boolean.valueOf(true));
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event)
+    {
+        Log.d(TAG, "##### onTouchEvent #####");
+        return super.onTouchEvent(event);
+    }
+
 
     /**
      * Callback - User guide clase button.
      */
     public void onClickUserGuideClose(View view)
     {
+        updateLongTimeIdleHandler(); // Update long time idle handler
         boolean enable = !((CheckBox) findViewById(R.id.main_user_guide_checkbox)).isChecked();
         AppPreferences.getInstance().setManualToEnabled(getApplication(), enable);
         enableScreenUserGuide(false);
@@ -380,12 +501,175 @@ public class MainActivity extends AppCompatActivity
      */
     public void onClickNoDeviceRegistered(View view)
     {
+        updateLongTimeIdleHandler(); // Update long time idle handler
         sendBroadcast(new Intent(ActionMessage.NEW_FRAGMENT_SEARCH_WITH_DISCONNECT_BLE));
         enableScreenNoDeviceRegistered(false);
 
         AppParam.getInstance().setAutoConnectionEnabled(true);
         AppPreferences.getInstance().setAutoConnectionToEnabled(getApplicationContext(), true);
         updateToolbar();
+    }
+
+    /**
+     * Set long click event for app lock screen's number buttons.
+     */
+    public void initNumberLongClick()
+    {
+        // DELETE
+        findViewById(R.id.main_applock_num_del_btn).setLongClickable(true);
+        findViewById(R.id.main_applock_num_del_btn).setOnLongClickListener(mNumberLongClickListener);
+
+        // 0
+        findViewById(R.id.main_applock_num_0_btn).setLongClickable(true);
+        findViewById(R.id.main_applock_num_0_btn).setOnLongClickListener(mNumberLongClickListener);
+
+        // 1
+        findViewById(R.id.main_applock_num_1_btn).setLongClickable(true);
+        findViewById(R.id.main_applock_num_1_btn).setOnLongClickListener(mNumberLongClickListener);
+
+        // 2
+        findViewById(R.id.main_applock_num_2_btn).setLongClickable(true);
+        findViewById(R.id.main_applock_num_2_btn).setOnLongClickListener(mNumberLongClickListener);
+
+        // 3
+        findViewById(R.id.main_applock_num_3_btn).setLongClickable(true);
+        findViewById(R.id.main_applock_num_3_btn).setOnLongClickListener(mNumberLongClickListener);
+
+        // 4
+        findViewById(R.id.main_applock_num_4_btn).setLongClickable(true);
+        findViewById(R.id.main_applock_num_4_btn).setOnLongClickListener(mNumberLongClickListener);
+
+        // 5
+        findViewById(R.id.main_applock_num_5_btn).setLongClickable(true);
+        findViewById(R.id.main_applock_num_5_btn).setOnLongClickListener(mNumberLongClickListener);
+
+        // 6
+        findViewById(R.id.main_applock_num_6_btn).setLongClickable(true);
+        findViewById(R.id.main_applock_num_6_btn).setOnLongClickListener(mNumberLongClickListener);
+
+        // 7
+        findViewById(R.id.main_applock_num_7_btn).setLongClickable(true);
+        findViewById(R.id.main_applock_num_7_btn).setOnLongClickListener(mNumberLongClickListener);
+
+        // 8
+        findViewById(R.id.main_applock_num_8_btn).setLongClickable(true);
+        findViewById(R.id.main_applock_num_8_btn).setOnLongClickListener(mNumberLongClickListener);
+
+        // 9
+        findViewById(R.id.main_applock_num_9_btn).setLongClickable(true);
+        findViewById(R.id.main_applock_num_9_btn).setOnLongClickListener(mNumberLongClickListener);
+    }
+
+    /**
+     * Long click event listener for app lock screen's number buttons.
+     */
+    View.OnLongClickListener mNumberLongClickListener = new View.OnLongClickListener()
+    {
+        @Override
+        public boolean onLongClick(View view)
+        {
+            updateLongTimeIdleHandler(); // Update long time idle handler
+            int count = LoggingUtils.getInstance().mSecretNumberCount;
+
+            Log.d(TAG, "Currently secret log viewer password count : " + count);
+
+            switch (count)
+            {
+                case 0:
+                case 1:
+                case 4:
+                case 5:
+                    if (view.getId() == R.id.main_applock_num_del_btn)
+                    {
+                        Log.d(TAG, "Correct number.");
+                        count++;
+                    }
+                    else
+                    {
+                        Log.d(TAG, "Incorrect number.");
+                        count = 0;
+                    }
+                    break;
+
+                case 2:
+                    if (view.getId() == R.id.main_applock_num_1_btn)
+                    {
+                        Log.d(TAG, "Correct number.");
+                        count++;
+                    }
+                    else
+                    {
+                        Log.d(TAG, "Incorrect number.");
+                        count = 0;
+                    }
+                    break;
+
+                case 3:
+                    if (view.getId() == R.id.main_applock_num_4_btn)
+                    {
+                        Log.d(TAG, "Correct number.");
+                        count++;
+                    }
+                    else
+                    {
+                        Log.d(TAG, "Incorrect number.");
+                        count = 0;
+                    }
+                    break;
+
+                case 6:
+                    if (view.getId() == R.id.main_applock_num_0_btn)
+                    {
+                        Log.d(TAG, "Correct number.");
+                        count++;
+                    }
+                    else
+                    {
+                        Log.d(TAG, "Incorrect number.");
+                        count = 0;
+                    }
+                    break;
+
+                case 7:
+                    if (view.getId() == R.id.main_applock_num_7_btn)
+                    {
+                        Log.d(TAG, "Correct number.");
+                        Log.d(TAG, "Secret log viewer will be shown");
+                        ConstraintLayout screen = findViewById(R.id.main_logging_screen_layout);
+                        screen.setVisibility(View.VISIBLE);
+                        // 로깅 데이터 입력하기 시작
+                        {
+                            LoggingUtils.getInstance().printLoggingScreen((ListView) findViewById(R.id.main_logging_screen_lv));
+                        } // 로깅 데이터 입력하기 끝
+                    }
+                    else
+                    {
+                        Log.d(TAG, "Incorrect number.");
+                    }
+                    count = 0;
+                    break;
+
+                default:
+                    Log.d(TAG, "Incorrect number.");
+                    count = 0;
+                    break;
+            }
+
+            LoggingUtils.getInstance().mSecretNumberCount = count;
+
+            return true;
+        }
+    };
+
+    /**
+     * Callback - Logging screen exit button
+     */
+    public void onClickExitLoggingScreen(View view)
+    {
+        updateLongTimeIdleHandler(); // Update long time idle handler
+        ConstraintLayout screen = findViewById(R.id.main_logging_screen_layout);
+        screen.setVisibility(View.GONE);
+        LoggingUtils.getInstance().clearLoggingScreen();
     }
 
     /**
@@ -432,6 +716,12 @@ public class MainActivity extends AppCompatActivity
         {
             Log.d(TAG, "사운드처리기 = " + devices.get(i).getDeviceMacAddress() + "를 삭제합니다.");
             AppParam.getInstance().database.deviceDao().delete(devices.get(i));
+
+            writeMessage(LoggingUtils.LOGGING_DEVICE_REMOVED,
+                    "name=" + AppParam.getInstance().currentConnectDevice.getDeviceName()
+                            + ", addr=" + AppParam.getInstance().currentConnectDevice.getDeviceMacAddress()
+                            + ", serial=" + AppParam.getInstance().currentConnectDevice.getDeviceSerial()
+                            + ", user=" + devices.get(i).getImplantUserName()); // Logging
         }
 
         // 5. 데이터베이스 다시 로드하여 현재 정보 업데이트
@@ -521,6 +811,8 @@ public class MainActivity extends AppCompatActivity
         AppParam.getInstance().lastDialog = builder.create();
         AppParam.getInstance().lastDialog.show();
         Log.d(TAG, "앱 비밀번호 초기화 확인 다이얼로그 생성");
+
+        writeMessage(LoggingUtils.LOGGING_INIT_ALL_FOR_APP, "Init App"); // Logging
     }
 
     /**
@@ -528,6 +820,7 @@ public class MainActivity extends AppCompatActivity
      */
     public void onClickAppLockReset(View view)
     {
+        updateLongTimeIdleHandler(); // Update long time idle handler
         Log.d(TAG, "앱 비밀번호 초기화 버튼 클릭!");
         vibrator(5);
 
@@ -560,7 +853,9 @@ public class MainActivity extends AppCompatActivity
      */
     public void onClickPassNumDelete(View view)
     {
+        updateLongTimeIdleHandler(); // Update long time idle handler
         vibrator(5);
+        LoggingUtils.getInstance().mSecretNumberCount = 0;
 
         switch (AppParam.getInstance().appLockNumIdx)
         {
@@ -587,15 +882,6 @@ public class MainActivity extends AppCompatActivity
                 AppParam.getInstance().appLockNumIdx = 3;
                 break;
         }
-
-        /*
-        LinearLayout passLockLayout = findViewById(R.id.main_applock_layout);
-
-        if (passLockLayout.getVisibility() == View.VISIBLE)
-        {
-            passLockLayout.setVisibility(View.GONE);
-        }
-        */
     }
 
     @Override
@@ -775,7 +1061,9 @@ public class MainActivity extends AppCompatActivity
 
     public void onClickPassNumClicked(View view)
     {
+        updateLongTimeIdleHandler(); // Update long time idle handler
         vibrator(5);
+        LoggingUtils.getInstance().mSecretNumberCount = 0;
 
         switch (view.getId())
         {
@@ -1129,6 +1417,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed()
     {
+        updateLongTimeIdleHandler(); // Update long time idle handler
         // 홈 프래그먼트
         if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME)
         {
@@ -1203,6 +1492,7 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onClick(DialogInterface dialogInterface, int i)
         {
+            updateLongTimeIdleHandler(); // Update long time idle handler
             if (mBluetoothDevice != null && mBluetoothGatt != null
                     && AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
             {
@@ -1219,6 +1509,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item)
     {
+        updateLongTimeIdleHandler(); // Update long time idle handler
         switch (item.getItemId())
         {
             case android.R.id.home:
@@ -1456,7 +1747,7 @@ public class MainActivity extends AppCompatActivity
     {
         if (enable) // If true, start scanner.
         {
-            if (!AppParam.getInstance().isBleScanning) // Can be started when currently not scanning.
+            if (!AppParam.getInstance().isBleScanning && AppParam.getInstance().isAutoConnectionEnabled()) // Can be started when currently not scanning.
             {
                 AppParam.getInstance().isBleScanning = true; // Set state.
 
@@ -1539,13 +1830,6 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onScanResult(int callbackType, ScanResult result)
         {
-
-            ////////////////////
-
-            // TODO : 어떤 데이터를 얻을 수 있는지 알아보록 하자. (Updated 2021-12-28 by 김은수)
-
-            ////////////////////
-
             BluetoothDevice btDevice = result.getDevice();
             String deviceName = btDevice.getName();
 
@@ -1757,10 +2041,31 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void run()
                 {
+                    String name = gatt.getDevice().getName();
+                    String address = gatt.getDevice().getAddress();
+
                     // DISCONNECTED
                     if (newState == BluetoothProfile.STATE_DISCONNECTED)
                     {
-                        Log.d(TAG, "onConnectionStateChange : Disconnected name = " + gatt.getDevice().getName() + ", address = " + gatt.getDevice().getAddress());
+                        Log.d(TAG, "onConnectionStateChange : Disconnected name = " + name + ", address = " + address);
+
+                        // 앱 강제 종료하는 시점에서는 로깅 데이터베이스가 닫혀 있을 수 있다.
+                        // 이런 경우 데이터베이스를 다시 열고 저장한 후 닫도록 수행한다.
+                        if (LoggingUtils.mLoggingDatabase == null)
+                        {
+                            LoggingUtils.getInstance().openLoggingDatabase(getApplicationContext());
+
+                            writeMessage(LoggingUtils.LOGGING_DEVICE_DISCONNECTED, "name=" + name + ", addr=" + address); // Logging
+
+                            LoggingUtils.getInstance().closeLoggingDatabase(getApplicationContext());
+                        }
+                        else
+                        {
+                            writeMessage(LoggingUtils.LOGGING_DEVICE_DISCONNECTED, "name=" + name + ", addr=" + address); // Logging
+                        }
+
+                        // 현재 연결 해제된 장치가 본딩이 되어도 괜찮은 장치인지 판별 후 아니면 삭제
+                        BtUtils.getInstance().eraseBondedDeviceUsingMacAddress(address, mBluetoothAdapter);
 
                         gatt.close();
                         mBluetoothGatt = null;
@@ -1861,6 +2166,10 @@ public class MainActivity extends AppCompatActivity
                     else if (newState == BluetoothProfile.STATE_CONNECTED)
                     {
                         Log.d(TAG, "onConnectionStateChange : Connected name = " + gatt.getDevice().getName() + ", address = " + gatt.getDevice().getAddress());
+
+                        writeMessage(LoggingUtils.LOGGING_DEVICE_CONNECTED,
+                                "name=" + gatt.getDevice().getName()
+                                        + ", addr=" + gatt.getDevice().getAddress()); // Logging
 
                         AppParam.getInstance().bleConnectionState = AppParam.BLE_CONNECTION_STATE_CONNECTED;
 
@@ -2219,6 +2528,12 @@ public class MainActivity extends AppCompatActivity
                                     Log.d(TAG, "onCharacteristicChanged : Normally register this Sound Processor.");
                                     Log.d(TAG, "onCharacteristicChanged : After registration, database count = " + AppParam.getInstance().database.deviceDao().findAll().size());
 
+                                    writeMessage(LoggingUtils.LOGGING_DEVICE_REGISTERED,
+                                            "name=" + AppParam.getInstance().currentConnectDevice.getDeviceName()
+                                                    + ", addr=" + AppParam.getInstance().currentConnectDevice.getDeviceMacAddress()
+                                                    + ", serial=" + AppParam.getInstance().currentConnectDevice.getDeviceSerial()
+                                                    + ", user=" + AppParam.getInstance().currentConnectDevice.getImplantUserName()); // Logging
+
                                     // Change fragment to home.
                                     sendBroadcast(new Intent(ActionMessage.NEW_FRAGMENT_HOME));
 
@@ -2386,6 +2701,13 @@ public class MainActivity extends AppCompatActivity
                                 // Update screen when currently running fragment is home.
                                 ((HomeFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).updateScreen();
                             }
+
+                            writeMessage(LoggingUtils.LOGGING_VALUE_STATUS,
+                                    "name=" + AppParam.getInstance().currentConnectDevice.getDeviceName()
+                                            + ", addr=" + AppParam.getInstance().currentConnectDevice.getDeviceMacAddress()
+                                            + ", serial=" + AppParam.getInstance().currentConnectDevice.getDeviceSerial()
+                                            + ", user=" + AppParam.getInstance().currentConnectDevice.getImplantUserName()
+                                            + ", invalid=" + invalid + ", batt=" + deviceParam.getBattery()); // Logging
                         }
                         break;
 
@@ -2419,6 +2741,13 @@ public class MainActivity extends AppCompatActivity
                             // Save value to current status parameter.
                             AppParam.getInstance().currentStatusParams.setAlarmStimulation(deviceParam.getAlarmStimulation());
                             AppParam.getInstance().resendCount = 0;
+
+                            writeMessage(LoggingUtils.LOGGING_VALUE_STIMULATION,
+                                    "name=" + AppParam.getInstance().currentConnectDevice.getDeviceName()
+                                            + ", addr=" + AppParam.getInstance().currentConnectDevice.getDeviceMacAddress()
+                                            + ", serial=" + AppParam.getInstance().currentConnectDevice.getDeviceSerial()
+                                            + ", user=" + AppParam.getInstance().currentConnectDevice.getImplantUserName()
+                                            + " : " + AppParam.getInstance().currentStatusParams.getAlarmStimulation()); // Logging
 
                             // Update screen.
                             if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME)
@@ -2461,6 +2790,13 @@ public class MainActivity extends AppCompatActivity
                             AppParam.getInstance().currentStatusParams.setAlarmLed(deviceParam.getAlarmLed());
                             AppParam.getInstance().resendCount = 0;
 
+                            writeMessage(LoggingUtils.LOGGING_VALUE_LED,
+                                    "name=" + AppParam.getInstance().currentConnectDevice.getDeviceName()
+                                            + ", addr=" + AppParam.getInstance().currentConnectDevice.getDeviceMacAddress()
+                                            + ", serial=" + AppParam.getInstance().currentConnectDevice.getDeviceSerial()
+                                            + ", user=" + AppParam.getInstance().currentConnectDevice.getImplantUserName()
+                                            + " : " + AppParam.getInstance().currentStatusParams.getAlarmLed()); // Logging
+
                             if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME)
                             {
                                 ((HomeFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).updateScreen();
@@ -2500,6 +2836,13 @@ public class MainActivity extends AppCompatActivity
                             // Save value to current status parameter.
                             AppParam.getInstance().currentStatusParams.setTelecoil(deviceParam.getTelecoil());
                             AppParam.getInstance().resendCount = 0;
+
+                            writeMessage(LoggingUtils.LOGGING_VALUE_TELECOIL,
+                                    "name=" + AppParam.getInstance().currentConnectDevice.getDeviceName()
+                                            + ", addr=" + AppParam.getInstance().currentConnectDevice.getDeviceMacAddress()
+                                            + ", serial=" + AppParam.getInstance().currentConnectDevice.getDeviceSerial()
+                                            + ", user=" + AppParam.getInstance().currentConnectDevice.getImplantUserName()
+                                            + " : " + AppParam.getInstance().currentStatusParams.getTelecoil()); // Logging
 
                             if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME)
                             {
@@ -2541,6 +2884,13 @@ public class MainActivity extends AppCompatActivity
                             AppParam.getInstance().currentStatusParams.setPowerMode(deviceParam.getPowerMode());
                             AppParam.getInstance().resendCount = 0;
 
+                            writeMessage(LoggingUtils.LOGGING_VALUE_POWER_MODE,
+                                    "name=" + AppParam.getInstance().currentConnectDevice.getDeviceName()
+                                            + ", addr=" + AppParam.getInstance().currentConnectDevice.getDeviceMacAddress()
+                                            + ", serial=" + AppParam.getInstance().currentConnectDevice.getDeviceSerial()
+                                            + ", user=" + AppParam.getInstance().currentConnectDevice.getImplantUserName()
+                                            + " : " + AppParam.getInstance().currentStatusParams.getPowerMode()); // Logging
+
                             if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME)
                             {
                                 ((HomeFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).updateScreen();
@@ -2581,6 +2931,13 @@ public class MainActivity extends AppCompatActivity
                             AppParam.getInstance().currentStatusParams.setProgram(deviceParam.getProgram());
                             AppParam.getInstance().resendCount = 0;
 
+                            writeMessage(LoggingUtils.LOGGING_VALUE_PROGRAM,
+                                    "name=" + AppParam.getInstance().currentConnectDevice.getDeviceName()
+                                            + ", addr=" + AppParam.getInstance().currentConnectDevice.getDeviceMacAddress()
+                                            + ", serial=" + AppParam.getInstance().currentConnectDevice.getDeviceSerial()
+                                            + ", user=" + AppParam.getInstance().currentConnectDevice.getImplantUserName()
+                                            + " : " + AppParam.getInstance().currentStatusParams.getProgram()); // Logging
+
                             if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME)
                             {
                                 ((HomeFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).updateScreen();
@@ -2619,6 +2976,13 @@ public class MainActivity extends AppCompatActivity
                             AppParam.getInstance().currentStatusParams.setSensitivity(deviceParam.getSensitivity());
                             AppParam.getInstance().resendCount = 0;
 
+                            writeMessage(LoggingUtils.LOGGING_VALUE_SENSITIVITY,
+                                    "name=" + AppParam.getInstance().currentConnectDevice.getDeviceName()
+                                            + ", addr=" + AppParam.getInstance().currentConnectDevice.getDeviceMacAddress()
+                                            + ", serial=" + AppParam.getInstance().currentConnectDevice.getDeviceSerial()
+                                            + ", user=" + AppParam.getInstance().currentConnectDevice.getImplantUserName()
+                                            + " : " + AppParam.getInstance().currentStatusParams.getSensitivity()); // Logging
+
                             if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME)
                             {
                                 ((HomeFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).updateScreen();
@@ -2653,6 +3017,13 @@ public class MainActivity extends AppCompatActivity
                             // Save value to current status parameter.
                             AppParam.getInstance().currentStatusParams.setVolume(deviceParam.getVolume());
                             AppParam.getInstance().resendCount = 0;
+
+                            writeMessage(LoggingUtils.LOGGING_VALUE_VOLUME,
+                                    "name=" + AppParam.getInstance().currentConnectDevice.getDeviceName()
+                                            + ", addr=" + AppParam.getInstance().currentConnectDevice.getDeviceMacAddress()
+                                            + ", serial=" + AppParam.getInstance().currentConnectDevice.getDeviceSerial()
+                                            + ", user=" + AppParam.getInstance().currentConnectDevice.getImplantUserName()
+                                            + " : " + AppParam.getInstance().currentStatusParams.getVolume()); // Logging
 
                             if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME)
                             {
@@ -2934,6 +3305,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(DialogInterface dialogInterface, int i)
             {
+                updateLongTimeIdleHandler(); // Update long time idle handler
                 if (AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED
                         && mBluetoothDevice != null && mBluetoothGatt != null)
                 {
@@ -2961,13 +3333,21 @@ public class MainActivity extends AppCompatActivity
 
         builder.setMessage(message);
 
-        builder.setNegativeButton(getString(R.string.dialog_message_no), null);
+        builder.setNegativeButton(getString(R.string.dialog_message_no), new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i)
+            {
+                updateLongTimeIdleHandler(); // Update long time idle handler
+            }
+        });
 
         builder.setPositiveButton(getString(R.string.dialog_message_yes), new DialogInterface.OnClickListener()
         {
             @Override
             public void onClick(DialogInterface dialogInterface, int i)
             {
+                updateLongTimeIdleHandler(); // Update long time idle handler
                 // Stop auto connection
                 AppParam.getInstance().setAutoConnectionEnabled(false);
                 AppPreferences.getInstance().setAutoConnectionToEnabled(getApplicationContext(), false);
@@ -2986,5 +3366,10 @@ public class MainActivity extends AppCompatActivity
 
         AppParam.getInstance().lastDialog = builder.create();
         AppParam.getInstance().lastDialog.show();
+    }
+
+    public void writeMessage(int type, String message)
+    {
+        LoggingUtils.getInstance().writeMessage(LoggingUtils.getInstance().typeMessage(type) + " : " + message);
     }
 }

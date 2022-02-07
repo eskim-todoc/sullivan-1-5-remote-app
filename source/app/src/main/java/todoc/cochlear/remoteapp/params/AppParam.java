@@ -1,6 +1,7 @@
 package todoc.cochlear.remoteapp.params;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.MutableLiveData;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,14 +9,13 @@ import java.util.List;
 
 import todoc.cochlear.remoteapp.database.AppDatabase;
 import todoc.cochlear.remoteapp.database.Device;
+import todoc.cochlear.remoteapp.logging.LoggingDatabase;
 
-public class AppParam
-{
+public class AppParam {
     // Instance and getter.
     private final static AppParam mInstance = new AppParam();
 
-    public static AppParam getInstance()
-    {
+    public static AppParam getInstance() {
         return mInstance;
     }
 
@@ -80,6 +80,9 @@ public class AppParam
     // For Database.
     public AppDatabase database;
 
+    // For Logging database.
+    public LoggingDatabase loggingDatabase;
+
     // For Toolbar.
     public String menuTitle;
     public boolean menuHome;
@@ -129,8 +132,10 @@ public class AppParam
 
     public android.app.AlertDialog lastDialog;
 
-    public AppParam()
-    {
+    // TODO: Live Data를 이용한 장시간 미사용 감지 테스트
+    public MutableLiveData<Boolean> longTimeIdle;
+
+    public AppParam() {
         callCounter = 0;
         currentFragmentNumber = FRAGMENT_NUMBER_NONE;
 
@@ -171,11 +176,12 @@ public class AppParam
         appLockNum2 = " ";
         appLockNum3 = " ";
         appLockNum4 = " ";
+
+        longTimeIdle = new MutableLiveData<Boolean>();
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "AppParam{" +
                 "isKorean=" + isKorean +
                 ", currentFragmentNumber=" + currentFragmentNumber +
@@ -210,93 +216,75 @@ public class AppParam
                 '}';
     }
 
-    public int getCurrentFragmentNumber()
-    {
+    public int getCurrentFragmentNumber() {
         return currentFragmentNumber;
     }
 
-    public void setCurrentFragmentNumber(int mCurrentFragmentNumber)
-    {
+    public void setCurrentFragmentNumber(int mCurrentFragmentNumber) {
         this.currentFragmentNumber = mCurrentFragmentNumber;
     }
 
-    public String getMenuTitle()
-    {
+    public String getMenuTitle() {
         return menuTitle;
     }
 
-    public void setMenuTitle(String mMenuTitle)
-    {
+    public void setMenuTitle(String mMenuTitle) {
         this.menuTitle = mMenuTitle;
     }
 
-    public boolean getMenuHome()
-    {
+    public boolean getMenuHome() {
         return menuHome;
     }
 
-    public void setMenuHome(boolean mMenuHome)
-    {
+    public void setMenuHome(boolean mMenuHome) {
         this.menuHome = mMenuHome;
     }
 
-    public boolean getMenuSearch()
-    {
+    public boolean getMenuSearch() {
         return menuSearch;
     }
 
-    public void setMenuSearch(boolean mMenuSearch)
-    {
+    public void setMenuSearch(boolean mMenuSearch) {
         this.menuSearch = mMenuSearch;
     }
 
-    public boolean getMenuList()
-    {
+    public boolean getMenuList() {
         return menuList;
     }
 
-    public void setMenuList(boolean mMenuList)
-    {
+    public void setMenuList(boolean mMenuList) {
         this.menuList = mMenuList;
     }
 
-    public boolean getMenuAutoConnection()
-    {
+    public boolean getMenuAutoConnection() {
         return menuAutoConnection;
     }
 
-    public void setMenuAutoConnection(boolean menuAutoConnection)
-    {
+    public void setMenuAutoConnection(boolean menuAutoConnection) {
         this.menuAutoConnection = menuAutoConnection;
     }
 
-    public boolean getMenuManual()
-    {
+    public boolean getMenuManual() {
         return menuManual;
     }
 
-    public void setMenuManual(boolean mMenuManual)
-    {
+    public void setMenuManual(boolean mMenuManual) {
         this.menuManual = mMenuManual;
     }
 
-    public boolean getMenuSupport()
-    {
+    public boolean getMenuSupport() {
         return menuSupport;
     }
 
-    public void setMenuSupport(boolean mMenuSupport)
-    {
+    public void setMenuSupport(boolean mMenuSupport) {
         this.menuSupport = mMenuSupport;
     }
 
-    public boolean isAutoConnectionEnabled()
-    {
+    public boolean isAutoConnectionEnabled() {
         return autoConnectionState;
     }
 
-    public void setAutoConnectionEnabled(boolean autoConnectionEnabled)
-    {
+    public void setAutoConnectionEnabled(boolean autoConnectionEnabled) {
         autoConnectionState = autoConnectionEnabled;
     }
 }

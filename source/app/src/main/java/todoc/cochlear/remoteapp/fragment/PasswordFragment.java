@@ -23,6 +23,7 @@ import java.util.Objects;
 
 import todoc.cochlear.remoteapp.activity.MainActivity;
 import todoc.cochlear.remoteapp.activity.R;
+import todoc.cochlear.remoteapp.logging.LoggingUtils;
 import todoc.cochlear.remoteapp.params.ActionMessage;
 import todoc.cochlear.remoteapp.params.AppParam;
 
@@ -94,6 +95,7 @@ public class PasswordFragment extends Fragment
             @Override
             public void onClick(View view)
             {
+                mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
                 ViewGroup rootView = (ViewGroup) view.getParent();
 
                 // Get password from EditText.
@@ -148,7 +150,8 @@ public class PasswordFragment extends Fragment
     {
         if (mWrongTextView != null)
         {
-            Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable()
+            //Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable()
+            mMainActivity.runOnUiThread(new Runnable()
             {
                 @Override
                 public void run()
@@ -167,7 +170,8 @@ public class PasswordFragment extends Fragment
     {
         if (mWrongTextView != null)
         {
-            Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable()
+            //Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable()
+            mMainActivity.runOnUiThread(new Runnable()
             {
                 @Override
                 public void run()
@@ -183,11 +187,13 @@ public class PasswordFragment extends Fragment
      */
     public void makeDialogBackPressed()
     {
-        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable()
+        //Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable()
+        mMainActivity.runOnUiThread(new Runnable()
         {
             @Override
             public void run()
             {
+                mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
 
                 LayoutInflater inflater = LayoutInflater.from(mMainActivity);
 
@@ -231,6 +237,7 @@ public class PasswordFragment extends Fragment
             @Override
             public void onClick(DialogInterface dialogInterface, int i)
             {
+                mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
                 // Show Search screen.
                 mMainActivity.sendBroadcast(new Intent(ActionMessage.NEW_FRAGMENT_SEARCH_WITH_DISCONNECT_BLE));
             }
@@ -244,7 +251,8 @@ public class PasswordFragment extends Fragment
      */
     public void makeDialogIgnoreMapDate()
     {
-        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable()
+        //Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable()
+        mMainActivity.runOnUiThread(new Runnable()
         {
             @Override
             public void run()
@@ -265,9 +273,14 @@ public class PasswordFragment extends Fragment
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i)
                     {
+                        mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
                         // you are sure you want to register Sound Processor to database!
                         AppParam.getInstance().database.deviceDao().insert(AppParam.getInstance().currentConnectDevice);
                         AppParam.getInstance().registeredDevices = AppParam.getInstance().database.deviceDao().findAll();
+
+                        writeMessage(LoggingUtils.LOGGING_DEVICE_REGISTERED,
+                                "serial=" + AppParam.getInstance().currentConnectDevice.getDeviceSerial()
+                                        + "user=" + AppParam.getInstance().currentConnectDevice.getImplantUserName()); // Logging
 
                         // Show Home screen.
                         mMainActivity.sendBroadcast(new Intent(ActionMessage.NEW_FRAGMENT_HOME));
@@ -282,6 +295,7 @@ public class PasswordFragment extends Fragment
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i)
                     {
+                        mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
                         // Disconnect and show Search screen by User.
                         AppParam.getInstance().isDisconnectedByUser = true;
                         mMainActivity.sendBroadcast(new Intent(ActionMessage.NEW_FRAGMENT_SEARCH_WITH_DISCONNECT_BLE));
@@ -300,7 +314,8 @@ public class PasswordFragment extends Fragment
 
     public void makeDialogRegisterNewUser()
     {
-        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable()
+        //Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable()
+        mMainActivity.runOnUiThread(new Runnable()
         {
             @Override
             public void run()
@@ -321,14 +336,23 @@ public class PasswordFragment extends Fragment
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i)
                     {
+                        mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
                         // Delete all of registered Sound Processors because you want to register Sound Processor
                         for (int idx = 0; idx < AppParam.getInstance().registeredDevices.size(); idx++)
                         {
                             AppParam.getInstance().database.deviceDao().delete(AppParam.getInstance().registeredDevices.get(idx));
+
+                            writeMessage(LoggingUtils.LOGGING_DEVICE_REMOVED,
+                                    "serial=" + AppParam.getInstance().registeredDevices.get(idx).getDeviceSerial()
+                                            + "user=" + AppParam.getInstance().registeredDevices.get(idx).getImplantUserName()); // Logging
                         }
 
                         AppParam.getInstance().database.deviceDao().insert(AppParam.getInstance().currentConnectDevice);
                         AppParam.getInstance().registeredDevices = AppParam.getInstance().database.deviceDao().findAll();
+
+                        writeMessage(LoggingUtils.LOGGING_DEVICE_REGISTERED,
+                                "serial=" + AppParam.getInstance().currentConnectDevice.getDeviceSerial()
+                                        + "user=" + AppParam.getInstance().currentConnectDevice.getImplantUserName()); // Logging
 
                         // Show Home screen and read Sound Processor status.
                         mMainActivity.sendBroadcast(new Intent(ActionMessage.NEW_FRAGMENT_HOME));
@@ -341,6 +365,7 @@ public class PasswordFragment extends Fragment
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i)
                     {
+                        mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
                         // Disconnect and show Search screen by User.
                         AppParam.getInstance().isDisconnectedByUser = true;
                         mMainActivity.sendBroadcast(new Intent(ActionMessage.NEW_FRAGMENT_SEARCH_WITH_DISCONNECT_BLE));
@@ -351,5 +376,10 @@ public class PasswordFragment extends Fragment
                 AppParam.getInstance().lastDialog.show();
             }
         });
+    }
+
+    public void writeMessage(int type, String message)
+    {
+        LoggingUtils.getInstance().writeMessage(LoggingUtils.getInstance().typeMessage(type) + " : " + message);
     }
 }
