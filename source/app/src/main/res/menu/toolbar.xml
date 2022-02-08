@@ -40,6 +40,6 @@
         android:id="@+id/menu_export_logging"
         android:enabled="true"
         android:title="로그출력"
-        android:visible="true"
+        android:visible="false"
         app:showAsAction="never" />
 </menu>

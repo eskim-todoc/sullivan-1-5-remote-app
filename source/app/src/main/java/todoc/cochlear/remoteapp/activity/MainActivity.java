@@ -97,6 +97,9 @@ public class MainActivity extends AppCompatActivity
     private static final int DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT = 500;
     private static final int DELAY_IN_MS_FOR_BATTERY_CHECKING = 30000;
 
+    //private static final int DELAY_IN_MS_FOR_LONG_TIME_IDLE = 10000; // 10 seconds.
+    private static final int DELAY_IN_MS_FOR_LONG_TIME_IDLE = 600000; // 10 minutes.
+
     public static final byte PACKET_HEADER_PASSWORD = (byte) (0x40 & 0xff);
     public static final byte PACKET_HEADER_SOUND_PROCESSOR_INFO = (byte) (0x43 & 0xff);
     public static final byte PACKET_HEADER_MAP_INFO = (byte) (0x44 & 0xff);
@@ -154,7 +157,7 @@ public class MainActivity extends AppCompatActivity
     {
         Log.d(TAG, "updateLongTimeIdleHandler() called.");
         longTimeIdleHandler.removeCallbacks(longTimeIdleRunner);
-        longTimeIdleHandler.postDelayed(longTimeIdleRunner, 30000);
+        longTimeIdleHandler.postDelayed(longTimeIdleRunner, DELAY_IN_MS_FOR_LONG_TIME_IDLE);
     }
 
     /**
@@ -377,47 +380,12 @@ public class MainActivity extends AppCompatActivity
                     if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_PASSWORD)
                     {
                         getSupportFragmentManager().beginTransaction().replace(R.id.main_frame, new SearchFragment()).commitAllowingStateLoss();
-
-                        // Remove bonded state
-                        if (AppParam.getInstance().currentConnectDevice != null)
-                        {
-                            boolean isBondedDevice = false;
-                            BluetoothDevice bondedDevice = null;
-                            Set<BluetoothDevice> bondedDevices = BluetoothAdapter.getDefaultAdapter().getBondedDevices();
-
-                            if (bondedDevices.size() > 0)
-                            {
-                                for (BluetoothDevice bluetoothDevice : bondedDevices)
-                                {
-                                    if (bluetoothDevice.getAddress().equals(AppParam.getInstance().currentConnectDevice.getDeviceMacAddress()))
-                                    {
-                                        Log.d(TAG, "Found bonded device.");
-                                        bondedDevice = bluetoothDevice;
-                                        isBondedDevice = true;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if (isBondedDevice && bondedDevice != null)
-                            {
-                                Log.d(TAG, "Try to unpair the device.");
-
-                                try
-                                {
-                                    Method m = bondedDevice.getClass().getMethod("removeBond", (Class[]) null);
-                                    m.invoke(bondedDevice, (Object[]) null);
-                                }
-                                catch (Exception e)
-                                {
-                                    Log.e(TAG, e.getMessage());
-                                }
-
-                                Log.d(TAG, "Removed the boned device.");
-                            }
-                        } //본딩 제거 끝
                     } // PASSWORD 프래그먼트 끝
-                }
+
+                    // 앱 잠금 화면을 활성화 시킴
+                    AppParam.getInstance().appLock = true;
+                    onResumeAppLock();
+                } // Long Time Idle 이벤트 설정 발생
                 else if (aBoolean != null && !aBoolean.booleanValue())
                 {
                     // 자동 검색 설정을 데이터베이스 값으로 확인한다
@@ -440,7 +408,7 @@ public class MainActivity extends AppCompatActivity
                     }
 
                     updateLongTimeIdleHandler();
-                }
+                } // Long Time Idle 이벤트 해제 발생
             } // onChanged 끝.
         }; // 옵저버 끝.
 
@@ -898,6 +866,11 @@ public class MainActivity extends AppCompatActivity
     {
         super.onResume();
 
+        onResumeAppLock();
+    }
+
+    public void onResumeAppLock()
+    {
         if (AppParam.getInstance().lastDialog != null)
         {
             if (AppParam.getInstance().lastDialog.isShowing())
@@ -934,7 +907,6 @@ public class MainActivity extends AppCompatActivity
             // 번호 초기화
             initAppLockNums();
         }
-
     }
 
     public void initAppLockNums()
@@ -2065,7 +2037,26 @@ public class MainActivity extends AppCompatActivity
                         }
 
                         // 현재 연결 해제된 장치가 본딩이 되어도 괜찮은 장치인지 판별 후 아니면 삭제
-                        BtUtils.getInstance().eraseBondedDeviceUsingMacAddress(address, mBluetoothAdapter);
+                        {
+                            // 1. 이 장치가 앱에 등록된 장치인가?
+                            boolean isRegisteredDevice = false;
+                            List<Device> deviceList = AppParam.getInstance().registeredDevices;
+
+                            for (Device d : deviceList)
+                            {
+                                if (d.getDeviceMacAddress().equals(address))
+                                {
+                                    isRegisteredDevice = true;
+                                    break;
+                                }
+                            }
+                            // 2. 등록되어 있지 않다면, 스마트폰에 본딩되어 있는가?
+                            if (!isRegisteredDevice)
+                            {
+                                // 3. 앱에 등록되어 있지 않은데 스마트폰에 본딩되어 있으면 본딩을 제거한다.
+                                BtUtils.getInstance().eraseBondedDeviceUsingMacAddress(address, mBluetoothAdapter);
+                            }
+                        }
 
                         gatt.close();
                         mBluetoothGatt = null;
