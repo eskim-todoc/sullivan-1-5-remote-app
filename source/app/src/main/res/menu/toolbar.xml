@@ -42,4 +42,11 @@
         android:title="로그출력"
         android:visible="false"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_applock_screen"
+        android:enabled="true"
+        android:title="잠금화면 설정"
+        android:visible="true"
+        app:showAsAction="never" />
 </menu>

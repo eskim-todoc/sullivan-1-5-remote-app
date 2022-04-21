@@ -118,7 +118,7 @@ public class AppParam {
     // Used for sending a new status for Sound Processor using BLE packet.
     public DeviceParam sendingStatusParams;
 
-    // 잠금화면을 위한 플래스
+    // 잠금화면을 위한 플래그
     public boolean appLock;
     public boolean appLockPasswordRegister;
     public boolean appLockNumVerify;

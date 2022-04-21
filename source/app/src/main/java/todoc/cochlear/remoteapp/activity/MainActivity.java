@@ -76,10 +76,8 @@ import todoc.cochlear.remoteapp.params.DeviceParam;
 import todoc.cochlear.remoteapp.params.ActionMessage;
 import todoc.cochlear.remoteapp.service.TerminationService;
 import todoc.cochlear.remoteapp.shared_preferences.AppPreferences;
-import todoc.cochlear.remoteapp.viewmodel.MyModel;
 
-public class MainActivity extends AppCompatActivity
-{
+public class MainActivity extends AppCompatActivity {
     private static final String TAG = "TD2_" + MainActivity.class.getSimpleName();
 
     private static final int REQUEST_CODE_BLUETOOTH_ENABLE = 1;
@@ -125,9 +123,6 @@ public class MainActivity extends AppCompatActivity
     BluetoothGattCharacteristic mCharClientToServer;
     BluetoothGattCharacteristic mCharServerToClient;
 
-    // //TODO: ViewModel 테스트
-    private MyModel myModel;
-
     // TODO: DataBinding 테스트
     private ActivityMainBinding activityMainBinding;
     private MainData mainData;
@@ -140,11 +135,9 @@ public class MainActivity extends AppCompatActivity
     //
     // Long time idle state runner
     //
-    Runnable longTimeIdleRunner = new Runnable()
-    {
+    Runnable longTimeIdleRunner = new Runnable() {
         @Override
-        public void run()
-        {
+        public void run() {
             Log.d(TAG, "longTimeIdleRunner() called.");
             AppParam.getInstance().longTimeIdle.setValue(true);
         }
@@ -153,8 +146,7 @@ public class MainActivity extends AppCompatActivity
     //
     // Long time idle handler updater
     //
-    public void updateLongTimeIdleHandler()
-    {
+    public void updateLongTimeIdleHandler() {
         Log.d(TAG, "updateLongTimeIdleHandler() called.");
         longTimeIdleHandler.removeCallbacks(longTimeIdleRunner);
         longTimeIdleHandler.postDelayed(longTimeIdleRunner, DELAY_IN_MS_FOR_LONG_TIME_IDLE);
@@ -164,8 +156,7 @@ public class MainActivity extends AppCompatActivity
      * Callback - onDestroy
      */
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         super.onDestroy();
 
         Log.d(TAG, "onDestroy() called.");
@@ -178,8 +169,7 @@ public class MainActivity extends AppCompatActivity
         myUnregisterReceiver(); // Unregister broadcast receiver
 
         // Close Database
-        if (appParam.database != null && appParam.database.isOpen())
-        {
+        if (appParam.database != null && appParam.database.isOpen()) {
             Log.d(TAG, "onDestroy : Close database.");
             appParam.database.close();
             appParam.database = null;
@@ -193,14 +183,12 @@ public class MainActivity extends AppCompatActivity
         //stopService(intent);
         //}
 
-        if (appParam.isBleScanning)
-        {
+        if (appParam.isBleScanning) {
             Log.d(TAG, "onDestroy : Stop BLE scanning.");
             scanLe(false);
         }
 
-        if (mBluetoothGatt != null && mBluetoothDevice != null && AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
-        {
+        if (mBluetoothGatt != null && mBluetoothDevice != null && AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED) {
             Log.d(TAG, "onDestroy : Disconnect BLE connection.");
             appParam.isDisconnectedByUser = true;
             mBluetoothGatt.disconnect();
@@ -216,8 +204,7 @@ public class MainActivity extends AppCompatActivity
      * Callback - onCreate
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
         activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
@@ -256,11 +243,9 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, actionMessage.toString());
 
         // Check permissions
-        if (grantPermissions())
-        {
+        if (grantPermissions()) {
             // Check Bluetooth enabling/disabling
-            if (enableBluetooth())
-            {
+            if (enableBluetooth()) {
                 initMainActivity(); // Initiailze all of MainActivity
             }
         }
@@ -273,8 +258,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Initialize MainActivity (View, Database, Bluetooth, ...)
      */
-    public void initMainActivity()
-    {
+    public void initMainActivity() {
         // Check language
         AppParam.getInstance().isKorean = getString(R.string.language).equals("한글");
 
@@ -286,15 +270,12 @@ public class MainActivity extends AppCompatActivity
         myRegisterReceiver();
 
         // Start termination service
-        if (!AppParam.getInstance().isTerminationServiceStarted)
-        {
+        if (!AppParam.getInstance().isTerminationServiceStarted) {
             Log.d(TAG, "Try to start termination service.");
             Intent intent = new Intent(this, TerminationService.class);
             intent.setAction(TerminationService.ACTION_START_SERVICE);
             startService(intent);
-        }
-        else
-        {
+        } else {
             Log.d(TAG, "Termination service created previously is not finished.");
         }
 
@@ -307,14 +288,11 @@ public class MainActivity extends AppCompatActivity
         //getSupportFragmentManager().beginTransaction().replace(R.id.main_frame, new PasswordFragment()).commitAllowingStateLoss();
 
         // Check Database
-        if (AppParam.getInstance().database == null)
-        {
+        if (AppParam.getInstance().database == null) {
             AppParam.getInstance().database = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, AppDatabase.DATABASE_NAME)
-                    .addCallback(new RoomDatabase.Callback()
-                    {
+                    .addCallback(new RoomDatabase.Callback() {
                         @Override
-                        public void onCreate(@NonNull SupportSQLiteDatabase db)
-                        {
+                        public void onCreate(@NonNull SupportSQLiteDatabase db) {
                             super.onCreate(db);
                             db.execSQL(AppDatabase.DATABASE_ENCODING);
                         }
@@ -342,43 +320,35 @@ public class MainActivity extends AppCompatActivity
         initAppLockNums();
 
         //TODO: Live Data를 이용한 장시간 미사용 테스트
-        final Observer<Boolean> longTimeIdleObserver = new Observer<Boolean>()
-        {
+        final Observer<Boolean> longTimeIdleObserver = new Observer<Boolean>() {
             @Override
-            public void onChanged(Boolean aBoolean)
-            {
-                if (aBoolean != null && aBoolean.booleanValue())
-                {
+            public void onChanged(Boolean aBoolean) {
+                if (aBoolean != null && aBoolean.booleanValue()) {
                     // Make Dialog
                     androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(MainActivity.this);
                     builder.setCancelable(false);
                     builder.setMessage("장시간 미사용으로 인해 앱이 절전모드로 진입했습니다.\n절전모드 해제 버튼을 누르면 다시 정상동작을 시작합니다.");
-                    builder.setPositiveButton("절전모드 해제", new DialogInterface.OnClickListener()
-                    {
+                    builder.setPositiveButton("절전모드 해제", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialogInterface, int i)
-                        {
+                        public void onClick(DialogInterface dialogInterface, int i) {
                             AppParam.getInstance().longTimeIdle.setValue(Boolean.valueOf(false));
                         }
                     });
                     builder.create().show();
 
                     AppParam.getInstance().setAutoConnectionEnabled(false);
-                    if (AppParam.getInstance().isBleScanning)
-                    {
+                    if (AppParam.getInstance().isBleScanning) {
                         scanLe(false);
                     }
 
                     // Disconnect BLE if connected
-                    if (AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
-                    {
+                    if (AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED) {
                         AppParam.getInstance().isDisconnectedByUser = true;
                         mBluetoothGatt.disconnect();
                     }
 
                     // Do BackPressed if screen shows PASSWORD fragment currently
-                    if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_PASSWORD)
-                    {
+                    if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_PASSWORD) {
                         getSupportFragmentManager().beginTransaction().replace(R.id.main_frame, new SearchFragment()).commitAllowingStateLoss();
                     } // PASSWORD 프래그먼트 끝
 
@@ -386,23 +356,17 @@ public class MainActivity extends AppCompatActivity
                     AppParam.getInstance().appLock = true;
                     onResumeAppLock();
                 } // Long Time Idle 이벤트 설정 발생
-                else if (aBoolean != null && !aBoolean.booleanValue())
-                {
+                else if (aBoolean != null && !aBoolean.booleanValue()) {
                     // 자동 검색 설정을 데이터베이스 값으로 확인한다
-                    if (AppPreferences.getInstance().isAutoConnectionEnabled(getApplicationContext()))
-                    {
+                    if (AppPreferences.getInstance().isAutoConnectionEnabled(getApplicationContext())) {
                         AppParam.getInstance().setAutoConnectionEnabled(true);
                     }
 
                     // 등록된 장치가 있거나, 검색 화면이라면 스캔을 시작한다
-                    if (AppParam.getInstance().registeredDevices.size() > 0)
-                    {
+                    if (AppParam.getInstance().registeredDevices.size() > 0) {
                         scanLe(true);
-                    }
-                    else
-                    {
-                        if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_SEARCH)
-                        {
+                    } else {
+                        if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_SEARCH) {
                             scanLe(true);
                         }
                     }
@@ -418,8 +382,7 @@ public class MainActivity extends AppCompatActivity
         updateLongTimeIdleHandler();
     } // initMainActivity
 
-    public void onClickLiveData(View view)
-    {
+    public void onClickLiveData(View view) {
 
         Log.d(TAG, "onClickLiveData");
 
@@ -427,8 +390,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event)
-    {
+    public boolean onTouchEvent(MotionEvent event) {
         Log.d(TAG, "##### onTouchEvent #####");
         return super.onTouchEvent(event);
     }
@@ -437,8 +399,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Callback - User guide clase button.
      */
-    public void onClickUserGuideClose(View view)
-    {
+    public void onClickUserGuideClose(View view) {
         updateLongTimeIdleHandler(); // Update long time idle handler
         boolean enable = !((CheckBox) findViewById(R.id.main_user_guide_checkbox)).isChecked();
         AppPreferences.getInstance().setManualToEnabled(getApplication(), enable);
@@ -448,17 +409,13 @@ public class MainActivity extends AppCompatActivity
     /**
      * Enable or disable showing user guide screen.
      */
-    public void enableScreenUserGuide(boolean enable)
-    {
+    public void enableScreenUserGuide(boolean enable) {
         LinearLayout layout = findViewById(R.id.main_user_guide_layout);
 
-        if (enable)
-        {
+        if (enable) {
             Log.d(TAG, "Show manual.");
             layout.setVisibility(View.VISIBLE);
-        }
-        else
-        {
+        } else {
             Log.d(TAG, "Hide manual.");
             layout.setVisibility(View.GONE);
         }
@@ -467,8 +424,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Callback - If no sound processor has registered, user must go to search a sound processor
      */
-    public void onClickNoDeviceRegistered(View view)
-    {
+    public void onClickNoDeviceRegistered(View view) {
         updateLongTimeIdleHandler(); // Update long time idle handler
         sendBroadcast(new Intent(ActionMessage.NEW_FRAGMENT_SEARCH_WITH_DISCONNECT_BLE));
         enableScreenNoDeviceRegistered(false);
@@ -481,8 +437,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Set long click event for app lock screen's number buttons.
      */
-    public void initNumberLongClick()
-    {
+    public void initNumberLongClick() {
         // DELETE
         findViewById(R.id.main_applock_num_del_btn).setLongClickable(true);
         findViewById(R.id.main_applock_num_del_btn).setOnLongClickListener(mNumberLongClickListener);
@@ -531,76 +486,60 @@ public class MainActivity extends AppCompatActivity
     /**
      * Long click event listener for app lock screen's number buttons.
      */
-    View.OnLongClickListener mNumberLongClickListener = new View.OnLongClickListener()
-    {
+    View.OnLongClickListener mNumberLongClickListener = new View.OnLongClickListener() {
         @Override
-        public boolean onLongClick(View view)
-        {
+        public boolean onLongClick(View view) {
             updateLongTimeIdleHandler(); // Update long time idle handler
             int count = LoggingUtils.getInstance().mSecretNumberCount;
 
             Log.d(TAG, "Currently secret log viewer password count : " + count);
 
-            switch (count)
-            {
+            switch (count) {
                 case 0:
                 case 1:
                 case 4:
                 case 5:
-                    if (view.getId() == R.id.main_applock_num_del_btn)
-                    {
+                    if (view.getId() == R.id.main_applock_num_del_btn) {
                         Log.d(TAG, "Correct number.");
                         count++;
-                    }
-                    else
-                    {
+                    } else {
                         Log.d(TAG, "Incorrect number.");
                         count = 0;
                     }
                     break;
 
                 case 2:
-                    if (view.getId() == R.id.main_applock_num_1_btn)
-                    {
+                    if (view.getId() == R.id.main_applock_num_1_btn) {
                         Log.d(TAG, "Correct number.");
                         count++;
-                    }
-                    else
-                    {
+                    } else {
                         Log.d(TAG, "Incorrect number.");
                         count = 0;
                     }
                     break;
 
                 case 3:
-                    if (view.getId() == R.id.main_applock_num_4_btn)
-                    {
+                    if (view.getId() == R.id.main_applock_num_4_btn) {
                         Log.d(TAG, "Correct number.");
                         count++;
-                    }
-                    else
-                    {
+                    } else {
                         Log.d(TAG, "Incorrect number.");
                         count = 0;
                     }
                     break;
 
                 case 6:
-                    if (view.getId() == R.id.main_applock_num_0_btn)
-                    {
+                    if (view.getId() == R.id.main_applock_num_0_btn) {
                         Log.d(TAG, "Correct number.");
                         count++;
-                    }
-                    else
-                    {
+                    } else {
                         Log.d(TAG, "Incorrect number.");
                         count = 0;
                     }
                     break;
 
                 case 7:
-                    if (view.getId() == R.id.main_applock_num_7_btn)
-                    {
+                    if (view.getId() == R.id.main_applock_num_7_btn) {
                         Log.d(TAG, "Correct number.");
                         Log.d(TAG, "Secret log viewer will be shown");
                         ConstraintLayout screen = findViewById(R.id.main_logging_screen_layout);
@@ -609,9 +548,7 @@ public class MainActivity extends AppCompatActivity
                         {
                             LoggingUtils.getInstance().printLoggingScreen((ListView) findViewById(R.id.main_logging_screen_lv));
                         } // 로깅 데이터 입력하기 끝
-                    }
-                    else
-                    {
+                    } else {
                         Log.d(TAG, "Incorrect number.");
                     }
                     count = 0;
@@ -632,8 +569,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Callback - Logging screen exit button
      */
-    public void onClickExitLoggingScreen(View view)
-    {
+    public void onClickExitLoggingScreen(View view) {
         updateLongTimeIdleHandler(); // Update long time idle handler
         ConstraintLayout screen = findViewById(R.id.main_logging_screen_layout);
         screen.setVisibility(View.GONE);
@@ -643,8 +579,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * 앱 완전 초기화 함수
      */
-    public void initAllForApp()
-    {
+    public void initAllForApp() {
         // 1. 등록된 사운드처리기 정보 가지고 오기.
         List<Device> devices = AppParam.getInstance().database.deviceDao().findAll();
 
@@ -653,22 +588,15 @@ public class MainActivity extends AppCompatActivity
 
         // 3. 등록된 사운드처리기를 가지고 본딩된 블루투스 기기 목록에서 일치하는 기기를 찾아내고,
         // 해당 기기의 본딩을 해제한다.
-        for (int i = 0; i < devices.size(); i++)
-        {
-            if (bondedDevices.size() > 0)
-            {
-                for (BluetoothDevice bluetoothDevice : bondedDevices)
-                {
-                    if (bluetoothDevice.getAddress().equals(devices.get(i).getDeviceMacAddress()))
-                    {
-                        try
-                        {
+        for (int i = 0; i < devices.size(); i++) {
+            if (bondedDevices.size() > 0) {
+                for (BluetoothDevice bluetoothDevice : bondedDevices) {
+                    if (bluetoothDevice.getAddress().equals(devices.get(i).getDeviceMacAddress())) {
+                        try {
                             Log.d(TAG, "본딩 장치 = " + bluetoothDevice.getAddress() + "를 본딩 해제 합니다.");
                             Method m = bluetoothDevice.getClass().getMethod("removeBond", (Class[]) null);
                             m.invoke(bluetoothDevice, (Object[]) null);
-                        }
-                        catch (Exception e)
-                        {
+                        } catch (Exception e) {
                             Log.d(TAG, "본딩 장치 = " + bluetoothDevice.getAddress() + " 본딩 해제 실패.");
                             Log.e(TAG, e.getMessage());
                         }
@@ -680,8 +608,7 @@ public class MainActivity extends AppCompatActivity
         } // 본딩 해제 끝
 
         // 4. 앱 데이터 베이스의 모든 사운드처리기를 삭제
-        for (int i = 0; i < devices.size(); i++)
-        {
+        for (int i = 0; i < devices.size(); i++) {
             Log.d(TAG, "사운드처리기 = " + devices.get(i).getDeviceMacAddress() + "를 삭제합니다.");
             AppParam.getInstance().database.deviceDao().delete(devices.get(i));
 
@@ -722,23 +649,16 @@ public class MainActivity extends AppCompatActivity
 
         // 12. BLE 연결 중인 장치가 있다면 연결 해제
         if (AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED
-                && mBluetoothDevice != null && mBluetoothGatt != null)
-        {
+                && mBluetoothDevice != null && mBluetoothGatt != null) {
             // 단, 현재 연결 중인 장치가 있다면 본딩까지 됐는지 확인후 본딩 제거
-            if (bondedDevices.size() > 0)
-            {
-                for (BluetoothDevice bluetoothDevice : bondedDevices)
-                {
-                    if (bluetoothDevice.getAddress().equals(mBluetoothDevice.getAddress()))
-                    {
-                        try
-                        {
+            if (bondedDevices.size() > 0) {
+                for (BluetoothDevice bluetoothDevice : bondedDevices) {
+                    if (bluetoothDevice.getAddress().equals(mBluetoothDevice.getAddress())) {
+                        try {
                             Log.d(TAG, "본딩 장치 = " + bluetoothDevice.getAddress() + "를 본딩 해제 합니다.");
                             Method m = bluetoothDevice.getClass().getMethod("removeBond", (Class[]) null);
                             m.invoke(bluetoothDevice, (Object[]) null);
-                        }
-                        catch (Exception e)
-                        {
+                        } catch (Exception e) {
                             Log.d(TAG, "본딩 장치 = " + bluetoothDevice.getAddress() + " 본딩 해제 실패.");
                             Log.e(TAG, e.getMessage());
                         }
@@ -768,11 +688,9 @@ public class MainActivity extends AppCompatActivity
         android.app.AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.MyAlertDialogTheme);
 
         builder.setMessage("앱에 등록된 모든 사운드처리기의 정보를 삭제하고 앱 비밀번호를 초기화 하였습니다.");
-        builder.setPositiveButton("확인", new DialogInterface.OnClickListener()
-        {
+        builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i)
-            {
+            public void onClick(DialogInterface dialogInterface, int i) {
                 scanLe(false);
             }
         });
@@ -786,25 +704,20 @@ public class MainActivity extends AppCompatActivity
     /**
      * Callback - 잠금 해제 화면에서 앱 비밀번호 초기화 버튼의 콜백 함수
      */
-    public void onClickAppLockReset(View view)
-    {
+    public void onClickAppLockReset(View view) {
         updateLongTimeIdleHandler(); // Update long time idle handler
         Log.d(TAG, "앱 비밀번호 초기화 버튼 클릭!");
         vibrator(5);
 
-        runOnUiThread(new Runnable()
-        {
+        runOnUiThread(new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 android.app.AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.MyAlertDialogTheme);
 
                 builder.setMessage("앱에 등록된 모든 사운드처리기의 정보를 삭제하고 앱 비밀번호를 초기화 할 수 있습니다. 비밀번호를 초기화 하시겠습니까?");
-                builder.setPositiveButton("네", new DialogInterface.OnClickListener()
-                {
+                builder.setPositiveButton("네", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i)
-                    {
+                    public void onClick(DialogInterface dialogInterface, int i) {
                         initAllForApp();
                     }
                 });
@@ -819,14 +732,12 @@ public class MainActivity extends AppCompatActivity
     /**
      * Callback - 잠금 해제 화면의 기능을 테스트 하기 위한 클릭 콜백 함수
      */
-    public void onClickPassNumDelete(View view)
-    {
+    public void onClickPassNumDelete(View view) {
         updateLongTimeIdleHandler(); // Update long time idle handler
         vibrator(5);
         LoggingUtils.getInstance().mSecretNumberCount = 0;
 
-        switch (AppParam.getInstance().appLockNumIdx)
-        {
+        switch (AppParam.getInstance().appLockNumIdx) {
             case 0:
                 break;
             case 1:
@@ -853,8 +764,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onStop()
-    {
+    protected void onStop() {
         super.onStop();
 
         initAppLockNums();
@@ -862,39 +772,37 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
 
         onResumeAppLock();
     }
 
-    public void onResumeAppLock()
-    {
-        if (AppParam.getInstance().lastDialog != null)
-        {
-            if (AppParam.getInstance().lastDialog.isShowing())
-            {
+    public void onResumeAppLock() {
+        if (AppParam.getInstance().lastDialog != null) {
+            if (AppParam.getInstance().lastDialog.isShowing()) {
                 AppParam.getInstance().lastDialog.dismiss();
             }
         }
 
         // 1. 앱에 등록된 패스워드가 있는지 검사
-        if (AppPreferences.getInstance().isTherePassword(getApplicationContext()))
-        {
+        if (AppPreferences.getInstance().isTherePassword(getApplicationContext())) {
             Log.d(TAG, "등록된 앱 비밀번호가 있습니다.");
-            // 2. 등록된 패스워드가 있다면 패스워드 입력 화면을 출력
-            if (AppParam.getInstance().appLock)
-            {
-                ConstraintLayout passLockLayout = findViewById(R.id.main_applock_layout);
-                passLockLayout.setVisibility(View.VISIBLE);
 
-                ((TextView) findViewById(R.id.main_applock_desc)).setText("앱 비밀번호를 입력해주세요.");
-                initAppLockNums();
+            if (AppPreferences.getInstance().isApplockScreenEnabled(getApplicationContext())) {
+                Log.d(TAG, "Applock screen on!");
+                // 2. 등록된 패스워드가 있다면 패스워드 입력 화면을 출력
+                if (AppParam.getInstance().appLock) {
+                    ConstraintLayout passLockLayout = findViewById(R.id.main_applock_layout);
+                    passLockLayout.setVisibility(View.VISIBLE);
+
+                    ((TextView) findViewById(R.id.main_applock_desc)).setText("앱 비밀번호를 입력해주세요.");
+                    initAppLockNums();
+                }
+            } else {
+                Log.d(TAG, "Applock screen is disabled, so do not show the screen.");
             }
-        }
-        else
-        {
+        } else {
             Log.d(TAG, "등록된 앱 비밀번호가 없습니다.");
             // 3. 등록된 패스워드가 없다면 패스워드 등록 화면을 출력
             AppParam.getInstance().appLockPasswordRegister = true;
@@ -909,8 +817,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void initAppLockNums()
-    {
+    public void initAppLockNums() {
         Log.d(TAG, "앱 잠금 화면을 초기화 합니다.");
 
         AppParam.getInstance().appLockNumIdx = 0;
@@ -931,14 +838,12 @@ public class MainActivity extends AppCompatActivity
         appLockNum4Tv.setText(AppParam.getInstance().appLockNum4);
     }
 
-    public void inputUnlockNum(int num)
-    {
+    public void inputUnlockNum(int num) {
         String strNum = "" + num;
 
         Log.d(TAG, "번호 입력 = " + strNum);
 
-        switch (AppParam.getInstance().appLockNumIdx)
-        {
+        switch (AppParam.getInstance().appLockNumIdx) {
             case 0:
                 AppParam.getInstance().appLockNum1 = strNum;
                 ((TextView) findViewById(R.id.main_applock_password_1_val)).setText("*");
@@ -963,20 +868,16 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
 
-        if (AppParam.getInstance().appLockNumIdx == 4)
-        {
+        if (AppParam.getInstance().appLockNumIdx == 4) {
             // 앱 비밀번호 등록 과정
-            if (AppParam.getInstance().appLockPasswordRegister)
-            {
+            if (AppParam.getInstance().appLockPasswordRegister) {
                 // 확인을 위한 재 입력 과정
-                if (AppParam.getInstance().appLockNumVerify)
-                {
+                if (AppParam.getInstance().appLockNumVerify) {
                     AppParam.getInstance().strSecondLockNum = AppParam.getInstance().appLockNum1 + AppParam.getInstance().appLockNum2 +
                             AppParam.getInstance().appLockNum3 + AppParam.getInstance().appLockNum4;
 
                     // 두 비밀번호 비교
-                    if (AppParam.getInstance().strFirstLockNum.equals(AppParam.getInstance().strSecondLockNum))
-                    {
+                    if (AppParam.getInstance().strFirstLockNum.equals(AppParam.getInstance().strSecondLockNum)) {
                         Log.d(TAG, "등록을 위한 앱 비밀번호의 확인용 비밀번호가 일치합니다.");
                         // 비밀번호가 같을 때
                         AppPreferences.getInstance().setNewPassword(getApplicationContext(), AppParam.getInstance().strFirstLockNum);
@@ -988,16 +889,13 @@ public class MainActivity extends AppCompatActivity
                         // 잠금 화면 해제
                         ConstraintLayout passLockLayout = findViewById(R.id.main_applock_layout);
                         passLockLayout.setVisibility(View.GONE);
-                    }
-                    else
-                    {
+                    } else {
                         // 비밓번호가 다를 때
                         AppParam.getInstance().appLockNumVerify = false;
                         ((TextView) findViewById(R.id.main_applock_desc)).setText("비밀번호가 다릅니다.\n등록할 앱 비밀번호를 다시 입력해주세요.");
                         initAppLockNums();
                     }
-                }
-                else // 비밀번호 첫 입력 과정
+                } else // 비밀번호 첫 입력 과정
                 {
                     Log.d(TAG, "등록을 위한 앱 비밀번호를 입력했습니다.");
                     AppParam.getInstance().strFirstLockNum = AppParam.getInstance().appLockNum1 + AppParam.getInstance().appLockNum2 +
@@ -1006,23 +904,19 @@ public class MainActivity extends AppCompatActivity
                     ((TextView) findViewById(R.id.main_applock_desc)).setText("확인을 위해 앱 비밀번호를 다시 입력해주세요.");
                     initAppLockNums();
                 }
-            }
-            else // 일반적인 앱 비밀번호 확인 과정
+            } else // 일반적인 앱 비밀번호 확인 과정
             {
                 AppParam.getInstance().strFirstLockNum = AppParam.getInstance().appLockNum1 + AppParam.getInstance().appLockNum2 +
                         AppParam.getInstance().appLockNum3 + AppParam.getInstance().appLockNum4;
 
-                if (AppPreferences.getInstance().isPasswordCorrect(getApplicationContext(), AppParam.getInstance().strFirstLockNum))
-                {
+                if (AppPreferences.getInstance().isPasswordCorrect(getApplicationContext(), AppParam.getInstance().strFirstLockNum)) {
                     Log.d(TAG, "앱 비밀번호가 일치합니다.");
                     initAppLockNums();
 
                     // 잠금 화면 해제
                     ConstraintLayout passLockLayout = findViewById(R.id.main_applock_layout);
                     passLockLayout.setVisibility(View.GONE);
-                }
-                else
-                {
+                } else {
                     Log.d(TAG, "앱 비밀번호가 일치하지 않습니다.");
                     ((TextView) findViewById(R.id.main_applock_desc)).setText("앱 비밀번호가 다릅니다.\n앱 비밀번호를 다시 입력해주세요.");
                     initAppLockNums();
@@ -1031,14 +925,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void onClickPassNumClicked(View view)
-    {
+    public void onClickPassNumClicked(View view) {
         updateLongTimeIdleHandler(); // Update long time idle handler
         vibrator(5);
         LoggingUtils.getInstance().mSecretNumberCount = 0;
 
-        switch (view.getId())
-        {
+        switch (view.getId()) {
             case R.id.main_applock_num_1_btn:
                 inputUnlockNum(1);
                 break;
@@ -1075,23 +967,18 @@ public class MainActivity extends AppCompatActivity
     /**
      * Enable or disable showing no device screen on MainActivity
      */
-    public void enableScreenNoDeviceRegistered(boolean enable)
-    {
+    public void enableScreenNoDeviceRegistered(boolean enable) {
         // ESKIM start
         //enable = false;
         // ESKIM end
-        if (enable)
-        {
+        if (enable) {
             findViewById(R.id.main_no_device_layout).setVisibility(View.VISIBLE);
-        }
-        else
-        {
+        } else {
             findViewById(R.id.main_no_device_layout).setVisibility(View.GONE);
         }
     }
 
-    public boolean isNoDeviceRegisteredScreenEnabled()
-    {
+    public boolean isNoDeviceRegisteredScreenEnabled() {
         return findViewById(R.id.main_no_device_layout).getVisibility() == View.VISIBLE;
     }
 
@@ -1104,21 +991,15 @@ public class MainActivity extends AppCompatActivity
      * Callback - Request permissions
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
-    {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == REQUEST_PERMISSION_FINE_LOCATION)
-        {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            {
-                if (enableBluetooth())
-                {
+        if (requestCode == REQUEST_PERMISSION_FINE_LOCATION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (enableBluetooth()) {
                     initMainActivity(); // Initiailze all of MainActivity
                 }
-            }
-            else
-            {
+            } else {
                 finish();
             }
         }
@@ -1127,10 +1008,8 @@ public class MainActivity extends AppCompatActivity
     /**
      * Grant permissions
      */
-    public boolean grantPermissions()
-    {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-        {
+    public boolean grantPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_PERMISSION_FINE_LOCATION);
 
             return false;
@@ -1146,12 +1025,10 @@ public class MainActivity extends AppCompatActivity
     /**
      * Register broadcast receiver
      */
-    private void myRegisterReceiver()
-    {
+    private void myRegisterReceiver() {
         AppParam appParam = AppParam.getInstance();
 
-        if (!appParam.isBroadcastReceiverRegistered)
-        {
+        if (!appParam.isBroadcastReceiverRegistered) {
             registerReceiver(mBroadcastReceiver, makeIntentFilter());
 
             appParam.isBroadcastReceiverRegistered = true;
@@ -1163,12 +1040,10 @@ public class MainActivity extends AppCompatActivity
     /**
      * Unregister broadcast receiver
      */
-    private void myUnregisterReceiver()
-    {
+    private void myUnregisterReceiver() {
         AppParam appParam = AppParam.getInstance();
 
-        if (appParam.isBroadcastReceiverRegistered)
-        {
+        if (appParam.isBroadcastReceiverRegistered) {
             unregisterReceiver(mBroadcastReceiver);
 
             appParam.isBroadcastReceiverRegistered = false;
@@ -1180,8 +1055,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Broadcast receiver filter maker
      */
-    private IntentFilter makeIntentFilter()
-    {
+    private IntentFilter makeIntentFilter() {
         IntentFilter intentFilter = new IntentFilter();
 
         // Bluetooth globally...
@@ -1214,60 +1088,45 @@ public class MainActivity extends AppCompatActivity
     /**
      * Broadcast receiver
      */
-    private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver()
-    {
+    private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, Intent intent)
-        {
+        public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             Log.d(TAG, "Received broadcast : action = " + action);
 
             // Detect disabling Bluetooth
-            if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED))
-            {
+            if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
 
-                if (state == BluetoothAdapter.STATE_OFF)
-                {
+                if (state == BluetoothAdapter.STATE_OFF) {
                     finish();
                     //enableBluetooth();
                 }
             } // BluetoothAdapter.ACTION_STATE_CHANGED
-            else if (action.equals(BluetoothDevice.ACTION_PAIRING_REQUEST))
-            {
+            else if (action.equals(BluetoothDevice.ACTION_PAIRING_REQUEST)) {
                 Log.d(TAG, "Get action pairing request!");
 
                 byte[] pinBytes = "123456".getBytes();
                 //mBluetoothDevice.setPin(pinBytes);
                 //mBluetoothDevice.setPairingConfirmation(true);
 
-            }
-            else if (action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED))
-            {
-                if (mBluetoothDevice != null && mBluetoothDevice.getBondState() == BluetoothDevice.BOND_NONE)
-                {
+            } else if (action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
+                if (mBluetoothDevice != null && mBluetoothDevice.getBondState() == BluetoothDevice.BOND_NONE) {
                     Log.d(TAG, "Get action message : BOND_NONE");
-                }
-                else if (mBluetoothDevice != null && mBluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDING)
-                {
+                } else if (mBluetoothDevice != null && mBluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDING) {
                     Log.d(TAG, "Get action message : BOND_BONDING");
-                }
-                else if (mBluetoothDevice != null && mBluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED)
-                {
+                } else if (mBluetoothDevice != null && mBluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
                     Log.d(TAG, "Get action message : BOND_BONDED");
 
                     // Get currently running fragment number.
                     int currentFragmentNumber = AppParam.getInstance().getCurrentFragmentNumber();
 
-                    switch (currentFragmentNumber)
-                    {
+                    switch (currentFragmentNumber) {
                         case AppParam.FRAGMENT_NUMBER_HOME:
-                        case AppParam.FRAGMENT_NUMBER_LIST:
-                        {
+                        case AppParam.FRAGMENT_NUMBER_LIST: {
                             Log.d(TAG, "onDescriptorWrite : Currently running fragment is home or device list. Therefore send password packet to server.");
 
-                            if (!sendPacket(packetMaker(PACKET_HEADER_PASSWORD, AppParam.getInstance().currentConnectDevice.getDevicePassword().getBytes(), 5)))
-                            {
+                            if (!sendPacket(packetMaker(PACKET_HEADER_PASSWORD, AppParam.getInstance().currentConnectDevice.getDevicePassword().getBytes(), 5))) {
                                 Log.d(TAG, "onDescriptorWrite : Failed to send password packet.");
                                 mBluetoothGatt.disconnect();
                             }
@@ -1275,8 +1134,7 @@ public class MainActivity extends AppCompatActivity
                         }
                         break;
 
-                        case AppParam.FRAGMENT_NUMBER_SEARCH:
-                        {
+                        case AppParam.FRAGMENT_NUMBER_SEARCH: {
                             Log.d(TAG, "onDescriptorWrite : Currently running fragment is search. Therefore fragment change to password to get password from user.");
                             sendBroadcast(new Intent(ActionMessage.NEW_FRAGMENT_PASSWORD));
                         }
@@ -1286,53 +1144,42 @@ public class MainActivity extends AppCompatActivity
 
             }
             // ACTIVITY_FINISH
-            else if (action.equals(ActionMessage.ACTIVITY_FINISH))
-            {
+            else if (action.equals(ActionMessage.ACTIVITY_FINISH)) {
                 finish();
             }
             // BLE_SCAN_START
-            else if (action.equals(ActionMessage.BLE_SCAN_START))
-            {
+            else if (action.equals(ActionMessage.BLE_SCAN_START)) {
                 scanLe(true);
             }
             // BLE_SCAN_STOP
-            else if (action.equals(ActionMessage.BLE_SCAN_STOP))
-            {
+            else if (action.equals(ActionMessage.BLE_SCAN_STOP)) {
                 scanLe(false);
             }
             // BLE_SCAN_RESTART
-            else if (action.equals(ActionMessage.BLE_SCAN_RESTART))
-            {
+            else if (action.equals(ActionMessage.BLE_SCAN_RESTART)) {
                 scanLe(false);
                 scanLe(true);
             }
             // BLE_CONNECT
-            else if (action.equals(ActionMessage.BLE_CONNECT))
-            {
+            else if (action.equals(ActionMessage.BLE_CONNECT)) {
                 Log.d(TAG, "Number of connected device before try to connect is " + mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT).size() + ".");
                 Log.d(TAG, "MAC address want to connect is " + AppParam.getInstance().currentConnectDevice.getDeviceMacAddress() + ".");
 
                 mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(AppParam.getInstance().currentConnectDevice.getDeviceMacAddress());
 
-                if (mBluetoothDevice != null)
-                {
+                if (mBluetoothDevice != null) {
                     mBluetoothGatt = mBluetoothDevice.connectGatt(getApplicationContext(), false, mGattCallback);
 
-                    if (mBluetoothGatt == null)
-                    {
+                    if (mBluetoothGatt == null) {
                         Log.d(TAG, "Bluetooth GATT instance is null.");
                     }
-                }
-                else
-                {
+                } else {
                     Log.d(TAG, "Bluetooth device instance is null.");
                 }
             }
             // BLE_DISCONNECT
-            else if (action.equals(ActionMessage.BLE_DISCONNECT))
-            {
-                if (mBluetoothGatt != null && mBluetoothDevice != null && AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
-                {
+            else if (action.equals(ActionMessage.BLE_DISCONNECT)) {
+                if (mBluetoothGatt != null && mBluetoothDevice != null && AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED) {
                     Log.d(TAG, "장치 연결을 해제합니다.");
                     mBluetoothGatt.disconnect();
                     //mBluetoothGatt.close();
@@ -1344,26 +1191,21 @@ public class MainActivity extends AppCompatActivity
                 }
             }
             // FRAGMENT HOME
-            else if (action.equals(ActionMessage.NEW_FRAGMENT_HOME))
-            {
+            else if (action.equals(ActionMessage.NEW_FRAGMENT_HOME)) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_frame, new HomeFragment()).commitAllowingStateLoss();
             }
             // FRAGMENT HOME + STOP BLE SCAN
-            else if (action.equals(ActionMessage.NEW_FRAGMENT_HOME_WITH_STOP_BLE_SCAN))
-            {
+            else if (action.equals(ActionMessage.NEW_FRAGMENT_HOME_WITH_STOP_BLE_SCAN)) {
                 scanLe(false);
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_frame, new HomeFragment()).commitAllowingStateLoss();
             }
             // FRAGMENT PASSWORD
-            else if (action.equals(ActionMessage.NEW_FRAGMENT_PASSWORD))
-            {
+            else if (action.equals(ActionMessage.NEW_FRAGMENT_PASSWORD)) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_frame, new PasswordFragment()).commitAllowingStateLoss();
             }
             // FRAGMENT SEARCH + DISCONNECT BLE
-            else if (action.equals(ActionMessage.NEW_FRAGMENT_SEARCH_WITH_DISCONNECT_BLE))
-            {
-                if (mBluetoothGatt != null && mBluetoothDevice != null && AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
-                {
+            else if (action.equals(ActionMessage.NEW_FRAGMENT_SEARCH_WITH_DISCONNECT_BLE)) {
+                if (mBluetoothGatt != null && mBluetoothDevice != null && AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED) {
                     Log.d(TAG, "장치 연결을 해제합니다.");
                     mBluetoothGatt.disconnect();
                 }
@@ -1371,12 +1213,10 @@ public class MainActivity extends AppCompatActivity
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_frame, new SearchFragment()).commitAllowingStateLoss();
             }
             // DATABASE CHECK EMPTY
-            else if (action.equals(ActionMessage.DATABASE_CHECK_EMPTY))
-            {
+            else if (action.equals(ActionMessage.DATABASE_CHECK_EMPTY)) {
                 AppParam.getInstance().registeredDevices = AppParam.getInstance().database.deviceDao().findAll();
 
-                if (AppParam.getInstance().registeredDevices.size() == 0)
-                {
+                if (AppParam.getInstance().registeredDevices.size() == 0) {
                     enableScreenNoDeviceRegistered(true);
                 }
             }
@@ -1387,27 +1227,22 @@ public class MainActivity extends AppCompatActivity
      * 백버튼 콜백 메소드.
      */
     @Override
-    public void onBackPressed()
-    {
+    public void onBackPressed() {
         updateLongTimeIdleHandler(); // Update long time idle handler
         // 홈 프래그먼트
-        if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME)
-        {
+        if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME) {
             ((HomeFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).makeDialogBackPressed();
         }
         // 기기 목록 프래그먼트
-        else if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_LIST)
-        {
+        else if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_LIST) {
             ((DeviceListFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).makeBackPressedWithoutDialog();
         }
         // 검색 프래그먼트
-        else if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_SEARCH)
-        {
+        else if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_SEARCH) {
             ((SearchFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).makeDialogBackPressed();
         }
         // 보안코드 프래그먼트
-        else if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_PASSWORD)
-        {
+        else if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_PASSWORD) {
             ((PasswordFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).makeDialogBackPressed();
         }
     }
@@ -1419,8 +1254,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Update toolbar menu and icons.
      */
-    public void updateToolbar()
-    {
+    public void updateToolbar() {
         invalidateOptionsMenu(); // onCreateOptionsMenu will called.
     }
 
@@ -1428,8 +1262,7 @@ public class MainActivity extends AppCompatActivity
      * Callback for invalidateOptionMenu method.
      */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
+    public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar, menu);
 
         // Title
@@ -1444,12 +1277,9 @@ public class MainActivity extends AppCompatActivity
         menu.findItem(R.id.menu_list).setVisible(AppParam.getInstance().getMenuList());
         menu.findItem(R.id.menu_auto_connection).setVisible(AppParam.getInstance().getMenuAutoConnection());
 
-        if (AppParam.getInstance().isAutoConnectionEnabled())
-        {
+        if (AppParam.getInstance().isAutoConnectionEnabled()) {
             menu.findItem(R.id.menu_auto_connection).setIcon(R.drawable.ic_toolbar_auto_connection_enabled);
-        }
-        else
-        {
+        } else {
             menu.findItem(R.id.menu_auto_connection).setIcon(R.drawable.ic_toolbar_auto_connection_disabled);
         }
 
@@ -1459,15 +1289,12 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    DialogInterface.OnClickListener mDialogClickListenerMenuSearch = new DialogInterface.OnClickListener()
-    {
+    DialogInterface.OnClickListener mDialogClickListenerMenuSearch = new DialogInterface.OnClickListener() {
         @Override
-        public void onClick(DialogInterface dialogInterface, int i)
-        {
+        public void onClick(DialogInterface dialogInterface, int i) {
             updateLongTimeIdleHandler(); // Update long time idle handler
             if (mBluetoothDevice != null && mBluetoothGatt != null
-                    && AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
-            {
+                    && AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED) {
                 Log.d(TAG, "새 장치 검색을 위해 현재 연결을 종료합니다.");
                 AppParam.getInstance().isDisconnectedByUser = true;
                 mBluetoothGatt.disconnect();
@@ -1479,30 +1306,23 @@ public class MainActivity extends AppCompatActivity
     };
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item)
-    {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         updateLongTimeIdleHandler(); // Update long time idle handler
-        switch (item.getItemId())
-        {
-            case android.R.id.home:
-            {
+        switch (item.getItemId()) {
+            case android.R.id.home: {
                 onBackPressed();
             }
             break;
 
-            case R.id.menu_search:
-            {
+            case R.id.menu_search: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyAlertDialogTheme);
                 String message;
 
-                if (!AppParam.getInstance().isAutoConnectionEnabled())
-                {
+                if (!AppParam.getInstance().isAutoConnectionEnabled()) {
                     message = getString(R.string.activity_main_dialog_message_please_enable_auto_connection);
 
                     builder.setPositiveButton(getString(R.string.dialog_message_ok), null);
-                }
-                else
-                {
+                } else {
                     message = (AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
                             ? getString(R.string.activity_main_dialog_message_search_button_currently_connected)
                             : getString(R.string.activity_main_dialog_message_search_button_currently_disconnected);
@@ -1517,54 +1337,41 @@ public class MainActivity extends AppCompatActivity
             }
             break;
 
-            case R.id.menu_list:
-            {
+            case R.id.menu_list: {
                 if (false) // Test for infinitely sending packet.
                 {
-                    Thread thread = new Thread()
-                    {
+                    Thread thread = new Thread() {
                         @Override
-                        public void run()
-                        {
+                        public void run() {
                             AppParam.getInstance().testVolume = 1;
 
-                            while (AppParam.getInstance().bleConnectionState == AppParam.BLE_CONNECTION_STATE_CONNECTED)
-                            {
+                            while (AppParam.getInstance().bleConnectionState == AppParam.BLE_CONNECTION_STATE_CONNECTED) {
                                 Log.d(TAG, "[ TEST ] Make handler to Main Looper...!");
 
-                                new Handler(Looper.getMainLooper()).post(new Runnable()
-                                {
+                                new Handler(Looper.getMainLooper()).post(new Runnable() {
                                     @Override
-                                    public void run()
-                                    {
+                                    public void run() {
                                         boolean ret;
 
                                         ret = sendPacket(packetMaker(PACKET_HEADER_VALUE_VOLUME, new byte[]{AppParam.getInstance().testVolume}, 2));
 
-                                        if (ret)
-                                        {
+                                        if (ret) {
                                             Log.d(TAG, "[ TEST ] Success to send test packet. volume = " + AppParam.getInstance().testVolume);
 
                                             AppParam.getInstance().testVolume++;
 
-                                            if (AppParam.getInstance().testVolume == 11)
-                                            {
+                                            if (AppParam.getInstance().testVolume == 11) {
                                                 AppParam.getInstance().testVolume = 1;
                                             }
-                                        }
-                                        else
-                                        {
+                                        } else {
                                             Log.d(TAG, "[ TEST ] Failed to send test packet. May be busy...");
                                         }
                                     }
                                 });
 
-                                try
-                                {
+                                try {
                                     sleep(200);
-                                }
-                                catch (InterruptedException e)
-                                {
+                                } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
                             }
@@ -1572,22 +1379,16 @@ public class MainActivity extends AppCompatActivity
                         }
                     };
                     thread.start();
-                }
-                else
-                {
+                } else {
                     getSupportFragmentManager().beginTransaction().replace(R.id.main_frame, new DeviceListFragment()).commitAllowingStateLoss();
                 }
             }
             break;
 
-            case R.id.menu_auto_connection:
-            {
-                if (AppParam.getInstance().isAutoConnectionEnabled())
-                {
+            case R.id.menu_auto_connection: {
+                if (AppParam.getInstance().isAutoConnectionEnabled()) {
                     makeDialogStopAutoConnection();
-                }
-                else
-                {
+                } else {
                     AppParam.getInstance().setAutoConnectionEnabled(true);
                     /*
                     SharedPreferences sp = getSharedPreferences(AppParam.SP_NAME, Activity.MODE_PRIVATE);
@@ -1599,8 +1400,7 @@ public class MainActivity extends AppCompatActivity
 
                     updateToolbar();
 
-                    switch (AppParam.getInstance().getCurrentFragmentNumber())
-                    {
+                    switch (AppParam.getInstance().getCurrentFragmentNumber()) {
                         case AppParam.FRAGMENT_NUMBER_HOME:
                         case AppParam.FRAGMENT_NUMBER_LIST:
                             scanLe(true);
@@ -1612,14 +1412,46 @@ public class MainActivity extends AppCompatActivity
             }
             break;
 
-            case R.id.menu_manual:
-            {
+            case R.id.menu_manual: {
                 //Toast.makeText(getApplicationContext(), "매뉴얼 버튼이 눌렸습니다.", Toast.LENGTH_SHORT).show();
 
                 ((CheckBox) findViewById(R.id.main_user_guide_checkbox)).setChecked(
                         !AppPreferences.getInstance().isManualEnabled(getApplicationContext()));
 
                 enableScreenUserGuide(true);
+            }
+            break;
+
+            case R.id.menu_applock_screen: {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyAlertDialogTheme);
+                String message;
+
+                if (AppPreferences.getInstance().isApplockScreenEnabled(getApplicationContext())) {
+                    message = "앱 잠금화면을 해제하시겠습니까?";
+                } else {
+                    message = "앱 잠금화면을 설정하시겠습니까?";
+                }
+
+                builder.setMessage(message);
+
+                builder.setPositiveButton("네", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Log.d(TAG, "Applock screen enabled state = " + AppPreferences.getInstance().isApplockScreenEnabled(getApplicationContext()));
+
+                        if (AppPreferences.getInstance().isApplockScreenEnabled(getApplicationContext())) {
+                            AppPreferences.getInstance().setApplockScreenToEnabled(getApplicationContext(), false);
+                            Log.d(TAG, "Applock screen set to disabled!");
+                        } else {
+                            AppPreferences.getInstance().setApplockScreenToEnabled(getApplicationContext(), true);
+                            Log.d(TAG, "Applock screen set to enabled!");
+                        }
+                    }
+                });
+
+                builder.setNegativeButton("아니오", null);
+                AppParam.getInstance().lastDialog = builder.create();
+                AppParam.getInstance().lastDialog.show();
             }
             break;
 
@@ -1639,20 +1471,14 @@ public class MainActivity extends AppCompatActivity
      * Callback - Activity results
      */
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
-    {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        switch (requestCode)
-        {
-            case REQUEST_CODE_BLUETOOTH_ENABLE:
-            {
-                if (resultCode != RESULT_OK)
-                {
+        switch (requestCode) {
+            case REQUEST_CODE_BLUETOOTH_ENABLE: {
+                if (resultCode != RESULT_OK) {
                     finish();
-                }
-                else
-                {
+                } else {
                     initMainActivity();
                 }
             }
@@ -1663,10 +1489,8 @@ public class MainActivity extends AppCompatActivity
     /**
      * Enable Bluetooth
      */
-    public boolean enableBluetooth()
-    {
-        if (!BluetoothAdapter.getDefaultAdapter().isEnabled())
-        {
+    public boolean enableBluetooth() {
+        if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
             startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), REQUEST_CODE_BLUETOOTH_ENABLE);
             return false;
         }
@@ -1677,8 +1501,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Get objects related with Bluetooth.
      */
-    public void initBluetooth()
-    {
+    public void initBluetooth() {
         // uses-feature
         // android:name="android.hardware.bluetooth_le"
         // android:required="true"
@@ -1700,11 +1523,9 @@ public class MainActivity extends AppCompatActivity
     /**
      * Runner for scan timeout.
      */
-    Runnable scanRunner = new Runnable()
-    {
+    Runnable scanRunner = new Runnable() {
         @Override
-        public void run()
-        {
+        public void run() {
             Log.d(TAG, "scanRunner : Bluetooth LE scan timeout.");
 
             scanLe(false); // Stop scan
@@ -1715,8 +1536,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Start or stop Bluetooth LE scanner.
      */
-    public void scanLe(boolean enable)
-    {
+    public void scanLe(boolean enable) {
         if (enable) // If true, start scanner.
         {
             if (!AppParam.getInstance().isBleScanning && AppParam.getInstance().isAutoConnectionEnabled()) // Can be started when currently not scanning.
@@ -1726,8 +1546,7 @@ public class MainActivity extends AppCompatActivity
                 // Clear Sound Processor found list.
                 AppParam.getInstance().searchedDevices.clear();
 
-                if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_SEARCH)
-                {
+                if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_SEARCH) {
                     ((SearchFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).clearAllSearchItems();
 
                     // ESKIM start
@@ -1765,9 +1584,7 @@ public class MainActivity extends AppCompatActivity
                     ParcelUuid serviceDataUuid = new ParcelUuid(UUID.fromString("00001407-0000-1000-8000-00805F9B34FB"));
                     filterBuilder.setServiceData(serviceDataUuid, new byte[]{(byte) 0x0005, (byte) 0x007F});
                     //filterBuilder.setServiceData(serviceDataUuid, null);
-                }
-                else
-                {
+                } else {
                     filterBuilder.setServiceUuid(BLE_ADVERTISING_SERVICE_UUID);
                 }
 
@@ -1780,8 +1597,7 @@ public class MainActivity extends AppCompatActivity
 
                 Log.d(TAG, "scanLE : Bluetooth LE scan started.");
             }
-        }
-        else // If false, stop scanner.
+        } else // If false, stop scanner.
         {
             if (AppParam.getInstance().isBleScanning) // Can be stopped when currently scanning.
             {
@@ -1797,18 +1613,15 @@ public class MainActivity extends AppCompatActivity
     /**
      * Bluetooth LE scan callback.
      */
-    ScanCallback mScanCallback = new ScanCallback()
-    {
+    ScanCallback mScanCallback = new ScanCallback() {
         @Override
-        public void onScanResult(int callbackType, ScanResult result)
-        {
+        public void onScanResult(int callbackType, ScanResult result) {
             BluetoothDevice btDevice = result.getDevice();
             String deviceName = btDevice.getName();
 
             Log.d(TAG, "Scanned device name = " + deviceName + ", address = " + btDevice.getAddress());
 
-            if (deviceName != null && deviceName.matches("^TDC[0-9a-fA-F][0-9a-fA-F]@.*$"))
-            {
+            if (deviceName != null && deviceName.matches("^TDC[0-9a-fA-F][0-9a-fA-F]@.*$")) {
                 String model = deviceName.substring(3, 5);
                 String name = deviceName.substring(6);
                 String address = btDevice.getAddress();
@@ -1818,62 +1631,48 @@ public class MainActivity extends AppCompatActivity
                 // -- start
                 Map<ParcelUuid, byte[]> map = result.getScanRecord().getServiceData();
 
-                if (map != null)
-                {
+                if (map != null) {
                     Log.d(TAG, "Service Data Size = " + map.size());
 
                     byte[] data0 = map.get(new ParcelUuid(UUID.fromString("00004944-0000-1000-8000-00805F9B34FB")));
                     byte[] data1 = map.get(new ParcelUuid(UUID.fromString("00005057-0000-1000-8000-00805F9B34FB")));
 
-                    if (data0 != null)
-                    {
-                        for (int i = 0; i < data0.length; i++)
-                        {
+                    if (data0 != null) {
+                        for (int i = 0; i < data0.length; i++) {
                             data0[i] = (byte) (((byte) 0x00ff) & data0[i]);
                         }
 
                         Log.d(TAG, "Data 0 = " + new String(data0, StandardCharsets.UTF_8));
-                    }
-                    else
-                    {
+                    } else {
                         Log.d(TAG, "Data 0 = null");
                     }
 
-                    if (data1 != null)
-                    {
-                        for (int i = 0; i < data1.length; i++)
-                        {
+                    if (data1 != null) {
+                        for (int i = 0; i < data1.length; i++) {
                             data1[i] = (byte) (((byte) 0x00ff) & data1[i]);
                         }
 
                         Log.d(TAG, "Data 1 = " + new String(data1, StandardCharsets.UTF_8));
-                    }
-                    else
-                    {
+                    } else {
                         Log.d(TAG, "Data 1 = null");
                     }
                 }
                 // -- end
 
-                switch (AppParam.getInstance().getCurrentFragmentNumber())
-                {
+                switch (AppParam.getInstance().getCurrentFragmentNumber()) {
                     case AppParam.FRAGMENT_NUMBER_LIST:
-                    case AppParam.FRAGMENT_NUMBER_HOME:
-                    {
+                    case AppParam.FRAGMENT_NUMBER_HOME: {
                         // Get registered Sound Processor list.
                         List<Device> registeredDevices = AppParam.getInstance().registeredDevices;
 
                         // Compare currnently found Sound Processor and Sound Processors from registered list.
-                        for (int i = 0; i < registeredDevices.size(); i++)
-                        {
+                        for (int i = 0; i < registeredDevices.size(); i++) {
                             // When found.
                             if (registeredDevices.get(i).getDeviceMacAddress().equals(address)
                                     && registeredDevices.get(i).getDeviceName().equals(name)
-                                    && registeredDevices.get(i).getDeviceModel().equals(model))
-                            {
+                                    && registeredDevices.get(i).getDeviceModel().equals(model)) {
                                 // If currently not connected state.
-                                if (AppParam.getInstance().bleConnectionState == AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
-                                {
+                                if (AppParam.getInstance().bleConnectionState == AppParam.BLE_CONNECTION_STATE_DISCONNECTED) {
                                     AppParam.getInstance().bleConnectionState = AppParam.BLE_CONNECTION_STATE_CONNECTING; // 연결중인 상태로 변경한다.
 
                                     scanLe(false); // Stop scan.
@@ -1904,17 +1703,14 @@ public class MainActivity extends AppCompatActivity
                     }
                     break;
 
-                    case AppParam.FRAGMENT_NUMBER_SEARCH:
-                    {
+                    case AppParam.FRAGMENT_NUMBER_SEARCH: {
                         List<Device> searchedDevices = AppParam.getInstance().searchedDevices;
 
                         boolean isExist = false;
 
                         // Is there same Sound Processor in list of found Sound Processor?
-                        for (int i = 0; i < searchedDevices.size(); i++)
-                        {
-                            if (searchedDevices.get(i).getDeviceMacAddress().equals(address) && searchedDevices.get(i).getDeviceName().equals(name))
-                            {
+                        for (int i = 0; i < searchedDevices.size(); i++) {
+                            if (searchedDevices.get(i).getDeviceMacAddress().equals(address) && searchedDevices.get(i).getDeviceName().equals(name)) {
                                 isExist = true;
                                 break;
                             }
@@ -1923,18 +1719,15 @@ public class MainActivity extends AppCompatActivity
                         // Is there same Sound Processor in list of registered Sound Processor?
                         List<Device> registeredDevices = AppParam.getInstance().registeredDevices;
 
-                        for (int i = 0; i < registeredDevices.size(); i++)
-                        {
-                            if (registeredDevices.get(i).getDeviceMacAddress().equals(address) && registeredDevices.get(i).getDeviceName().equals(name))
-                            {
+                        for (int i = 0; i < registeredDevices.size(); i++) {
+                            if (registeredDevices.get(i).getDeviceMacAddress().equals(address) && registeredDevices.get(i).getDeviceName().equals(name)) {
                                 isExist = true;
                                 break;
                             }
                         }
 
                         // If not exist, lists it to list of found Sound Processor.
-                        if (!isExist)
-                        {
+                        if (!isExist) {
                             Device device = new Device();
 
                             device.setDeviceName(name);
@@ -1961,17 +1754,14 @@ public class MainActivity extends AppCompatActivity
     /**
      * Runner for battery checking
      */
-    Runnable checkBatteryRunner = new Runnable()
-    {
+    Runnable checkBatteryRunner = new Runnable() {
         @Override
-        public void run()
-        {
+        public void run() {
             Log.d(TAG, "[ checkBatteryRunner ] Try to check battery level.");
 
             if (AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED
                     && !AppParam.getInstance().isBleBusy
-                    && mBluetoothGatt != null && mBluetoothDevice != null)
-            {
+                    && mBluetoothGatt != null && mBluetoothDevice != null) {
                 // Try to read Sound Processor's status.
                 sendPacket(packetMaker(PACKET_HEADER_SOUND_PROCESSOR_STATUS, null, 1));
             }
@@ -1986,11 +1776,9 @@ public class MainActivity extends AppCompatActivity
     /**
      * Runner for discovering services.
      */
-    Runnable discoverServiceTimeoutRunner = new Runnable()
-    {
+    Runnable discoverServiceTimeoutRunner = new Runnable() {
         @Override
-        public void run()
-        {
+        public void run() {
             Log.d(TAG, "[ discoverServiceTimeoutRunner ] Timeout occurred! -> discovering services.");
 
             AppParam.getInstance().isDisconnectedByUser = false;
@@ -2001,38 +1789,30 @@ public class MainActivity extends AppCompatActivity
     /**
      * Callback - BLE GATT events
      */
-    private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback()
-    {
+    private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
-        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState)
-        {
+        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             Log.d(TAG, "onConnectionStateChange : name = " + gatt.getDevice().getName() + ", address = " + gatt.getDevice().getAddress());
 
-            new Handler(Looper.getMainLooper()).post(new Runnable()
-            {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     String name = gatt.getDevice().getName();
                     String address = gatt.getDevice().getAddress();
 
                     // DISCONNECTED
-                    if (newState == BluetoothProfile.STATE_DISCONNECTED)
-                    {
+                    if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                         Log.d(TAG, "onConnectionStateChange : Disconnected name = " + name + ", address = " + address);
 
                         // 앱 강제 종료하는 시점에서는 로깅 데이터베이스가 닫혀 있을 수 있다.
                         // 이런 경우 데이터베이스를 다시 열고 저장한 후 닫도록 수행한다.
-                        if (LoggingUtils.mLoggingDatabase == null)
-                        {
+                        if (LoggingUtils.mLoggingDatabase == null) {
                             LoggingUtils.getInstance().openLoggingDatabase(getApplicationContext());
 
                             writeMessage(LoggingUtils.LOGGING_DEVICE_DISCONNECTED, "name=" + name + ", addr=" + address); // Logging
 
                             LoggingUtils.getInstance().closeLoggingDatabase(getApplicationContext());
-                        }
-                        else
-                        {
+                        } else {
                             writeMessage(LoggingUtils.LOGGING_DEVICE_DISCONNECTED, "name=" + name + ", addr=" + address); // Logging
                         }
 
@@ -2042,17 +1822,14 @@ public class MainActivity extends AppCompatActivity
                             boolean isRegisteredDevice = false;
                             List<Device> deviceList = AppParam.getInstance().registeredDevices;
 
-                            for (Device d : deviceList)
-                            {
-                                if (d.getDeviceMacAddress().equals(address))
-                                {
+                            for (Device d : deviceList) {
+                                if (d.getDeviceMacAddress().equals(address)) {
                                     isRegisteredDevice = true;
                                     break;
                                 }
                             }
                             // 2. 등록되어 있지 않다면, 스마트폰에 본딩되어 있는가?
-                            if (!isRegisteredDevice)
-                            {
+                            if (!isRegisteredDevice) {
                                 // 3. 앱에 등록되어 있지 않은데 스마트폰에 본딩되어 있으면 본딩을 제거한다.
                                 BtUtils.getInstance().eraseBondedDeviceUsingMacAddress(address, mBluetoothAdapter);
                             }
@@ -2066,8 +1843,7 @@ public class MainActivity extends AppCompatActivity
                         AppParam.getInstance().isBleBusy = false;
 
                         // If invalid value error dialog is enabled, finish it and clear.
-                        if (AppParam.getInstance().invalidValueDialog != null)
-                        {
+                        if (AppParam.getInstance().invalidValueDialog != null) {
                             AppParam.getInstance().invalidValueDialog.dismiss();
                             AppParam.getInstance().invalidValueDialog = null;
                         }
@@ -2084,22 +1860,18 @@ public class MainActivity extends AppCompatActivity
 
                         // willBeAppExit flag is set when onDestroy is called.
                         // It means that App will be exit so just return from this callback.
-                        if (AppParam.getInstance().willBeAppExit)
-                        {
+                        if (AppParam.getInstance().willBeAppExit) {
                             return;
                         }
 
                         // Get currently running fragment number.
                         int currentFragmentNumber = AppParam.getInstance().getCurrentFragmentNumber();
 
-                        switch (currentFragmentNumber)
-                        {
-                            case AppParam.FRAGMENT_NUMBER_HOME:
-                            {
+                        switch (currentFragmentNumber) {
+                            case AppParam.FRAGMENT_NUMBER_HOME: {
                                 AppParam.getInstance().isDisconnectedByUser = false;
 
-                                if (AppParam.getInstance().isAutoConnectionEnabled())
-                                {
+                                if (AppParam.getInstance().isAutoConnectionEnabled()) {
                                     scanLe(true);
                                 }
 
@@ -2107,40 +1879,30 @@ public class MainActivity extends AppCompatActivity
                             }
                             break;
 
-                            case AppParam.FRAGMENT_NUMBER_LIST:
-                            {
+                            case AppParam.FRAGMENT_NUMBER_LIST: {
                                 AppParam.getInstance().isDisconnectedByUser = false;
 
-                                if (AppParam.getInstance().isAutoConnectionEnabled())
-                                {
+                                if (AppParam.getInstance().isAutoConnectionEnabled()) {
                                     scanLe(true);
                                 }
                             }
                             break;
 
-                            case AppParam.FRAGMENT_NUMBER_SEARCH:
-                            {
+                            case AppParam.FRAGMENT_NUMBER_SEARCH: {
                                 scanLe(true);
 
-                                if (AppParam.getInstance().isDisconnectedByUser)
-                                {
+                                if (AppParam.getInstance().isDisconnectedByUser) {
                                     AppParam.getInstance().isDisconnectedByUser = false;
-                                }
-                                else
-                                {
+                                } else {
                                     ((SearchFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).makeDialogCommunicationError();
                                 }
                             }
                             break;
 
-                            case AppParam.FRAGMENT_NUMBER_PASSWORD:
-                            {
-                                if (AppParam.getInstance().isDisconnectedByUser)
-                                {
+                            case AppParam.FRAGMENT_NUMBER_PASSWORD: {
+                                if (AppParam.getInstance().isDisconnectedByUser) {
                                     AppParam.getInstance().isDisconnectedByUser = false;
-                                }
-                                else
-                                {
+                                } else {
                                     ((PasswordFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).makeDialogCommunicationError();
                                 }
                             }
@@ -2148,14 +1910,12 @@ public class MainActivity extends AppCompatActivity
                         } // switch
 
                         // "NO 장치 등록 화면"이 활성화 중이면 스캔을 안한다.
-                        if (isNoDeviceRegisteredScreenEnabled())
-                        {
+                        if (isNoDeviceRegisteredScreenEnabled()) {
                             scanLe(false);
                         }
                     }
                     // CONNECTED
-                    else if (newState == BluetoothProfile.STATE_CONNECTED)
-                    {
+                    else if (newState == BluetoothProfile.STATE_CONNECTED) {
                         Log.d(TAG, "onConnectionStateChange : Connected name = " + gatt.getDevice().getName() + ", address = " + gatt.getDevice().getAddress());
 
                         writeMessage(LoggingUtils.LOGGING_DEVICE_CONNECTED,
@@ -2166,8 +1926,7 @@ public class MainActivity extends AppCompatActivity
 
                         // Make handler to check timeout about discovering services.
                         discoverServiceTimeoutHandler.postDelayed(discoverServiceTimeoutRunner, DELAY_IN_MS_FOR_DISCOVER_SERVICES_TIMEOUT);
-                        if (!gatt.discoverServices())
-                        {
+                        if (!gatt.discoverServices()) {
                             AppParam.getInstance().isDisconnectedByUser = false;
                             gatt.disconnect();
                         }
@@ -2179,15 +1938,13 @@ public class MainActivity extends AppCompatActivity
         }
 
         @Override
-        public void onServicesDiscovered(BluetoothGatt gatt, int status)
-        {
+        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             Log.d(TAG, "onServiceDiscovered : name = " + gatt.getDevice().getName() + ", address = " + gatt.getDevice().getAddress());
 
             // Remove callback from handler checking timeout for discovering services.
             discoverServiceTimeoutHandler.removeCallbacks(discoverServiceTimeoutRunner);
 
-            if (status != BluetoothGatt.GATT_SUCCESS)
-            {
+            if (status != BluetoothGatt.GATT_SUCCESS) {
                 Log.d(TAG, "onServiceDiscovered : Failed to discover service.");
                 gatt.disconnect();
                 return;
@@ -2196,8 +1953,7 @@ public class MainActivity extends AppCompatActivity
             // Get service from gatt.
             mBluetoothGattService = gatt.getService(BLE_UUID_SERVICE);
 
-            if (mBluetoothGattService == null)
-            {
+            if (mBluetoothGattService == null) {
                 Log.d(TAG, "onServiceDiscovered : Failed to get service.");
                 gatt.disconnect();
                 return;
@@ -2207,8 +1963,7 @@ public class MainActivity extends AppCompatActivity
             mCharClientToServer = mBluetoothGattService.getCharacteristic(BLE_UUID_CHARACTERISTIC_CLIENT_TO_SERVER);
             mCharServerToClient = mBluetoothGattService.getCharacteristic(BLE_UUID_CHARACTERISTIC_SERVER_TO_CLIENT);
 
-            if (mCharClientToServer == null || mCharServerToClient == null)
-            {
+            if (mCharClientToServer == null || mCharServerToClient == null) {
                 Log.d(TAG, "onServiceDiscovered : Failed to get characteristics.");
                 gatt.disconnect();
                 return;
@@ -2217,8 +1972,7 @@ public class MainActivity extends AppCompatActivity
             // Get descriptor from characteristic {server to client}.
             BluetoothGattDescriptor descriptor = mCharServerToClient.getDescriptor(BLE_UUID_DESCRIPTION_CCCD);
 
-            if (descriptor == null)
-            {
+            if (descriptor == null) {
                 Log.d(TAG, "onServiceDiscovered : Failed to get descriptor.");
                 gatt.disconnect();
                 return;
@@ -2228,8 +1982,7 @@ public class MainActivity extends AppCompatActivity
             Log.d(TAG, "onServiceDiscovered : Success to discover service, characteristics and descriptor.");
 
             // Enable indication receiver for characteristic {server to client} on App.
-            if (!mBluetoothGatt.setCharacteristicNotification(mCharServerToClient, true))
-            {
+            if (!mBluetoothGatt.setCharacteristicNotification(mCharServerToClient, true)) {
                 Log.d(TAG, "onServiceDiscovered : Setting characteristic indication {server to client} is failed.");
                 AppParam.getInstance().isDisconnectedByUser = false;
                 gatt.disconnect();
@@ -2239,8 +1992,7 @@ public class MainActivity extends AppCompatActivity
 
             // Set descriptor on remote device.
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
-            if (!mBluetoothGatt.writeDescriptor(descriptor))
-            {
+            if (!mBluetoothGatt.writeDescriptor(descriptor)) {
                 Log.d(TAG, "onServiceDiscovered : Failed to write descriptor.");
                 AppParam.getInstance().isDisconnectedByUser = false;
                 gatt.disconnect();
@@ -2248,44 +2000,35 @@ public class MainActivity extends AppCompatActivity
         }
 
         @Override
-        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status)
-        {
+        public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             //super.onDescriptorWrite(gatt, descriptor, status);
 
             Log.d(TAG, "onDescriptorWrite : name = " + gatt.getDevice().getName() + ", address = " + gatt.getDevice().getAddress());
 
-            if (status == BluetoothGatt.GATT_SUCCESS)
-            {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
                 // Success to write descriptor for indication on remote device.
                 Log.d(TAG, "onDescriptorWrite : Success to write descriptor.");
 
-                if (gatt.getDevice().getBondState() == BluetoothDevice.BOND_NONE)
-                {
+                if (gatt.getDevice().getBondState() == BluetoothDevice.BOND_NONE) {
                     Log.d(TAG, gatt.getDevice().getName() + " not bonded.");
 
-                    if (!gatt.getDevice().createBond())
-                    {
+                    if (!gatt.getDevice().createBond()) {
                         Log.d(TAG, "onDescriptorWrite : Failed to create bond.");
                         gatt.disconnect();
                     }
-                }
-                else
-                {
+                } else {
                     Log.d(TAG, gatt.getDevice().getName() + " already bonded.");
                 }
 
                 // Get currently running fragment number.
                 int currentFragmentNumber = AppParam.getInstance().getCurrentFragmentNumber();
 
-                switch (currentFragmentNumber)
-                {
+                switch (currentFragmentNumber) {
                     case AppParam.FRAGMENT_NUMBER_HOME:
-                    case AppParam.FRAGMENT_NUMBER_LIST:
-                    {
+                    case AppParam.FRAGMENT_NUMBER_LIST: {
                         Log.d(TAG, "onDescriptorWrite : Currently running fragment is home or device list. Therefore send password packet to server.");
 
-                        if (!sendPacket(packetMaker(PACKET_HEADER_PASSWORD, AppParam.getInstance().currentConnectDevice.getDevicePassword().getBytes(), 5)))
-                        {
+                        if (!sendPacket(packetMaker(PACKET_HEADER_PASSWORD, AppParam.getInstance().currentConnectDevice.getDevicePassword().getBytes(), 5))) {
                             Log.d(TAG, "onDescriptorWrite : Failed to send password packet.");
                             gatt.disconnect();
                         }
@@ -2293,42 +2036,34 @@ public class MainActivity extends AppCompatActivity
                     }
                     break;
 
-                    case AppParam.FRAGMENT_NUMBER_SEARCH:
-                    {
+                    case AppParam.FRAGMENT_NUMBER_SEARCH: {
                         Log.d(TAG, "onDescriptorWrite : Currently running fragment is search. Therefore fragment change to password to get password from user.");
                         sendBroadcast(new Intent(ActionMessage.NEW_FRAGMENT_PASSWORD));
                     }
                     break;
                 }
-            }
-            else
-            {
+            } else {
                 Log.d(TAG, "onDescriptorWrite : Failed to write descriptor.");
                 gatt.disconnect();
             }
         }
 
         @Override
-        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status)
-        {
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicWrite(gatt, characteristic, status);
         }
 
         @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)
-        {
-            new Handler(Looper.getMainLooper()).post(new Runnable()
-            {
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     byte[] responsePacket = characteristic.getValue(); // Extract data from packet.
                     int packetSize = responsePacket.length; // Get size of packet data.
 
                     Log.d(TAG, "onCharacteristicChanged : " + printLogBytesToString(responsePacket));
 
-                    if (packetSize < 1)
-                    {
+                    if (packetSize < 1) {
                         Log.d(TAG, "onCharacteristicChanged : size 0 packet has arrived.");
                         return;
                     }
@@ -2345,25 +2080,20 @@ public class MainActivity extends AppCompatActivity
                     byte packetHeader = byteExtractor(responsePacket[0]);
 
                     // Process response packet based on packet header.
-                    switch (packetHeader)
-                    {
+                    switch (packetHeader) {
                         // Password
-                        case PACKET_HEADER_PASSWORD:
-                        {
-                            if (packetSize < 2)
-                            {
+                        case PACKET_HEADER_PASSWORD: {
+                            if (packetSize < 2) {
                                 Log.d(TAG, "onCharacteristicChanged : Unexpected packet size error!");
                                 Toast.makeText(getApplicationContext(), getString(R.string.activity_main_toast_message_packet_length_error), Toast.LENGTH_LONG).show();
                                 return;
                             }
 
                             // Correct password.
-                            if (byteExtractor(responsePacket[1]) == 1)
-                            {
+                            if (byteExtractor(responsePacket[1]) == 1) {
                                 Log.d(TAG, "onCharacteristicChanged : Correct password.");
 
-                                if (currentFragmentNumber == AppParam.FRAGMENT_NUMBER_PASSWORD)
-                                {
+                                if (currentFragmentNumber == AppParam.FRAGMENT_NUMBER_PASSWORD) {
                                     // Show message on screen when currently running fragment is password.
                                     ((PasswordFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).readingInformation();
                                 }
@@ -2372,20 +2102,16 @@ public class MainActivity extends AppCompatActivity
                                 sendPacket(packetMaker(PACKET_HEADER_SOUND_PROCESSOR_INFO, null, 1));
                             }
                             // Not correct password.
-                            else
-                            {
+                            else {
                                 Log.d(TAG, "onCharacteristicChanged : Not correct password.");
 
-                                if (currentFragmentNumber == AppParam.FRAGMENT_NUMBER_PASSWORD)
-                                {
+                                if (currentFragmentNumber == AppParam.FRAGMENT_NUMBER_PASSWORD) {
                                     // Delete saved password.
                                     AppParam.getInstance().currentConnectDevice.setDevicePassword(null);
 
                                     // Show message on screen when currently running fragment is password.
                                     ((PasswordFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).wrongPassword();
-                                }
-                                else if (currentFragmentNumber == AppParam.FRAGMENT_NUMBER_HOME || currentFragmentNumber == AppParam.FRAGMENT_NUMBER_LIST)
-                                {
+                                } else if (currentFragmentNumber == AppParam.FRAGMENT_NUMBER_HOME || currentFragmentNumber == AppParam.FRAGMENT_NUMBER_LIST) {
                                     Log.d(TAG, "onCharacteristicChanged : Security password of Sound Processor is not correct. This can't be happened!");
                                     Toast.makeText(getApplicationContext(),
                                             "'" + gatt.getDevice().getName() + "' " + getString(R.string.activity_main_toast_message_password_why_different),
@@ -2396,10 +2122,8 @@ public class MainActivity extends AppCompatActivity
                         break;
 
                         // Sound Processor information
-                        case PACKET_HEADER_SOUND_PROCESSOR_INFO:
-                        {
-                            if (packetSize < 13)
-                            {
+                        case PACKET_HEADER_SOUND_PROCESSOR_INFO: {
+                            if (packetSize < 13) {
                                 Log.d(TAG, "onCharacteristicChanged : Unexpected packet size error!");
                                 Toast.makeText(getApplicationContext(), getString(R.string.activity_main_toast_message_packet_length_error), Toast.LENGTH_LONG).show();
                                 break;
@@ -2425,10 +2149,8 @@ public class MainActivity extends AppCompatActivity
                         break;
 
                         // Map date information
-                        case PACKET_HEADER_MAP_INFO:
-                        {
-                            if (packetSize < 8)
-                            {
+                        case PACKET_HEADER_MAP_INFO: {
+                            if (packetSize < 8) {
                                 Log.d(TAG, "onCharacteristicChanged : Unexpected packet size error!");
                                 Toast.makeText(getApplicationContext(), getString(R.string.activity_main_toast_message_packet_length_error), Toast.LENGTH_LONG).show();
                                 break;
@@ -2451,8 +2173,7 @@ public class MainActivity extends AppCompatActivity
                         break;
 
                         // Implant user information
-                        case PACKET_HEADER_ISD_USER_NAME:
-                        {
+                        case PACKET_HEADER_ISD_USER_NAME: {
                             int nameLength = packetSize - 1;
                             byte[] nameBytes = new byte[nameLength];
                             String nameString;
@@ -2469,8 +2190,7 @@ public class MainActivity extends AppCompatActivity
                             Log.d(TAG, "onCharacteristicChanged : All required information has been obtained.");
 
                             // Fragment : password
-                            if (currentFragmentNumber == AppParam.FRAGMENT_NUMBER_PASSWORD)
-                            {
+                            if (currentFragmentNumber == AppParam.FRAGMENT_NUMBER_PASSWORD) {
                                 // Before register Sound Processor, check map date and implant user name.
                                 boolean isNewUserRegistered = false;
                                 boolean isDifferentMapDate = false;
@@ -2478,41 +2198,33 @@ public class MainActivity extends AppCompatActivity
                                 Device currentDevice = AppParam.getInstance().currentConnectDevice;
                                 List<Device> registeredDevices = AppParam.getInstance().registeredDevices;
 
-                                for (int i = 0; i < registeredDevices.size(); i++)
-                                {
-                                    if (!currentDevice.getImplantUserName().equals(registeredDevices.get(i).getImplantUserName()))
-                                    {
+                                for (int i = 0; i < registeredDevices.size(); i++) {
+                                    if (!currentDevice.getImplantUserName().equals(registeredDevices.get(i).getImplantUserName())) {
                                         isNewUserRegistered = true;
                                         Log.d(TAG, "onCharacteristicChanged : Found new implant user name!");
                                         break;
                                     }
 
-                                    if (!currentDevice.getMapDate().equals(registeredDevices.get(i).getMapDate()))
-                                    {
+                                    if (!currentDevice.getMapDate().equals(registeredDevices.get(i).getMapDate())) {
                                         isDifferentMapDate = true;
                                         Log.d(TAG, "onCharacteristicChanged : Different map date!");
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         isDifferentMapDate = false;
                                     }
                                 }
 
                                 // When new implant user found
-                                if (isNewUserRegistered)
-                                {
+                                if (isNewUserRegistered) {
                                     // Found a new implant user name Sound Processor. Will you register this Sound Processor after delete everything being registered?
                                     ((PasswordFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).makeDialogRegisterNewUser();
                                 }
                                 // When different map date found
-                                else if (isDifferentMapDate)
-                                {
+                                else if (isDifferentMapDate) {
                                     // Found a different map date Sound Processor. Will you register this Sound Processor?
                                     ((PasswordFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).makeDialogIgnoreMapDate();
                                 }
                                 // When no matter
-                                else
-                                {
+                                else {
                                     AppParam.getInstance().database.deviceDao().insert(AppParam.getInstance().currentConnectDevice);
                                     AppParam.getInstance().registeredDevices = AppParam.getInstance().database.deviceDao().findAll();
 
@@ -2533,26 +2245,20 @@ public class MainActivity extends AppCompatActivity
                                 }
                             }
                             // Fragment : home or device list
-                            else if (currentFragmentNumber == AppParam.FRAGMENT_NUMBER_HOME || currentFragmentNumber == AppParam.FRAGMENT_NUMBER_LIST)
-                            {
+                            else if (currentFragmentNumber == AppParam.FRAGMENT_NUMBER_HOME || currentFragmentNumber == AppParam.FRAGMENT_NUMBER_LIST) {
                                 // Make sure that the connected device is listed in registered devices.
                                 Device registeredDevice = null;
 
-                                for (int i = 0; i < AppParam.getInstance().registeredDevices.size(); i++)
-                                {
-                                    if (AppParam.getInstance().currentConnectDevice.getDeviceSerial().equals(AppParam.getInstance().registeredDevices.get(i).getDeviceSerial()))
-                                    {
+                                for (int i = 0; i < AppParam.getInstance().registeredDevices.size(); i++) {
+                                    if (AppParam.getInstance().currentConnectDevice.getDeviceSerial().equals(AppParam.getInstance().registeredDevices.get(i).getDeviceSerial())) {
                                         registeredDevice = AppParam.getInstance().registeredDevices.get(i);
                                     }
                                 }
 
-                                if (registeredDevice == null)
-                                {
+                                if (registeredDevice == null) {
                                     Log.d(TAG, "onCharacteristicChanged : Unexpected behavior is occurred. Why can not find Sound Processor from device list?");
                                     Toast.makeText(getApplicationContext(), getString(R.string.activity_main_toast_message_can_not_find_sound_processor), Toast.LENGTH_LONG).show();
-                                }
-                                else
-                                {
+                                } else {
                                     if (!registeredDevice.getDeviceName().equals(AppParam.getInstance().currentConnectDevice.getDeviceName())
                                             || !registeredDevice.getDevicePassword().equals(AppParam.getInstance().currentConnectDevice.getDevicePassword())
                                             || !registeredDevice.getDeviceModel().equals(AppParam.getInstance().currentConnectDevice.getDeviceModel())
@@ -2561,13 +2267,10 @@ public class MainActivity extends AppCompatActivity
                                             || !registeredDevice.getImplantDirection().equals(AppParam.getInstance().currentConnectDevice.getImplantDirection())
                                             || !registeredDevice.getImplantUserName().equals(AppParam.getInstance().currentConnectDevice.getImplantUserName())
                                             || !registeredDevice.getMapCount().equals(AppParam.getInstance().currentConnectDevice.getMapCount())
-                                            || !registeredDevice.getMapDate().equals(AppParam.getInstance().currentConnectDevice.getMapDate()))
-                                    {
+                                            || !registeredDevice.getMapDate().equals(AppParam.getInstance().currentConnectDevice.getMapDate())) {
                                         Log.d(TAG, "onCharacteristicChanged : Sound Processor information is different with registered it.");
                                         Toast.makeText(getApplicationContext(), getString(R.string.activity_main_toast_message_differnt_sound_processor_information), Toast.LENGTH_LONG).show();
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         Log.d(TAG, "onCharacteristicChanged : Successfully connected!");
                                         Log.d(TAG, "onCharacteristicChanged : Name = " + AppParam.getInstance().currentConnectDevice.getDeviceName());
                                         Log.d(TAG, "onCharacteristicChanged : Address = " + AppParam.getInstance().currentConnectDevice.getDeviceMacAddress());
@@ -2585,10 +2288,8 @@ public class MainActivity extends AppCompatActivity
                         break;
 
                         // Sound Processor status
-                        case PACKET_HEADER_SOUND_PROCESSOR_STATUS:
-                        {
-                            if (packetSize < 9)
-                            {
+                        case PACKET_HEADER_SOUND_PROCESSOR_STATUS: {
+                            if (packetSize < 9) {
                                 Log.d(TAG, "onCharacteristicChanged : Unexpected packet size error!");
                                 Toast.makeText(getApplicationContext(), getString(R.string.activity_main_toast_message_packet_length_error), Toast.LENGTH_LONG).show();
                                 break;
@@ -2621,74 +2322,62 @@ public class MainActivity extends AppCompatActivity
                             boolean invalid = false;
 
                             // 1. Alarm stimulation.
-                            if (deviceParam.getAlarmStimulation() != DeviceParam.ALARM_STIMULATION_ON && deviceParam.getAlarmStimulation() != DeviceParam.ALARM_STIMULATION_OFF)
-                            {
+                            if (deviceParam.getAlarmStimulation() != DeviceParam.ALARM_STIMULATION_ON && deviceParam.getAlarmStimulation() != DeviceParam.ALARM_STIMULATION_OFF) {
                                 invalid = true;
                                 Log.d(TAG, "onCharacteristicChanged : Alarm Stimulation value is invalid. Current value = " + deviceParam.getAlarmStimulation());
                             }
 
                             // 2. Alarm LED.
-                            if (deviceParam.getAlarmLed() != DeviceParam.ALARM_LED_ON && deviceParam.getAlarmLed() != DeviceParam.ALARM_LED_OFF)
-                            {
+                            if (deviceParam.getAlarmLed() != DeviceParam.ALARM_LED_ON && deviceParam.getAlarmLed() != DeviceParam.ALARM_LED_OFF) {
                                 invalid = true;
                                 Log.d(TAG, "onCharacteristicChanged : Alarm LED value is invalid. Current value = " + deviceParam.getAlarmLed());
                             }
 
                             // 3. Telecoil.
-                            if (deviceParam.getTelecoil() != DeviceParam.TELECOIL_ON && deviceParam.getTelecoil() != DeviceParam.TELECOIL_OFF)
-                            {
+                            if (deviceParam.getTelecoil() != DeviceParam.TELECOIL_ON && deviceParam.getTelecoil() != DeviceParam.TELECOIL_OFF) {
                                 invalid = true;
                                 Log.d(TAG, "onCharacteristicChanged : Telecoil value is invalid. Current value = " + deviceParam.getTelecoil());
                             }
 
                             // 4-1. Program
-                            if (Byte.parseByte(AppParam.getInstance().currentConnectDevice.getMapCount()) < DeviceParam.LIMIT_MIN_PROGRAM)
-                            {
+                            if (Byte.parseByte(AppParam.getInstance().currentConnectDevice.getMapCount()) < DeviceParam.LIMIT_MIN_PROGRAM) {
                                 invalid = true;
                                 Log.d(TAG, "onCharacteristicChanged : Program count is invalid. Current value = " + Byte.parseByte(AppParam.getInstance().currentConnectDevice.getMapCount()));
                             }
 
                             // 4-2. Program
-                            if (deviceParam.getProgram() < DeviceParam.LIMIT_MIN_PROGRAM || Byte.parseByte(AppParam.getInstance().currentConnectDevice.getMapCount()) < deviceParam.getProgram())
-                            {
+                            if (deviceParam.getProgram() < DeviceParam.LIMIT_MIN_PROGRAM || Byte.parseByte(AppParam.getInstance().currentConnectDevice.getMapCount()) < deviceParam.getProgram()) {
                                 invalid = true;
                                 Log.d(TAG, "onCharacteristicChanged : Program value is invalid. Current value = " + deviceParam.getProgram());
                             }
 
                             // 5. Sensitivity
-                            if (deviceParam.getSensitivity() < DeviceParam.LIMIT_MIN_SENSITIVITY || DeviceParam.LIMIT_MAX_SENSITIVITY < deviceParam.getSensitivity())
-                            {
+                            if (deviceParam.getSensitivity() < DeviceParam.LIMIT_MIN_SENSITIVITY || DeviceParam.LIMIT_MAX_SENSITIVITY < deviceParam.getSensitivity()) {
                                 invalid = true;
                                 Log.d(TAG, "onCharacteristicChanged : Sensitivity value is invalid. Current value = " + deviceParam.getSensitivity());
                             }
 
                             // 6. Volume
-                            if (deviceParam.getVolume() < DeviceParam.LIMIT_MIN_VOLUME || DeviceParam.LIMIT_MAX_VOLUME < deviceParam.getVolume())
-                            {
+                            if (deviceParam.getVolume() < DeviceParam.LIMIT_MIN_VOLUME || DeviceParam.LIMIT_MAX_VOLUME < deviceParam.getVolume()) {
                                 invalid = true;
                                 Log.d(TAG, "onCharacteristicChanged : Volume value is invalid. Current value = " + deviceParam.getVolume());
                             }
 
                             // 7. Battery
-                            if (deviceParam.getBattery() < DeviceParam.LIMIT_MIN_BATTERY || DeviceParam.LIMIT_MAX_BATTERY < deviceParam.getBattery())
-                            {
+                            if (deviceParam.getBattery() < DeviceParam.LIMIT_MIN_BATTERY || DeviceParam.LIMIT_MAX_BATTERY < deviceParam.getBattery()) {
                                 invalid = true;
                                 Log.d(TAG, "onCharacteristicChanged : Battery value is invalid. Current value = " + deviceParam.getBattery());
                             }
 
-                            if (invalid)
-                            {
+                            if (invalid) {
                                 makeDialogReattachSoundProcessorAndDisconnect();
-                            }
-                            else
-                            {
+                            } else {
                                 // Make battery checking handler into main looper.
                                 checkBatteryHandler.removeCallbacks(checkBatteryRunner);
                                 checkBatteryHandler.postDelayed(checkBatteryRunner, DELAY_IN_MS_FOR_BATTERY_CHECKING);
                             }
 
-                            if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME)
-                            {
+                            if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME) {
                                 // Update screen when currently running fragment is home.
                                 ((HomeFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).updateScreen();
                             }
@@ -2703,25 +2392,19 @@ public class MainActivity extends AppCompatActivity
                         break;
 
                         // Alarm stimulation
-                        case PACKET_HEADER_VALUE_SIMULATION:
-                        {
+                        case PACKET_HEADER_VALUE_SIMULATION: {
                             DeviceParam deviceParam = AppParam.getInstance().sendingStatusParams;
 
                             // Invalid value.
                             if (responsePacket[1] < DeviceParam.LIMIT_MIN_ALARM_STIMULATION || DeviceParam.LIMIT_MAX_ALARM_STIMULATION < responsePacket[1]
-                                    || deviceParam.getAlarmStimulation() != responsePacket[1])
-                            {
-                                if (AppParam.getInstance().resendCount > 5)
-                                {
+                                    || deviceParam.getAlarmStimulation() != responsePacket[1]) {
+                                if (AppParam.getInstance().resendCount > 5) {
                                     makeDialogRelaunchApp(); // Relaunch dialog.
-                                }
-                                else
-                                {
+                                } else {
                                     AppParam.getInstance().resendCount++;
 
                                     Log.d(TAG, "onCharacteristicChanged : Alarm stimulation value is invalid. Try to send packet again.");
-                                    if (!sendPacket(packetMaker(PACKET_HEADER_VALUE_SIMULATION, new byte[]{deviceParam.getAlarmStimulation()}, 2)))
-                                    {
+                                    if (!sendPacket(packetMaker(PACKET_HEADER_VALUE_SIMULATION, new byte[]{deviceParam.getAlarmStimulation()}, 2))) {
                                         makeDialogRelaunchApp(); // Relaunch dialog.
                                     }
                                 }
@@ -2741,8 +2424,7 @@ public class MainActivity extends AppCompatActivity
                                             + " : " + AppParam.getInstance().currentStatusParams.getAlarmStimulation()); // Logging
 
                             // Update screen.
-                            if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME)
-                            {
+                            if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME) {
                                 ((HomeFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).updateScreen();
                                 vibrator(100);
                             }
@@ -2750,26 +2432,20 @@ public class MainActivity extends AppCompatActivity
                         break;
 
                         // Alarm LED
-                        case PACKET_HEADER_VALUE_LED:
-                        {
+                        case PACKET_HEADER_VALUE_LED: {
                             DeviceParam deviceParam = AppParam.getInstance().sendingStatusParams;
 
                             // Invalid value range.
                             if (responsePacket[1] < DeviceParam.LIMIT_MIN_ALARM_LED || DeviceParam.LIMIT_MAX_ALARM_LED < responsePacket[1]
-                                    || deviceParam.getAlarmLed() != responsePacket[1])
-                            {
-                                if (AppParam.getInstance().resendCount > 5)
-                                {
+                                    || deviceParam.getAlarmLed() != responsePacket[1]) {
+                                if (AppParam.getInstance().resendCount > 5) {
                                     makeDialogRelaunchApp(); // Relaunch dialog.
-                                }
-                                else
-                                {
+                                } else {
                                     AppParam.getInstance().resendCount++;
 
                                     Log.d(TAG, "onCharacteristicChanged : Alarm LED value is invalid. Try to send packet again.");
 
-                                    if (!sendPacket(packetMaker(PACKET_HEADER_VALUE_LED, new byte[]{deviceParam.getAlarmLed()}, 2)))
-                                    {
+                                    if (!sendPacket(packetMaker(PACKET_HEADER_VALUE_LED, new byte[]{deviceParam.getAlarmLed()}, 2))) {
                                         makeDialogRelaunchApp(); // Relaunch dialog.
                                     }
                                 }
@@ -2788,8 +2464,7 @@ public class MainActivity extends AppCompatActivity
                                             + ", user=" + AppParam.getInstance().currentConnectDevice.getImplantUserName()
                                             + " : " + AppParam.getInstance().currentStatusParams.getAlarmLed()); // Logging
 
-                            if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME)
-                            {
+                            if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME) {
                                 ((HomeFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).updateScreen();
                                 vibrator(100);
                             }
@@ -2797,26 +2472,20 @@ public class MainActivity extends AppCompatActivity
                         break;
 
                         // Alarm Telecoil
-                        case PACKET_HEADER_VALUE_TELECOIL:
-                        {
+                        case PACKET_HEADER_VALUE_TELECOIL: {
                             DeviceParam deviceParam = AppParam.getInstance().sendingStatusParams;
 
                             // Invalid value range.
                             if (responsePacket[1] < DeviceParam.LIMIT_MIN_TELECOIL || DeviceParam.LIMIT_MAX_TELECOIL < responsePacket[1]
-                                    || deviceParam.getTelecoil() != responsePacket[1])
-                            {
-                                if (AppParam.getInstance().resendCount > 5)
-                                {
+                                    || deviceParam.getTelecoil() != responsePacket[1]) {
+                                if (AppParam.getInstance().resendCount > 5) {
                                     makeDialogRelaunchApp(); // Relaunch dialog.
-                                }
-                                else
-                                {
+                                } else {
                                     AppParam.getInstance().resendCount++;
 
                                     Log.d(TAG, "onCharacteristicChanged : Telecoil value is invalid. Try to send packet again.");
 
-                                    if (!sendPacket(packetMaker(PACKET_HEADER_VALUE_TELECOIL, new byte[]{deviceParam.getTelecoil()}, 2)))
-                                    {
+                                    if (!sendPacket(packetMaker(PACKET_HEADER_VALUE_TELECOIL, new byte[]{deviceParam.getTelecoil()}, 2))) {
                                         makeDialogRelaunchApp(); // Relaunch dialog.
                                     }
                                 }
@@ -2835,8 +2504,7 @@ public class MainActivity extends AppCompatActivity
                                             + ", user=" + AppParam.getInstance().currentConnectDevice.getImplantUserName()
                                             + " : " + AppParam.getInstance().currentStatusParams.getTelecoil()); // Logging
 
-                            if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME)
-                            {
+                            if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME) {
                                 ((HomeFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).updateScreen();
                                 vibrator(100);
                             }
@@ -2844,26 +2512,20 @@ public class MainActivity extends AppCompatActivity
                         break;
 
                         // Power Mode
-                        case PACKET_HEADER_VALUE_POWER_MODE:
-                        {
+                        case PACKET_HEADER_VALUE_POWER_MODE: {
                             DeviceParam deviceParam = AppParam.getInstance().sendingStatusParams;
 
                             // Invalid value range.
                             if (responsePacket[1] < DeviceParam.LIMIT_MIN_POWER_MODE || DeviceParam.LIMIT_MAX_POWER_MODE < responsePacket[1]
-                                    || deviceParam.getPowerMode() != responsePacket[1])
-                            {
-                                if (AppParam.getInstance().resendCount > 5)
-                                {
+                                    || deviceParam.getPowerMode() != responsePacket[1]) {
+                                if (AppParam.getInstance().resendCount > 5) {
                                     makeDialogRelaunchApp(); // Relaunch dialog.
-                                }
-                                else
-                                {
+                                } else {
                                     AppParam.getInstance().resendCount++;
 
                                     Log.d(TAG, "onCharacteristicChanged : Power mode value is invalid. Try to send packet again.");
 
-                                    if (!sendPacket(packetMaker(PACKET_HEADER_VALUE_POWER_MODE, new byte[]{deviceParam.getPowerMode()}, 2)))
-                                    {
+                                    if (!sendPacket(packetMaker(PACKET_HEADER_VALUE_POWER_MODE, new byte[]{deviceParam.getPowerMode()}, 2))) {
                                         makeDialogRelaunchApp();
                                     }
                                 }
@@ -2882,8 +2544,7 @@ public class MainActivity extends AppCompatActivity
                                             + ", user=" + AppParam.getInstance().currentConnectDevice.getImplantUserName()
                                             + " : " + AppParam.getInstance().currentStatusParams.getPowerMode()); // Logging
 
-                            if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME)
-                            {
+                            if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME) {
                                 ((HomeFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).updateScreen();
                                 vibrator(100);
                             }
@@ -2891,26 +2552,20 @@ public class MainActivity extends AppCompatActivity
                         break;
 
                         // Program
-                        case PACKET_HEADER_VALUE_PROMGRAM:
-                        {
+                        case PACKET_HEADER_VALUE_PROMGRAM: {
                             DeviceParam deviceParam = AppParam.getInstance().sendingStatusParams;
 
                             // Invalid value range.
                             if (responsePacket[1] < DeviceParam.LIMIT_MIN_PROGRAM
                                     || Byte.parseByte(AppParam.getInstance().currentConnectDevice.getMapCount()) < responsePacket[1]
-                                    || deviceParam.getProgram() != responsePacket[1])
-                            {
-                                if (AppParam.getInstance().resendCount > 5)
-                                {
+                                    || deviceParam.getProgram() != responsePacket[1]) {
+                                if (AppParam.getInstance().resendCount > 5) {
                                     makeDialogRelaunchApp(); // Relaunch dialog.
-                                }
-                                else
-                                {
+                                } else {
                                     AppParam.getInstance().resendCount++;
 
                                     Log.d(TAG, "onCharacteristicChanged : Program value is invalid. Try to send packet again.");
-                                    if (!sendPacket(packetMaker(PACKET_HEADER_VALUE_PROMGRAM, new byte[]{deviceParam.getProgram()}, 2)))
-                                    {
+                                    if (!sendPacket(packetMaker(PACKET_HEADER_VALUE_PROMGRAM, new byte[]{deviceParam.getProgram()}, 2))) {
                                         makeDialogRelaunchApp();// Relaunch dialog.
                                     }
                                 }
@@ -2929,33 +2584,26 @@ public class MainActivity extends AppCompatActivity
                                             + ", user=" + AppParam.getInstance().currentConnectDevice.getImplantUserName()
                                             + " : " + AppParam.getInstance().currentStatusParams.getProgram()); // Logging
 
-                            if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME)
-                            {
+                            if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME) {
                                 ((HomeFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).updateScreen();
                                 vibrator(100);
                             }
                         }
                         break;
                         // Sensitivity
-                        case PACKET_HEADER_VALUE_SENSITIVITY:
-                        {
+                        case PACKET_HEADER_VALUE_SENSITIVITY: {
                             DeviceParam deviceParam = AppParam.getInstance().sendingStatusParams;
 
                             // Invalid value range.
                             if (responsePacket[1] < DeviceParam.LIMIT_MIN_SENSITIVITY || DeviceParam.LIMIT_MAX_SENSITIVITY < responsePacket[1]
-                                    || deviceParam.getSensitivity() != responsePacket[1])
-                            {
-                                if (AppParam.getInstance().resendCount > 5)
-                                {
+                                    || deviceParam.getSensitivity() != responsePacket[1]) {
+                                if (AppParam.getInstance().resendCount > 5) {
                                     makeDialogRelaunchApp(); // Relaunch dialog.
-                                }
-                                else
-                                {
+                                } else {
                                     AppParam.getInstance().resendCount++;
 
                                     Log.d(TAG, "onCharacteristicChanged : Sensitivity value is invalid. Try to send packet again.");
-                                    if (!sendPacket(packetMaker(PACKET_HEADER_VALUE_SENSITIVITY, new byte[]{deviceParam.getSensitivity()}, 2)))
-                                    {
+                                    if (!sendPacket(packetMaker(PACKET_HEADER_VALUE_SENSITIVITY, new byte[]{deviceParam.getSensitivity()}, 2))) {
                                         makeDialogRelaunchApp(); // Relaunch dialog.
                                     }
                                 }
@@ -2974,28 +2622,22 @@ public class MainActivity extends AppCompatActivity
                                             + ", user=" + AppParam.getInstance().currentConnectDevice.getImplantUserName()
                                             + " : " + AppParam.getInstance().currentStatusParams.getSensitivity()); // Logging
 
-                            if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME)
-                            {
+                            if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME) {
                                 ((HomeFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).updateScreen();
                                 vibrator(100);
                             }
                         }
                         break;
                         // Volume
-                        case PACKET_HEADER_VALUE_VOLUME:
-                        {
+                        case PACKET_HEADER_VALUE_VOLUME: {
                             DeviceParam deviceParam = AppParam.getInstance().sendingStatusParams;
 
                             // Invalid value range.
                             if (responsePacket[1] < DeviceParam.LIMIT_MIN_VOLUME || DeviceParam.LIMIT_MAX_VOLUME < responsePacket[1]
-                                    || deviceParam.getVolume() != responsePacket[1])
-                            {
-                                if (AppParam.getInstance().resendCount > 5)
-                                {
+                                    || deviceParam.getVolume() != responsePacket[1]) {
+                                if (AppParam.getInstance().resendCount > 5) {
                                     makeDialogRelaunchApp(); // Relaunch dialog.
-                                }
-                                else
-                                {
+                                } else {
                                     AppParam.getInstance().resendCount++;
 
                                     Log.d(TAG, "onCharacteristicChanged : Volume value is invalid. Try to send packet again.");
@@ -3016,18 +2658,15 @@ public class MainActivity extends AppCompatActivity
                                             + ", user=" + AppParam.getInstance().currentConnectDevice.getImplantUserName()
                                             + " : " + AppParam.getInstance().currentStatusParams.getVolume()); // Logging
 
-                            if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME)
-                            {
+                            if (AppParam.getInstance().getCurrentFragmentNumber() == AppParam.FRAGMENT_NUMBER_HOME) {
                                 ((HomeFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.main_frame))).updateScreen();
                                 vibrator(100);
                             }
                         }
                         break;
                         // Error
-                        case PACKET_HEADER_ERROR:
-                        {
-                            if (packetSize < 3)
-                            {
+                        case PACKET_HEADER_ERROR: {
+                            if (packetSize < 3) {
                                 Log.d(TAG, "onCharacteristicChanged : Unexpected packet size error!");
                                 Toast.makeText(getApplicationContext(), getString(R.string.activity_main_toast_message_packet_length_error), Toast.LENGTH_LONG).show();
                                 break;
@@ -3035,8 +2674,7 @@ public class MainActivity extends AppCompatActivity
 
                             byte errorType = byteExtractor(responsePacket[2]);
 
-                            switch (errorType)
-                            {
+                            switch (errorType) {
                                 // Invalid command, Invalid packet data size
                                 case 1:
                                 case 2:
@@ -3047,17 +2685,14 @@ public class MainActivity extends AppCompatActivity
                                 case 3:
                                     Log.d(TAG, "onCharacteristicChanged : Sound Processor is busy!");
 
-                                    if (!AppParam.getInstance().isEnabledBusyToast)
-                                    {
+                                    if (!AppParam.getInstance().isEnabledBusyToast) {
                                         Toast.makeText(getApplicationContext(), getString(R.string.fragment_password_toast_message_ble_busy), Toast.LENGTH_LONG).show();
 
                                         AppParam.getInstance().isEnabledBusyToast = true;
 
-                                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
-                                        {
+                                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                                             @Override
-                                            public void run()
-                                            {
+                                            public void run() {
                                                 AppParam.getInstance().isEnabledBusyToast = false;
                                             }
                                         }, 3500);
@@ -3068,16 +2703,13 @@ public class MainActivity extends AppCompatActivity
                                 case 4:
                                     Log.d(TAG, "onCharacteristicChanged : Sound Processor is locked! Unlock Sound Processor using password first.");
 
-                                    if (!AppParam.getInstance().isEnabledUnlockedToast)
-                                    {
+                                    if (!AppParam.getInstance().isEnabledUnlockedToast) {
                                         Toast.makeText(getApplicationContext(), getString(R.string.activity_main_toast_message_sound_processor_locked), Toast.LENGTH_LONG).show();
                                         AppParam.getInstance().isEnabledUnlockedToast = true;
 
-                                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
-                                        {
+                                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                                             @Override
-                                            public void run()
-                                            {
+                                            public void run() {
                                                 AppParam.getInstance().isEnabledUnlockedToast = false;
                                             }
                                         }, 3500);
@@ -3090,16 +2722,13 @@ public class MainActivity extends AppCompatActivity
                                 case 7:
                                     Log.d(TAG, "onCharacteristicChanged : Sound Processor internal system error occurred...");
 
-                                    if (!AppParam.getInstance().isEnabledInternalErrorToast)
-                                    {
+                                    if (!AppParam.getInstance().isEnabledInternalErrorToast) {
                                         Toast.makeText(getApplicationContext(), getString(R.string.activity_main_toast_message_sound_processor_internal_error), Toast.LENGTH_LONG).show();
                                         AppParam.getInstance().isEnabledInternalErrorToast = true;
 
-                                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
-                                        {
+                                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                                             @Override
-                                            public void run()
-                                            {
+                                            public void run() {
                                                 AppParam.getInstance().isEnabledInternalErrorToast = false;
                                             }
                                         }, 3500);
@@ -3114,8 +2743,7 @@ public class MainActivity extends AppCompatActivity
         } // onCharacteristicChanged
     }; // BluetoothGattCallback
 
-    private void vibrator(int ms)
-    {
+    private void vibrator(int ms) {
         Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         vibrator.vibrate(ms);
     }
@@ -3123,8 +2751,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Value extractor - for byte
      */
-    public byte byteExtractor(byte b)
-    {
+    public byte byteExtractor(byte b) {
         return (byte) (b & 0xFF);
     }
 
@@ -3136,15 +2763,12 @@ public class MainActivity extends AppCompatActivity
     /**
      * Runner2 for packet timeout
      */
-    Runnable packetTimeoutRunner2 = new Runnable()
-    {
+    Runnable packetTimeoutRunner2 = new Runnable() {
         @Override
-        public void run()
-        {
+        public void run() {
             Log.d(TAG, "packetTImeoutRunner2 : Timeout occurred for response packet. Then try to disconnect from current connected Sound Processor.");
 
-            if (mBluetoothGatt != null && AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
-            {
+            if (mBluetoothGatt != null && AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED) {
                 mBluetoothGatt.disconnect();
             }
         }
@@ -3153,15 +2777,12 @@ public class MainActivity extends AppCompatActivity
     /**
      * Runner for packet timeout
      */
-    Runnable packetTimeoutRunner = new Runnable()
-    {
+    Runnable packetTimeoutRunner = new Runnable() {
         @Override
-        public void run()
-        {
+        public void run() {
             Log.d(TAG, "packetTImeoutRunner : Timeout occurred for response packet. Then Try to send previous packet again.");
 
-            if (mBluetoothGatt.writeCharacteristic(mCharClientToServer))
-            {
+            if (mBluetoothGatt.writeCharacteristic(mCharClientToServer)) {
                 packetTimeoutHandler.postDelayed(packetTimeoutRunner2, DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT); // Make Handler for timeout
             }
 
@@ -3177,23 +2798,17 @@ public class MainActivity extends AppCompatActivity
     /**
      * Runner for send packet
      */
-    Runnable packetSendRunner = new Runnable()
-    {
+    Runnable packetSendRunner = new Runnable() {
         @Override
-        public void run()
-        {
-            if (mBluetoothGatt == null || mBluetoothDevice == null || mCharClientToServer == null || AppParam.getInstance().sendingPacket == null)
-            {
+        public void run() {
+            if (mBluetoothGatt == null || mBluetoothDevice == null || mCharClientToServer == null || AppParam.getInstance().sendingPacket == null) {
                 return;
             }
 
             if (mCharClientToServer.setValue(AppParam.getInstance().sendingPacket)
-                    && mBluetoothGatt.writeCharacteristic(mCharClientToServer))
-            {
+                    && mBluetoothGatt.writeCharacteristic(mCharClientToServer)) {
                 packetTimeoutHandler.postDelayed(packetTimeoutRunner, DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT); // Make Handler for timeout
-            }
-            else
-            {
+            } else {
                 return;
             }
 
@@ -3205,16 +2820,13 @@ public class MainActivity extends AppCompatActivity
     /**
      * Send packet that can be used anywhere
      */
-    public boolean sendPacket(byte[] packet)
-    {
-        if (AppParam.getInstance().isBleBusy)
-        {
+    public boolean sendPacket(byte[] packet) {
+        if (AppParam.getInstance().isBleBusy) {
             Log.d(TAG, "sendPacket : Failed to send packet why Characteristic is busy.");
             return false;
         }
 
-        if (AppParam.getInstance().bleConnectionState == AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
-        {
+        if (AppParam.getInstance().bleConnectionState == AppParam.BLE_CONNECTION_STATE_DISCONNECTED) {
             Toast.makeText(getApplicationContext(), getString(R.string.activity_main_toast_message_ble_not_connected), Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -3229,14 +2841,12 @@ public class MainActivity extends AppCompatActivity
     /**
      * Printer for String using bytes.
      */
-    public String printLogBytesToString(byte[] bytes)
-    {
+    public String printLogBytesToString(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
 
         sb.append("0x");
 
-        for (byte b : bytes)
-        {
+        for (byte b : bytes) {
             sb.append(String.format("%02X ", (b & 0xFF)));
         }
 
@@ -3246,14 +2856,12 @@ public class MainActivity extends AppCompatActivity
     /**
      * Make a packet that must less than equal length 20.
      */
-    public byte[] packetMaker(int header, byte[] payload, int maxLen)
-    {
+    public byte[] packetMaker(int header, byte[] payload, int maxLen) {
         byte[] packet = new byte[maxLen];
 
         packet[0] = (byte) (header & 0xFF);
 
-        if (payload != null)
-        {
+        if (payload != null) {
             System.arraycopy(payload, 0, packet, 1, Math.min((maxLen - 1), payload.length));
         }
 
@@ -3264,8 +2872,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Make a dialog for relaunch app message.
      */
-    public void makeDialogRelaunchApp()
-    {
+    public void makeDialogRelaunchApp() {
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this, R.style.MyAlertDialogTheme);
 
         String message = getString(R.string.activity_main_dialog_message_relaunch_app_by_status_parameters);
@@ -3281,8 +2888,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Make a dialog for re-attach Sound Processor and disconnect.
      */
-    public void makeDialogReattachSoundProcessorAndDisconnect()
-    {
+    public void makeDialogReattachSoundProcessorAndDisconnect() {
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this, R.style.MyAlertDialogTheme);
 
         String message = getString(R.string.activity_main_dialog_message_invalid_status_value);
@@ -3291,15 +2897,12 @@ public class MainActivity extends AppCompatActivity
 
         builder.setMessage(message);
 
-        builder.setPositiveButton(getString(R.string.dialog_message_ok), new DialogInterface.OnClickListener()
-        {
+        builder.setPositiveButton(getString(R.string.dialog_message_ok), new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i)
-            {
+            public void onClick(DialogInterface dialogInterface, int i) {
                 updateLongTimeIdleHandler(); // Update long time idle handler
                 if (AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED
-                        && mBluetoothDevice != null && mBluetoothGatt != null)
-                {
+                        && mBluetoothDevice != null && mBluetoothGatt != null) {
                     AppParam.getInstance().isDisconnectedByUser = true;
                     mBluetoothGatt.disconnect();
                 }
@@ -3314,8 +2917,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Make a dialog to stop auto connection feature.
      */
-    public void makeDialogStopAutoConnection()
-    {
+    public void makeDialogStopAutoConnection() {
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this, R.style.MyAlertDialogTheme);
 
         String message = (AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
@@ -3324,20 +2926,16 @@ public class MainActivity extends AppCompatActivity
 
         builder.setMessage(message);
 
-        builder.setNegativeButton(getString(R.string.dialog_message_no), new DialogInterface.OnClickListener()
-        {
+        builder.setNegativeButton(getString(R.string.dialog_message_no), new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i)
-            {
+            public void onClick(DialogInterface dialogInterface, int i) {
                 updateLongTimeIdleHandler(); // Update long time idle handler
             }
         });
 
-        builder.setPositiveButton(getString(R.string.dialog_message_yes), new DialogInterface.OnClickListener()
-        {
+        builder.setPositiveButton(getString(R.string.dialog_message_yes), new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i)
-            {
+            public void onClick(DialogInterface dialogInterface, int i) {
                 updateLongTimeIdleHandler(); // Update long time idle handler
                 // Stop auto connection
                 AppParam.getInstance().setAutoConnectionEnabled(false);
@@ -3346,8 +2944,7 @@ public class MainActivity extends AppCompatActivity
                 updateToolbar();
 
                 if (mBluetoothDevice != null && mBluetoothGatt != null
-                        && AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
-                {
+                        && AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED) {
                     Log.d(TAG, "자동 연결을 종료합니다.");
                     AppParam.getInstance().isDisconnectedByUser = true;
                     mBluetoothGatt.disconnect();
@@ -3359,8 +2956,7 @@ public class MainActivity extends AppCompatActivity
         AppParam.getInstance().lastDialog.show();
     }
 
-    public void writeMessage(int type, String message)
-    {
+    public void writeMessage(int type, String message) {
         LoggingUtils.getInstance().writeMessage(LoggingUtils.getInstance().typeMessage(type) + " : " + message);
     }
 }
