@@ -61,7 +61,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
+//import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
 import todoc.cochlear.remoteapp.bluetooth.BtUtils;
 import todoc.cochlear.remoteapp.database.AppDatabase;
 import todoc.cochlear.remoteapp.database.Device;
@@ -99,18 +99,18 @@ public class MainActivity extends AppCompatActivity {
     private static final int DELAY_IN_MS_FOR_LONG_TIME_IDLE = 600000; // 10 minutes.
 
     public static final byte PACKET_HEADER_PASSWORD = (byte) (0x40 & 0xff);
-    public static final byte PACKET_HEADER_SOUND_PROCESSOR_INFO = (byte) (0x43 & 0xff);
-    public static final byte PACKET_HEADER_MAP_INFO = (byte) (0x44 & 0xff);
-    public static final byte PACKET_HEADER_ISD_USER_NAME = (byte) (0x45 & 0xff);
-    public static final byte PACKET_HEADER_SOUND_PROCESSOR_STATUS = (byte) (0x46 & 0xff);
-    public static final byte PACKET_HEADER_VALUE_PROMGRAM = (byte) (0x47 & 0xff);
-    public static final byte PACKET_HEADER_VALUE_VOLUME = (byte) (0x48 & 0xff);
-    public static final byte PACKET_HEADER_VALUE_SENSITIVITY = (byte) (0x49 & 0xff);
-    public static final byte PACKET_HEADER_VALUE_TELECOIL = (byte) (0x4A & 0xff);
-    public static final byte PACKET_HEADER_VALUE_SIMULATION = (byte) (0x4B & 0xff);
-    public static final byte PACKET_HEADER_VALUE_LED = (byte) (0x4C & 0xff);
-    public static final byte PACKET_HEADER_VALUE_WARNNING = (byte) (0x4D & 0xff);
-    public static final byte PACKET_HEADER_VALUE_POWER_MODE = (byte) (0x4E & 0xff);
+    public static final byte PACKET_HEADER_SOUND_PROCESSOR_INFO = (byte) (0x41 & 0xff);
+    public static final byte PACKET_HEADER_MAP_INFO = (byte) (0x42 & 0xff);
+    public static final byte PACKET_HEADER_ISD_USER_NAME = (byte) (0x43 & 0xff);
+    public static final byte PACKET_HEADER_SOUND_PROCESSOR_STATUS = (byte) (0x44 & 0xff);
+    public static final byte PACKET_HEADER_VALUE_PROMGRAM = (byte) (0x45 & 0xff);
+    public static final byte PACKET_HEADER_VALUE_VOLUME = (byte) (0x46 & 0xff);
+    public static final byte PACKET_HEADER_VALUE_SENSITIVITY = (byte) (0x47 & 0xff);
+    public static final byte PACKET_HEADER_VALUE_TELECOIL = (byte) (0x48 & 0xff);
+    public static final byte PACKET_HEADER_VALUE_SIMULATION = (byte) (0x49 & 0xff);
+    public static final byte PACKET_HEADER_VALUE_LED = (byte) (0x4A & 0xff);
+    //public static final byte PACKET_HEADER_VALUE_POWER_MODE = (byte) (0x99 & 0xff);
+    public static final byte PACKET_HEADER_VALUE_WARNNING = (byte) (0x4B & 0xff);
     public static final byte PACKET_HEADER_ERROR = (byte) (0xf0 & 0xff);
 
     // Bluetooth
@@ -124,8 +124,8 @@ public class MainActivity extends AppCompatActivity {
     BluetoothGattCharacteristic mCharServerToClient;
 
     // TODO: DataBinding 테스트
-    private ActivityMainBinding activityMainBinding;
-    private MainData mainData;
+    //private ActivityMainBinding activityMainBinding;
+    //private MainData mainData;
 
     //
     // Long time idle state handler
@@ -206,10 +206,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_main);
-        activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        mainData = new MainData();
-        activityMainBinding.setMainData(mainData);
+        setContentView(R.layout.activity_main);
+        //activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        //mainData = new MainData();
+        //activityMainBinding.setMainData(mainData);
 
         AppParam.getInstance().bleConnectionState = AppParam.BLE_CONNECTION_STATE_DISCONNECTED;
 
@@ -382,12 +382,14 @@ public class MainActivity extends AppCompatActivity {
         updateLongTimeIdleHandler();
     } // initMainActivity
 
+    /*
     public void onClickLiveData(View view) {
 
         Log.d(TAG, "onClickLiveData");
 
         AppParam.getInstance().longTimeIdle.setValue(Boolean.valueOf(true));
     }
+    */
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -1437,6 +1439,7 @@ public class MainActivity extends AppCompatActivity {
                 builder.setPositiveButton("네", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        updateLongTimeIdleHandler();
                         Log.d(TAG, "Applock screen enabled state = " + AppPreferences.getInstance().isApplockScreenEnabled(getApplicationContext()));
 
                         if (AppPreferences.getInstance().isApplockScreenEnabled(getApplicationContext())) {
@@ -1579,7 +1582,7 @@ public class MainActivity extends AppCompatActivity {
                 //
                 ScanFilter.Builder filterBuilder = new ScanFilter.Builder();
 
-                if (enable) // 무조건 enable == true 인 구간
+                if (!enable) // 무조건 enable == true 인 구간
                 {
                     ParcelUuid serviceDataUuid = new ParcelUuid(UUID.fromString("00001407-0000-1000-8000-00805F9B34FB"));
                     filterBuilder.setServiceData(serviceDataUuid, new byte[]{(byte) 0x0005, (byte) 0x007F});
@@ -2304,6 +2307,7 @@ public class MainActivity extends AppCompatActivity {
                             deviceParam.setAlarmLed((byte) (responsePacket[5] & 0xff));
                             deviceParam.setTelecoil((byte) (responsePacket[6] & 0xff));
                             deviceParam.setAlarmStimulation((byte) (responsePacket[7] & 0xff));
+                            //deviceParam.setPowerMode((byte) (responsePacket[8] & 0xff));
                             deviceParam.setWarnning((byte) (responsePacket[8] & 0xff));
 
                             AppParam.getInstance().currentStatusParams = deviceParam;
@@ -2314,8 +2318,10 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "onCharacteristicChanged : Volume = " + deviceParam.getVolume());
                             Log.d(TAG, "onCharacteristicChanged : Sensitivity = " + deviceParam.getSensitivity());
                             Log.d(TAG, "onCharacteristicChanged : Alarm LED = " + deviceParam.getAlarmLed());
-                            Log.d(TAG, "onCharacteristicChanged : Alarm Stimulation = " + deviceParam.getAlarmStimulation());
                             Log.d(TAG, "onCharacteristicChanged : Telecoil = " + deviceParam.getTelecoil());
+                            Log.d(TAG, "onCharacteristicChanged : Alarm Stimulation = " + deviceParam.getAlarmStimulation());
+                            //Log.d(TAG, "onCharacteristicChanged : Power mode = " + deviceParam.getPowerMode());
+
 
                             // Check value validation.
 
@@ -2368,6 +2374,14 @@ public class MainActivity extends AppCompatActivity {
                                 invalid = true;
                                 Log.d(TAG, "onCharacteristicChanged : Battery value is invalid. Current value = " + deviceParam.getBattery());
                             }
+
+                            /*
+                            // 8. Power Mode
+                            if (deviceParam.getPowerMode() < DeviceParam.LIMIT_MIN_POWER_MODE || DeviceParam.LIMIT_MAX_POWER_MODE < deviceParam.getPowerMode()) {
+                                invalid = true;
+                                Log.d(TAG, "onCharacteristicChanged : PowerMode value is invalid. Current value = " + deviceParam.getPowerMode());
+                            }
+                            */
 
                             if (invalid) {
                                 makeDialogReattachSoundProcessorAndDisconnect();
@@ -2512,6 +2526,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
 
                         // Power Mode
+                        /*
                         case PACKET_HEADER_VALUE_POWER_MODE: {
                             DeviceParam deviceParam = AppParam.getInstance().sendingStatusParams;
 
@@ -2550,6 +2565,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                         break;
+                        */
 
                         // Program
                         case PACKET_HEADER_VALUE_PROMGRAM: {

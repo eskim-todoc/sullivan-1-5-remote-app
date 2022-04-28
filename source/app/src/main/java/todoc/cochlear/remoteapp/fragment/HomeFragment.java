@@ -305,6 +305,7 @@ public class HomeFragment extends Fragment
                                 new byte[]{AppParam.getInstance().sendingStatusParams.getTelecoil()}, 2));
             }
             // Power Mode
+            /*
             else if (view.getId() == R.id.home_low_power_image_button)
             {
                 Log.d(TAG, "Fragment Home : onClick - Power Mode.");
@@ -322,6 +323,7 @@ public class HomeFragment extends Fragment
                         mMainActivity.packetMaker(MainActivity.PACKET_HEADER_VALUE_POWER_MODE,
                                 new byte[]{AppParam.getInstance().sendingStatusParams.getPowerMode()}, 2));
             }
+            */
             // Program plus
             else if (view.getId() == R.id.home_program_plus_button)
             {

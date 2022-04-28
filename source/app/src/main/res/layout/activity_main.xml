@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
@@ -11,8 +12,10 @@
             name="mainData"
             type="todoc.cochlear.remoteapp.databinding.MainData" />
     </data>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+-->
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MainActivity">
@@ -826,6 +829,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- 임시 테스트 버튼 -->
+        <!--
         <Button
             android:id="@+id/LiveDataBtn"
             android:layout_width="wrap_content"
@@ -844,7 +848,7 @@
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
-
+        -->
         <!-- 현재 사용되지 않는 화면 -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/main_please_wait_layout"
@@ -889,4 +893,6 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
+<!--
 </layout>
+-->
