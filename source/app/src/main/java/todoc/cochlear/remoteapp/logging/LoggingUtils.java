@@ -178,6 +178,8 @@ public class LoggingUtils extends AppCompatActivity
     public static final int LOGGING_DEVICE_DISCONNECTED = 2;
     public static final int LOGGING_DEVICE_REGISTERED = 3;
     public static final int LOGGING_DEVICE_REMOVED = 4;
+    public static final int LOGGING_BOND_BONDED = 5;
+    public static final int LOGGING_BOND_REMOVED = 6;
     public static final int LOGGING_VALUE_STIMULATION = 20;
     public static final int LOGGING_VALUE_LED = 21;
     public static final int LOGGING_VALUE_TELECOIL = 22;
@@ -205,6 +207,12 @@ public class LoggingUtils extends AppCompatActivity
                 break;
             case LOGGING_DEVICE_REMOVED:
                 ret = "DEVICE_REMOVED";
+                break;
+            case LOGGING_BOND_BONDED:
+                ret = "BOND_BONDED";
+                break;
+            case LOGGING_BOND_REMOVED:
+                ret = "BOND_REMOVED";
                 break;
             case LOGGING_VALUE_STIMULATION:
                 ret = "VALUE_STIMULATION";

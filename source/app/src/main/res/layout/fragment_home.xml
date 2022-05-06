@@ -14,13 +14,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <!-- 사운드처리기 종합 정보 레이아웃 상단 구분선 -->
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="@dimen/dimen_line_width_height_size"
             android:contentDescription="@string/warning_message_image_content_description"
             android:src="@color/color_line_color" />
 
-        <!-- 사운드처리기 종합 정보 -->
+        <!-- 사운드처리기 종합 정보 (레이아웃 상단) -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -53,7 +54,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/home_sound_processor_device_name_text" />
 
-            <!-- 배터리 -->
+            <!-- 배터리 몸통 -->
             <ProgressBar
                 android:id="@+id/home_sound_processor_battery_progressbar"
                 style="@style/Widget.AppCompat.ProgressBar.Horizontal"
@@ -70,6 +71,7 @@
                 app:layout_constraintTop_toTopOf="@id/home_sound_processor_device_image"
                 tools:progressDrawable="@drawable/custom_progressbar_battery_level_low" />
 
+            <!-- 배터리 꼭지 -->
             <ImageView
                 android:layout_width="8dp"
                 android:layout_height="18dp"
@@ -79,6 +81,7 @@
                 app:layout_constraintStart_toEndOf="@id/home_sound_processor_battery_progressbar"
                 app:layout_constraintTop_toTopOf="@id/home_sound_processor_battery_progressbar" />
 
+            <!-- 배터리 레벨 텍스트뷰 -->
             <TextView
                 android:id="@+id/home_sound_processor_battery_value_textview"
                 android:layout_width="wrap_content"
@@ -91,7 +94,11 @@
                 app:layout_constraintTop_toTopOf="@id/home_sound_processor_battery_progressbar"
                 tools:text="0%" />
 
-            <!-- 각종 알림 및 텔레코일 -->
+            <!--
+            * * * * * 각종 알림 및 텔레코일 * * * * *
+            -->
+
+            <!-- 자극 알림 텍스트뷰 -->
             <TextView
                 android:id="@+id/home_stim_alarm_title_textview"
                 android:layout_width="wrap_content"
@@ -105,6 +112,7 @@
                 app:layout_constraintStart_toStartOf="@id/home_stim_alarm_image_button"
                 app:layout_constraintTop_toBottomOf="@id/home_sound_processor_device_image" />
 
+            <!-- LED 알림 텍스트뷰 -->
             <TextView
                 android:id="@+id/home_led_alarm_title_textview"
                 android:layout_width="wrap_content"
@@ -118,6 +126,7 @@
                 app:layout_constraintStart_toStartOf="@id/home_led_alarm_image_button"
                 app:layout_constraintTop_toBottomOf="@id/home_sound_processor_device_image" />
 
+            <!-- 텔레코일 텍스트뷰 -->
             <TextView
                 android:id="@+id/home_telecoil_title_textview"
                 android:layout_width="wrap_content"
@@ -131,6 +140,7 @@
                 app:layout_constraintStart_toStartOf="@id/home_telecoil_image_button"
                 app:layout_constraintTop_toBottomOf="@id/home_sound_processor_device_image" />
 
+            <!-- 저전력 광고 텍스트뷰 -->
             <TextView
                 android:id="@+id/home_low_power_title_textview"
                 android:layout_width="wrap_content"
@@ -145,6 +155,7 @@
                 app:layout_constraintStart_toStartOf="@id/home_low_power_image_button"
                 app:layout_constraintTop_toBottomOf="@id/home_sound_processor_device_image" />
 
+            <!-- 자극 알림 이미지버튼 -->
             <ImageButton
                 android:id="@+id/home_stim_alarm_image_button"
                 android:layout_width="48dp"
@@ -164,6 +175,7 @@
                 app:layout_constraintTop_toBottomOf="@id/home_stim_alarm_title_textview"
                 tools:src="@drawable/ic_home_stimulation" />
 
+            <!-- LED 알림 이미지버튼 -->
             <ImageButton
                 android:id="@+id/home_led_alarm_image_button"
                 android:layout_width="48dp"
@@ -183,6 +195,7 @@
                 app:layout_constraintTop_toBottomOf="@id/home_led_alarm_title_textview"
                 tools:src="@drawable/ic_home_led" />
 
+            <!-- 텔레코일 이미지버튼 -->
             <ImageButton
                 android:id="@+id/home_telecoil_image_button"
                 android:layout_width="48dp"
@@ -202,6 +215,7 @@
                 app:layout_constraintTop_toBottomOf="@id/home_telecoil_title_textview"
                 tools:src="@drawable/ic_home_telecoil" />
 
+            <!-- 저전력 광고 이미지버튼 -->
             <ImageButton
                 android:id="@+id/home_low_power_image_button"
                 android:layout_width="48dp"
@@ -223,6 +237,7 @@
                 tools:src="@drawable/icon_low_power_disabled" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <!-- 프로그램 레이아웃 상단 구분선 -->
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="@dimen/dimen_line_width_height_size"
@@ -298,6 +313,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <!-- 프로그램 레이아웃 하단 구분선 -->
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="@dimen/dimen_line_width_height_size"
@@ -504,6 +520,7 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <!-- 감도와 볼륨 레이아웃 하단 구분선 -->
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="@dimen/dimen_line_width_height_size"
@@ -511,13 +528,13 @@
             android:src="@color/color_line_color" />
     </LinearLayout>
 
-    <!-- 연결할 사운드프로세서를 찾는 레이아웃 -->
+    <!-- 사운드처리기와 연결이 끊기면 다시 사운드프로세서를 검색하는 화면 -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/home_not_yet_connected_layout"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:elevation="8dp"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

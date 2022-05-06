@@ -1,6 +1,5 @@
 package todoc.cochlear.remoteapp.params;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.MutableLiveData;
 
 import java.util.ArrayList;
@@ -11,280 +10,308 @@ import todoc.cochlear.remoteapp.database.AppDatabase;
 import todoc.cochlear.remoteapp.database.Device;
 import todoc.cochlear.remoteapp.logging.LoggingDatabase;
 
-public class AppParam {
-    // Instance and getter.
-    private final static AppParam mInstance = new AppParam();
+public class AppParam
+{
+      // Instance and getter.
+      private final static AppParam mInstance = new AppParam();
 
-    public static AppParam getInstance() {
-        return mInstance;
-    }
+      public static AppParam getInstance()
+      {
+            return mInstance;
+      }
 
-    // Language indicator.
-    public boolean isKorean;
+      // Language indicator.
+      public boolean isKorean;
 
-    // For fragment number.
-    public final static int FRAGMENT_NUMBER_NONE = 0;
-    public final static int FRAGMENT_NUMBER_HOME = 1;
-    public final static int FRAGMENT_NUMBER_LIST = 2;
-    public final static int FRAGMENT_NUMBER_SEARCH = 3;
-    public final static int FRAGMENT_NUMBER_PASSWORD = 4;
+      // For fragment number.
+      public final static int FRAGMENT_NUMBER_NONE = 0;
+      public final static int FRAGMENT_NUMBER_HOME = 1;
+      public final static int FRAGMENT_NUMBER_LIST = 2;
+      public final static int FRAGMENT_NUMBER_SEARCH = 3;
+      public final static int FRAGMENT_NUMBER_PASSWORD = 4;
 
-    public int currentFragmentNumber;
+      public int currentFragmentNumber;
 
-    // For BLE connection state.
-    public static final int BLE_CONNECTION_STATE_DISCONNECTED = 0;
-    public static final int BLE_CONNECTION_STATE_CONNECTING = 1;
-    public static final int BLE_CONNECTION_STATE_CONNECTED = 2;
+      // For BLE connection state.
+      public static final int BLE_CONNECTION_STATE_DISCONNECTED = 0;
+      public static final int BLE_CONNECTION_STATE_CONNECTING = 1;
+      public static final int BLE_CONNECTION_STATE_CONNECTED = 2;
 
-    public int bleConnectionState;
+      public int bleConnectionState;
 
-    // For BLE transfer state.
-    public boolean isBleBusy;
+      // For BLE transfer state.
+      public boolean isBleBusy;
 
-    // For BLE packet to send.
-    public byte[] sendingPacket;
+      // For BLE packet to send.
+      public byte[] sendingPacket;
 
-    // Currently connected Sound Processor BLE instance
-    public Device currentConnectDevice;
+      // Currently connected Sound Processor BLE instance
+      public Device currentConnectDevice;
 
-    // Used for disconnecting when user want to disconnect from currently connected Sound Processor.
-    public boolean isDisconnectedByUser;
+      // Used for disconnecting when user want to disconnect from currently connected Sound Processor.
+      public boolean isDisconnectedByUser;
 
-    // BLE scanner state.
-    public boolean isBleScanning;
+      // BLE device is bonded?
+      public boolean isBonded;
 
-    // Shared Preference name
-    public final static String SP_NAME = "sharedPreferences";
+      // BLE scanner state.
+      public boolean isBleScanning;
 
-    // Auto connection shared preference name
-    public final static String AUTO_CONN_SP_NAME = "autoConnection";
+      // Shared Preference name
+      public final static String SP_NAME = "sharedPreferences";
 
-    public final static String AUTO_CONN_SP_YES = "yes";
-    public final static String AUTO_CONN_SP_NO = "no";
+      // Auto connection shared preference name
+      public final static String AUTO_CONN_SP_NAME = "autoConnection";
 
-    // Auto connection enabled?
-    public boolean autoConnectionState;
+      public final static String AUTO_CONN_SP_YES = "yes";
+      public final static String AUTO_CONN_SP_NO = "no";
 
-    // 'callCounter' is indicator for knowing how many times app has been launched without memory release.
-    public int callCounter;
+      // Auto connection enabled?
+      public boolean autoConnectionState;
 
-    // For broadcast receiver.
-    public boolean isBroadcastReceiverRegistered;
+      // 'callCounter' is indicator for knowing how many times app has been launched without memory release.
+      public int callCounter;
 
-    // For termination service.
-    public boolean isTerminationServiceStarted;
+      // For broadcast receiver.
+      public boolean isBroadcastReceiverRegistered;
 
-    // For exit app.
-    public boolean willBeAppExit;
+      // For termination service.
+      public boolean isTerminationServiceStarted;
 
-    // For Database.
-    public AppDatabase database;
+      // For exit app.
+      public boolean willBeAppExit;
 
-    // For Logging database.
-    public LoggingDatabase loggingDatabase;
+      // For Database.
+      public AppDatabase database;
 
-    // For Toolbar.
-    public String menuTitle;
-    public boolean menuHome;
-    public boolean menuSearch;
-    public boolean menuList;
-    public boolean menuAutoConnection;
-    public boolean menuManual;
-    public boolean menuSupport;
+      // For Logging database.
+      public LoggingDatabase loggingDatabase;
 
-    // Lists for Sound Processor about registered on App and searched from Search Fragment.
-    public List<Device> registeredDevices;
-    public List<Device> searchedDevices;
+      // For Toolbar.
+      public String menuTitle;
+      public boolean menuHome;
+      public boolean menuSearch;
+      public boolean menuList;
+      public boolean menuAutoConnection;
+      public boolean menuManual;
+      public boolean menuSupport;
 
-    // Errors... used when App read Sound Processor status.
-    public android.app.AlertDialog invalidValueDialog;
+      // Lists for Sound Processor about registered on App and searched from Search Fragment.
+      public List<Device> registeredDevices;
+      public List<Device> searchedDevices;
 
-    // This flags are used to know whether toasts are already made or not when App get error packets.
-    public boolean isEnabledBusyToast;
-    public boolean isEnabledUnlockedToast;
-    public boolean isEnabledInternalErrorToast;
+      // Errors... used when App read Sound Processor status.
+      public android.app.AlertDialog invalidValueDialog;
 
-    // This value is used for testing for continuously send packets to Sound Processor.
-    public byte testVolume;
+      // This flags are used to know whether toasts are already made or not when App get error packets.
+      public boolean isEnabledBusyToast;
+      public boolean isEnabledUnlockedToast;
+      public boolean isEnabledInternalErrorToast;
 
-    // This counter is used for resend a packet lastly sent to Sound Processor when App get a response packet that has invalid value range.
-    // App immediately resend the packet lastly sent for maximum 5 times.
-    // However if still the response packet has invalid value range, App will be make a error dialog to show this happen to user.
-    public int resendCount;
+      // This value is used for testing for continuously send packets to Sound Processor.
+      public byte testVolume;
 
-    // Used for currently connected Sound Processor status.
-    public DeviceParam currentStatusParams;
+      // This counter is used for resend a packet lastly sent to Sound Processor when App get a response packet that has invalid value range.
+      // App immediately resend the packet lastly sent for maximum 5 times.
+      // However if still the response packet has invalid value range, App will be make a error dialog to show this happen to user.
+      public int resendCount;
 
-    // Used for sending a new status for Sound Processor using BLE packet.
-    public DeviceParam sendingStatusParams;
+      // Used for currently connected Sound Processor status.
+      public DeviceParam currentStatusParams;
 
-    // 잠금화면을 위한 플래그
-    public boolean appLock;
-    public boolean appLockPasswordRegister;
-    public boolean appLockNumVerify;
-    public String strFirstLockNum;
-    public String strSecondLockNum;
-    public int appLockNumIdx = 0;
-    public String appLockNum1 = " ";
-    public String appLockNum2 = " ";
-    public String appLockNum3 = " ";
-    public String appLockNum4 = " ";
+      // Used for sending a new status for Sound Processor using BLE packet.
+      public DeviceParam sendingStatusParams;
 
-    public android.app.AlertDialog lastDialog;
+      // 잠금화면을 위한 플래그
+      public boolean isAppLockState;
+      public boolean doesNeedToRegisterAppLockPassword;
+      public boolean doesNeedToVerifyAppLockPassword;
 
-    // TODO: Live Data를 이용한 장시간 미사용 감지 테스트
-    public MutableLiveData<Boolean> longTimeIdle;
+      public String strFirstLockNum;      // 앱 잠금 비밀번호 등록시 첫번째 입력되는 비밀번호 (등록이 아닌, 일반적인 입력 상황에서도 사용됨)
+      public String strSecondLockNum;     // 앱 잠금 비밀번호 등록시 두번째 입력되는 비밀번호 (첫번째 입력 값과 비교하는 용도)
 
-    public AppParam() {
-        callCounter = 0;
-        currentFragmentNumber = FRAGMENT_NUMBER_NONE;
+      public int appLockNumIdx = 0;
+      public String appLockNum1 = " ";
+      public String appLockNum2 = " ";
+      public String appLockNum3 = " ";
+      public String appLockNum4 = " ";
 
-        isBroadcastReceiverRegistered = false;
+      public android.app.AlertDialog lastDialog;
 
-        isTerminationServiceStarted = false;
+      // TODO: Live Data를 이용한 장시간 미사용 감지 테스트
+      public MutableLiveData<Boolean> longTimeIdle;
 
-        willBeAppExit = false;
+      public AppParam()
+      {
+            callCounter = 0;
+            currentFragmentNumber = FRAGMENT_NUMBER_NONE;
 
-        database = null;
+            isBroadcastReceiverRegistered = false;
 
-        menuTitle = "";
-        menuHome = false;
-        menuSearch = false;
-        menuList = false;
-        menuManual = false;
-        menuAutoConnection = false;
-        menuSupport = false;
+            isTerminationServiceStarted = false;
 
-        isBleScanning = false;
-        isDisconnectedByUser = false;
+            willBeAppExit = false;
 
-        searchedDevices = new ArrayList<>();
+            database = null;
 
-        resendCount = 0;
-        currentStatusParams = new DeviceParam();
-        sendingStatusParams = new DeviceParam();
+            menuTitle = "";
+            menuHome = false;
+            menuSearch = false;
+            menuList = false;
+            menuManual = false;
+            menuAutoConnection = false;
+            menuSupport = false;
 
-        invalidValueDialog = null;
+            isBonded = false;
+            isBleScanning = false;
+            isDisconnectedByUser = false;
 
-        appLock = false;
-        appLockPasswordRegister = false;
-        appLockNumVerify = false;
-        strFirstLockNum = "";
-        strSecondLockNum = "";
-        appLockNumIdx = 0;
-        appLockNum1 = " ";
-        appLockNum2 = " ";
-        appLockNum3 = " ";
-        appLockNum4 = " ";
+            searchedDevices = new ArrayList<>();
 
-        longTimeIdle = new MutableLiveData<Boolean>();
-    }
+            resendCount = 0;
+            currentStatusParams = new DeviceParam();
+            sendingStatusParams = new DeviceParam();
 
-    @Override
-    public String toString() {
-        return "AppParam{" +
-                "isKorean=" + isKorean +
-                ", currentFragmentNumber=" + currentFragmentNumber +
-                ", bleConnectionState=" + bleConnectionState +
-                ", isBleBusy=" + isBleBusy +
-                ", sendingPacket=" + Arrays.toString(sendingPacket) +
-                ", currentConnectDevice=" + currentConnectDevice +
-                ", isDisconnectedByUser=" + isDisconnectedByUser +
-                ", isBleScanning=" + isBleScanning +
-                ", callCounter=" + callCounter +
-                ", isBroadcastReceiverRegistered=" + isBroadcastReceiverRegistered +
-                ", isTerminationServiceStarted=" + isTerminationServiceStarted +
-                ", willBeAppExit=" + willBeAppExit +
-                ", database=" + database +
-                ", menuTitle='" + menuTitle + '\'' +
-                ", menuHome=" + menuHome +
-                ", menuSearch=" + menuSearch +
-                ", menuList=" + menuList +
-                ", menuAutoConnection=" + menuAutoConnection +
-                ", menuManual=" + menuManual +
-                ", menuSupport=" + menuSupport +
-                ", registeredDevices=" + registeredDevices +
-                ", searchedDevices=" + searchedDevices +
-                ", invalidValueDialog=" + invalidValueDialog +
-                ", isEnabledBusyToast=" + isEnabledBusyToast +
-                ", isEnabledUnlockedToast=" + isEnabledUnlockedToast +
-                ", isEnabledInternalErrorToast=" + isEnabledInternalErrorToast +
-                ", testVolume=" + testVolume +
-                ", resendCount=" + resendCount +
-                ", currentStatusParams=" + currentStatusParams +
-                ", sendingStatusParams=" + sendingStatusParams +
-                '}';
-    }
+            invalidValueDialog = null;
 
-    public int getCurrentFragmentNumber() {
-        return currentFragmentNumber;
-    }
+            isAppLockState = false;
+            doesNeedToRegisterAppLockPassword = false;
+            doesNeedToVerifyAppLockPassword = false;
+            strFirstLockNum = "";
+            strSecondLockNum = "";
+            appLockNumIdx = 0;
+            appLockNum1 = " ";
+            appLockNum2 = " ";
+            appLockNum3 = " ";
+            appLockNum4 = " ";
 
-    public void setCurrentFragmentNumber(int mCurrentFragmentNumber) {
-        this.currentFragmentNumber = mCurrentFragmentNumber;
-    }
+            longTimeIdle = new MutableLiveData<Boolean>();
+      }
 
-    public String getMenuTitle() {
-        return menuTitle;
-    }
+      @Override
+      public String toString()
+      {
+            return "AppParam{" +
+                        "isKorean=" + isKorean +
+                        ", currentFragmentNumber=" + currentFragmentNumber +
+                        ", bleConnectionState=" + bleConnectionState +
+                        ", isBleBusy=" + isBleBusy +
+                        ", sendingPacket=" + Arrays.toString(sendingPacket) +
+                        ", currentConnectDevice=" + currentConnectDevice +
+                        ", isDisconnectedByUser=" + isDisconnectedByUser +
+                        ", isBleScanning=" + isBleScanning +
+                        ", callCounter=" + callCounter +
+                        ", isBroadcastReceiverRegistered=" + isBroadcastReceiverRegistered +
+                        ", isTerminationServiceStarted=" + isTerminationServiceStarted +
+                        ", willBeAppExit=" + willBeAppExit +
+                        ", database=" + database +
+                        ", menuTitle='" + menuTitle + '\'' +
+                        ", menuHome=" + menuHome +
+                        ", menuSearch=" + menuSearch +
+                        ", menuList=" + menuList +
+                        ", menuAutoConnection=" + menuAutoConnection +
+                        ", menuManual=" + menuManual +
+                        ", menuSupport=" + menuSupport +
+                        ", registeredDevices=" + registeredDevices +
+                        ", searchedDevices=" + searchedDevices +
+                        ", invalidValueDialog=" + invalidValueDialog +
+                        ", isEnabledBusyToast=" + isEnabledBusyToast +
+                        ", isEnabledUnlockedToast=" + isEnabledUnlockedToast +
+                        ", isEnabledInternalErrorToast=" + isEnabledInternalErrorToast +
+                        ", testVolume=" + testVolume +
+                        ", resendCount=" + resendCount +
+                        ", currentStatusParams=" + currentStatusParams +
+                        ", sendingStatusParams=" + sendingStatusParams +
+                        '}';
+      }
 
-    public void setMenuTitle(String mMenuTitle) {
-        this.menuTitle = mMenuTitle;
-    }
+      public int getCurrentFragmentNumber()
+      {
+            return currentFragmentNumber;
+      }
 
-    public boolean getMenuHome() {
-        return menuHome;
-    }
+      public void setCurrentFragmentNumber(int mCurrentFragmentNumber)
+      {
+            this.currentFragmentNumber = mCurrentFragmentNumber;
+      }
 
-    public void setMenuHome(boolean mMenuHome) {
-        this.menuHome = mMenuHome;
-    }
+      public String getMenuTitle()
+      {
+            return menuTitle;
+      }
 
-    public boolean getMenuSearch() {
-        return menuSearch;
-    }
+      public void setMenuTitle(String mMenuTitle)
+      {
+            this.menuTitle = mMenuTitle;
+      }
 
-    public void setMenuSearch(boolean mMenuSearch) {
-        this.menuSearch = mMenuSearch;
-    }
+      public boolean getMenuHome()
+      {
+            return menuHome;
+      }
 
-    public boolean getMenuList() {
-        return menuList;
-    }
+      public void setMenuHome(boolean mMenuHome)
+      {
+            this.menuHome = mMenuHome;
+      }
 
-    public void setMenuList(boolean mMenuList) {
-        this.menuList = mMenuList;
-    }
+      public boolean getMenuSearch()
+      {
+            return menuSearch;
+      }
 
-    public boolean getMenuAutoConnection() {
-        return menuAutoConnection;
-    }
+      public void setMenuSearch(boolean mMenuSearch)
+      {
+            this.menuSearch = mMenuSearch;
+      }
 
-    public void setMenuAutoConnection(boolean menuAutoConnection) {
-        this.menuAutoConnection = menuAutoConnection;
-    }
+      public boolean getMenuList()
+      {
+            return menuList;
+      }
 
-    public boolean getMenuManual() {
-        return menuManual;
-    }
+      public void setMenuList(boolean mMenuList)
+      {
+            this.menuList = mMenuList;
+      }
 
-    public void setMenuManual(boolean mMenuManual) {
-        this.menuManual = mMenuManual;
-    }
+      public boolean getMenuAutoConnection()
+      {
+            return menuAutoConnection;
+      }
 
-    public boolean getMenuSupport() {
-        return menuSupport;
-    }
+      public void setMenuAutoConnection(boolean menuAutoConnection)
+      {
+            this.menuAutoConnection = menuAutoConnection;
+      }
 
-    public void setMenuSupport(boolean mMenuSupport) {
-        this.menuSupport = mMenuSupport;
-    }
+      public boolean getMenuManual()
+      {
+            return menuManual;
+      }
 
-    public boolean isAutoConnectionEnabled() {
-        return autoConnectionState;
-    }
+      public void setMenuManual(boolean mMenuManual)
+      {
+            this.menuManual = mMenuManual;
+      }
 
-    public void setAutoConnectionEnabled(boolean autoConnectionEnabled) {
-        autoConnectionState = autoConnectionEnabled;
-    }
+      public boolean getMenuSupport()
+      {
+            return menuSupport;
+      }
+
+      public void setMenuSupport(boolean mMenuSupport)
+      {
+            this.menuSupport = mMenuSupport;
+      }
+
+      public boolean isAutoConnectionEnabled()
+      {
+            return autoConnectionState;
+      }
+
+      public void setAutoConnectionEnabled(boolean autoConnectionEnabled)
+      {
+            autoConnectionState = autoConnectionEnabled;
+      }
 }

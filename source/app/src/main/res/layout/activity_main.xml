@@ -1,898 +1,818 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
 
-    <data>
+    <!-- 주 화면: 툴바 + 프레임 레이아웃 -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <import type="androidx.databinding.ObservableMap" />
-
-        <variable
-            name="mainData"
-            type="todoc.cochlear.remoteapp.databinding.MainData" />
-    </data>
--->
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".MainActivity">
-
-        <!-- 주 화면 -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/main_toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:elevation="0dp"
-                android:theme="?attr/actionBarPopupTheme"
-                app:menu="@menu/toolbar"
-                app:navigationIcon="@drawable/ic_toolbar_arrow_back">
-
-                <TextView
-                    android:id="@+id/toolbar_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:text=""
-                    android:textColor="@color/black"
-                    android:textSize="20sp" />
-            </androidx.appcompat.widget.Toolbar>
-
-            <FrameLayout
-                android:id="@+id/main_frame"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-        </LinearLayout>
-
-        <!-- 등록된 사운드처리기 없을 때 화면 -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/main_no_device_layout"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:contentDescription="@string/warning_message_image_content_description"
-                android:scaleType="centerCrop"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/drawable_main_registered_nothing" />
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/main_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:elevation="0dp"
+            android:theme="?attr/actionBarPopupTheme"
+            app:menu="@menu/toolbar"
+            app:navigationIcon="@drawable/ic_toolbar_arrow_back">
 
             <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
-                android:layout_marginEnd="32dp"
-                android:layout_marginBottom="32dp"
-                android:gravity="center"
-                android:text="@string/activity_main_layout_message_no_device_on_app"
-                android:textColor="#D81B60"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@id/main_must_search"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-                android:id="@+id/main_must_search"
+                android:id="@+id/toolbar_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="56dp"
-                android:backgroundTint="#004D40"
-                android:gravity="center"
-                android:onClick="onClickNoDeviceRegistered"
-                android:text="@string/activity_main_layout_message_searching_sound_processor"
-                android:textColor="@android:color/white"
-                app:icon="@drawable/ic_toolbar_search"
-                app:iconTint="@android:color/white"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:rippleColor="?attr/colorPrimaryDark" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- 사용자 가이드 화면 -->
-        <LinearLayout
-            android:id="@+id/main_user_guide_layout"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="#ffffffff"
-            android:orientation="vertical"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="@color/white"
-                android:gravity="center_vertical|start"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:text="매뉴얼"
+                android:layout_gravity="start"
+                android:text=""
                 android:textColor="@color/black"
                 android:textSize="20sp" />
+        </androidx.appcompat.widget.Toolbar>
 
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/dimen_line_width_height_size"
-                android:contentDescription="@string/warning_message_image_content_description"
-                android:src="@color/color_line_color" />
+        <FrameLayout
+            android:id="@+id/main_frame"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-            <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                app:layout_constraintBottom_toTopOf="@id/main_user_guide_button_box"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+    </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+    <!-- 등록된 사운드처리기 없을 때 검색 유도 화면 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main_no_device_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-                    <!-- 사운드처리기 등록 -->
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        app:srcCompat="@drawable/guide_1_title" />
-
-                    <HorizontalScrollView
-                        android:layout_width="match_parent"
-                        android:layout_height="420dp">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
-                                android:adjustViewBounds="true"
-                                android:scaleType="fitStart"
-                                app:srcCompat="@drawable/guide_1_body" />
-                        </LinearLayout>
-                    </HorizontalScrollView>
-
-                    <!-- 리모컨 사용 -->
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        app:srcCompat="@drawable/guide_2_title" />
-
-                    <HorizontalScrollView
-                        android:layout_width="match_parent"
-                        android:layout_height="420dp">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
-                                android:adjustViewBounds="true"
-                                android:scaleType="fitStart"
-                                app:srcCompat="@drawable/guide_2_body" />
-                        </LinearLayout>
-                    </HorizontalScrollView>
-
-                    <!-- 사운드처리기 자동 연결 -->
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        app:srcCompat="@drawable/guide_3_title" />
-
-                    <HorizontalScrollView
-                        android:layout_width="match_parent"
-                        android:layout_height="560dp">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
-                                android:adjustViewBounds="true"
-                                android:scaleType="fitStart"
-                                app:srcCompat="@drawable/guide_3_body" />
-                        </LinearLayout>
-                    </HorizontalScrollView>
-
-                    <!-- 사운드처리기 추가 등록 -->
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        app:srcCompat="@drawable/guide_4_title" />
-
-                    <HorizontalScrollView
-                        android:layout_width="match_parent"
-                        android:layout_height="420dp">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
-                                android:adjustViewBounds="true"
-                                android:scaleType="fitStart"
-                                app:srcCompat="@drawable/guide_4_body" />
-                        </LinearLayout>
-                    </HorizontalScrollView>
-
-                    <!-- 사운드처리기 제거 -->
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        app:srcCompat="@drawable/guide_5_title" />
-
-                    <HorizontalScrollView
-                        android:layout_width="match_parent"
-                        android:layout_height="420dp">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
-                                android:adjustViewBounds="true"
-                                android:scaleType="fitStart"
-                                app:srcCompat="@drawable/guide_5_body" />
-                        </LinearLayout>
-                    </HorizontalScrollView>
-
-                    <!-- 특수한 상환 -->
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:adjustViewBounds="true"
-                        app:srcCompat="@drawable/guide_6_title" />
-
-                    <HorizontalScrollView
-                        android:layout_width="match_parent"
-                        android:layout_height="420dp">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
-                                android:adjustViewBounds="true"
-                                android:scaleType="fitStart"
-                                app:srcCompat="@drawable/guide_6_body" />
-                        </LinearLayout>
-                    </HorizontalScrollView>
-                </LinearLayout>
-            </ScrollView>
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/dimen_line_width_height_size"
-                android:contentDescription="@string/warning_message_image_content_description"
-                android:src="@color/color_line_color" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/main_user_guide_button_box"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:background="@color/color_status_bar"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent">
-
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/main_user_guide_button_box_gl"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.5" />
-
-                <CheckBox
-                    android:id="@+id/main_user_guide_checkbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/activity_main_layout_message_user_guide_dont_show_again"
-                    android:textAlignment="gravity"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/dimen_small_title_text_size_sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/main_user_guide_button_box_gl"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <Button
-                    android:id="@+id/main_user_guide_close_button"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:onClick="onClickUserGuideClose"
-                    android:text="@string/activity_main_layout_message_user_guide_close"
-                    android:textColor="@color/color_home_enabled_button_tint"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/main_user_guide_button_box_gl"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </LinearLayout>
-
-        <!-- 앱 잠금 화면 -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/main_applock_layout"
+        <ImageView
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="#ffffffff"
-            android:orientation="vertical"
-            android:visibility="gone"
+            android:clickable="true"
+            android:contentDescription="@string/warning_message_image_content_description"
+            android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/drawable_main_registered_nothing" />
 
-            <ImageButton
-                android:id="@+id/main_applock_reset_btn"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:layout_margin="8dp"
-                android:background="@android:color/transparent"
-                android:onClick="onClickAppLockReset"
-                android:padding="16dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_round_lock_reset_24"
-                android:tint="@drawable/app_lock_number_text_selector"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/main_applock_upper_layout"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="24dp"
-                android:layout_marginBottom="16dp"
-                app:layout_constraintBottom_toTopOf="@id/main_applock_lower_layout"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_weight="60">
-
-                <TextView
-                    android:id="@+id/main_applock_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:fontFamily="@font/app_font"
-                    android:text="잠금 해제"
-                    android:textColor="@color/black"
-                    android:textSize="24dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toTopOf="@id/main_applock_desc"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_chainStyle="packed" />
-
-                <TextView
-                    android:id="@+id/main_applock_desc"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="24dp"
-                    android:fontFamily="@font/app_font"
-                    android:gravity="center"
-                    android:lineSpacingMultiplier="1.4"
-                    android:text="앱 비밀번호를 입력해주세요."
-                    android:textColor="#555555"
-                    android:textSize="18dp"
-                    app:layout_constraintBottom_toTopOf="@id/main_applock_password_1_val"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/main_applock_title" />
-
-                <TextView
-                    android:id="@+id/main_applock_password_1_val"
-                    android:layout_width="56dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:fontFamily="@font/app_font"
-                    android:gravity="center"
-                    android:text=" "
-                    android:textColor="#004D40"
-                    android:textSize="28dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/main_applock_password_2_val"
-                    app:layout_constraintHorizontal_chainStyle="packed"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/main_applock_desc" />
-
-                <TextView
-                    android:id="@+id/main_applock_password_2_val"
-                    android:layout_width="56dp"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/app_font"
-                    android:gravity="center"
-                    android:text=" "
-                    android:textColor="#004D40"
-                    android:textSize="28dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/main_applock_password_1_val"
-                    app:layout_constraintEnd_toStartOf="@id/main_applock_password_3_val"
-                    app:layout_constraintStart_toEndOf="@id/main_applock_password_1_val"
-                    app:layout_constraintTop_toTopOf="@id/main_applock_password_1_val" />
-
-                <TextView
-                    android:id="@+id/main_applock_password_3_val"
-                    android:layout_width="56dp"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/app_font"
-                    android:gravity="center"
-                    android:text=" "
-                    android:textColor="#004D40"
-                    android:textSize="28dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/main_applock_password_1_val"
-                    app:layout_constraintEnd_toStartOf="@id/main_applock_password_4_val"
-                    app:layout_constraintStart_toEndOf="@id/main_applock_password_2_val"
-                    app:layout_constraintTop_toTopOf="@id/main_applock_password_1_val" />
-
-                <TextView
-                    android:id="@+id/main_applock_password_4_val"
-                    android:layout_width="56dp"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/app_font"
-                    android:gravity="center"
-                    android:text=" "
-                    android:textColor="#004D40"
-                    android:textSize="28dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/main_applock_password_1_val"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/main_applock_password_3_val"
-                    app:layout_constraintTop_toTopOf="@id/main_applock_password_1_val" />
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="4dp"
-                    android:src="#004D40"
-                    app:layout_constraintEnd_toEndOf="@id/main_applock_password_1_val"
-                    app:layout_constraintStart_toStartOf="@id/main_applock_password_1_val"
-                    app:layout_constraintTop_toBottomOf="@id/main_applock_password_1_val" />
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="4dp"
-                    android:src="#004D40"
-                    app:layout_constraintEnd_toEndOf="@id/main_applock_password_2_val"
-                    app:layout_constraintStart_toStartOf="@id/main_applock_password_2_val"
-                    app:layout_constraintTop_toBottomOf="@id/main_applock_password_2_val" />
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="4dp"
-                    android:src="#004D40"
-                    app:layout_constraintEnd_toEndOf="@id/main_applock_password_3_val"
-                    app:layout_constraintStart_toStartOf="@id/main_applock_password_3_val"
-                    app:layout_constraintTop_toBottomOf="@id/main_applock_password_3_val" />
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="4dp"
-                    android:src="#004D40"
-                    app:layout_constraintEnd_toEndOf="@id/main_applock_password_4_val"
-                    app:layout_constraintStart_toStartOf="@id/main_applock_password_4_val"
-                    app:layout_constraintTop_toBottomOf="@id/main_applock_password_4_val" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/main_applock_lower_layout"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:paddingBottom="24dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/main_applock_upper_layout"
-                app:layout_constraintVertical_weight="40">
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/main_applock_num_1_btn"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@android:color/transparent"
-                    android:fontFamily="@font/app_font"
-                    android:onClick="onClickPassNumClicked"
-                    android:text="1"
-                    android:textColor="@drawable/app_lock_number_text_selector"
-                    android:textSize="22dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/main_applock_num_2_btn"
-                    app:layout_constraintEnd_toStartOf="@id/main_applock_num_2_btn"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/main_applock_num_2_btn" />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/main_applock_num_2_btn"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@android:color/transparent"
-                    android:fontFamily="@font/app_font"
-                    android:onClick="onClickPassNumClicked"
-                    android:text="2"
-                    android:textColor="@drawable/app_lock_number_text_selector"
-                    android:textSize="22dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toTopOf="@id/main_applock_num_5_btn"
-                    app:layout_constraintEnd_toStartOf="@id/main_applock_num_3_btn"
-                    app:layout_constraintStart_toEndOf="@id/main_applock_num_1_btn"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/main_applock_num_3_btn"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@android:color/transparent"
-                    android:fontFamily="@font/app_font"
-                    android:onClick="onClickPassNumClicked"
-                    android:text="3"
-                    android:textColor="@drawable/app_lock_number_text_selector"
-                    android:textSize="22dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/main_applock_num_2_btn"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/main_applock_num_2_btn"
-                    app:layout_constraintTop_toTopOf="@id/main_applock_num_2_btn" />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/main_applock_num_4_btn"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@android:color/transparent"
-                    android:fontFamily="@font/app_font"
-                    android:onClick="onClickPassNumClicked"
-                    android:text="4"
-                    android:textColor="@drawable/app_lock_number_text_selector"
-                    android:textSize="22dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/main_applock_num_5_btn"
-                    app:layout_constraintEnd_toEndOf="@id/main_applock_num_1_btn"
-                    app:layout_constraintStart_toStartOf="@id/main_applock_num_1_btn"
-                    app:layout_constraintTop_toTopOf="@id/main_applock_num_5_btn" />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/main_applock_num_5_btn"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@android:color/transparent"
-                    android:fontFamily="@font/app_font"
-                    android:onClick="onClickPassNumClicked"
-                    android:text="5"
-                    android:textColor="@drawable/app_lock_number_text_selector"
-                    android:textSize="22dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toTopOf="@id/main_applock_num_8_btn"
-                    app:layout_constraintEnd_toEndOf="@id/main_applock_num_2_btn"
-                    app:layout_constraintStart_toStartOf="@id/main_applock_num_2_btn"
-                    app:layout_constraintTop_toBottomOf="@id/main_applock_num_2_btn" />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/main_applock_num_6_btn"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@android:color/transparent"
-                    android:fontFamily="@font/app_font"
-                    android:onClick="onClickPassNumClicked"
-                    android:text="6"
-                    android:textColor="@drawable/app_lock_number_text_selector"
-                    android:textSize="22dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/main_applock_num_5_btn"
-                    app:layout_constraintEnd_toEndOf="@id/main_applock_num_3_btn"
-                    app:layout_constraintStart_toStartOf="@id/main_applock_num_3_btn"
-                    app:layout_constraintTop_toTopOf="@id/main_applock_num_5_btn" />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/main_applock_num_7_btn"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@android:color/transparent"
-                    android:fontFamily="@font/app_font"
-                    android:onClick="onClickPassNumClicked"
-                    android:text="7"
-                    android:textColor="@drawable/app_lock_number_text_selector"
-                    android:textSize="22dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/main_applock_num_8_btn"
-                    app:layout_constraintEnd_toEndOf="@id/main_applock_num_4_btn"
-                    app:layout_constraintStart_toStartOf="@id/main_applock_num_4_btn"
-                    app:layout_constraintTop_toTopOf="@id/main_applock_num_8_btn" />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/main_applock_num_8_btn"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@android:color/transparent"
-                    android:fontFamily="@font/app_font"
-                    android:onClick="onClickPassNumClicked"
-                    android:text="8"
-                    android:textColor="@drawable/app_lock_number_text_selector"
-                    android:textSize="22dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toTopOf="@id/main_applock_num_0_btn"
-                    app:layout_constraintEnd_toEndOf="@id/main_applock_num_5_btn"
-                    app:layout_constraintStart_toStartOf="@id/main_applock_num_5_btn"
-                    app:layout_constraintTop_toBottomOf="@id/main_applock_num_5_btn" />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/main_applock_num_9_btn"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@android:color/transparent"
-                    android:fontFamily="@font/app_font"
-                    android:onClick="onClickPassNumClicked"
-                    android:text="9"
-                    android:textColor="@drawable/app_lock_number_text_selector"
-                    android:textSize="22dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/main_applock_num_8_btn"
-                    app:layout_constraintEnd_toEndOf="@id/main_applock_num_6_btn"
-                    app:layout_constraintStart_toStartOf="@id/main_applock_num_6_btn"
-                    app:layout_constraintTop_toTopOf="@id/main_applock_num_8_btn" />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/main_applock_num_0_btn"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@android:color/transparent"
-                    android:fontFamily="@font/app_font"
-                    android:onClick="onClickPassNumClicked"
-                    android:text="0"
-                    android:textColor="@drawable/app_lock_number_text_selector"
-                    android:textSize="22dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@id/main_applock_num_8_btn"
-                    app:layout_constraintStart_toStartOf="@id/main_applock_num_8_btn"
-                    app:layout_constraintTop_toBottomOf="@id/main_applock_num_8_btn" />
-
-                <ImageButton
-                    android:id="@+id/main_applock_num_del_btn"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:background="@android:color/transparent"
-                    android:onClick="onClickPassNumDelete"
-                    android:padding="16dp"
-                    android:scaleType="center"
-                    android:src="@drawable/ic_round_backspace_24"
-                    android:tint="@drawable/app_lock_number_text_selector"
-                    app:layout_constraintBottom_toBottomOf="@id/main_applock_num_0_btn"
-                    app:layout_constraintEnd_toEndOf="@id/main_applock_num_9_btn"
-                    app:layout_constraintStart_toStartOf="@id/main_applock_num_9_btn"
-                    app:layout_constraintTop_toTopOf="@id/main_applock_num_0_btn" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- 로그 출력 화면 -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/main_logging_screen_layout"
+        <TextView
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="#ffffffff"
-            android:orientation="vertical"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ListView
-                android:id="@+id/main_logging_screen_lv"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                app:layout_constraintBottom_toTopOf="@id/main_logging_screen_exit_btn"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/main_logging_screen_exit_btn"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:background="@drawable/ripple_logging_screen_exit_button"
-                android:fontFamily="@font/app_font"
-                android:onClick="onClickExitLoggingScreen"
-                android:text="나가기"
-                android:textColor="@android:color/white"
-                android:textSize="16dp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- 장시간 미사용 잠금 화면 -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/main_long_time_idle_layout"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="#B3000000"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/white"
-                android:padding="24dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <TextView
-                    android:id="@+id/main_long_time_idle_desc"
-                    android:layout_width="240dp"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/app_font"
-                    android:text="장시간 미사용으로 인해 앱이 절전모드로 진입하였습니다.\n아래 절전모드 해제 버튼을 누르시면 앱이 다시 동작합니다."
-                    android:textColor="@android:color/black"
-                    android:textSize="16sp"
-                    app:layout_constraintBottom_toTopOf="@+id/main_long_time_idle_button"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <Button
-                    android:id="@+id/main_long_time_idle_button"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:fontFamily="@font/app_font"
-                    android:padding="12dp"
-                    android:text="절전모드 해제"
-                    android:textColor="#004D40"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/main_long_time_idle_desc" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- 임시 테스트 버튼 -->
-        <!--
-        <Button
-            android:id="@+id/LiveDataBtn"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:backgroundTint="@color/black"
-            android:fontFamily="@font/app_font"
-            android:onClick="onClickLiveData"
-            android:padding="16dp"
-            android:text="@{mainData.buttonName}"
-            android:textAlignment="center"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginBottom="32dp"
+            android:gravity="center"
+            android:text="@string/activity_main_layout_message_no_device_on_app"
+            android:textColor="#D81B60"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/main_must_search"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/main_must_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="56dp"
+            android:backgroundTint="#004D40"
+            android:gravity="center"
+            android:onClick="onClickNoDeviceRegistered"
+            android:text="@string/activity_main_layout_message_searching_sound_processor"
+            android:textColor="@android:color/white"
+            app:icon="@drawable/ic_toolbar_search"
+            app:iconTint="@android:color/white"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-        -->
-        <!-- 현재 사용되지 않는 화면 -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/main_please_wait_layout"
-            android:layout_width="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:rippleColor="?attr/colorPrimaryDark" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 사용자 가이드(매뉴얼) 화면 -->
+    <LinearLayout
+        android:id="@+id/main_user_guide_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#ffffffff"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/white"
+            android:gravity="center_vertical|start"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:text="매뉴얼"
+            android:textColor="@color/black"
+            android:textSize="20sp" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_line_width_height_size"
+            android:contentDescription="@string/warning_message_image_content_description"
+            android:src="@color/color_line_color" />
+
+        <ScrollView
+            android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="#82000000"
-            android:clickable="true"
-            android:focusable="true"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_weight="1"
+            app:layout_constraintBottom_toTopOf="@id/main_user_guide_button_box"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- 사운드처리기 등록 -->
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    app:srcCompat="@drawable/guide_1_title" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="420dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitStart"
+                            app:srcCompat="@drawable/guide_1_body" />
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <!-- 리모컨 사용 -->
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    app:srcCompat="@drawable/guide_2_title" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="420dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitStart"
+                            app:srcCompat="@drawable/guide_2_body" />
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <!-- 사운드처리기 자동 연결 -->
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    app:srcCompat="@drawable/guide_3_title" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="560dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitStart"
+                            app:srcCompat="@drawable/guide_3_body" />
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <!-- 사운드처리기 추가 등록 -->
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    app:srcCompat="@drawable/guide_4_title" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="420dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitStart"
+                            app:srcCompat="@drawable/guide_4_body" />
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <!-- 사운드처리기 제거 -->
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    app:srcCompat="@drawable/guide_5_title" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="420dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitStart"
+                            app:srcCompat="@drawable/guide_5_body" />
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <!-- 특수한 상환 -->
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    app:srcCompat="@drawable/guide_6_title" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="420dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitStart"
+                            app:srcCompat="@drawable/guide_6_body" />
+                    </LinearLayout>
+                </HorizontalScrollView>
+            </LinearLayout>
+        </ScrollView>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dimen_line_width_height_size"
+            android:contentDescription="@string/warning_message_image_content_description"
+            android:src="@color/color_line_color" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/main_user_guide_button_box"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@color/color_status_bar"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/main_user_guide_button_box_gl"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
+
+            <CheckBox
+                android:id="@+id/main_user_guide_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/activity_main_layout_message_user_guide_dont_show_again"
+                android:textAlignment="gravity"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dimen_small_title_text_size_sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/main_user_guide_button_box_gl"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/main_user_guide_close_button"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:onClick="onClickUserGuideClose"
+                android:text="@string/activity_main_layout_message_user_guide_close"
+                android:textColor="@color/color_home_enabled_button_tint"
+                android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/main_user_guide_button_box_gl"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
+    <!-- 앱 잠금 화면 (4자리 비밀번호) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main_applock_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#ffffffff"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/main_applock_reset_btn"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_margin="8dp"
+            android:background="@android:color/transparent"
+            android:onClick="onClickAppLockReset"
+            android:padding="16dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_round_lock_reset_24"
+            android:tint="@drawable/app_lock_number_text_selector"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/main_applock_upper_layout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toTopOf="@id/main_applock_lower_layout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_weight="60">
+
+            <TextView
+                android:id="@+id/main_applock_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/app_font"
+                android:text="잠금 해제"
+                android:textColor="@color/black"
+                android:textSize="24dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/main_applock_desc"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="packed" />
 
-                <ProgressBar
-                    style="@android:style/Widget.Material.ProgressBar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:indeterminate="true" />
+            <TextView
+                android:id="@+id/main_applock_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="24dp"
+                android:fontFamily="@font/app_font"
+                android:gravity="center"
+                android:lineSpacingMultiplier="1.4"
+                android:text="앱 비밀번호를 입력해주세요."
+                android:textColor="#555555"
+                android:textSize="18dp"
+                app:layout_constraintBottom_toTopOf="@id/main_applock_password_1_val"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/main_applock_title" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:text="@string/activity_main_layout_message_please_wait"
-                    android:textColor="@android:color/white"
-                    android:textSize="16sp" />
-            </LinearLayout>
+            <TextView
+                android:id="@+id/main_applock_password_1_val"
+                android:layout_width="56dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/app_font"
+                android:gravity="center"
+                android:text=" "
+                android:textColor="#004D40"
+                android:textSize="28dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/main_applock_password_2_val"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/main_applock_desc" />
+
+            <TextView
+                android:id="@+id/main_applock_password_2_val"
+                android:layout_width="56dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/app_font"
+                android:gravity="center"
+                android:text=" "
+                android:textColor="#004D40"
+                android:textSize="28dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_password_1_val"
+                app:layout_constraintEnd_toStartOf="@id/main_applock_password_3_val"
+                app:layout_constraintStart_toEndOf="@id/main_applock_password_1_val"
+                app:layout_constraintTop_toTopOf="@id/main_applock_password_1_val" />
+
+            <TextView
+                android:id="@+id/main_applock_password_3_val"
+                android:layout_width="56dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/app_font"
+                android:gravity="center"
+                android:text=" "
+                android:textColor="#004D40"
+                android:textSize="28dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_password_1_val"
+                app:layout_constraintEnd_toStartOf="@id/main_applock_password_4_val"
+                app:layout_constraintStart_toEndOf="@id/main_applock_password_2_val"
+                app:layout_constraintTop_toTopOf="@id/main_applock_password_1_val" />
+
+            <TextView
+                android:id="@+id/main_applock_password_4_val"
+                android:layout_width="56dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/app_font"
+                android:gravity="center"
+                android:text=" "
+                android:textColor="#004D40"
+                android:textSize="28dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_password_1_val"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/main_applock_password_3_val"
+                app:layout_constraintTop_toTopOf="@id/main_applock_password_1_val" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                android:src="#004D40"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_password_1_val"
+                app:layout_constraintStart_toStartOf="@id/main_applock_password_1_val"
+                app:layout_constraintTop_toBottomOf="@id/main_applock_password_1_val" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                android:src="#004D40"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_password_2_val"
+                app:layout_constraintStart_toStartOf="@id/main_applock_password_2_val"
+                app:layout_constraintTop_toBottomOf="@id/main_applock_password_2_val" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                android:src="#004D40"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_password_3_val"
+                app:layout_constraintStart_toStartOf="@id/main_applock_password_3_val"
+                app:layout_constraintTop_toBottomOf="@id/main_applock_password_3_val" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                android:src="#004D40"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_password_4_val"
+                app:layout_constraintStart_toStartOf="@id/main_applock_password_4_val"
+                app:layout_constraintTop_toBottomOf="@id/main_applock_password_4_val" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/main_applock_lower_layout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/main_applock_upper_layout"
+            app:layout_constraintVertical_weight="40">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_1_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="1"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_num_2_btn"
+                app:layout_constraintEnd_toStartOf="@id/main_applock_num_2_btn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/main_applock_num_2_btn" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_2_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="2"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/main_applock_num_5_btn"
+                app:layout_constraintEnd_toStartOf="@id/main_applock_num_3_btn"
+                app:layout_constraintStart_toEndOf="@id/main_applock_num_1_btn"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_3_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="3"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_num_2_btn"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/main_applock_num_2_btn"
+                app:layout_constraintTop_toTopOf="@id/main_applock_num_2_btn" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_4_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="4"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_num_5_btn"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_num_1_btn"
+                app:layout_constraintStart_toStartOf="@id/main_applock_num_1_btn"
+                app:layout_constraintTop_toTopOf="@id/main_applock_num_5_btn" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_5_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="5"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/main_applock_num_8_btn"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_num_2_btn"
+                app:layout_constraintStart_toStartOf="@id/main_applock_num_2_btn"
+                app:layout_constraintTop_toBottomOf="@id/main_applock_num_2_btn" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_6_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="6"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_num_5_btn"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_num_3_btn"
+                app:layout_constraintStart_toStartOf="@id/main_applock_num_3_btn"
+                app:layout_constraintTop_toTopOf="@id/main_applock_num_5_btn" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_7_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="7"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_num_8_btn"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_num_4_btn"
+                app:layout_constraintStart_toStartOf="@id/main_applock_num_4_btn"
+                app:layout_constraintTop_toTopOf="@id/main_applock_num_8_btn" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_8_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="8"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/main_applock_num_0_btn"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_num_5_btn"
+                app:layout_constraintStart_toStartOf="@id/main_applock_num_5_btn"
+                app:layout_constraintTop_toBottomOf="@id/main_applock_num_5_btn" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_9_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="9"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_num_8_btn"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_num_6_btn"
+                app:layout_constraintStart_toStartOf="@id/main_applock_num_6_btn"
+                app:layout_constraintTop_toTopOf="@id/main_applock_num_8_btn" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/main_applock_num_0_btn"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:fontFamily="@font/app_font"
+                android:onClick="onClickPassNumClicked"
+                android:text="0"
+                android:textColor="@drawable/app_lock_number_text_selector"
+                android:textSize="22dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_num_8_btn"
+                app:layout_constraintStart_toStartOf="@id/main_applock_num_8_btn"
+                app:layout_constraintTop_toBottomOf="@id/main_applock_num_8_btn" />
+
+            <ImageButton
+                android:id="@+id/main_applock_num_del_btn"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:onClick="onClickPassNumDelete"
+                android:padding="16dp"
+                android:scaleType="center"
+                android:src="@drawable/ic_round_backspace_24"
+                android:tint="@drawable/app_lock_number_text_selector"
+                app:layout_constraintBottom_toBottomOf="@id/main_applock_num_0_btn"
+                app:layout_constraintEnd_toEndOf="@id/main_applock_num_9_btn"
+                app:layout_constraintStart_toStartOf="@id/main_applock_num_9_btn"
+                app:layout_constraintTop_toTopOf="@id/main_applock_num_0_btn" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
-<!--
-</layout>
--->
+
+    <!-- 로그 출력 화면 (보안 요구사항) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main_logging_screen_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#ffffffff"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ListView
+            android:id="@+id/main_logging_screen_lv"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@id/main_logging_screen_exit_btn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/main_logging_screen_exit_btn"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:background="@drawable/ripple_logging_screen_exit_button"
+            android:fontFamily="@font/app_font"
+            android:onClick="onClickExitLoggingScreen"
+            android:text="나가기"
+            android:textColor="@android:color/white"
+            android:textSize="16dp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 장시간 미사용 시 자동 잠금 화면 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main_long_time_idle_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#B3000000"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:padding="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/main_long_time_idle_desc"
+                android:layout_width="240dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/app_font"
+                android:text="장시간 미사용으로 인해 앱이 절전모드로 진입하였습니다.\n아래 절전모드 해제 버튼을 누르시면 앱이 다시 동작합니다."
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toTopOf="@+id/main_long_time_idle_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/main_long_time_idle_button"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/app_font"
+                android:padding="12dp"
+                android:text="절전모드 해제"
+                android:textColor="#004D40"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/main_long_time_idle_desc" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

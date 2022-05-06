@@ -1,105 +1,114 @@
 package todoc.cochlear.remoteapp.shared_preferences;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
+import java.util.regex.Pattern;
 
-import todoc.cochlear.remoteapp.fragment.HomeFragment;
+public class AppPreferences
+{
+      private static final String TAG = "TD2_" + AppPreferences.class.getSimpleName();
 
-public class AppPreferences {
-    private static final String TAG = "TD2_" + AppPreferences.class.getSimpleName();
+      // Defines instance and getter.
+      private final static AppPreferences mInstance = new AppPreferences();
 
-    // Defines instance and getter.
-    private final static AppPreferences mInstance = new AppPreferences();
+      private final static String NAME = "sharedPreferences";
+      private final static String AUTO_CONNECTION = "autoConnection";
+      private final static String MANUAL = "manual";
+      private final static String APPLOCK_PASSWORD = "applock_password";
+      private final static String IS_APPLOCK_SCREEN_ENABLED = "is_applock_screen_enabled";
 
-    private final static String NAME = "sharedPreferences";
-    private final static String AUTO_CONNECTION = "autoConnection";
-    private final static String MANUAL = "manual";
-    private final static String PASSWORD = "password";
-    private final static String APPLOCK_SCREEN = "applock_screen";
+      public static AppPreferences getInstance()
+      {
+            return mInstance;
+      }
 
-    public static AppPreferences getInstance() {
-        return mInstance;
-    }
+      public boolean isThereAppLockPassword(Context context)
+      {
+            String password = context.getSharedPreferences(NAME, Context.MODE_PRIVATE).getString(APPLOCK_PASSWORD, "");
+            boolean matches = Pattern.matches("[0-9][0-9][0-9][0-9]", password);
 
-    public boolean isTherePassword(Context context) {
-        String password;
-        boolean ret;
+            Log.d(TAG, "Is there password? = " + matches);
+            return matches;
+      }
 
-        password = context.getSharedPreferences(NAME, Context.MODE_PRIVATE).getString(PASSWORD, "");
-        ret = password.equals("");
+      public boolean isAppLockPasswordCorrect(Context context, String password)
+      {
+            String savedPassword;
+            boolean ret;
 
-        Log.d(TAG, "Is there password? = " + ret);
-        return !ret;
-    }
+            savedPassword = context.getSharedPreferences(NAME, Context.MODE_PRIVATE).getString(APPLOCK_PASSWORD, "");
+            ret = savedPassword.equals(password);
 
-    public boolean isPasswordCorrect(Context context, String password) {
-        String savedPassword;
-        boolean ret;
+            Log.d(TAG, "Is password correct? = " + ret);
+            return ret;
+      }
 
-        savedPassword = context.getSharedPreferences(NAME, Context.MODE_PRIVATE).getString(PASSWORD, "");
-        ret = savedPassword.equals(password);
+      public void setNewAppLockPassword(Context context, String newPassword)
+      {
+            Log.d(TAG, "Set new password = " + newPassword);
+            (((context.getSharedPreferences(NAME, Context.MODE_PRIVATE)).edit()).putString(APPLOCK_PASSWORD, newPassword)).apply();
+      }
 
-        Log.d(TAG, "Is password correct? = " + ret);
-        return ret;
-    }
+      public boolean isAutoConnectionEnabled(Context context)
+      {
+            boolean isEnabled = context.getSharedPreferences(NAME, Context.MODE_PRIVATE).getBoolean(AUTO_CONNECTION, true);
+            Log.d(TAG, "Is auto connection enabled? = " + isEnabled);
 
-    public void setNewPassword(Context context, String newPassword) {
-        Log.d(TAG, "Set new password = " + newPassword);
-        (((context.getSharedPreferences(NAME, Context.MODE_PRIVATE)).edit()).putString(PASSWORD, newPassword)).apply();
-    }
+            return isEnabled;
+      }
 
-    public boolean isAutoConnectionEnabled(Context context) {
-        boolean isEnabled = context.getSharedPreferences(NAME, Context.MODE_PRIVATE).getBoolean(AUTO_CONNECTION, true);
-        Log.d(TAG, "Is auto connection enabled? = " + isEnabled);
+      public void setAutoConnectionToEnabled(Context context, boolean enabled)
+      {
+            Log.d(TAG, "Set auto connection enabled = " + enabled);
+            (((context.getSharedPreferences(NAME, Context.MODE_PRIVATE)).edit()).putBoolean(AUTO_CONNECTION, enabled)).apply();
+      }
 
-        return isEnabled;
-    }
+      public boolean isManualEnabled(Context context)
+      {
+            boolean isEnabled = true;
 
-    public void setAutoConnectionToEnabled(Context context, boolean enabled) {
-        Log.d(TAG, "Set auto connection enabled = " + enabled);
-        (((context.getSharedPreferences(NAME, Context.MODE_PRIVATE)).edit()).putBoolean(AUTO_CONNECTION, enabled)).apply();
-    }
+            try
+            {
+                  isEnabled = context.getSharedPreferences(NAME, Context.MODE_PRIVATE).getBoolean(MANUAL, true);
+            }
+            catch (ClassCastException e)
+            {
+                  Log.d(TAG, "Exception! " + e.getMessage());
+            }
 
-    public boolean isManualEnabled(Context context) {
-        boolean isEnabled = true;
+            Log.d(TAG, "Is manual enabled? = " + isEnabled);
 
-        try {
-            isEnabled = context.getSharedPreferences(NAME, Context.MODE_PRIVATE).getBoolean(MANUAL, true);
-        } catch (ClassCastException e) {
-            Log.d(TAG, "Exception! " + e.getMessage());
-        }
+            return isEnabled;
+      }
 
-        Log.d(TAG, "Is manual enabled? = " + isEnabled);
+      public void setManualToEnabled(Context context, boolean enabled)
+      {
+            Log.d(TAG, "Set manual enabled = " + enabled);
+            (((context.getSharedPreferences(NAME, Context.MODE_PRIVATE)).edit()).putBoolean(MANUAL, enabled)).apply();
+      }
 
-        return isEnabled;
-    }
+      public boolean isApplockScreenOptionEnabled(Context context)
+      {
+            boolean isEnabled = true;
 
-    public void setManualToEnabled(Context context, boolean enabled) {
-        Log.d(TAG, "Set manual enabled = " + enabled);
-        (((context.getSharedPreferences(NAME, Context.MODE_PRIVATE)).edit()).putBoolean(MANUAL, enabled)).apply();
-    }
+            try
+            {
+                  isEnabled = context.getSharedPreferences(NAME, Context.MODE_PRIVATE).getBoolean(IS_APPLOCK_SCREEN_ENABLED, true);
+            }
+            catch (ClassCastException e)
+            {
+                  Log.d(TAG, "Exception! " + e.getMessage());
+            }
 
-    public boolean isApplockScreenEnabled(Context context) {
-        boolean isEnabled = true;
+            Log.d(TAG, "Is applock screen enabled? = " + isEnabled);
 
-        try {
-            isEnabled = context.getSharedPreferences(NAME, Context.MODE_PRIVATE).getBoolean(APPLOCK_SCREEN, true);
-        } catch (ClassCastException e) {
-            Log.d(TAG, "Exception! " + e.getMessage());
-        }
+            return isEnabled;
+      }
 
-        Log.d(TAG, "Is applock screen enabled? = " + isEnabled);
-
-        return isEnabled;
-    }
-
-    public void setApplockScreenToEnabled(Context context, boolean enabled) {
-        Log.d(TAG, "Set applock screen = " + enabled);
-        (((context.getSharedPreferences(NAME, Context.MODE_PRIVATE)).edit()).putBoolean(APPLOCK_SCREEN, enabled)).apply();
-    }
+      public void setApplockScreenToEnabled(Context context, boolean enabled)
+      {
+            Log.d(TAG, "Set applock screen = " + enabled);
+            (((context.getSharedPreferences(NAME, Context.MODE_PRIVATE)).edit()).putBoolean(IS_APPLOCK_SCREEN_ENABLED, enabled)).apply();
+      }
 }

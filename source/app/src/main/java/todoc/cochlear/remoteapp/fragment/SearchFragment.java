@@ -34,7 +34,6 @@ public class SearchFragment extends Fragment
     private static final String TAG = "TD2_" + SearchFragment.class.getSimpleName();
 
     MainActivity mMainActivity;
-
     SearchItemAdapter mFoundItemAdapter;
     ListView mFoundListView;
 
@@ -103,15 +102,6 @@ public class SearchFragment extends Fragment
 
         // Send command to search sound processor over BLE
         getActivity().sendBroadcast(new Intent(ActionMessage.BLE_SCAN_RESTART));
-
-
-        // ESKIM start
-        /*
-        registeredItemAdapter.addItem("01", "12345678", "");
-        registeredItemAdapter.addItem("01", "abcdefgh", "");
-        Utils.setListViewHeightBasedOnChildren(registeredListView);
-        */
-        // ESKIM end
 
         return rootView;
     }
@@ -202,11 +192,6 @@ public class SearchFragment extends Fragment
         String model = item.getModel();
         String name = item.getName();
         String address = item.getAddress();
-
-        //LayoutInflater inflater = LayoutInflater.from(mMainActivity);
-        //View viewTitle = inflater.inflate(R.layout.dialog_custom_title, null);
-        //TextView titleTextView = viewTitle.findViewById(R.id.dialog_custom_title);
-        //titleTextView.setText(name);
 
         android.app.AlertDialog.Builder builder = new AlertDialog.Builder(mMainActivity, R.style.MyAlertDialogTheme);
 

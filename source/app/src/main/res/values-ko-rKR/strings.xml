@@ -35,7 +35,7 @@
     <string name="fragment_password_dialog_message_different_map_date">현재 등록된 사운드처리기들의 맵 일자와 다릅니다. 그래도 이 사운드처리기를 등록하시겠습니까?</string>
     <string name="fragment_password_dialog_message_new_user">현재 등록된 사운드처리기들의 사용자와 다른 새로운 사용자의 사운드처리기입니다. 현재 등록된 모든 사운드처리기를 삭제하고 이 사운드처리기를 등록하시겠습니까?</string>
     <string name="fragment_password_dialog_message_stop_registration_and_go_search_screen">사운드처리기 등록을 중단하고 검색 화면으로 돌아가시겠습니까?</string>
-    <string name="fragment_password_layout_message_enter_password">연결하신 사운드처리기의 보안코드를 입력해주세요.</string>
+    <string name="fragment_password_layout_message_enter_password">사운드처리기의 보안코드를 입력해주세요.</string>
     <string name="fragment_password_layout_message_not_matched_password">보안 비밀번호가 일치하지 않습니다.</string>
     <string name="fragment_password_layout_message_number_of_password">보안 비밀번호는 4자리의 번호입니다.</string>
     <string name="fragment_password_layout_message_read_information">사운드처리기로부터 필요한 정보를 수신중입니다.</string>
