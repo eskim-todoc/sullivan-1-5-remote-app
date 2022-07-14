@@ -44,6 +44,12 @@ public class DeviceParam
     public static final byte POWER_MODE_ON = 1;
     public static final byte POWER_MODE_OFF = 2;
 
+    public static final byte SENSITIVITY_UP = 1;
+    public static final byte SENSITIVITY_DOWN = 2;
+
+    public static final byte VOLUME_UP = 1;
+    public static final byte VOLUME_DOWN = 2;
+
     private byte battery;
     private byte program;
     private byte volume;

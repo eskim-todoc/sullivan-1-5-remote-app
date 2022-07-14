@@ -32,4 +32,7 @@
     <dimen name="dimen_device_list_value_text_size_sp">16sp</dimen>
     <dimen name="dimen_device_list_value_text_padding_size">4dp</dimen>
     <dimen name="dimen_search_device_name_text_size_sp">20sp</dimen>
+
+    <!-- Lock screen -->
+    <dimen name="lock_screen_forgot_password">14dp</dimen>
 </resources>

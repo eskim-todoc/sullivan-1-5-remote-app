@@ -1,0 +1,73 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/color_primary"
+        tools:context="todoc.cochlear.remoteapp.fragment.SettingsFragment">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                style="@style/settings_subject_textview"
+                android:layout_marginTop="0dp"
+                android:text="@string/settings_subject_security" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_lock_screen"
+                style="@style/settings_lock_screen_switch"
+                android:text="@string/settings_switch_lock_screen" />
+
+            <com.google.android.material.divider.MaterialDivider style="@style/settings_divider" />
+
+            <TextView
+                style="@style/settings_subject_textview"
+                android:text="@string/settings_subject_features" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_auto_connection"
+                style="@style/settings_lock_screen_switch"
+                android:text="@string/settings_switch_auto_connection" />
+
+            <com.google.android.material.divider.MaterialDivider style="@style/settings_divider" />
+
+            <TextView
+                style="@style/settings_subject_textview"
+                android:text="@string/settings_subject_management" />
+
+            <Button
+                android:id="@+id/button_user"
+                style="@style/settings_button"
+                android:text="@string/settings_button_user"
+                app:strokeColor="@color/color_secondary_variant" />
+
+            <Button
+                android:id="@+id/button_device"
+                style="@style/settings_button"
+                android:text="@string/settings_button_device"
+                app:strokeColor="@color/color_secondary_variant" />
+
+            <com.google.android.material.divider.MaterialDivider style="@style/settings_divider" />
+
+            <TextView
+                style="@style/settings_subject_textview"
+                android:text="@string/settings_subject_support" />
+
+            <Button
+                android:id="@+id/button_manual"
+                style="@style/settings_button"
+                android:text="@string/settings_button_manual"
+                app:strokeColor="@color/color_secondary_variant" />
+
+            <com.google.android.material.divider.MaterialDivider style="@style/settings_divider" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

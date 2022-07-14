@@ -16,7 +16,7 @@
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
-        android:required="true" />
+        android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -27,15 +27,17 @@
         android:resizeableActivity="false"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.RemoteApp"
-        tools:targetApi="n">
+        android:theme="@style/app_theme"
+        tools:targetApi="30">
         <service
             android:name="todoc.cochlear.remoteapp.service.TerminationService"
             android:enabled="true"
             android:exported="false"
             android:stopWithTask="false" />
 
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

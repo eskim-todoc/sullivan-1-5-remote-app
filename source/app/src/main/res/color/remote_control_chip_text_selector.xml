@@ -1,0 +1,9 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 24% opacity -->
+    <item android:alpha="0.75" android:color="@color/color_secondary" android:state_enabled="true" android:state_selected="true" />
+    <item android:alpha="0.75" android:color="@color/color_secondary" android:state_checked="true" android:state_enabled="true" />
+    <!-- 12% of 87% opacity -->
+    <item android:color="@color/color_primary_variant" android:state_enabled="true" />
+    <item android:color="@color/color_primary_variant" />
+</selector>

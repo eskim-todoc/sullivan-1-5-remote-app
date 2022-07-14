@@ -1,0 +1,163 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/color_primary"
+        android:orientation="vertical"
+        tools:context="todoc.cochlear.remoteapp.fragment.EditUserFragment">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/management_user_subject_textview"
+                    android:text="사용자 이름" />
+
+                <EditText
+                    android:id="@+id/edittext_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:backgroundTint="@color/color_secondary"
+                    android:clickable="false"
+                    android:enabled="false"
+                    android:focusable="false"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:hint="이름을 입력하세요."
+                    android:inputType="text"
+                    android:longClickable="false"
+                    android:minHeight="48dp"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                    android:textColor="@color/color_secondary"
+                    android:textColorHint="@color/color_secondary" />
+
+                <com.google.android.material.divider.MaterialDivider style="@style/add_user_divider" />
+
+                <TextView
+                    style="@style/management_user_subject_textview"
+                    android:text="내부기 키" />
+
+                <EditText
+                    android:id="@+id/edittext_passkey"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:backgroundTint="@color/color_secondary"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:hint="내부기 키를 입력하세요."
+                    android:inputType="number"
+                    android:maxLength="4"
+                    android:minHeight="48dp"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                    android:textColor="@color/color_secondary"
+                    android:textColorHint="@color/color_secondary" />
+
+                <com.google.android.material.divider.MaterialDivider style="@style/add_user_divider" />
+
+                <TextView
+                    style="@style/management_user_subject_textview"
+                    android:text="수술 위치" />
+
+                <RadioGroup
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/edit_user_left_radiobutton"
+                        style="@style/Widget.MaterialComponents.CompoundButton.RadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="왼쪽"
+                        android:textColor="@color/color_secondary" />
+
+                    <RadioButton
+                        android:id="@+id/edit_user_right_radiobutton"
+                        style="@style/Widget.MaterialComponents.CompoundButton.RadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="오른쪽"
+                        android:textColor="@color/color_secondary" />
+                </RadioGroup>
+
+                <com.google.android.material.divider.MaterialDivider style="@style/add_user_divider" />
+
+                <TextView
+                    style="@style/management_user_subject_textview"
+                    android:text="옵션"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/checkbox_default_user"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:minHeight="48dp"
+                    android:text="기본 사용자로 등록"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                    android:textColor="@color/color_secondary" />
+
+                <com.google.android.material.divider.MaterialDivider style="@style/add_user_divider" />
+            </LinearLayout>
+        </ScrollView>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/edit_user_del_button"
+                style="@style/edit_user_button"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp"
+                android:text="삭제"
+                app:layout_constraintBottom_toTopOf="@id/edit_user_cancel_button"
+                app:layout_constraintEnd_toStartOf="@id/edit_user_edit_button"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <Button
+                android:id="@+id/edit_user_edit_button"
+                style="@style/edit_user_button"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="16dp"
+                android:text="수정"
+                app:layout_constraintBottom_toTopOf="@id/edit_user_cancel_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/edit_user_del_button" />
+
+            <Button
+                android:id="@+id/edit_user_cancel_button"
+                style="@style/edit_user_button"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="취소"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+</layout>

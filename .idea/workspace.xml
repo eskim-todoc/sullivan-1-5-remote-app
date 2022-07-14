@@ -4,7 +4,24 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="71468a2d-df43-434b-8682-b7a7c5352697" name="Default Changelist" comment="" />
+    <list default="true" id="71468a2d-df43-434b-8682-b7a7c5352697" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/source/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/source/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/source/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/source/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/app/src/main/java/todoc/cochlear/remoteapp/activity/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/source/app/src/main/java/todoc/cochlear/remoteapp/activity/MainActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/app/src/main/java/todoc/cochlear/remoteapp/fragment/HomeFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/source/app/src/main/java/todoc/cochlear/remoteapp/fragment/HomeFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/app/src/main/java/todoc/cochlear/remoteapp/list/DeviceListItemAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/source/app/src/main/java/todoc/cochlear/remoteapp/list/DeviceListItemAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/app/src/main/java/todoc/cochlear/remoteapp/list/SearchItemAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/source/app/src/main/java/todoc/cochlear/remoteapp/list/SearchItemAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/app/src/main/java/todoc/cochlear/remoteapp/params/ActionMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/source/app/src/main/java/todoc/cochlear/remoteapp/params/ActionMessage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/app/src/main/java/todoc/cochlear/remoteapp/params/AppParam.java" beforeDir="false" afterPath="$PROJECT_DIR$/source/app/src/main/java/todoc/cochlear/remoteapp/params/AppParam.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/app/src/main/java/todoc/cochlear/remoteapp/params/DeviceParam.java" beforeDir="false" afterPath="$PROJECT_DIR$/source/app/src/main/java/todoc/cochlear/remoteapp/params/DeviceParam.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/app/src/main/res/layout/activity_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/source/app/src/main/res/layout/activity_main.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/app/src/main/res/layout/fragment_home.xml" beforeDir="false" afterPath="$PROJECT_DIR$/source/app/src/main/res/layout/fragment_home.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/app/src/main/res/menu/toolbar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/source/app/src/main/res/menu/toolbar.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/app/src/main/res/values-ko-rKR/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/source/app/src/main/res/values-ko-rKR/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/source/app/src/main/res/values/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/app/src/main/res/values/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/source/app/src/main/res/values/styles.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -23,7 +40,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="RunOnceActivity.cidr.known.project.marker" value="true" />
     <property name="cidr.known.project.marker" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/source" />
     <property name="settings.editor.selected.configurable" value="AndroidSdkUpdater" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -39,11 +56,5 @@
       <updated>1642398708914</updated>
     </task>
     <servers />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="740" y="274" key="FileChooserDialogImpl" timestamp="1642398803369">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="740" y="274" key="FileChooserDialogImpl/0.0.1920.1040/1920.0.1920.1040@0.0.1920.1040" timestamp="1642398803369" />
   </component>
 </project>

@@ -8,6 +8,7 @@ import android.content.res.ColorStateList;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -16,6 +17,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -24,11 +26,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.Locale;
-import java.util.Objects;
 
 import todoc.cochlear.remoteapp.activity.MainActivity;
 import todoc.cochlear.remoteapp.activity.R;
+import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
+import todoc.cochlear.remoteapp.activity.databinding.FragmentHomeBinding;
 import todoc.cochlear.remoteapp.database.Device;
+import todoc.cochlear.remoteapp.database.devices.DatabaseDevices;
+import todoc.cochlear.remoteapp.database.users.DatabaseUsers;
 import todoc.cochlear.remoteapp.params.AppParam;
 import todoc.cochlear.remoteapp.params.DeviceParam;
 import todoc.cochlear.remoteapp.params.ActionMessage;
@@ -80,20 +85,14 @@ public class HomeFragment extends Fragment
     ProgressBar mBatteryProgressBar;
     TextView mBatteryTextView;
 
+    // 뷰바인딩
+    FragmentHomeBinding mBinding;
+
+    private ActivityMainBinding mMainBinding;
+
     public HomeFragment()
     {
         // Required empty public constructor
-    }
-
-    public void setToolbarMenu()
-    {
-        AppParam.getInstance().setMenuTitle(getString(R.string.toolbar_title_home));
-        AppParam.getInstance().setMenuHome(false);
-        AppParam.getInstance().setMenuSearch(true);
-        AppParam.getInstance().setMenuList(true);
-        AppParam.getInstance().setMenuManual(false);
-        AppParam.getInstance().setMenuSupport(false);
-        AppParam.getInstance().setMenuAutoConnection(true);
     }
 
     @Override
@@ -104,81 +103,98 @@ public class HomeFragment extends Fragment
     }
 
     @Override
+    public void onDestroyView()
+    {
+        super.onDestroyView();
+        mBinding = null;
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        mMainBinding = ((MainActivity) getActivity()).mBinding;
+        mMainBinding.toolbar.setNavigationIcon(null);
+        mMainBinding.toolbar.getMenu().findItem(R.id.settings).setVisible(true);
+        mMainBinding.toolbar.setTitle("리모컨");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
+        mBinding = FragmentHomeBinding.inflate(inflater, container, false);
+        View view = mBinding.getRoot();
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_home, container, false);
 
-        // Update toolbar menu
-        setToolbarMenu();
-        mMainActivity.updateToolbar();
-
-        // Set fragment number
-        AppParam.getInstance().setCurrentFragmentNumber(AppParam.FRAGMENT_NUMBER_HOME);
-
-        // Find views...
-
-        // device info
-        mModelImageView = rootView.findViewById(R.id.home_sound_processor_device_image);
-        mDeviceNameTextView = rootView.findViewById(R.id.home_sound_processor_device_name_text);
-
-        // battery
-        mBatteryProgressBar = rootView.findViewById(R.id.home_sound_processor_battery_progressbar);
-        mBatteryTextView = rootView.findViewById(R.id.home_sound_processor_battery_value_textview);
-
-        // alarm stimulation
-        mStimulationAlarmImageButton = rootView.findViewById(R.id.home_stim_alarm_image_button);
-        mStimulationAlarmImageButton.setOnClickListener(onClickListener);
-
-        // alarm led
-        mLedAlarmImageButton = rootView.findViewById(R.id.home_led_alarm_image_button);
-        mLedAlarmImageButton.setOnClickListener(onClickListener);
-
-        // telecoil
-        mTelecoilImageButton = rootView.findViewById(R.id.home_telecoil_image_button);
-        mTelecoilImageButton.setOnClickListener(onClickListener);
-
-        // power mode
-        mPowerModeImageButton = rootView.findViewById(R.id.home_low_power_image_button);
-        mPowerModeImageButton.setOnClickListener(onClickListener);
-
-        // program
-        mProgramTextView = rootView.findViewById(R.id.home_program_value_text);
-        mProgramPlusImageButton = rootView.findViewById(R.id.home_program_plus_button);
-        mProgramMinusImageButton = rootView.findViewById(R.id.home_program_minus_button);
-        mProgramPlusImageButton.setOnClickListener(onClickListener);
-        mProgramMinusImageButton.setOnClickListener(onClickListener);
-
-        // sensitivity
-        mSensitivityTextView = rootView.findViewById(R.id.home_sensitivity_value_text);
-        mSensitivityProgressBar = rootView.findViewById(R.id.home_sensitivity_progressbar);
-        mSensitivityPlusImageButton = rootView.findViewById(R.id.home_sensitivity_plus_button);
-        mSensitivityMinusImageButton = rootView.findViewById(R.id.home_sensitivity_minus_button);
-        mSensitivityPlusImageButton.setOnClickListener(onClickListener);
-        mSensitivityMinusImageButton.setOnClickListener(onClickListener);
-
-        // volume
-        mVolumeTextView = rootView.findViewById(R.id.home_volume_value_text);
-        mVolumeProgressBar = rootView.findViewById(R.id.home_volume_progressbar);
-        mVolumePlusImageButton = rootView.findViewById(R.id.home_volume_plus_button);
-        mVolumeMinusImageButton = rootView.findViewById(R.id.home_volume_minus_button);
-        mVolumePlusImageButton.setOnClickListener(onClickListener);
-        mVolumeMinusImageButton.setOnClickListener(onClickListener);
-
-        // not yet connected
-        mNotConnectedScreenConstraintLayout = rootView.findViewById(R.id.home_not_yet_connected_layout);
-
-        // If there is no Sound Processor registered on App, send broadcast for checking database to show database empty screen.
-        if (AppParam.getInstance().database.deviceDao().findAll().size() == 0)
+        if (false)
         {
-            mMainActivity.sendBroadcast(new Intent(ActionMessage.DATABASE_CHECK_EMPTY));
+            // Update toolbar menu
+            //setToolbarMenu();
 
-            // ESKIM start
+            // Set fragment number
+            AppParam.getInstance().setCurrentFragmentNumber(AppParam.FRAGMENT_NUMBER_HOME);
+
+            //initRegisterLayout();
+            // Find views...
+
+            // device info
+            mModelImageView = rootView.findViewById(R.id.home_sound_processor_device_image);
+            mDeviceNameTextView = rootView.findViewById(R.id.home_sound_processor_device_name_text);
+
+            // battery
+            mBatteryProgressBar = rootView.findViewById(R.id.home_sound_processor_battery_progressbar);
+            mBatteryTextView = rootView.findViewById(R.id.home_sound_processor_battery_value_textview);
+
+            // alarm stimulation
+            mStimulationAlarmImageButton = rootView.findViewById(R.id.home_stim_alarm_image_button);
+            mStimulationAlarmImageButton.setOnClickListener(onClickListener);
+
+            // alarm led
+            mLedAlarmImageButton = rootView.findViewById(R.id.home_led_alarm_image_button);
+            mLedAlarmImageButton.setOnClickListener(onClickListener);
+
+            // telecoil
+            mTelecoilImageButton = rootView.findViewById(R.id.home_telecoil_image_button);
+            mTelecoilImageButton.setOnClickListener(onClickListener);
+
+            // power mode
+            mPowerModeImageButton = rootView.findViewById(R.id.home_low_power_image_button);
+            mPowerModeImageButton.setOnClickListener(onClickListener);
+
+            // program
+            mProgramTextView = rootView.findViewById(R.id.home_program_value_text);
+            mProgramPlusImageButton = rootView.findViewById(R.id.home_program_plus_button);
+            mProgramMinusImageButton = rootView.findViewById(R.id.home_program_minus_button);
+            mProgramPlusImageButton.setOnClickListener(onClickListener);
+            mProgramMinusImageButton.setOnClickListener(onClickListener);
+
+            // sensitivity
+            mSensitivityTextView = rootView.findViewById(R.id.home_sensitivity_value_text);
+            mSensitivityProgressBar = rootView.findViewById(R.id.home_sensitivity_progressbar);
+            mSensitivityPlusImageButton = rootView.findViewById(R.id.home_sensitivity_plus_button);
+            mSensitivityMinusImageButton = rootView.findViewById(R.id.home_sensitivity_minus_button);
+            mSensitivityPlusImageButton.setOnClickListener(onClickListener);
+            mSensitivityMinusImageButton.setOnClickListener(onClickListener);
+
+            // volume
+            mVolumeTextView = rootView.findViewById(R.id.home_volume_value_text);
+            mVolumeProgressBar = rootView.findViewById(R.id.home_volume_progressbar);
+            mVolumePlusImageButton = rootView.findViewById(R.id.home_volume_plus_button);
+            mVolumeMinusImageButton = rootView.findViewById(R.id.home_volume_minus_button);
+            mVolumePlusImageButton.setOnClickListener(onClickListener);
+            mVolumeMinusImageButton.setOnClickListener(onClickListener);
+
+            // not yet connected
+            mNotConnectedScreenConstraintLayout = rootView.findViewById(R.id.home_not_yet_connected_layout);
+
+            // If there is no Sound Processor registered on App, send broadcast for checking database to show database empty screen.
+            if (AppParam.getInstance().databaseUsers.daoUsers().findAll().size() == 0)
+            //if (AppParam.getInstance().database.deviceDao().findAll().size() == 0)
+            {
+                //mMainActivity.sendBroadcast(new Intent(ActionMessage.DATABASE_CHECK_EMPTY));
+
+                // ESKIM start
             /*
             AppParam.getInstance().bleConnectionState = AppParam.BLE_CONNECTION_STATE_CONNECTED;
 
@@ -204,26 +220,74 @@ public class HomeFragment extends Fragment
             //mMainActivity.makeDialogRelaunchApp();
             //mMainActivity.makeDialogReattachSoundProcessorAndDisconnect();
             */
-            // ESKIM end
+                // ESKIM end
 
-        }
-        else
-        {
-            // If there is a Sound Processor registered on App, update home screen.
-            // Then check the connection state.
-            updateScreen();
-
-            // Send broadcast for scanning Sound Processor to connect to that.
-            if (AppParam.getInstance().bleConnectionState == AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
+            }
+            else
             {
-                if (AppParam.getInstance().isAutoConnectionEnabled())
+                // If there is a Sound Processor registered on App, update home screen.
+                // Then check the connection state.
+                //updateScreen();
+
+                // Send broadcast for scanning Sound Processor to connect to that.
+                if (AppParam.getInstance().bleConnectionState == AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
                 {
-                    mMainActivity.sendBroadcast(new Intent(ActionMessage.BLE_SCAN_START));
+                    if (AppParam.getInstance().isAutoConnectionEnabled())
+                    {
+                        //mMainActivity.sendBroadcast(new Intent(ActionMessage.BLE_SCAN_START));
+                    }
                 }
             }
         }
+        //return rootView;
+        return view;
+    }
 
-        return rootView;
+    public void initRegisterLayout()
+    {
+        AppParam appParam = AppParam.getInstance();
+
+        DatabaseUsers databaseUsers = appParam.databaseUsers;
+        DatabaseDevices databaseDevices = appParam.databaseDevices;
+
+        boolean userExist = false, deviceExist = false;
+
+        if (0 < databaseUsers.daoUsers().findAll().size())
+        {
+            userExist = true;
+        }
+
+        if (0 < databaseDevices.daoDevices().findAll().size())
+        {
+            deviceExist = true;
+        }
+
+        if (userExist && deviceExist)
+        {
+            mBinding.homeNeedRegisterLayout.setVisibility(View.GONE);
+        }
+        else
+        {
+            mBinding.homeNeedRegisterLayout.setVisibility(View.VISIBLE);
+
+            if (userExist)
+            {
+                mBinding.homeUserRegisterLayout.setVisibility(View.GONE);
+            }
+            else
+            {
+                mBinding.homeUserRegisterLayout.setVisibility(View.VISIBLE);
+            }
+
+            if (deviceExist)
+            {
+                mBinding.homeDeviceRegisterLayout.setVisibility(View.GONE);
+            }
+            else
+            {
+                mBinding.homeDeviceRegisterLayout.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     /**
@@ -375,15 +439,19 @@ public class HomeFragment extends Fragment
             {
                 Log.d(TAG, "Fragment Home : onClick - Sensitivity plus.");
 
-                if (AppParam.getInstance().currentStatusParams.getSensitivity() < 4)
+                if (AppParam.getInstance().currentStatusParams.getSensitivity() < DeviceParam.LIMIT_MAX_SENSITIVITY)
                 {
                     byte sensitivity = (byte) ((AppParam.getInstance().currentStatusParams.getSensitivity() + 1) & 0xff);
 
                     AppParam.getInstance().sendingStatusParams.setSensitivity(sensitivity);
 
+                    //mMainActivity.sendPacket(
+                    //mMainActivity.packetMaker(MainActivity.PACKET_HEADER_VALUE_SENSITIVITY,
+                    //new byte[]{AppParam.getInstance().sendingStatusParams.getSensitivity()}, 2));
+
                     mMainActivity.sendPacket(
                             mMainActivity.packetMaker(MainActivity.PACKET_HEADER_VALUE_SENSITIVITY,
-                                    new byte[]{AppParam.getInstance().sendingStatusParams.getSensitivity()}, 2));
+                                    new byte[]{DeviceParam.SENSITIVITY_UP}, 2));
                 }
             }
             // Sensitivity minus
@@ -391,15 +459,19 @@ public class HomeFragment extends Fragment
             {
                 Log.d(TAG, "Fragment Home : onClick - Sensitivity minus.");
 
-                if (AppParam.getInstance().currentStatusParams.getSensitivity() > 1)
+                if (DeviceParam.LIMIT_MIN_SENSITIVITY < AppParam.getInstance().currentStatusParams.getSensitivity())
                 {
                     byte sensitivity = (byte) ((AppParam.getInstance().currentStatusParams.getSensitivity() - 1) & 0xff);
 
                     AppParam.getInstance().sendingStatusParams.setSensitivity(sensitivity);
 
+                    //mMainActivity.sendPacket(
+                    //mMainActivity.packetMaker(MainActivity.PACKET_HEADER_VALUE_SENSITIVITY,
+                    //new byte[]{AppParam.getInstance().sendingStatusParams.getSensitivity()}, 2));
+
                     mMainActivity.sendPacket(
                             mMainActivity.packetMaker(MainActivity.PACKET_HEADER_VALUE_SENSITIVITY,
-                                    new byte[]{AppParam.getInstance().sendingStatusParams.getSensitivity()}, 2));
+                                    new byte[]{DeviceParam.SENSITIVITY_DOWN}, 2));
                 }
             }
             // Volume plus
@@ -407,15 +479,19 @@ public class HomeFragment extends Fragment
             {
                 Log.d(TAG, "Fragment Home : onClick - Volume plus.");
 
-                if (AppParam.getInstance().currentStatusParams.getVolume() < 10)
+                if (AppParam.getInstance().currentStatusParams.getVolume() < DeviceParam.LIMIT_MAX_VOLUME)
                 {
                     byte volume = (byte) ((AppParam.getInstance().currentStatusParams.getVolume() + 1) & 0xff);
 
                     AppParam.getInstance().sendingStatusParams.setVolume(volume);
 
+                    //mMainActivity.sendPacket(
+                    //mMainActivity.packetMaker(MainActivity.PACKET_HEADER_VALUE_VOLUME,
+                    //new byte[]{AppParam.getInstance().sendingStatusParams.getVolume()}, 2));
+
                     mMainActivity.sendPacket(
                             mMainActivity.packetMaker(MainActivity.PACKET_HEADER_VALUE_VOLUME,
-                                    new byte[]{AppParam.getInstance().sendingStatusParams.getVolume()}, 2));
+                                    new byte[]{DeviceParam.VOLUME_UP}, 2));
                 }
             }
             // Volume minus
@@ -423,15 +499,19 @@ public class HomeFragment extends Fragment
             {
                 Log.d(TAG, "Fragment Home : onClick - Volume minus.");
 
-                if (AppParam.getInstance().currentStatusParams.getVolume() > 1)
+                if (DeviceParam.LIMIT_MIN_VOLUME < AppParam.getInstance().currentStatusParams.getVolume())
                 {
                     byte volume = (byte) ((AppParam.getInstance().currentStatusParams.getVolume() - 1) & 0xff);
 
                     AppParam.getInstance().sendingStatusParams.setVolume(volume);
 
+                    //mMainActivity.sendPacket(
+                    //mMainActivity.packetMaker(MainActivity.PACKET_HEADER_VALUE_VOLUME,
+                    //new byte[]{AppParam.getInstance().sendingStatusParams.getVolume()}, 2));
+
                     mMainActivity.sendPacket(
                             mMainActivity.packetMaker(MainActivity.PACKET_HEADER_VALUE_VOLUME,
-                                    new byte[]{AppParam.getInstance().sendingStatusParams.getVolume()}, 2));
+                                    new byte[]{DeviceParam.VOLUME_DOWN}, 2));
                 }
             }
         } // onClick
@@ -635,9 +715,11 @@ public class HomeFragment extends Fragment
             }
         });
 
-        builder.setNegativeButton(getString(R.string.dialog_message_no), new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getString(R.string.dialog_message_no), new DialogInterface.OnClickListener()
+        {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
+            public void onClick(DialogInterface dialogInterface, int i)
+            {
                 mMainActivity.updateLongTimeIdleHandler(); // Update long time idle handler
             }
         });

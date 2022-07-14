@@ -13,16 +13,46 @@
     <color name="color_accent_level_2">#2B4A3F</color>
     <color name="color_accent_level_3">#0E2D23</color>
 
-    <!-- Colors -->
-    <color name="color_primary">#251E4D</color>
-    <color name="color_primary_dark">#161031</color>
-    <color name="color_accent">#6D8273</color>
+    <!-- Base colors -->
+    <color name="color_primary">#646464</color>
+    <color name="color_primary_variant">#3C3C3C</color>
+    <color name="color_secondary">#DCDCDC</color>
+    <color name="color_secondary_variant">#B4B4B4</color>
+    <color name="color_background">#FFFFFF</color>
+    <color name="color_surface">#FFFFFF</color>
+    <color name="color_error">#B00020</color>
+    <color name="color_on_primary">#DCDCDC</color>
+    <color name="color_on_secondary">#000000</color>
+    <color name="color_on_background">#000000</color>
+    <color name="color_on_surface">#000000</color>
+    <color name="color_on_error">#FFFFFF</color>
+    <!--
+    <color name="color_primary">#BB86FC</color>
+    <color name="color_primary_variant">#3700B3</color>
+    <color name="color_secondary">#03DAC6</color>
+    <color name="color_secondary_variant">#03DAC6</color>
+    <color name="color_background">#121212</color>
+    <color name="color_surface">#121212</color>
+    <color name="color_error">#CF6679</color>
+    <color name="color_on_primary">#000000</color>
+    <color name="color_on_secondary">#000000</color>
+    <color name="color_on_background">#FFFFFF</color>
+    <color name="color_on_surface">#FFFFFF</color>
+    <color name="color_on_error">#000000</color>
+    -->
 
+    <!-- Text colors -->
+    <color name="text_color_primary">#DCDCDC</color>
+    <color name="text_color_secondary">#B4B4B4</color>=
+    <!--
+    <color name="text_color_primary">#FFFFFF</color>
+    <color name="text_color_secondary">#121212</color>
+    -->
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
 
-    <color name="color_status_bar">#000000</color>
-    <color name="color_bottom_navigation">#FFFFFF</color>
+    <color name="color_status_bar">#1A237E</color>
+    <color name="color_bottom_navigation">#1A237E</color>
 
     <!-- 줄 관련 -->
     <color name="color_line_color">#444444</color>
@@ -50,4 +80,6 @@
     <color name="color_home_cardview_title_text_view">#444444</color>
     <color name="color_home_cardview_value_text_view">#111111</color>
 
+    <!-- Lock screen -->
+    <color name="lock_screen_forgot_password">#FF888888</color>
 </resources>

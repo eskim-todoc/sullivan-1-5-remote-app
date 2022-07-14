@@ -1,52 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
-        android:id="@+id/menu_search"
+        android:id="@+id/toolbar_user"
         android:enabled="true"
-        android:icon="@drawable/ic_toolbar_search"
-        android:title="@string/toolbar_title_search"
+        android:icon="@drawable/toolbar_ic_user_24dp"
+        android:title="사용자"
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/menu_list"
+        android:id="@+id/settings"
         android:enabled="true"
-        android:icon="@drawable/ic_toolbar_list"
-        android:title="@string/toolbar_title_lists"
+        android:icon="@drawable/toolbar_ic_settings_24dp"
+        android:title="@string/toolbar_menu_settings"
         app:showAsAction="always" />
-
-    <item
-        android:id="@+id/menu_auto_connection"
-        android:enabled="true"
-        android:icon="@drawable/ic_toolbar_auto_connection_enabled"
-        android:title="@string/toolbar_title_auto_connection"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/menu_manual"
-        android:enabled="true"
-        android:title="@string/toolbar_title_manual"
-        android:visible="true"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/menu_support"
-        android:enabled="true"
-        android:title="@string/toolbar_title_customer_support"
-        android:visible="false"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/menu_export_logging"
-        android:enabled="true"
-        android:title="로그출력"
-        android:visible="false"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/menu_applock_screen"
-        android:enabled="true"
-        android:title="잠금화면 설정"
-        android:visible="true"
-        app:showAsAction="never" />
 </menu>

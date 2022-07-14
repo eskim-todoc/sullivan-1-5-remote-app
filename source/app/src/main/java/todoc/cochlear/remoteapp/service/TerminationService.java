@@ -33,12 +33,15 @@ public class TerminationService extends Service
     {
         Log.d(TAG, "Received command : ID = " + startId + ", Intent = " + intent);
 
-        if (intent.getAction() != null && intent.getAction().equals(ACTION_START_SERVICE))
+        if (intent != null)
         {
-            if (!AppParam.getInstance().isTerminationServiceStarted)
+            if (intent.getAction() != null && intent.getAction().equals(ACTION_START_SERVICE))
             {
-                startForegroundService();
-                AppParam.getInstance().isTerminationServiceStarted = true;
+                if (!AppParam.getInstance().isTerminationServiceStarted)
+                {
+                    startForegroundService();
+                    AppParam.getInstance().isTerminationServiceStarted = true;
+                }
             }
         }
 

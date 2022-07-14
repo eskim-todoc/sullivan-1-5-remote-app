@@ -78,7 +78,6 @@ public class PasswordFragment extends Fragment
 
             // Update toolbar
             setToolbarMenu();
-            mMainActivity.updateToolbar();
 
             // TextView for wrong password.
             mWrongTextView = rootView.findViewById(R.id.fragment_password_wrong_text);

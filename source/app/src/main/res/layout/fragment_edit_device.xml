@@ -1,0 +1,138 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/color_primary"
+        android:orientation="vertical"
+        tools:context="todoc.cochlear.remoteapp.fragment.EditDeviceFragment">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/management_user_subject_textview"
+                    android:text="제조번호" />
+
+                <EditText
+                    android:id="@+id/edit_device_serial_edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:backgroundTint="@color/color_secondary"
+                    android:clickable="false"
+                    android:enabled="false"
+                    android:focusable="false"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:hint="제조번호를 입력하세요."
+                    android:inputType="text"
+                    android:longClickable="false"
+                    android:minHeight="48dp"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                    android:textColor="@color/color_secondary"
+                    android:textColorHint="@color/color_secondary" />
+
+                <com.google.android.material.divider.MaterialDivider style="@style/add_user_divider" />
+
+                <TextView
+                    style="@style/management_user_subject_textview"
+                    android:text="보안코드" />
+
+                <EditText
+                    android:id="@+id/edit_devie_pairing_key_edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:backgroundTint="@color/color_secondary"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:hint="보안코드를 입력하세요."
+                    android:inputType="number"
+                    android:maxLength="6"
+                    android:minHeight="48dp"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                    android:textColor="@color/color_secondary"
+                    android:textColorHint="@color/color_secondary" />
+
+                <com.google.android.material.divider.MaterialDivider style="@style/add_user_divider" />
+
+                <TextView
+                    style="@style/management_user_subject_textview"
+                    android:text="추가정보" />
+
+                <EditText
+                    android:id="@+id/edit_device_option_edittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:backgroundTint="@color/color_secondary"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:hint="원할 시 추가정보를 입력하세요."
+                    android:inputType="text"
+                    android:minHeight="48dp"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                    android:textColor="@color/color_secondary"
+                    android:textColorHint="@color/color_secondary" />
+
+                <com.google.android.material.divider.MaterialDivider style="@style/add_user_divider" />
+            </LinearLayout>
+        </ScrollView>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:id="@+id/edit_device_del_button"
+                style="@style/add_user_button"
+                android:layout_width="0dp"
+                android:layout_marginEnd="8dp"
+                android:text="삭제"
+                app:layout_constraintBottom_toTopOf="@id/edit_device_cancel_button"
+                app:layout_constraintEnd_toStartOf="@id/edit_device_edit_button"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:strokeColor="@color/color_secondary_variant" />
+
+            <Button
+                android:id="@+id/edit_device_edit_button"
+                style="@style/add_user_button"
+                android:layout_width="0dp"
+                android:layout_marginStart="8dp"
+                android:text="수정"
+                app:layout_constraintBottom_toTopOf="@id/edit_device_cancel_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/edit_device_del_button"
+                app:layout_constraintTop_toTopOf="parent"
+                app:strokeColor="@color/color_secondary_variant" />
+
+            <Button
+                android:id="@+id/edit_device_cancel_button"
+                style="@style/add_user_button"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_weight="0"
+                android:text="취소"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/edit_device_edit_button"
+                app:strokeColor="@color/color_secondary_variant" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+</layout>
