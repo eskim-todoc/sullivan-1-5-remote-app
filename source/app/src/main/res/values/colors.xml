@@ -14,14 +14,14 @@
     <color name="color_accent_level_3">#0E2D23</color>
 
     <!-- Base colors -->
-    <color name="color_primary">#646464</color>
-    <color name="color_primary_variant">#3C3C3C</color>
-    <color name="color_secondary">#DCDCDC</color>
-    <color name="color_secondary_variant">#B4B4B4</color>
+    <color name="color_primary">#6200EE</color>
+    <color name="color_primary_variant">#3700B3</color>
+    <color name="color_secondary">#03DAC6</color>
+    <color name="color_secondary_variant">#018786</color>
     <color name="color_background">#FFFFFF</color>
     <color name="color_surface">#FFFFFF</color>
     <color name="color_error">#B00020</color>
-    <color name="color_on_primary">#DCDCDC</color>
+    <color name="color_on_primary">#FFFFFF</color>
     <color name="color_on_secondary">#000000</color>
     <color name="color_on_background">#000000</color>
     <color name="color_on_surface">#000000</color>
@@ -42,8 +42,8 @@
     -->
 
     <!-- Text colors -->
-    <color name="text_color_primary">#DCDCDC</color>
-    <color name="text_color_secondary">#B4B4B4</color>=
+    <color name="text_color_primary">#000000</color>
+    <color name="text_color_secondary">#ffffff</color>=
     <!--
     <color name="text_color_primary">#FFFFFF</color>
     <color name="text_color_secondary">#121212</color>

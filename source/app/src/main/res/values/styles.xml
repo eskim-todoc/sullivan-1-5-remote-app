@@ -16,25 +16,27 @@
         <item name="colorOnSurface">@color/color_on_surface</item>
         <item name="colorOnError">@color/color_on_error</item>
         <!-- Text colors -->
-        <item name="android:textColorPrimary">@color/text_color_primary</item>
+        <item name="android:textColorPrimary">@color/color_primary</item>
         <!-- Status bar -->
-        <item name="android:statusBarColor">@color/color_primary_variant</item>
+        <item name="android:statusBarColor">@color/color_primary</item>
         <!-- Navigation bar -->
-        <item name="android:navigationBarColor">@color/color_primary_variant</item>
+        <item name="android:navigationBarColor">@color/color_background</item>
     </style>
 
     <style name="TextAppearance.RemoteControl.Default.Headline6" parent="TextAppearance.MaterialComponents.Headline6">
         <item name="fontFamily">@font/nanum_gothic_regular</item>
         <item name="android:fontFamily">@font/nanum_gothic_regular</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
     </style>
 
     <style name="TextAppearance.RemoteControl.Controller.Headline6" parent="TextAppearance.MaterialComponents.Headline6">
         <item name="fontFamily">@font/poppins_regular</item>
         <item name="android:fontFamily">@font/poppins_regular</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
     </style>
 
     <style name="lock_screen_number" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:textColor">@color/lock_screen_number_text_color_selector</item>
+        <item name="android:textColor">?attr/colorOnBackground</item>
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline5
         </item>
         <item name="android:layout_width">wrap_content</item>
@@ -55,7 +57,7 @@
 
     <style name="settings_lock_screen_switch" parent="@style/Widget.MaterialComponents.CompoundButton.Switch">
         <item name="materialThemeOverlay">@style/settings_lock_screen_switch_overlay</item>
-        <item name="android:textColor">@color/color_secondary</item>
+        <item name="android:textColor">@color/color_on_background</item>
         <item name="android:layout_marginStart">16dp</item>
         <item name="android:layout_marginEnd">16dp</item>
         <item name="android:layout_width">match_parent</item>
@@ -64,9 +66,11 @@
     </style>
 
     <style name="settings_lock_screen_switch_overlay">
+        <!--
         <item name="colorSurface">@color/color_secondary</item>
         <item name="colorOnSurface">@color/color_secondary_variant</item>
         <item name="colorSecondary">@color/color_error</item>
+        -->
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
         <item name="android:fontFamily">@font/nanum_gothic_regular</item>
     </style>
@@ -79,7 +83,7 @@
         <item name="android:fontFamily">@font/nanum_gothic_regular</item>
         <item name="android:gravity">start|bottom</item>
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
-        <item name="android:textColor">@color/color_secondary_variant</item>
+        <item name="android:textColor">@color/color_on_background</item>
     </style>
 
     <style name="settings_button" parent="@style/Widget.MaterialComponents.Button.OutlinedButton">
@@ -89,7 +93,7 @@
         <item name="android:layout_marginEnd">16dp</item>
         <item name="android:fontFamily">@font/nanum_gothic_regular</item>
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
-        <item name="android:textColor">@color/color_secondary</item>
+        <item name="android:textColor">@color/color_on_background</item>
     </style>
 
     <style name="settings_divider">
