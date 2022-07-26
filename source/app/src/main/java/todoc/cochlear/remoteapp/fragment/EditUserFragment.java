@@ -270,6 +270,14 @@ public class EditUserFragment extends Fragment
                         {
                             Log.d(TAG, "기본사용자를 해제하려고 하는데, 현재 연결중인 사용자입니다. 연결을 끊고 기본사용자를 해제할지 물어보기 위해 다이얼로그를 생성합니다.");
 
+                            if (Status.instance().lastDialog != null)
+                            {
+                                if (Status.instance().lastDialog.isShowing())
+                                {
+                                    Status.instance().lastDialog.dismiss();
+                                }
+                            }
+
                             Status.instance().lastDialog =
                                     new MaterialAlertDialogBuilder(requireContext())
                                             .setTitle("주의")
@@ -315,6 +323,14 @@ public class EditUserFragment extends Fragment
                             if (!Status.instance().connectedUser.name.equals(mItem.name))
                             {
                                 Log.d(TAG, "기본사용자를 변경하려고 하는데, 현재 연결중인 사용자가 있습니다. 연결을 끊고 기본사용자 변경을 할지 물어보기 위해 다이얼로그를 생성합니다.");
+
+                                if (Status.instance().lastDialog != null)
+                                {
+                                    if (Status.instance().lastDialog.isShowing())
+                                    {
+                                        Status.instance().lastDialog.dismiss();
+                                    }
+                                }
 
                                 Status.instance().lastDialog =
                                         new MaterialAlertDialogBuilder(requireContext())

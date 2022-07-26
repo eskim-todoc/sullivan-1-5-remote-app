@@ -212,10 +212,60 @@ public class AddUserFragment extends Fragment
                     if (user.defaultUser.equals(EntityUser.USER_DEFAULT))
                     {
                         EntityUser defaultUser = UtilUser.instance.getDefaultUser();
+
+                        // 등록하려는데, 이미 기본사용자가 등록되어 있다면
                         if (defaultUser != null)
                         {
-                            defaultUser.defaultUser = EntityUser.USER_NOT_DEFAULT;
+                            // 그런데 지금 그 사용자가 연결되어 있다면
+                            if (((MainActivity) requireActivity()).mBluetoothGatt != null)
+                            {
+                                if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTING ||
+                                        Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
+                                {
+                                    if (defaultUser.name.equals(Status.instance().connectedUser.name))
+                                    {
+                                        if (Status.instance().lastDialog != null)
+                                        {
+                                            if (Status.instance().lastDialog.isShowing())
+                                            {
+                                                Status.instance().lastDialog.dismiss();
+                                            }
+                                        }
 
+                                        Status.instance().lastDialog =
+                                                new MaterialAlertDialogBuilder(requireContext())
+                                                        .setTitle("주의")
+                                                        .setMessage("현재 연결중인 기본사용자가 있습니다. 연결을 해제하고, 입력하신 사용자를 기본사용자로 등록하시겠습니까?")
+                                                        .setPositiveButton("확인", (dialogInterface, i) ->
+                                                        {
+                                                            // 장시간 미사용 핸들러 업데이트
+                                                            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
+                                                            if (((MainActivity) requireActivity()).mBluetoothGatt != null)
+                                                            {
+                                                                if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED ||
+                                                                        Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTING)
+                                                                {
+                                                                    Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+                                                                    ((MainActivity) requireActivity()).mBluetoothGatt.disconnect();
+                                                                }
+                                                            }
+                                                            mAddUserBinding.addButton.callOnClick();
+                                                        })
+                                                        .setNegativeButton("취소", (dialogInterface, i) ->
+                                                        {
+                                                            // 장시간 미사용 핸들러 업데이트
+                                                            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+                                                        })
+                                                        .setCancelable(false)
+                                                        .create();
+                                        Status.instance().lastDialog.show();
+                                        return;
+                                    }
+                                }
+                            }
+
+                            defaultUser.defaultUser = EntityUser.USER_NOT_DEFAULT;
                             UtilUser.instance.update(defaultUser);
                         }
                     }
