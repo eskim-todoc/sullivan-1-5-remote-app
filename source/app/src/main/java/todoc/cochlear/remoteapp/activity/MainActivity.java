@@ -323,9 +323,12 @@ public class MainActivity extends AppCompatActivity
     {
         if (enable)
         {
-            mLongTimeIdleHandler.removeCallbacks(mLongTimeIdleRunner);
-            mLongTimeIdleHandler.postDelayed(mLongTimeIdleRunner, LONG_TIME_IDLE_TIMEOUT_IN_MS); // 10분
-            Log.d(TAG, "장시간 미사용 핸들러 업데이트 완료.");
+            if (Status.instance().longTimeIdleState == Status.LONG_TIME_IDLE_STATE_NOT_TRIGGERED)
+            {
+                mLongTimeIdleHandler.removeCallbacks(mLongTimeIdleRunner);
+                mLongTimeIdleHandler.postDelayed(mLongTimeIdleRunner, LONG_TIME_IDLE_TIMEOUT_IN_MS); // 10분
+                Log.d(TAG, "장시간 미사용 핸들러 업데이트 완료.");
+            }
         }
         else
         {
@@ -337,6 +340,8 @@ public class MainActivity extends AppCompatActivity
     private final Handler mLongTimeIdleHandler = new Handler();
     private final Runnable mLongTimeIdleRunner = () ->
     {
+        Status.instance().longTimeIdleState = Status.LONG_TIME_IDLE_STATE_TRIGGERED;
+
         Log.d(TAG, "장시간 미사용으로 인해 자동 절전모드로 진입합니다.");
 
         if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED
@@ -386,6 +391,8 @@ public class MainActivity extends AppCompatActivity
                 .setPositiveButton("확인", (dialogInterface, i) ->
                 {
                     Log.d(TAG, "절전모드에서 빠져나옵니다.");
+
+                    Status.instance().longTimeIdleState = Status.LONG_TIME_IDLE_STATE_NOT_TRIGGERED;
 
                     // 잠금화면 기능이 활성화 중이라면, 암호를 입력하고 진입하기 때문에 리모컨 화면의 경우 검색도 자동으로 시작하게 된다.
                     // 하지만 잠금화면 기능이 비활성화 상태라면 현재 프래그먼트가 리모컨 화면이 체크하고,

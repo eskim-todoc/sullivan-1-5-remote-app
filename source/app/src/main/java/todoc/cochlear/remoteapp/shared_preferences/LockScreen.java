@@ -190,6 +190,11 @@ public class LockScreen
         }
         else
         {
+            if (Status.instance().longTimeIdleState == Status.LONG_TIME_IDLE_STATE_TRIGGERED)
+            {
+                return;
+            }
+
             mBinding.lockScreen.setVisibility(View.GONE);
 
             Fragment fragment = mMainActivity.getSupportFragmentManager().findFragmentById(R.id.frame);

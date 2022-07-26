@@ -38,12 +38,16 @@ public class Status
     static public final int LOCK_SCREEN_STATE_LOCK = 0;
     static public final int LOCK_SCREEN_STATE_TEMPORARY_UNLOCK = 1;
 
+    static public final int LONG_TIME_IDLE_STATE_NOT_TRIGGERED = 0;
+    static public final int LONG_TIME_IDLE_STATE_TRIGGERED = 1;
+
     public int connectionState;         // BLE 기기 연결 상태
     public int scanState;               // BLE 스캔 상태
     public int transferState;           // BLE 패킷 전송 상태
     public int exitCaptureState;        // 강제 종료 포착 서비스 상태
     public int activityRunningState;    // 액티비티 동작 상태
     public int lockScreenState;         // 일시적으로 잠금화면 기능을 해제한 상태
+    public int longTimeIdleState;       // 장시간 미사용 상태
     public AlertDialog lastDialog;      // 앱에서 마지막에 출력된 다이얼로그 정보
     public EntityDevice connectedDevice;// 현재 연결을 시도하거나 연결중이거나 혹은 연결된 상태의 기기 정보
     public EntityUser connectedUser;    // 현재 연결을 시도하거나 연결중이거나 혹은 연결된 상태의 사용자 정보
