@@ -37,6 +37,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -593,8 +594,49 @@ public class MainActivity extends AppCompatActivity
 
                         if (mBluetoothGatt != null)
                         {
+                            Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
                             mBluetoothGatt.disconnect();
                         }
+
+                        if (Status.instance().lastDialog != null)
+                        {
+                            if (Status.instance().lastDialog.isShowing())
+                            {
+                                Status.instance().lastDialog.dismiss();
+                            }
+                        }
+
+                        new Handler(Looper.getMainLooper()).postDelayed(() ->
+                        {
+                            // 약 1초 뒤에 다이얼로그를 출력하기 전에, 아직도 잠금화면 상태가 임시 해제 상태면, 다시 잠금 상태로 되돌린다.
+                            if (Status.instance().lockScreenState == Status.LOCK_SCREEN_STATE_TEMPORARY_UNLOCK)
+                            {
+                                Log.d(TAG, "임시 잠금화면 해제를 취소하고, 다시 잠금 상태로 변경합니다.");
+                                Status.instance().lockScreenState = Status.LOCK_SCREEN_STATE_LOCK;
+                            }
+
+                            Status.instance().lastDialog =
+                                    new MaterialAlertDialogBuilder(MainActivity.this)
+                                            .setTitle("안내")
+                                            .setMessage("연결하려는 사운드처리기의 보안코드가 올바르지 않습니다. 올바른 보안코드를 입력해주세요.")
+                                            .setPositiveButton("확인", (dialogInterface, i) ->
+                                            {
+                                                longTimeIdleHandlerUpdate(true);
+
+                                                if (Status.instance().activityRunningState == Status.ACTIVITY_RUNNING_STATE_FOREGROUND)
+                                                {
+                                                    if (getSupportFragmentManager().findFragmentById(R.id.frame) instanceof RemoteControlFragment)
+                                                    {
+                                                        scanLe(true);
+                                                    }
+                                                }
+                                            })
+                                            .setCancelable(false)
+                                            .create();
+
+                            Status.instance().lastDialog.show();
+                        }, 1000);
+
                     }
                     break;
             }
@@ -1212,8 +1254,8 @@ public class MainActivity extends AppCompatActivity
                             // Correct password.
                             if (byteExtractor(responsePacket[1]) == PacketInfo.PASSWORD_PASS)
                             {
-                                Log.d(TAG, "사용자의 보안코드가 올바릅니다.");
-                                Log.d(TAG, "보안코드 인증에 성공했습니다. 상태정보 획득 시간초과 핸들러를 생성하고, 상태정보 획득 패킷을 전송합니다. ");
+                                Log.d(TAG, "사용자의 내부기 키가 올바릅니다.");
+                                Log.d(TAG, "내부기 키 인증에 성공했습니다. 상태정보 획득 시간초과 핸들러를 생성하고, 상태정보 획득 패킷을 전송합니다. ");
 
                                 // 상태정보 획득 패킷을 보내기 전에 핸들러를 등록한다.
                                 mStatusHandler.postDelayed(mStatusRunner, STATUS_TIMEOUT_IN_MS);
@@ -1222,17 +1264,17 @@ public class MainActivity extends AppCompatActivity
                             // Not correct password.
                             else
                             {
-                                Log.d(TAG, "사용자의 보안코드가 올바르지 않습니다.");
+                                Log.d(TAG, "사용자의 내부기 키가 올바르지 않습니다.");
                                 Log.d(TAG, "스캔을 멈추고, 사운드처리기와의 연결을 해제합니다.");
 
-                                UtilLog.instance.writeLog("패킷 에러 : 올바르지 않은 보안코드");
+                                UtilLog.instance.writeLog("패킷 에러 : 올바르지 않은 내부기 키");
 
                                 // 사용자에 의한 연결 종료로 처리한다.
                                 Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
                                 gatt.disconnect();    // 연결 종료
 
                                 // 이미 생성된 다이얼로그가 있다면, 그 다이얼로그를 종료하고 사용자 보안코드 재설정 다이얼로그를 생성해야 한다.
-                                Log.d(TAG, "현재 생성된 다이얼로그가 있다면 종료하고, 사용자 보안코드 재설정을 위한 다이얼로그를 새로 생성합니다.");
+                                Log.d(TAG, "현재 생성된 다이얼로그가 있다면 종료하고, 사용자 내부기 키 재설정을 위한 다이얼로그를 새로 생성합니다.");
 
                                 if (Status.instance().lastDialog != null)
                                 {
@@ -1245,7 +1287,7 @@ public class MainActivity extends AppCompatActivity
                                 Status.instance().lastDialog =
                                         new MaterialAlertDialogBuilder(MainActivity.this)
                                                 .setTitle("주의")
-                                                .setMessage("연결중인 사용자의 보안코드가 올바르지 않습니다. 보안코드를 재설정하시겠습니까?")
+                                                .setMessage("연결중인 사용자의 내부기 키가 올바르지 않습니다. 내부기 키를 재설정하시겠습니까?")
                                                 .setPositiveButton("재설정", (dialogInterface, i) ->
                                                 {
                                                     longTimeIdleHandlerUpdate(true);

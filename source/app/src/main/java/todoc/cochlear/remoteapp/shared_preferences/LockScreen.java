@@ -170,6 +170,7 @@ public class LockScreen
             if (Status.instance().lockScreenState == Status.LOCK_SCREEN_STATE_TEMPORARY_UNLOCK)
             {
                 Status.instance().lockScreenState = Status.LOCK_SCREEN_STATE_LOCK;
+
                 return;
             }
 
