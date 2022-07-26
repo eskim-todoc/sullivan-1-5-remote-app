@@ -122,6 +122,8 @@ public class MainActivity extends AppCompatActivity
     {
         super.onPause();
 
+        Status.instance().activityRunningState = Status.ACTIVITY_RUNNING_STATE_NOT_FOREGROUND;
+
         // 화면이 가려질 때는 BLE 스캔 정지
         if (Status.instance().scanState == Status.SCAN_STATE_STARTED)
         {
@@ -139,6 +141,8 @@ public class MainActivity extends AppCompatActivity
     protected void onResume()
     {
         super.onResume();
+
+        Status.instance().activityRunningState = Status.ACTIVITY_RUNNING_STATE_FOREGROUND;
 
         // 장시간 미사용 이벤트 핸들러 시작
         Log.d(TAG, "액티비티 onResume() 상태이므로, 장시간 미사용 핸들러를 업데이트합니다.");
@@ -1015,8 +1019,15 @@ public class MainActivity extends AppCompatActivity
                             Fragment fragment = getSupportFragmentManager().findFragmentById(mBinding.frame.getId());
                             if (fragment instanceof RemoteControlFragment)
                             {
-                                Log.d(TAG, "현재 리모컨 화면이므로 자동 재연결을 위해 BLE 스캔을 시작합니다.");
-                                scanLe(true);
+                                if (Status.instance().activityRunningState == Status.ACTIVITY_RUNNING_STATE_FOREGROUND)
+                                {
+                                    Log.d(TAG, "현재 리모컨 화면이며, 액티비티 화면이 포그라운드 상태이므로 자동 재연결을 위해 BLE 스캔을 시작합니다.");
+                                    scanLe(true);
+                                }
+                                else
+                                {
+                                    Log.d(TAG, "현재 리모컨 화면이지만, 액티비티 화면이 포그라운드 상태가 아니므로 BLE 스캔을 시작하지 않습니다.");
+                                }
                             }
                         }
                     }
