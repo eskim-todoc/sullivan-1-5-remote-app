@@ -1,6 +1,7 @@
 package todoc.cochlear.remoteapp.database.users;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -15,17 +16,22 @@ public class EntityUser
     @PrimaryKey
     @NonNull
     public String name;
-    public String ear;
     public String passKey;
+    public String nickname;
+    public String ear;
+    @ColumnInfo(name = "defaultUser")
     public String defaultUser;
 
+
+    @NonNull
     @Override
     public String toString()
     {
-        return "DbUser{" +
+        return "EntityUser{" +
                 "name='" + name + '\'' +
-                ", ear='" + ear + '\'' +
                 ", passKey='" + passKey + '\'' +
+                ", nickname='" + nickname + '\'' +
+                ", ear='" + ear + '\'' +
                 ", defaultUser='" + defaultUser + '\'' +
                 '}';
     }

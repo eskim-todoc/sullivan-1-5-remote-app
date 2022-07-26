@@ -3,47 +3,40 @@ package todoc.cochlear.remoteapp.fragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import todoc.cochlear.remoteapp.activity.MainActivity;
 import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
 import todoc.cochlear.remoteapp.activity.databinding.FragmentRemoteControlBinding;
+import todoc.cochlear.remoteapp.database.devices.UtilDevice;
 import todoc.cochlear.remoteapp.database.users.EntityUser;
-import todoc.cochlear.remoteapp.view_model.BleViewModel;
+import todoc.cochlear.remoteapp.database.users.UtilUser;
+import todoc.cochlear.remoteapp.params.PacketInfo;
+import todoc.cochlear.remoteapp.params.Status;
 import todoc.cochlear.remoteapp.view_model.StatusViewModel;
 
 public class RemoteControlFragment extends Fragment
 {
     static final private String TAG = "TODOC_" + RemoteControlFragment.class.getSimpleName();
 
-    ActivityMainBinding mMainBinding;
-    FragmentRemoteControlBinding mRemoteControlBinding;
+    public ActivityMainBinding mMainBinding;
+    public FragmentRemoteControlBinding mRemoteControlBinding;
 
     StatusViewModel mStatusViewModel;
-    BleViewModel mBleViewModel;
 
     public AlertDialog mDialog;
-    Chip[] chips;
 
     public RemoteControlFragment()
     {
@@ -54,8 +47,6 @@ public class RemoteControlFragment extends Fragment
     public void onDestroyView()
     {
         super.onDestroyView();
-        //((MainActivity) requireActivity()).scanLe(false);
-        mBleViewModel.setSearching(BleViewModel.SEARCHING_DISABLED);
     }
 
     @Override
@@ -65,21 +56,17 @@ public class RemoteControlFragment extends Fragment
 
         mMainBinding = ((MainActivity) requireActivity()).mBinding;
         mMainBinding.toolbar.setNavigationIcon(null);
-        mMainBinding.toolbar.getMenu().findItem(R.id.settings).setVisible(true);
+        mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(true);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(true);
-        mMainBinding.toolbar.setTitleTextAppearance(requireContext(), R.style.TextAppearance_RemoteControl_Controller_Headline6);
-        //mMainBinding.toolbar.setTitle("David");
+        //mMainBinding.toolbar.setTitleTextAppearance(requireContext(), R.style.TextAppearance_RemoteControl_Default_Headline6);
+        mMainBinding.toolbar.setTitle("리모컨");
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         mRemoteControlBinding = FragmentRemoteControlBinding.inflate(inflater, container, false);
-        View view = mRemoteControlBinding.getRoot();
-
-        //((MainActivity) requireActivity()).scanLe(true);
-
-        return view;
+        return mRemoteControlBinding.getRoot();
     }
 
     @Override
@@ -90,7 +77,6 @@ public class RemoteControlFragment extends Fragment
         Log.d(TAG, "onViewCreated is called!");
 
         mStatusViewModel = new ViewModelProvider(requireActivity()).get(StatusViewModel.class);
-        mBleViewModel = new ViewModelProvider(requireActivity()).get(BleViewModel.class);
 
         // LiveData for connection
         liveDataConnection();
@@ -115,20 +101,39 @@ public class RemoteControlFragment extends Fragment
         // User list
         checkRegisteredList();
         //initChipGroup();
+
+        // 현재 BLE 연결된 상태가 아니고, BLE 스캔도 멈춰 있는 상태라면 스캔을 시작한다.
+        /*
+        Status status = Status.instance();
+
+        if (status.connectionState == Status.CONNECTION_STATE_DISCONNECTED)
+        {
+            if (status.scanState == Status.SCAN_STATE_STOPPED)
+            {
+                EntityUser defaultUser = ((MainActivity) requireActivity()).mDatabaseUsers.daoUsers().getDbUserByDefaultUSer(EntityUser.USER_DEFAULT);
+                List<EntityDevice> devices = ((MainActivity) requireActivity()).mDatabaseDevices.daoDevices().findAll();
+
+                if ((defaultUser != null) && (0 < devices.size()))
+                {
+                    ((MainActivity) requireActivity()).scanLe(true);
+                }
+            }
+        }
+        */
     }
 
     // LiveData - Connection
     private void liveDataConnection()
     {
-        mBleViewModel.getObjectBleConnection().observe(getViewLifecycleOwner(), integer ->
+        mStatusViewModel.getObjectConnectionState().observe(getViewLifecycleOwner(), integer ->
         {
             Log.d(TAG, "Obsever : Connection -> " + integer);
 
-            if (integer == BleViewModel.BLE_DISCONNECTED)
+            if (integer == StatusViewModel.CONNECTION_STATE_DISCONNECTED)
             {
                 mRemoteControlBinding.remoteControlConnectionLayout.setVisibility(View.VISIBLE);
             }
-            else if (integer == BleViewModel.BLE_CONNECTING)
+            else if (integer == StatusViewModel.CONNECTION_STATE_CONNECTING)
             {
                 mRemoteControlBinding.remoteControlConnectionLayout.setVisibility(View.VISIBLE);
             }
@@ -145,10 +150,10 @@ public class RemoteControlFragment extends Fragment
         mStatusViewModel.getLiveDataBatteryLevel().observe(getViewLifecycleOwner(), o ->
         {
             int value = mStatusViewModel.getValueBatteryLevel();
-            String text = value + "%";
-
-            Log.d(TAG, "Observer : Battery -> " + text);
-            mRemoteControlBinding.remoteControlBatteryPercentTextview.setText(text);
+            String textValue = "" + value;
+            Log.d(TAG, "Observer : Battery -> " + textValue + "%");
+            mRemoteControlBinding.remoteControlBatteryPercentTextview.setText(textValue);
+            mRemoteControlBinding.remoteControlBatteryProgressbar.setProgress(value);
         });
     }
 
@@ -161,11 +166,11 @@ public class RemoteControlFragment extends Fragment
 
             Log.d(TAG, "Observer : Notification -> " + value);
 
-            if (value == StatusViewModel.NOTIFICATION_ON)
+            if (value == PacketInfo.NOTIFICATION_ON)
             {
                 mRemoteControlBinding.remoteControlNotificationImageButton.setBackground(AppCompatResources.getDrawable(requireContext(), R.drawable.remote_control_ic_ripple_circle_background_on));
             }
-            else if (value == StatusViewModel.NOTIFICATION_OFF)
+            else if (value == PacketInfo.NOTIFICATION_OFF)
             {
                 mRemoteControlBinding.remoteControlNotificationImageButton.setBackground(AppCompatResources.getDrawable(requireContext(), R.drawable.remote_control_ic_ripple_circle_background));
             }
@@ -181,11 +186,11 @@ public class RemoteControlFragment extends Fragment
 
             Log.d(TAG, "Observer : LED -> " + value);
 
-            if (value == StatusViewModel.LED_ON)
+            if (value == PacketInfo.LED_ON)
             {
                 mRemoteControlBinding.remoteControlLedImageButton.setBackground(AppCompatResources.getDrawable(requireContext(), R.drawable.remote_control_ic_ripple_circle_background_on));
             }
-            else if (value == StatusViewModel.LED_OFF)
+            else if (value == PacketInfo.LED_OFF)
             {
                 mRemoteControlBinding.remoteControlLedImageButton.setBackground(AppCompatResources.getDrawable(requireContext(), R.drawable.remote_control_ic_ripple_circle_background));
             }
@@ -201,11 +206,11 @@ public class RemoteControlFragment extends Fragment
 
             Log.d(TAG, "Observer : Telecoil -> " + value);
 
-            if (value == StatusViewModel.TELECOIL_ON)
+            if (value == PacketInfo.TELECOIL_ON)
             {
                 mRemoteControlBinding.remoteControlTelecoilImageButton.setBackground(AppCompatResources.getDrawable(requireContext(), R.drawable.remote_control_ic_ripple_circle_background_on));
             }
-            else if (value == StatusViewModel.TELECOIL_OFF)
+            else if (value == PacketInfo.TELECOIL_OFF)
             {
                 mRemoteControlBinding.remoteControlTelecoilImageButton.setBackground(AppCompatResources.getDrawable(requireContext(), R.drawable.remote_control_ic_ripple_circle_background));
             }
@@ -223,6 +228,7 @@ public class RemoteControlFragment extends Fragment
 
             Log.d(TAG, "Observer : Max output -> " + text);
             mRemoteControlBinding.remoteControlMaxOutputValueTextview.setText(text);
+            mRemoteControlBinding.remoteControlMaxOutputProgressbar.setProgress(value);
         });
     }
 
@@ -235,6 +241,7 @@ public class RemoteControlFragment extends Fragment
             String text = value + "";
             Log.d(TAG, "Observer : Volume -> " + text);
             mRemoteControlBinding.remoteControlVolumeValueTextview.setText(text);
+            mRemoteControlBinding.remoteControlVolumeProgressbar.setProgress(value);
         });
     }
 
@@ -255,15 +262,22 @@ public class RemoteControlFragment extends Fragment
     {
         mRemoteControlBinding.remoteControlNotificationImageButton.setOnClickListener(view ->
         {
+            // 장시간 미사용 핸들러 업데이트
+            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
             int value = mStatusViewModel.getValueNotification();
 
-            if (value == StatusViewModel.NOTIFICATION_ON)
+            if (value == PacketInfo.NOTIFICATION_ON)
             {
-                ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(MainActivity.PACKET_HEADER_VALUE_SIMULATION, new byte[]{StatusViewModel.NOTIFICATION_OFF}, 2));
+                ((MainActivity) requireActivity()).sendPacket(
+                        ((MainActivity) requireActivity()).packetMaker(
+                                PacketInfo.HEADER_VALUE_NOTIFICATION, new byte[]{PacketInfo.NOTIFICATION_OFF}, PacketInfo.PACKET_SIZE_NOTIFICATION));
             }
-            else if (value == StatusViewModel.NOTIFICATION_OFF)
+            else if (value == PacketInfo.NOTIFICATION_OFF)
             {
-                ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(MainActivity.PACKET_HEADER_VALUE_SIMULATION, new byte[]{StatusViewModel.NOTIFICATION_ON}, 2));
+                ((MainActivity) requireActivity()).sendPacket(
+                        ((MainActivity) requireActivity()).packetMaker(
+                                PacketInfo.HEADER_VALUE_NOTIFICATION, new byte[]{PacketInfo.NOTIFICATION_ON}, PacketInfo.PACKET_SIZE_NOTIFICATION));
             }
         });
     }
@@ -273,15 +287,18 @@ public class RemoteControlFragment extends Fragment
     {
         mRemoteControlBinding.remoteControlLedImageButton.setOnClickListener(view ->
         {
+            // 장시간 미사용 핸들러 업데이트
+            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
             int value = mStatusViewModel.getValueLed();
 
-            if (value == StatusViewModel.LED_ON)
+            if (value == PacketInfo.LED_ON)
             {
-                ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(MainActivity.PACKET_HEADER_VALUE_LED, new byte[]{StatusViewModel.LED_OFF}, 2));
+                ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_LED, new byte[]{PacketInfo.LED_OFF}, 2));
             }
-            else if (value == StatusViewModel.LED_OFF)
+            else if (value == PacketInfo.LED_OFF)
             {
-                ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(MainActivity.PACKET_HEADER_VALUE_LED, new byte[]{StatusViewModel.LED_ON}, 2));
+                ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_LED, new byte[]{PacketInfo.LED_ON}, 2));
             }
         });
     }
@@ -291,15 +308,18 @@ public class RemoteControlFragment extends Fragment
     {
         mRemoteControlBinding.remoteControlTelecoilImageButton.setOnClickListener(view ->
         {
+            // 장시간 미사용 핸들러 업데이트
+            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
             int value = mStatusViewModel.getValueTelecoil();
 
-            if (value == StatusViewModel.TELECOIL_ON)
+            if (value == PacketInfo.TELECOIL_ON)
             {
-                ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(MainActivity.PACKET_HEADER_VALUE_TELECOIL, new byte[]{StatusViewModel.TELECOIL_OFF}, 2));
+                ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_TELECOIL, new byte[]{PacketInfo.TELECOIL_OFF}, 2));
             }
-            else if (value == StatusViewModel.TELECOIL_OFF)
+            else if (value == PacketInfo.TELECOIL_OFF)
             {
-                ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(MainActivity.PACKET_HEADER_VALUE_TELECOIL, new byte[]{StatusViewModel.TELECOIL_ON}, 2));
+                ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_TELECOIL, new byte[]{PacketInfo.TELECOIL_ON}, 2));
             }
         });
     }
@@ -309,12 +329,18 @@ public class RemoteControlFragment extends Fragment
     {
         mRemoteControlBinding.remoteControlMaxOutputUpImageButton.setOnClickListener(view ->
         {
-            ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(MainActivity.PACKET_HEADER_VALUE_SENSITIVITY, new byte[]{StatusViewModel.MAX_OUTPUT_UP}, 2));
+            // 장시간 미사용 핸들러 업데이트
+            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
+            ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_MAX_OUTPUT, new byte[]{PacketInfo.MAX_OUTPUT_UP}, 2));
         });
 
         mRemoteControlBinding.remoteControlMaxOutputDownImageButton.setOnClickListener(view ->
         {
-            ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(MainActivity.PACKET_HEADER_VALUE_SENSITIVITY, new byte[]{StatusViewModel.MAX_OUTPUT_DOWN}, 2));
+            // 장시간 미사용 핸들러 업데이트
+            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
+            ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_MAX_OUTPUT, new byte[]{PacketInfo.MAX_OUTPUT_DOWN}, 2));
         });
     }
 
@@ -323,12 +349,18 @@ public class RemoteControlFragment extends Fragment
     {
         mRemoteControlBinding.remoteControlVolumeUpImageButton.setOnClickListener(view ->
         {
-            ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(MainActivity.PACKET_HEADER_VALUE_VOLUME, new byte[]{StatusViewModel.VOLUME_UP}, 2));
+            // 장시간 미사용 핸들러 업데이트
+            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
+            ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_VOLUME, new byte[]{PacketInfo.VOLUME_UP}, 2));
         });
 
         mRemoteControlBinding.remoteControlVolumeDownImageButton.setOnClickListener(view ->
         {
-            ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(MainActivity.PACKET_HEADER_VALUE_VOLUME, new byte[]{StatusViewModel.VOLUME_DOWN}, 2));
+            // 장시간 미사용 핸들러 업데이트
+            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
+            ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_VOLUME, new byte[]{PacketInfo.VOLUME_DOWN}, 2));
         });
     }
 
@@ -337,132 +369,64 @@ public class RemoteControlFragment extends Fragment
     {
         mRemoteControlBinding.remoteControlProgramUpImageButton.setOnClickListener(view ->
         {
-            ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(MainActivity.PACKET_HEADER_VALUE_PROMGRAM, new byte[]{StatusViewModel.PROGRAM_UP}, 2));
+            // 장시간 미사용 핸들러 업데이트
+            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
+            ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_PROMGRAM, new byte[]{PacketInfo.PROGRAM_UP}, 2));
         });
 
         mRemoteControlBinding.remoteControlProgramDownImageButton.setOnClickListener(view ->
         {
-            ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(MainActivity.PACKET_HEADER_VALUE_PROMGRAM, new byte[]{StatusViewModel.PROGRAM_DOWN}, 2));
+            // 장시간 미사용 핸들러 업데이트
+            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
+            ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_PROMGRAM, new byte[]{PacketInfo.PROGRAM_DOWN}, 2));
         });
     }
-
-    public void initChipGroup()
-    {
-        List<EntityUser> users = ((MainActivity) requireActivity()).mDatabaseUsers.daoUsers().findAll();
-        chips = new Chip[users.size()];
-
-        for (int i = 0; i < users.size(); i++)
-        {
-            chips[i] = new Chip(requireContext());
-            chips[i].setId(View.generateViewId());
-            chips[i].setText(users.get(i).name);
-            chips[i].setChipBackgroundColor(requireContext().getColorStateList(R.color.remote_control_chip_background_selector));
-            chips[i].setTextColor(requireContext().getColor(R.color.remote_control_chip_text_selector));
-            chips[i].setElevation(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getContext().getResources().getDisplayMetrics()));
-            chips[i].setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-            chips[i].setCheckable(true);
-            chips[i].setChipIcon(null);
-            chips[i].setCheckedIcon(null);
-            chips[i].setChecked(users.get(i).defaultUser.equals(EntityUser.USER_DEFAULT));
-            mRemoteControlBinding.remoteControlChipGroup.addView(chips[i]);
-        }
-
-        mRemoteControlBinding.remoteControlChipGroup.setOnCheckedStateChangeListener(mUsersCheckedChangedListener);
-    }
-
-    private ChipGroup.OnCheckedStateChangeListener mUsersCheckedChangedListener = new ChipGroup.OnCheckedStateChangeListener()
-    {
-        @Override
-        public void onCheckedChanged(@NonNull ChipGroup group, @NonNull List<Integer> checkedIds)
-        {
-            String name = null;
-            int size = checkedIds.size();
-
-            if (size == 0)
-            {
-                EntityUser defaultUser = ((MainActivity) requireActivity()).mDatabaseUsers.daoUsers().getDbUserByDefaultUSer(EntityUser.USER_DEFAULT);
-                if (defaultUser != null)
-                {
-                    defaultUser.defaultUser = EntityUser.USER_NOT_DEFAULT;
-                    ((MainActivity) requireActivity()).mDatabaseUsers.daoUsers().update(defaultUser);
-                }
-            }
-            else
-            {
-                for (int k = 0; k < chips.length; k++)
-                {
-                    if (checkedIds.get(0) == chips[k].getId())
-                    {
-                        name = chips[k].getText().toString();
-                        break;
-                    }
-                }
-
-                if (name != null)
-                {
-                    EntityUser defaultUser = ((MainActivity) requireActivity()).mDatabaseUsers.daoUsers().getDbUserByDefaultUSer(EntityUser.USER_DEFAULT);
-                    if (defaultUser != null)
-                    {
-                        defaultUser.defaultUser = EntityUser.USER_NOT_DEFAULT;
-                        ((MainActivity) requireActivity()).mDatabaseUsers.daoUsers().update(defaultUser);
-                    }
-
-                    EntityUser user = ((MainActivity) requireActivity()).mDatabaseUsers.daoUsers().getDbUserByName(name);
-                    if (user != null)
-                    {
-                        user.defaultUser = EntityUser.USER_DEFAULT;
-                        ((MainActivity) requireActivity()).mDatabaseUsers.daoUsers().update(user);
-                    }
-                }
-            }
-
-            EntityUser logUser = ((MainActivity) requireActivity()).mDatabaseUsers.daoUsers().getDbUserByDefaultUSer(EntityUser.USER_DEFAULT);
-            if (logUser != null)
-            {
-                Log.d(TAG, "Now, default user -> " + logUser.name);
-
-                mBleViewModel.setSearching(BleViewModel.SEARCHING_ENABLED);
-            }
-            else
-            {
-                Log.d(TAG, "Now, no default user selected.");
-
-                mBleViewModel.setSearching(BleViewModel.SEARCHING_DISABLED);
-            }
-
-            if (mBleViewModel.getBleConnection() != BleViewModel.BLE_DISCONNECTED)
-            {
-                ((MainActivity) requireActivity()).mBluetoothGatt.disconnect();
-            }
-        }
-    };
 
     public void checkRegisteredList()
     {
         if (mMainBinding.lockScreen.getVisibility() != View.VISIBLE)
         {
-            if (((MainActivity) requireActivity()).mDatabaseUsers.daoUsers().findAll().size() == 0)
+            if (UtilUser.instance.getUsers().size() == 0)
             {
                 makeNoUserDialog();
             }
-            else if (((MainActivity) requireActivity()).mDatabaseDevices.daoDevices().findAll().size() == 0)
+            else if (UtilDevice.instance.getDevices().size() == 0)
             {
                 makeNoDeviceDialog();
             }
             else
             {
-                EntityUser defaultUser = ((MainActivity) requireActivity()).mDatabaseUsers.daoUsers().getDbUserByDefaultUSer(EntityUser.USER_DEFAULT);
+                EntityUser defaultUser = UtilUser.instance.getDefaultUser();
                 if (defaultUser != null)
                 {
-                    mMainBinding.toolbar.setTitleTextAppearance(requireContext(), R.style.TextAppearance_RemoteControl_Controller_Headline6);
-                    mMainBinding.toolbar.setTitle(defaultUser.name);
+                    if (defaultUser.nickname != null && defaultUser.nickname.length() > 0)
+                    {
+                        mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(defaultUser.nickname);
+                    }
+                    else
+                    {
+                        mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(defaultUser.name);
+                    }
 
-                    mBleViewModel.setSearching(BleViewModel.SEARCHING_ENABLED);
+                    if (mMainBinding.lockScreen.getVisibility() == View.GONE)
+                    {
+                        if (Status.instance().connectionState == Status.CONNECTION_STATE_DISCONNECTED)
+                        {
+                            Log.d(TAG, "연결 해제 상태이므로 검색을 시작합니다.");
+                            ((MainActivity) requireActivity()).scanLe(true);
+                        }
+                        else
+                        {
+                            Log.d(TAG, "연결 해제 상태가 아닙니다.");
+                        }
+                    }
                 }
                 else
                 {
-                    mMainBinding.toolbar.setTitleTextAppearance(requireContext(), R.style.TextAppearance_RemoteControl_Default_Headline6);
-                    mMainBinding.toolbar.setTitle("선택된 사용자 없음");
+                    mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText("선택된 사용자 없음");
+                    ((MainActivity) requireActivity()).makeDialogSelectUser();
                 }
             }
         }
@@ -472,18 +436,17 @@ public class RemoteControlFragment extends Fragment
     {
         if (mDialog == null)
         {
-            mDialog = new MaterialAlertDialogBuilder(requireContext(), R.style.add_user_screen_dialog)
+            mDialog = new MaterialAlertDialogBuilder(requireContext())
                     .setTitle("안내")
                     .setMessage("리모컨 앱을 사용하려면 등록된 사용자 정보가 필요합니다. 아래의 등록 버튼을 눌러 사용자 정보를 등록해주세요.")
-                    .setPositiveButton("등록", new DialogInterface.OnClickListener()
+                    .setPositiveButton("등록", (dialogInterface, i) ->
                     {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i)
-                        {
-                            mDialog.dismiss();
-                            mDialog = null;
-                            requireActivity().getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new AddUserFragment()).commitAllowingStateLoss();
-                        }
+                        // 장시간 미사용 핸들러 업데이트
+                        ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
+                        mDialog.dismiss();
+                        mDialog = null;
+                        requireActivity().getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new AddUserFragment()).commitAllowingStateLoss();
                     })
                     .setCancelable(false)
                     .create();
@@ -496,18 +459,17 @@ public class RemoteControlFragment extends Fragment
     {
         if (mDialog == null)
         {
-            mDialog = new MaterialAlertDialogBuilder(requireContext(), R.style.add_user_screen_dialog)
+            mDialog = new MaterialAlertDialogBuilder(requireContext())
                     .setTitle("안내")
                     .setMessage("리모컨 앱을 사용하려면 등록된 사운드처리기 정보가 필요합니다. 아래의 등록 버튼을 눌러 사운드처리기 정보를 등록해주세요.")
-                    .setPositiveButton("등록", new DialogInterface.OnClickListener()
+                    .setPositiveButton("등록", (dialogInterface, i) ->
                     {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i)
-                        {
-                            mDialog.dismiss();
-                            mDialog = null;
-                            requireActivity().getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new AddDeviceFragment()).commitAllowingStateLoss();
-                        }
+                        // 장시간 미사용 핸들러 업데이트
+                        ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
+                        mDialog.dismiss();
+                        mDialog = null;
+                        requireActivity().getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new AddDeviceFragment()).commitAllowingStateLoss();
                     })
                     .setCancelable(false)
                     .create();

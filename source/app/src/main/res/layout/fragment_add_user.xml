@@ -2,149 +2,136 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/color_primary"
-        android:orientation="vertical"
+        android:background="@color/black_70"
+        android:overScrollMode="never"
+        android:padding="16dp"
         tools:context="todoc.cochlear.remoteapp.fragment.AddUserFragment">
 
-        <ScrollView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <LinearLayout
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_marginBottom="4dp"
+                android:text="입력"
+                android:textColor="@color/white_70"
+                android:textSize="14dp" />
 
-                <TextView
-                    style="@style/management_user_subject_textview"
-                    android:text="사용자 이름" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:counterEnabled="true"
+                app:helperText="글자 수">
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/name_edittext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:backgroundTint="@color/color_secondary"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:hint="이름을 입력하세요."
-                    android:inputType="text"
-                    android:minHeight="48dp"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                    android:textColor="@color/color_secondary"
-                    android:textColorHint="@color/color_secondary" />
+                    android:hint="사용자 이름"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.divider.MaterialDivider style="@style/add_user_divider" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:counterEnabled="true"
+                app:counterMaxLength="4"
+                app:helperText="글자 수">
 
-                <TextView
-                    style="@style/management_user_subject_textview"
-                    android:text="내부기 키" />
-
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/passkey_edittext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:backgroundTint="@color/color_secondary"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:hint="내부기 키를 입력하세요."
+                    android:hint="내부기 키"
                     android:inputType="number"
-                    android:maxLength="4"
-                    android:minHeight="48dp"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                    android:textColor="@color/color_secondary"
-                    android:textColorHint="@color/color_secondary" />
+                    android:maxLength="4" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.divider.MaterialDivider style="@style/add_user_divider" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:counterEnabled="true"
+                app:counterMaxLength="10"
+                app:helperText="글자 수">
 
-                <TextView
-                    style="@style/management_user_subject_textview"
-                    android:text="수술 위치" />
-
-                <RadioGroup
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/nickname_edittext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:gravity="center_vertical"
-                    android:minHeight="48dp"
-                    android:orientation="horizontal">
+                    android:hint="내부기 별칭"
+                    android:inputType="text"
+                    android:maxLength="10" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-                    <RadioButton
-                        android:id="@+id/left_radiobutton"
-                        style="@style/Widget.MaterialComponents.CompoundButton.RadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="왼쪽"
-                        android:textColor="@color/color_secondary" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="착용 위치"
+                android:textColor="@color/white_70"
+                android:textSize="14dp" />
 
-                    <RadioButton
-                        android:id="@+id/right_radiobutton"
-                        style="@style/Widget.MaterialComponents.CompoundButton.RadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="오른쪽"
-                        android:textColor="@color/color_secondary" />
-                </RadioGroup>
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <com.google.android.material.divider.MaterialDivider style="@style/add_user_divider" />
-
-                <TextView
-                    style="@style/management_user_subject_textview"
-                    android:text="옵션"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/default_checkbox"
+                <RadioButton
+                    android:id="@+id/left_radiobutton"
+                    style="@style/Widget.MaterialComponents.CompoundButton.RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:minHeight="48dp"
-                    android:text="기본 사용자로 등록"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                    android:textColor="@color/color_secondary" />
+                    android:layout_weight="1"
+                    android:text="왼쪽"
+                    android:textColor="@color/white_90"
+                    android:textSize="14dp" />
 
-                <com.google.android.material.divider.MaterialDivider style="@style/add_user_divider" />
-            </LinearLayout>
-        </ScrollView>
+                <RadioButton
+                    android:id="@+id/right_radiobutton"
+                    style="@style/Widget.MaterialComponents.CompoundButton.RadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="오른쪽"
+                    android:textColor="@color/white_90"
+                    android:textSize="14dp" />
+            </RadioGroup>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="옵션"
+                android:textColor="@color/white_70"
+                android:textSize="14dp" />
 
-            <Button
-                android:id="@+id/cancel_button"
-                style="@style/add_user_button"
-                android:layout_marginEnd="8dp"
-                android:text="취소"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/add_button"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/default_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="기본 사용자로 등록"
+                android:textColor="@color/white_90"
+                android:textSize="14dp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/add_button"
-                style="@style/add_user_button"
-                android:layout_marginStart="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:minHeight="56dp"
                 android:text="등록"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/cancel_button"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </LinearLayout>
+                android:textAlignment="center"
+                android:textColor="@color/black_90"
+                android:textSize="14dp" />
+        </LinearLayout>
+    </ScrollView>
 </layout>

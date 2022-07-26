@@ -1,38 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="dimen_home_cardview_title_text_size">14sp</dimen>
-    <dimen name="dimen_home_cardview_value_text_size">20sp</dimen>
 
-    <dimen name="dimen_volume_sensitivity_progressbar_round_size">16dp</dimen>
-    <dimen name="dimen_volume_sensitivity_minus_button_round_size">16dp</dimen>
-    <dimen name="dimen_volume_sensitivity_plus_button_round_size">0dp</dimen>
-
-    <dimen name="dimen_margin_top_between_views">16dp</dimen>
-    <dimen name="dimen_margin_top_between_image_button_and_title">12dp</dimen>
-    <dimen name="dimen_margin_bottom_between_program_title_and_value">12dp</dimen>
-    <dimen name="dimen_margin_top_between_progress_bar_and_title">12dp</dimen>
-
-    <!-- Notification 관련 -->
-    <dimen name="dimen_notification_title_text_size_sp">15sp</dimen>
-    <dimen name="dimen_notification_company_text_size_sp">10sp</dimen>
-
-    <!-- 줄 관련 -->
-    <dimen name="dimen_line_width_height_size">1px</dimen>
-
-    <!-- 텍스트뷰 관련 -->
-    <dimen name="dimen_small_title_text_size_sp">14sp</dimen>
-    <dimen name="dimen_medium_description_text_size_sp">16sp</dimen>
-    <dimen name="dimen_medium_warning_text_size_sp">16sp</dimen>
-    <dimen name="dimen_medium_error_text_size_sp">16sp</dimen>
-    <dimen name="dimen_edit_text_text_size_sp">18sp</dimen>
-    <dimen name="dimen_home_device_name_text_size_sp">28sp</dimen>
-    <dimen name="dimen_home_battery_value_text_size_sp">20sp</dimen>
-    <dimen name="dimen_home_program_value_text_size_sp">24sp</dimen>
-    <dimen name="dimen_home_sensitivity_and_volume_value_text_size_sp">24sp</dimen>
-    <dimen name="dimen_device_list_value_text_size_sp">16sp</dimen>
-    <dimen name="dimen_device_list_value_text_padding_size">4dp</dimen>
-    <dimen name="dimen_search_device_name_text_size_sp">20sp</dimen>
-
-    <!-- Lock screen -->
-    <dimen name="lock_screen_forgot_password">14dp</dimen>
 </resources>

@@ -2,15 +2,15 @@ package todoc.cochlear.remoteapp.fragment;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 
-import todoc.cochlear.remoteapp.shared_preferences.LockScreen;
 import todoc.cochlear.remoteapp.activity.MainActivity;
 import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
@@ -18,7 +18,7 @@ import todoc.cochlear.remoteapp.activity.databinding.FragmentSettingsBinding;
 
 public class SettingsFragment extends Fragment
 {
-    private String TAG = "TODOC_" + SettingsFragment.class.getSimpleName();
+    //static private final String TAG = "TODOC_" + SettingsFragment.class.getSimpleName();
 
     public SettingsFragment()
     {
@@ -42,25 +42,28 @@ public class SettingsFragment extends Fragment
 
         mMainBinding = ((MainActivity) requireContext()).mBinding;
         mMainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
-        mMainBinding.toolbar.getMenu().findItem(R.id.settings).setVisible(false);
+        mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
-        mMainBinding.toolbar.setTitleTextAppearance(requireContext(), R.style.TextAppearance_RemoteControl_Default_Headline6);
+        //mMainBinding.toolbar.setTitleTextAppearance(requireContext(), R.style.TextAppearance_RemoteControl_Default_Headline6);
         mMainBinding.toolbar.setTitle(requireContext().getString(R.string.toolbar_title_settings));
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         mSettingBinding = FragmentSettingsBinding.inflate(inflater, container, false);
-        View view = mSettingBinding.getRoot();
+        return mSettingBinding.getRoot();
+    }
 
-        mSettingBinding.switchLockScreen.setOnCheckedChangeListener(mLockScreenSwitchListener);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
+    {
+        super.onViewCreated(view, savedInstanceState);
+
         updateLockScreenSwitch();
 
         initManagementButtons();
         initSupportButtons();
-
-        return view;
     }
 
     //
@@ -68,20 +71,18 @@ public class SettingsFragment extends Fragment
     //
     private void updateLockScreenSwitch()
     {
-        mSettingBinding.switchLockScreen.setChecked(LockScreen.isEnabled(requireContext()));
-    }
+        // 1) 리스너 등록 전에 먼저 상태 값을 설정하고,
+        mSettingBinding.switchLockScreen.setChecked(((MainActivity) requireActivity()).mLockScreen.isEnabled());
+        // 2) 리스너를 등록해야 초기 상태값 설정에 따른 리스너 호출이 발생하지 않는다.
+        mSettingBinding.switchLockScreen.setOnCheckedChangeListener((compoundButton, b) ->
+                {
+                    // 장시간 미사용 핸들러 업데이트
+                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
-    private CompoundButton.OnCheckedChangeListener mLockScreenSwitchListener = new CompoundButton.OnCheckedChangeListener()
-    {
-        @Override
-        public void onCheckedChanged(CompoundButton compoundButton, boolean b)
-        {
-            if (compoundButton.getId() == R.id.switch_lock_screen)
-            {
-                LockScreen.setEnable(getContext(), b);
-            }
-        }
-    };
+                    ((MainActivity) requireActivity()).mLockScreen.setEnable(requireContext(), b);
+                }
+        );
+    }
 
     //
     // 고객지원 버튼 관련
@@ -91,11 +92,14 @@ public class SettingsFragment extends Fragment
         mSettingBinding.buttonManual.setOnClickListener(mSupportButtonClickListener);
     }
 
-    private View.OnClickListener mSupportButtonClickListener = new View.OnClickListener()
+    private final View.OnClickListener mSupportButtonClickListener = new View.OnClickListener()
     {
         @Override
         public void onClick(View view)
         {
+            // 장시간 미사용 핸들러 업데이트
+            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
             if (view.getId() == mSettingBinding.buttonManual.getId())
             {
                 ((MainActivity) requireActivity()).getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new ManualFragment()).commitAllowingStateLoss();
@@ -112,11 +116,14 @@ public class SettingsFragment extends Fragment
         mSettingBinding.buttonDevice.setOnClickListener(mManagementButtonClickListener);
     }
 
-    private View.OnClickListener mManagementButtonClickListener = new View.OnClickListener()
+    private final View.OnClickListener mManagementButtonClickListener = new View.OnClickListener()
     {
         @Override
         public void onClick(View view)
         {
+            // 장시간 미사용 핸들러 업데이트
+            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
             if (view.getId() == mSettingBinding.buttonUser.getId())
             {
                 ((MainActivity) requireActivity()).getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new UserFragment()).commitAllowingStateLoss();

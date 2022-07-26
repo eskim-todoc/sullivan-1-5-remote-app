@@ -1,85 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Application color palette -->
-    <color name="color_primary_level_0">#B8A2CF</color>
-    <color name="color_primary_level_1">#9988BD</color>
-    <color name="color_primary_level_3">#62569F</color>
-    <color name="color_primary_level_4">#392F6C</color>
-    <color name="color_primary_level_5">#251E4D</color>
-    <color name="color_primary_level_6">#161031</color>
+    <color name="black_100">#FF000000</color>
+    <color name="black_90">#FF191919</color>
+    <color name="black_80">#FF333333</color>
+    <color name="black_70">#FF4C4C4C</color>
+    <color name="black_60">#FF666666</color>
+    <color name="black_50">#FF7F7F7F</color>
+    <color name="black_40">#FF999999</color>
+    <color name="black_30">#FFB2B2B2</color>
+    <color name="black_20">#FFCCCCCC</color>
+    <color name="black_10">#FFE5E5E5</color>
 
-    <color name="color_accent_level_0">#BCC8C4</color>
-    <color name="color_accent_level_1">#6D8273</color>
-    <color name="color_accent_level_2">#2B4A3F</color>
-    <color name="color_accent_level_3">#0E2D23</color>
+    <color name="white_100">#FFFFFFFF</color>
+    <color name="white_90">#FFE5E5E5</color>
+    <color name="white_80">#FFCCCCCC</color>
+    <color name="white_70">#FFB2B2B2</color>
+    <color name="white_60">#FF999999</color>
+    <color name="white_50">#FF7F7F7F</color>
+    <color name="white_40">#FF666666</color>
+    <color name="white_30">#FF4C4C4C</color>
+    <color name="white_20">#FF333333</color>
+    <color name="white_10">#FF191919</color>
 
-    <!-- Base colors -->
-    <color name="color_primary">#6200EE</color>
-    <color name="color_primary_variant">#3700B3</color>
-    <color name="color_secondary">#03DAC6</color>
-    <color name="color_secondary_variant">#018786</color>
-    <color name="color_background">#FFFFFF</color>
-    <color name="color_surface">#FFFFFF</color>
-    <color name="color_error">#B00020</color>
-    <color name="color_on_primary">#FFFFFF</color>
-    <color name="color_on_secondary">#000000</color>
-    <color name="color_on_background">#000000</color>
-    <color name="color_on_surface">#000000</color>
-    <color name="color_on_error">#FFFFFF</color>
-    <!--
-    <color name="color_primary">#BB86FC</color>
-    <color name="color_primary_variant">#3700B3</color>
-    <color name="color_secondary">#03DAC6</color>
-    <color name="color_secondary_variant">#03DAC6</color>
-    <color name="color_background">#121212</color>
-    <color name="color_surface">#121212</color>
-    <color name="color_error">#CF6679</color>
-    <color name="color_on_primary">#000000</color>
-    <color name="color_on_secondary">#000000</color>
-    <color name="color_on_background">#FFFFFF</color>
-    <color name="color_on_surface">#FFFFFF</color>
-    <color name="color_on_error">#000000</color>
-    -->
+    <color name="accent_100">#009688</color>
+    <color name="accent_90">#0F968A</color>
+    <color name="accent_80">#1E968B</color>
+    <color name="accent_70">#2D968D</color>
+    <color name="accent_60">#3C968E</color>
+    <color name="accent_50">#4B968F</color>
+    <color name="accent_40">#5A9691</color>
+    <color name="accent_30">#699692</color>
+    <color name="accent_20">#789694</color>
+    <color name="accent_10">#879695</color>
 
-    <!-- Text colors -->
-    <color name="text_color_primary">#000000</color>
-    <color name="text_color_secondary">#ffffff</color>=
-    <!--
-    <color name="text_color_primary">#FFFFFF</color>
-    <color name="text_color_secondary">#121212</color>
-    -->
+    <color name="error_100">#EC407A</color>
+
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
 
-    <color name="color_status_bar">#1A237E</color>
-    <color name="color_bottom_navigation">#1A237E</color>
-
-    <!-- 줄 관련 -->
-    <color name="color_line_color">#444444</color>
-
-    <!-- 텍스트뷰 관련 -->
-    <color name="color_small_title_text_color">#888888</color>
-    <color name="color_medium_description_text_color">#888888</color>
-    <color name="color_medium_warning_text_color">#FF9800</color>
-    <color name="color_medium_error_text_color">#F44336</color>
-    <color name="color_home_device_name_text_color">#000000</color>
-    <color name="color_home_battery_value_text_color">#000000</color>
-    <color name="color_home_program_value_text_color">#000000</color>
-    <color name="color_home_sensitivity_and_volume_value_text_color">#000000</color>
-    <color name="color_device_list_value_text_color">#000000</color>
-    <color name="color_search_device_name_text_color">#000000</color>
-
-    <!-- 다이얼로그 관련 -->
-    <color name="color_dialog_positive_button_text_color">#3949AB</color>
-    <color name="color_dialog_negaitive_button_text_color">#FB8C00</color>
-
-    <!-- Fragment : Home -->
-    <color name="color_home_volume_sensitivity_button">#CDCDCD</color>
-    <color name="color_home_enabled_button_tint">#FFCA28</color>
-    <color name="color_home_disabled_button_tint">#444444</color>
-    <color name="color_home_cardview_title_text_view">#444444</color>
-    <color name="color_home_cardview_value_text_view">#111111</color>
-
-    <!-- Lock screen -->
-    <color name="lock_screen_forgot_password">#FF888888</color>
+    <color name="status_bar">@color/black_90</color>
+    <color name="toolbar_background">@color/black_80</color>
+    <color name="bottom_navigation">@color/black_90</color>
 </resources>

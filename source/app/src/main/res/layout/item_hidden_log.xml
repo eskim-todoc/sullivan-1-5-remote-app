@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/hidden_log_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="12-12-12 23:23:23.333"
+        android:textAlignment="textStart"
+        android:textColor="#DCDCDC"
+        android:textSize="12dp"
+        tools:text="12345678" />
+
+    <TextView
+        android:id="@+id/hidden_log_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textAlignment="textStart"
+        android:textColor="#F0F0F0"
+        android:textSize="14dp"
+        tools:text="12345678" />
+
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        app:dividerColor="#8C8C8C" />
+</LinearLayout>

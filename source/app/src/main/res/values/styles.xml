@@ -2,231 +2,164 @@
 <resources xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="app_theme" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <!-- Base colors -->
-        <item name="colorPrimary">@color/color_primary</item>
-        <item name="colorPrimaryVariant">@color/color_primary_variant</item>
-        <item name="colorSecondary">@color/color_secondary</item>
-        <item name="colorSecondaryVariant">@color/color_secondary_variant</item>
-        <item name="android:colorBackground">@color/color_background</item>
-        <item name="colorSurface">@color/color_surface</item>
-        <item name="colorError">@color/color_error</item>
-        <item name="colorOnPrimary">@color/color_on_primary</item>
-        <item name="colorOnSecondary">@color/color_on_secondary</item>
-        <item name="colorOnBackground">@color/color_on_background</item>
-        <item name="colorOnSurface">@color/color_on_surface</item>
-        <item name="colorOnError">@color/color_on_error</item>
-        <!-- Text colors -->
-        <item name="android:textColorPrimary">@color/color_primary</item>
-        <!-- Status bar -->
-        <item name="android:statusBarColor">@color/color_primary</item>
-        <!-- Navigation bar -->
-        <item name="android:navigationBarColor">@color/color_background</item>
+        <!-- 상태바 색상 -->
+        <item name="android:statusBarColor">@color/status_bar</item>
+        <!-- 하단 네비게이션바 색상 -->
+        <item name="android:navigationBarColor">@color/bottom_navigation</item>
+        <!-- 앱 폰트 설정 -->
+        <item name="android:fontFamily">@font/gothic_a1_regular</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="colorSurface">@color/white_90</item>
+        <item name="colorSecondary">@color/accent_70</item>
+        <item name="colorOnSurface">@color/white_70</item>
+        <item name="colorPrimary">@color/black_30</item>
+        <item name="colorOnPrimary">@color/accent_70</item>
+        <!-- 에디트텍스트 스타일 -->
+        <item name="textInputStyle">@style/Widget.App.TextInputLayout</item>
+        <!-- 다이얼로그 스타일 -->
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
     </style>
 
-    <style name="TextAppearance.RemoteControl.Default.Headline6" parent="TextAppearance.MaterialComponents.Headline6">
-        <item name="fontFamily">@font/nanum_gothic_regular</item>
-        <item name="android:fontFamily">@font/nanum_gothic_regular</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
+    <!-- 에디트 텍스트 스타일 -->
+    <style name="Widget.App.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.TextInputLayout</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</item>
+        <item name="hintTextColor">@color/accent_70</item>
+        <item name="helperTextTextAppearance">@style/TextAppearance.App.Caption</item>
+        <item name="helperTextTextColor">@color/white_70</item>
+        <item name="counterTextAppearance">@style/TextAppearance.App.Caption</item>
+        <item name="counterTextColor">@color/white_70</item>
+        <item name="errorTextAppearance">@style/TextAppearance.App.Caption</item>
+        <item name="errorTextColor">@color/error_100</item>
     </style>
 
-    <style name="TextAppearance.RemoteControl.Controller.Headline6" parent="TextAppearance.MaterialComponents.Headline6">
-        <item name="fontFamily">@font/poppins_regular</item>
-        <item name="android:fontFamily">@font/poppins_regular</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
-    </style>
-
-    <style name="lock_screen_number" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:textColor">?attr/colorOnBackground</item>
-        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline5
-        </item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:fontFamily">@font/poppins_regular</item>
-    </style>
-
-    <style name="lock_screen_circle">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginEnd">16dp</item>
-    </style>
-
-    <style name="lock_screen_dialog" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
-        <item name="android:fontFamily">@font/nanum_gothic_regular</item>
-    </style>
-
-    <style name="settings_lock_screen_switch" parent="@style/Widget.MaterialComponents.CompoundButton.Switch">
-        <item name="materialThemeOverlay">@style/settings_lock_screen_switch_overlay</item>
-        <item name="android:textColor">@color/color_on_background</item>
-        <item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginEnd">16dp</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">48dp</item>
-        <item name="android:gravity">center_vertical</item>
-    </style>
-
-    <style name="settings_lock_screen_switch_overlay">
-        <!--
-        <item name="colorSurface">@color/color_secondary</item>
-        <item name="colorOnSurface">@color/color_secondary_variant</item>
-        <item name="colorSecondary">@color/color_error</item>
-        -->
-        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
-        <item name="android:fontFamily">@font/nanum_gothic_regular</item>
-    </style>
-
-    <style name="settings_subject_textview">
-        <item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginEnd">16dp</item>
-        <item name="android:layout_height">28dp</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:fontFamily">@font/nanum_gothic_regular</item>
-        <item name="android:gravity">start|bottom</item>
-        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
-        <item name="android:textColor">@color/color_on_background</item>
-    </style>
-
-    <style name="settings_button" parent="@style/Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">48dp</item>
-        <item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginEnd">16dp</item>
-        <item name="android:fontFamily">@font/nanum_gothic_regular</item>
-        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
-        <item name="android:textColor">@color/color_on_background</item>
-    </style>
-
-    <style name="settings_divider">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">8dp</item>
-        <item name="android:layout_marginBottom">8dp</item>
-        <item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginEnd">16dp</item>
-    </style>
-
-    <style name="management_user_subject_textview">
-        <item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginEnd">16dp</item>
-        <item name="android:layout_height">28dp</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:fontFamily">@font/nanum_gothic_regular</item>
-        <item name="android:gravity">start|bottom</item>
-        <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
-        <item name="android:textColor">@color/color_secondary_variant</item>
-    </style>
-
-    <style name="add_user_divider">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">8dp</item>
-        <item name="android:layout_marginBottom">8dp</item>
-        <item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginEnd">16dp</item>
-    </style>
-
-    <!-- 툴바 테마 -->
-    <style name="MyToolbarPopupOverlay" parent="ThemeOverlay.AppCompat.Light">
-        <item name="iconTint">@color/black</item>
-        <item name="android:textColorSecondary">@color/black</item>
-        <item name="android:colorBackground">@color/white</item>
-    </style>
-
-    <!-- 경고 다이얼로그 테마 -->
-    <style name="MyAlertDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="android:textColorPrimary">#1E1E1E</item>
-        <item name="android:textColor">#1E1E1E</item>
-        <item name="android:colorAccent">#E91E63</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:buttonBarPositiveButtonStyle">@style/MyAlertDialogPositiveButtonTheme
-        </item>
-        <item name="android:buttonBarNegativeButtonStyle">@style/MyAlertDialogNegaitiveButtonTheme
+    <style name="ThemeOverlay.App.TextInputLayout" parent="">
+        <item name="colorPrimary">@color/accent_70</item>
+        <item name="colorSurface">@color/black_30</item>
+        <item name="colorOnSurface">@color/white_70</item>
+        <item name="android:textColorPrimary">@color/white_90</item>
+        <item name="colorError">@color/error_100</item>
+        <item name="textAppearanceSubtitle1">@style/TextAppearance.App.Subtitle1</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.App.Caption</item>
+        <item name="editTextStyle">@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox
         </item>
     </style>
 
-    <!-- 다이얼로그 긍정 버튼 테마 -->
-    <style name="MyAlertDialogPositiveButtonTheme" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="android:textColor">#E91E63</item>
-        <item name="android:textStyle">bold</item>
+    <!-- 이 녀석은 에디트텍스트와 다이얼로그에서 공통으로 사용함 -->
+    <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">cut</item>
+        <item name="cornerSize">2dp</item>
     </style>
 
-    <!-- 다이얼로그 부정 버튼 테마 -->
-    <style name="MyAlertDialogNegaitiveButtonTheme" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="android:textColor">#E91E63</item>
-        <item name="android:textStyle">bold</item>
+    <!-- 이 녀석은 에디트텍스트와 다이얼로그에서 공통으로 사용함 -->
+    <style name="TextAppearance.App.Subtitle1" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="android:textSize">16dp</item>
     </style>
 
-    <!-- 사용자 관리 화면 주제 텍스트 테마 -->
-    <style name="ManagementUserSubjectTextviewTheme" parent="Widget.AppCompat.TextView">
-        <item name="fontFamily">@font_app_font</item>
-        <item name="android:padding">16dp</item>
-        <item name="android:textColor">@android:color/black</item>
-        <item name="android:textSize">18dp</item>
-        <item name="android:textStyle">bold</item>
+    <style name="TextAppearance.App.Caption" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">12dp</item>
+    </style>
+
+    <style name="TextAppearance.App.Body2" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:textSize">14dp</item>
+    </style>
+
+    <!-- 다이얼로그 스타일 -->
+    <style name="ThemeOverlay.App.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="colorPrimary">@color/accent_70</item>
+        <item name="colorSecondary">@color/error_100</item>
+        <item name="colorSurface">@color/black_10</item>
+        <item name="colorOnSurface">@color/black_90</item>
+        <item name="alertDialogStyle">@style/MaterialAlertDialog.App</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialog.App.Title.Text
+        </item>
+        <item name="materialAlertDialogBodyTextStyle">@style/MaterialAlertDialog.App.Body.Text
+        </item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.App.PositiveButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.App.NegativeButton</item>
+        <item name="checkedTextViewStyle">@style/MaterialAlertDialog.App.CheckedTextView</item>
+    </style>
+
+    <style name="MaterialAlertDialog.App.CheckedTextView" parent="@style/Widget.MaterialComponents.CheckedTextView">
+        <item name="android:textColor">@color/black_90</item>
+        <item name="android:textSize">14dp</item>
+    </style>
+
+    <style name="MaterialAlertDialog.App" parent="MaterialAlertDialog.MaterialComponents">
+        <item name="shapeAppearance">@style/ShapeAppearance.App.MediumComponent</item>
+    </style>
+
+    <style name="MaterialAlertDialog.App.Title.Text" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
+        <item name="android:textColor">@color/black_90</item>
+        <item name="android:textSize">16dp</item>
+    </style>
+
+    <style name="MaterialAlertDialog.App.Body.Text" parent="">
+        <item name="android:textColor">@color/black_90</item>
+        <item name="android:lineSpacingMultiplier">1.2</item>
+        <item name="android:textSize">14dp</item>
+    </style>
+
+    <style name="Widget.App.PositiveButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Button.PositiveTextButton</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</item>
+    </style>
+
+    <style name="Widget.App.NegativeButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Button.NegativeTextButton</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</item>
+    </style>
+
+    <style name="ThemeOverlay.App.Button.PositiveTextButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="colorPrimary">@color/black_90</item>
+    </style>
+
+    <style name="ThemeOverlay.App.Button.NegativeTextButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="colorPrimary">@color/error_100</item>
+    </style>
+
+    <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">cut</item>
+        <item name="cornerSize">2dp</item>
+    </style>
+
+    <!-- 잠금화면 번호 스타일 -->
+    <style name="RemoteControl.LockScreen.NumberText" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/white_90</item>
+        <item name="android:textSize">24dp</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@drawable/management_user_table_subject_background</item>
-        <item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginTop">8dp</item>
-        <item name="android:gravity">center</item>
-        <item name="android:layout_marginBottom">8dp</item>
     </style>
 
-    <!-- 사용자 관리 화면 값 레이아웃 테마 -->
-    <style name="ManagementUserValueTextviewTheme">
-        <item name="android:layout_marginEnd">16dp</item>
-        <item name="android:layout_marginTop">8dp</item>
-        <item name="android:layout_marginBottom">8dp</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:orientation">horizontal</item>
-        <item name="android:background">@drawable/management_user_table_value_background</item>
+    <!-- 잠금화면 번호 스타일 -->
+    <style name="RemoteControl.LockScreen.CircleImage" parent="">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
     </style>
 
-    <!-- 앱 잠금화면 관련 -->
-    <style name="AppLockPasswordTextViewTheme">
+    <!-- 리모컨 화면 동그란 (ON/OFF) 이미지 버튼 -->
+    <style name="RemoteControl.RemoteControl.CircleButton" parent="">
         <item name="android:layout_width">56dp</item>
-        <item name="android:layout_height">64dp</item>
-        <item name="android:layout_marginStart">8dp</item>
-        <item name="android:layout_marginEnd">8dp</item>
-        <item name="android:background">@drawable/applock_password_textview_background</item>
-        <item name="android:fontFamily">@font/applock_font</item>
-        <item name="android:gravity">center</item>
-        <item name="android:paddingBottom">8dp</item>
-        <item name="android:textColor">#004D40</item>
-        <item name="android:textSize">28dp</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="AppLockScreenTableRowTheme">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_weight">1</item>
-        <item name="android:orientation">horizontal</item>
-    </style>
-
-    <style name="AppLockScreenNumButtonTheme" parent="Widget.AppCompat.Button">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_weight">1</item>
-        <item name="android:background">@android:color/transparent</item>
-        <item name="android:fontFamily">@font/applock_font</item>
-        <item name="android:textColor">@drawable/app_lock_number_text_selector</item>
-        <item name="android:textSize">22dp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:onClick">onClickPassNumClicked</item>
-    </style>
-
-    <style name="AppLockScreenDelImageButtonTheme" parent="Widget.AppCompat.ImageButton">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_weight">1</item>
-        <item name="android:background">@android:color/transparent</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:elevation">4dp</item>
         <item name="android:scaleType">center</item>
-        <item name="android:src">@drawable/ic_round_backspace_24</item>
-        <item name="android:onClick">onClickPassNumDelete</item>
+        <item name="android:background">
+            @drawable/remote_control_ic_ripple_circle_background
+        </item>
+        <!--
+        <item name="tint">@color/color_on_primary</item>
+        -->
     </style>
+    <!--
+    * ****************************************************************************************************
+    * ****************************************************************************************************
+    * ****************************************************************************************************
+    * ****************************************************************************************************
+    -->
+
+    <!-- 기타 -->
 </resources>

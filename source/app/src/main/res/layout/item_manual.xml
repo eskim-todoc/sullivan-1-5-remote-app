@@ -13,7 +13,10 @@
         android:scaleType="fitXY"
         tools:src="@drawable/guide_1_title" />
 
-    <HorizontalScrollView style="@style/manual_screen_item_horizontal_scrollview">
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="420dp"
+        android:overScrollMode="never">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -30,5 +33,9 @@
         </LinearLayout>
     </HorizontalScrollView>
 
-    <com.google.android.material.divider.MaterialDivider style="@style/manual_screen_item_divider" />
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp" />
 </LinearLayout>

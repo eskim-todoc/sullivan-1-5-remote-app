@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -17,8 +18,8 @@ import todoc.cochlear.remoteapp.fragment.UserFragment;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder>
 {
-    private ArrayList<EntityUser> mItems;
-    private UserFragment mUserFragment;
+    private final ArrayList<EntityUser> mItems;
+    private final UserFragment mUserFragment;
 
     public UserAdapter(UserFragment fragment)
     {
@@ -71,6 +72,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder>
         int position;
         TextView nameTv;
         TextView earTv;
+        TextView nicknameTv;
         ImageView defaultUserIv;
 
         public ViewHolder(@NonNull View itemView)
@@ -80,13 +82,17 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder>
             defaultUserIv = itemView.findViewById(R.id.default_image);
             nameTv = itemView.findViewById(R.id.name);
             earTv = itemView.findViewById(R.id.ear);
+            nicknameTv = itemView.findViewById(R.id.nickname);
 
-            itemView.setOnClickListener(new View.OnClickListener()
+            itemView.setOnClickListener(view ->
             {
-                @Override
-                public void onClick(View view)
+                int position = getAdapterPosition();
+                if (mItems.get(position).defaultUser.equals(EntityUser.USER_DEFAULT))
                 {
-                    int position = getAdapterPosition();
+                    mUserFragment.mDefaultItemClickListener(position);
+                }
+                else
+                {
                     mUserFragment.mItemClickListener(position);
                 }
             });
@@ -98,11 +104,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder>
 
             if (item.defaultUser.equals(EntityUser.USER_DEFAULT))
             {
-                defaultUserIv.setVisibility(View.VISIBLE);
+                //defaultUserIv.setVisibility(View.VISIBLE);
+                defaultUserIv.setImageDrawable(AppCompatResources.getDrawable(mUserFragment.requireContext(), R.drawable.item_user_ic_default_person_40dp));
             }
             else
             {
-                defaultUserIv.setVisibility(View.INVISIBLE);
+                //defaultUserIv.setVisibility(View.INVISIBLE);
+                defaultUserIv.setImageDrawable(AppCompatResources.getDrawable(mUserFragment.requireContext(), R.drawable.item_user_ic_person_40dp));
             }
 
             nameTv.setText(item.name);
@@ -115,6 +123,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder>
             {
                 earTv.setText("오른쪽");
             }
+
+            nicknameTv.setText(item.nickname);
         }
     }
 }

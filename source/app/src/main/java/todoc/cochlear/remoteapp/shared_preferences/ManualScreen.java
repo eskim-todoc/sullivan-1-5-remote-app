@@ -7,7 +7,7 @@ public class ManualScreen
     static private final String SHARED_PREFERENCES_NAME = "MANUAL_SCREEN";
     static private final String KEY_FOR_ENABLE = "ENABLE";
 
-    private Context mContext;
+    private final Context mContext;
 
     public ManualScreen(Context context)
     {

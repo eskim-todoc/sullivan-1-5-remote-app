@@ -2,72 +2,91 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/color_primary"
+        android:background="@color/black_70"
+        android:padding="16dp"
         tools:context="todoc.cochlear.remoteapp.fragment.SettingsFragment">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:orientation="vertical">
 
             <TextView
-                style="@style/settings_subject_textview"
-                android:layout_marginTop="0dp"
-                android:text="@string/settings_subject_security" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="보안"
+                android:textColor="@color/white_70"
+                android:textSize="14dp" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switch_lock_screen"
-                style="@style/settings_lock_screen_switch"
-                android:text="@string/settings_switch_lock_screen" />
-
-            <com.google.android.material.divider.MaterialDivider style="@style/settings_divider" />
-
-            <TextView
-                style="@style/settings_subject_textview"
-                android:text="@string/settings_subject_features" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/switch_auto_connection"
-                style="@style/settings_lock_screen_switch"
-                android:text="@string/settings_switch_auto_connection" />
-
-            <com.google.android.material.divider.MaterialDivider style="@style/settings_divider" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
+                android:text="화면 잠금"
+                android:textColor="@color/white_90"
+                android:textSize="14dp"
+                app:switchMinWidth="56dp" />
 
             <TextView
-                style="@style/settings_subject_textview"
-                android:text="@string/settings_subject_management" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="등록관리"
+                android:textColor="@color/white_70"
+                android:textSize="14dp" />
 
             <Button
                 android:id="@+id/button_user"
-                style="@style/settings_button"
+                style="@style/Widget.MaterialComponents.Button.Icon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
                 android:text="@string/settings_button_user"
-                app:strokeColor="@color/color_secondary_variant" />
+                android:textAlignment="textStart"
+                android:textColor="@color/black_90"
+                android:textSize="14dp"
+                app:icon="@drawable/settings_ic_arrow_24dp"
+                app:iconGravity="end"
+                app:iconTint="@color/black_90" />
 
             <Button
                 android:id="@+id/button_device"
-                style="@style/settings_button"
+                style="@style/Widget.MaterialComponents.Button.Icon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
                 android:text="@string/settings_button_device"
-                app:strokeColor="@color/color_secondary_variant" />
-
-            <com.google.android.material.divider.MaterialDivider style="@style/settings_divider" />
+                android:textAlignment="textStart"
+                android:textColor="@color/black_90"
+                android:textSize="14dp"
+                app:icon="@drawable/settings_ic_arrow_24dp"
+                app:iconGravity="end"
+                app:iconTint="@color/black_90" />
 
             <TextView
-                style="@style/settings_subject_textview"
-                android:text="@string/settings_subject_support" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="고객지원"
+                android:textColor="@color/white_70"
+                android:textSize="14dp" />
 
             <Button
                 android:id="@+id/button_manual"
-                style="@style/settings_button"
+                style="@style/Widget.MaterialComponents.Button.Icon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:text="@string/settings_button_manual"
-                app:strokeColor="@color/color_secondary_variant" />
-
-            <com.google.android.material.divider.MaterialDivider style="@style/settings_divider" />
+                android:minHeight="56dp"
+                android:textAlignment="textStart"
+                android:textColor="@color/black_90"
+                app:icon="@drawable/settings_ic_arrow_24dp"
+                app:iconGravity="end"
+                app:iconTint="@color/black_90" />
         </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 </layout>

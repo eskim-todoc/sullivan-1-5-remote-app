@@ -6,45 +6,65 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/color_primary"
-        android:orientation="vertical"
+        android:background="@color/black_70"
         tools:context="todoc.cochlear.remoteapp.fragment.UserFragment">
 
         <LinearLayout
-            android:id="@+id/registered_user_layout"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:padding="16dp">
 
             <TextView
-                android:id="@+id/title"
-                style="@style/management_user_subject_textview"
-                android:text="목록" />
+                android:id="@+id/default_user_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="기본 사용자"
+                android:textColor="@color/white_70"
+                android:textSize="14dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/default_user_recyclerview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:overScrollMode="never"
+                android:scrollbars="none"
+                tools:itemCount="1"
+                tools:listitem="@layout/item_user" />
+
+            <TextView
+                android:id="@+id/user_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="등록된 사용자"
+                android:textColor="@color/white_70"
+                android:textSize="14dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/user_recyclerview"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
                 android:layout_weight="1"
                 android:overScrollMode="never"
                 android:scrollbars="none"
                 tools:listitem="@layout/item_user" />
+
+
         </LinearLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/add_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="@color/black_30"
+            android:elevation="8dp"
+            android:src="@drawable/fab_ic_add_24dp"
+            app:borderWidth="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/settings_ic_plus_24dp" />
+            app:rippleColor="@color/accent_70" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -6,6 +6,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/white_100"
         tools:context=".MainActivity">
 
         <!-- Main screen -->
@@ -29,11 +30,10 @@
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
-                    app:titleTextColor="@color/color_on_primary"
                     android:layout_height="?attr/actionBarSize"
-                    android:fontFamily="@font/b612_mono_regular"
                     app:menu="@menu/toolbar"
-                    app:navigationIcon="@drawable/toolbar_ic_back_arrow_24dp" />
+                    app:navigationIcon="@drawable/toolbar_ic_back_arrow_24dp"
+                    app:titleTextColor="@color/white_90" />
             </com.google.android.material.appbar.AppBarLayout>
 
             <FrameLayout
@@ -45,59 +45,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/appbar" />
 
-            <!-- 장시간 미사용 시 자동 잠금 화면 -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/main_long_time_idle_layout"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:background="#B3000000"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/white"
-                    android:padding="24dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <TextView
-                        android:id="@+id/main_long_time_idle_desc"
-                        android:layout_width="240dp"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/app_font"
-                        android:text="장시간 미사용으로 인해 앱이 절전모드로 진입하였습니다.\n아래 절전모드 해제 버튼을 누르시면 앱이 다시 동작합니다."
-                        android:textColor="@android:color/black"
-                        android:textSize="16sp"
-                        app:layout_constraintBottom_toTopOf="@+id/main_long_time_idle_button"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <Button
-                        android:id="@+id/main_long_time_idle_button"
-                        style="@style/Widget.AppCompat.Button.Borderless"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:fontFamily="@font/app_font"
-                        android:padding="12dp"
-                        android:text="절전모드 해제"
-                        android:textColor="#004D40"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/main_long_time_idle_desc" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Lock screen -->
@@ -105,12 +52,25 @@
             android:id="@+id/lock_screen"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="?android:colorBackground"
+            android:background="@color/black_70"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:alpha="0.5"
+                android:scaleType="centerInside"
+                android:src="@drawable/lock_screen_background_image"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/lock_screen_guide"
@@ -123,10 +83,9 @@
                 android:id="@+id/lock_screen_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/nanum_gothic_regular"
                 android:text="암호 입력"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-                android:textColor="?attr/colorOnBackground"
+                android:textColor="@color/white_90"
+                android:textSize="24dp"
                 app:layout_constraintBottom_toTopOf="@id/lock_screen_info"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -139,10 +98,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/nanum_gothic_regular"
                 android:text="리모컨 앱 암호를 입력해주세요."
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                android:textColor="?attr/colorOnBackground"
+                android:textColor="@color/white_70"
+                android:textSize="14dp"
                 app:layout_constraintBottom_toTopOf="@id/circle_layout"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -163,28 +121,28 @@
 
                 <ImageView
                     android:id="@+id/lock_screen_circle_0"
-                    style="@style/lock_screen_circle"
+                    style="@style/RemoteControl.LockScreen.CircleImage"
                     android:src="@drawable/lock_screen_ic_circle_empty_16dp" />
 
                 <ImageView
                     android:id="@+id/lock_screen_circle_1"
-                    style="@style/lock_screen_circle"
+                    style="@style/RemoteControl.LockScreen.CircleImage"
                     android:src="@drawable/lock_screen_ic_circle_empty_16dp" />
 
                 <ImageView
                     android:id="@+id/lock_screen_circle_2"
-                    style="@style/lock_screen_circle"
+                    style="@style/RemoteControl.LockScreen.CircleImage"
                     android:src="@drawable/lock_screen_ic_circle_empty_16dp" />
 
                 <ImageView
                     android:id="@+id/lock_screen_circle_3"
-                    style="@style/lock_screen_circle"
+                    style="@style/RemoteControl.LockScreen.CircleImage"
                     android:src="@drawable/lock_screen_ic_circle_empty_16dp" />
             </LinearLayout>
 
             <Button
                 android:id="@+id/lock_screen_number_1"
-                style="@style/lock_screen_number"
+                style="@style/RemoteControl.LockScreen.NumberText"
                 android:onClick="onLockScreenNumberClickedListener"
                 android:text="@string/lock_screen_number_1"
                 app:layout_constraintBottom_toBottomOf="@id/lock_screen_number_2"
@@ -195,7 +153,7 @@
 
             <Button
                 android:id="@+id/lock_screen_number_2"
-                style="@style/lock_screen_number"
+                style="@style/RemoteControl.LockScreen.NumberText"
                 android:onClick="onLockScreenNumberClickedListener"
                 android:text="@string/lock_screen_number_2"
                 app:layout_constraintBottom_toTopOf="@id/lock_screen_number_5"
@@ -207,7 +165,7 @@
 
             <Button
                 android:id="@+id/lock_screen_number_3"
-                style="@style/lock_screen_number"
+                style="@style/RemoteControl.LockScreen.NumberText"
                 android:onClick="onLockScreenNumberClickedListener"
                 android:text="@string/lock_screen_number_3"
                 app:layout_constraintBottom_toBottomOf="@id/lock_screen_number_2"
@@ -218,7 +176,7 @@
 
             <Button
                 android:id="@+id/lock_screen_number_4"
-                style="@style/lock_screen_number"
+                style="@style/RemoteControl.LockScreen.NumberText"
                 android:onClick="onLockScreenNumberClickedListener"
                 android:text="@string/lock_screen_number_4"
                 app:layout_constraintBottom_toBottomOf="@id/lock_screen_number_5"
@@ -229,7 +187,7 @@
 
             <Button
                 android:id="@+id/lock_screen_number_5"
-                style="@style/lock_screen_number"
+                style="@style/RemoteControl.LockScreen.NumberText"
                 android:onClick="onLockScreenNumberClickedListener"
                 android:text="@string/lock_screen_number_5"
                 app:layout_constraintBottom_toTopOf="@id/lock_screen_number_8"
@@ -240,7 +198,7 @@
 
             <Button
                 android:id="@+id/lock_screen_number_6"
-                style="@style/lock_screen_number"
+                style="@style/RemoteControl.LockScreen.NumberText"
                 android:onClick="onLockScreenNumberClickedListener"
                 android:text="@string/lock_screen_number_6"
                 app:layout_constraintBottom_toBottomOf="@id/lock_screen_number_5"
@@ -251,7 +209,7 @@
 
             <Button
                 android:id="@+id/lock_screen_number_7"
-                style="@style/lock_screen_number"
+                style="@style/RemoteControl.LockScreen.NumberText"
                 android:onClick="onLockScreenNumberClickedListener"
                 android:text="@string/lock_screen_number_7"
                 app:layout_constraintBottom_toBottomOf="@id/lock_screen_number_8"
@@ -262,7 +220,7 @@
 
             <Button
                 android:id="@+id/lock_screen_number_8"
-                style="@style/lock_screen_number"
+                style="@style/RemoteControl.LockScreen.NumberText"
                 android:onClick="onLockScreenNumberClickedListener"
                 android:text="@string/lock_screen_number_8"
                 app:layout_constraintBottom_toTopOf="@id/lock_screen_number_0"
@@ -273,7 +231,7 @@
 
             <Button
                 android:id="@+id/lock_screen_number_9"
-                style="@style/lock_screen_number"
+                style="@style/RemoteControl.LockScreen.NumberText"
                 android:onClick="onLockScreenNumberClickedListener"
                 android:text="@string/lock_screen_number_9"
                 app:layout_constraintBottom_toBottomOf="@id/lock_screen_number_8"
@@ -284,7 +242,7 @@
 
             <Button
                 android:id="@+id/lock_screen_number_0"
-                style="@style/lock_screen_number"
+                style="@style/RemoteControl.LockScreen.NumberText"
                 android:layout_marginBottom="8dp"
                 android:onClick="onLockScreenNumberClickedListener"
                 android:text="@string/lock_screen_number_0"
@@ -315,12 +273,11 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="24dp"
                 android:clickable="true"
-                android:fontFamily="@font/noto_sans_korean_regular"
                 android:onClick="onLockScreenForgetPasswordClickedListener"
                 android:text="@string/lock_screen_forgot_password"
                 android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-                android:textColor="?attr/colorOnBackground"
+                android:textColor="@color/white_70"
+                android:textSize="12dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

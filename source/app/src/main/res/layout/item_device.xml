@@ -1,45 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="80dp">
+    android:background="@color/black_70"
+    android:minHeight="96dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
+
+    <ImageView
+        android:id="@+id/device_image"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/item_device_ic_device_40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/serial"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
-        android:fontFamily="@font/nanum_gothic_regular"
-        android:text="A1B2"
+        android:layout_marginStart="16dp"
+        android:text=""
         android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-        android:textColor="@color/color_secondary"
+        android:textColor="@color/white_90"
+        android:textSize="18dp"
         app:layout_constraintBottom_toTopOf="@id/option"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/device_image"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="A1B2" />
 
     <TextView
         android:id="@+id/option"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
-        android:fontFamily="@font/nanum_gothic_regular"
-        android:text="홍길동"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-        android:textColor="@color/color_secondary_variant"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@id/serial"
-        app:layout_constraintTop_toBottomOf="@id/serial" />
-
-    <com.google.android.material.divider.MaterialDivider
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
+        android:text=""
+        android:textColor="@color/white_80"
+        android:textSize="14dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="@id/serial"
+        app:layout_constraintTop_toBottomOf="@id/serial"
+        tools:text="길동이꺼" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

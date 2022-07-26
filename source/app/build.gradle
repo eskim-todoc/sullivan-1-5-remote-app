@@ -8,7 +8,7 @@ android {
     defaultConfig {
         applicationId "todoc.cochlear.remoteapp.activity"
         minSdkVersion 23
-        targetSdkVersion 30
+        targetSdkVersion 32
         versionCode 1
         versionName "1.0"
 

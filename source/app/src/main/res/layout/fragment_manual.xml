@@ -5,25 +5,33 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/color_primary"
+        android:background="@color/black_70"
         android:orientation="vertical"
+        android:padding="16dp"
         tools:context="todoc.cochlear.remoteapp.fragment.ManualFragment">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/manual_recyclerview"
-            style="@style/manual_screen_recyclerview">
-
-        </androidx.recyclerview.widget.RecyclerView>
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:overScrollMode="never" />
 
         <com.google.android.material.checkbox.MaterialCheckBox
             android:id="@+id/enable_checkbox"
-            style="@style/manual_screen_checkbox"
-            android:text="@string/manual_screen_checkbox" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="56dp"
+            android:text="@string/manual_screen_checkbox"
+            android:textColor="@color/white_90"
+            android:textSize="14dp"
+            app:switchMinWidth="56dp" />
 
         <Button
             android:id="@+id/manual_close_button"
-            style="@style/manual_screen_button"
-            android:text="@string/manual_screen_button" />
-
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/manual_screen_button"
+            android:visibility="gone" />
     </LinearLayout>
 </layout>

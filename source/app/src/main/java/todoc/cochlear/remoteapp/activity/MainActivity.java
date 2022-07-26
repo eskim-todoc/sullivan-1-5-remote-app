@@ -1,7 +1,7 @@
 package todoc.cochlear.remoteapp.activity;
 
 import android.Manifest;
-import android.app.AlertDialog;
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -16,231 +16,209 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelUuid;
 import android.os.Vibrator;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.room.Room;
-import androidx.room.RoomDatabase;
-import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
-import todoc.cochlear.remoteapp.bluetooth.BtUtils;
-import todoc.cochlear.remoteapp.bluetooth.MyBluetooth;
-import todoc.cochlear.remoteapp.database.Device;
-import todoc.cochlear.remoteapp.database.devices.DatabaseDevices;
 import todoc.cochlear.remoteapp.database.devices.EntityDevice;
-import todoc.cochlear.remoteapp.database.users.DatabaseUsers;
+import todoc.cochlear.remoteapp.database.devices.UtilDevice;
 import todoc.cochlear.remoteapp.database.users.EntityUser;
+import todoc.cochlear.remoteapp.database.users.UtilUser;
 import todoc.cochlear.remoteapp.fragment.AddDeviceFragment;
 import todoc.cochlear.remoteapp.fragment.AddUserFragment;
 import todoc.cochlear.remoteapp.fragment.DeviceFragment;
 import todoc.cochlear.remoteapp.fragment.EditDeviceFragment;
 import todoc.cochlear.remoteapp.fragment.EditUserFragment;
-import todoc.cochlear.remoteapp.fragment.HomeFragment;
+import todoc.cochlear.remoteapp.fragment.LogFragment;
 import todoc.cochlear.remoteapp.fragment.ManualFragment;
-import todoc.cochlear.remoteapp.fragment.PasswordFragment;
 import todoc.cochlear.remoteapp.fragment.RemoteControlFragment;
 import todoc.cochlear.remoteapp.fragment.SettingsFragment;
 import todoc.cochlear.remoteapp.fragment.UserFragment;
-import todoc.cochlear.remoteapp.logging.LoggingUtils;
-import todoc.cochlear.remoteapp.params.ActionMessage;
-import todoc.cochlear.remoteapp.params.AppParam;
-import todoc.cochlear.remoteapp.params.DeviceParam;
-import todoc.cochlear.remoteapp.service.TerminationService;
+import todoc.cochlear.remoteapp.database.logs.UtilLog;
+import todoc.cochlear.remoteapp.params.Status;
+import todoc.cochlear.remoteapp.params.PacketInfo;
+import todoc.cochlear.remoteapp.service.ExitCaptureService;
 import todoc.cochlear.remoteapp.shared_preferences.LockScreen;
 import todoc.cochlear.remoteapp.shared_preferences.ManualScreen;
-import todoc.cochlear.remoteapp.view_model.BleViewModel;
 import todoc.cochlear.remoteapp.view_model.StatusViewModel;
 
 public class MainActivity extends AppCompatActivity
 {
-    private static final String TAG = "TD2_" + MainActivity.class.getSimpleName();
+    private static final String TAG = "TODOC_" + MainActivity.class.getSimpleName();
 
-    private static final int REQUEST_CODE_BLUETOOTH_ENABLE = 1;
-    private static final int REQUEST_PERMISSION_FINE_LOCATION = 100;
+    private static final int REQUEST_PERMISSION_CODE_NUMBER = 100;
 
-    public static final ParcelUuid BLE_ADVERTISING_SERVICE_UUID = new ParcelUuid(UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e"));
+    static private final String BT_NAME_REGEX_FILTER = "^TD_.*$";
     public static final UUID BLE_UUID_SERVICE = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
+    public static final UUID BLE_UUID_DESCRIPTION_CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
     public static final UUID BLE_UUID_CHARACTERISTIC_CLIENT_TO_SERVER = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
     public static final UUID BLE_UUID_CHARACTERISTIC_SERVER_TO_CLIENT = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
+    static private final ParcelUuid SERVICE_DATA_UUID = new ParcelUuid(UUID.fromString("00004944-0000-1000-8000-00805F9B34FB"));
 
-    static private String BT_NAME_REGEX_FILTER = "^TD_.*$";
-    static private ParcelUuid SERVICE_DATA_UUID = new ParcelUuid(UUID.fromString("00004944-0000-1000-8000-00805F9B34FB"));
-    public static final UUID BLE_UUID_SCAN_RSP = UUID.fromString("00004944-0000-1000-8000-00805F9B34FB");
-
-    //public static final ParcelUuid BLE_ADVERTISING_SERVICE_UUID = new ParcelUuid(UUID.fromString("6f400001-b5a3-f393-e0a9-e50e24dcca9e"));
-    //public static final UUID BLE_UUID_SERVICE = UUID.fromString("6f400001-b5a3-f393-e0a9-e50e24dcca9e");
-    //public static final UUID BLE_UUID_CHARACTERISTIC_CLIENT_TO_SERVER = UUID.fromString("6f400002-b5a3-f393-e0a9-e50e24dcca9e");
-    //public static final UUID BLE_UUID_CHARACTERISTIC_SERVER_TO_CLIENT = UUID.fromString("6f400003-b5a3-f393-e0a9-e50e24dcca9e");
-
-    public static final UUID BLE_UUID_DESCRIPTION_CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
-
-    private static final int DELAY_IN_MS_FOR_BLUETOOTH_LE_SCANNER = 15000;
-    private static final int DELAY_IN_MS_FOR_DISCOVER_SERVICES_TIMEOUT = 2000;
-    private static final int DELAY_IN_MS_FOR_SEND_PACKET = 50;
     private static final int DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT = 500;
-    private static final int DELAY_IN_MS_FOR_BATTERY_CHECKING = 30000;
 
-    //private static final int DELAY_IN_MS_FOR_LONG_TIME_IDLE = 10000; // 10 seconds.
-    private static final int DELAY_IN_MS_FOR_LONG_TIME_IDLE = 600000; // 10 minutes.
-
-    public static final byte PACKET_HEADER_PASSWORD = (byte) (0x40 & 0xff);
-    public static final byte PACKET_HEADER_SOUND_PROCESSOR_INFO = (byte) (0x41 & 0xff);
-    public static final byte PACKET_HEADER_SOUND_PROCESSOR_STATUS = (byte) (0x42 & 0xff);
-    public static final byte PACKET_HEADER_VALUE_PROMGRAM = (byte) (0x43 & 0xff);
-    public static final byte PACKET_HEADER_VALUE_SENSITIVITY = (byte) (0x44 & 0xff);
-    public static final byte PACKET_HEADER_VALUE_VOLUME = (byte) (0x45 & 0xff);
-    public static final byte PACKET_HEADER_VALUE_TELECOIL = (byte) (0x46 & 0xff);
-    public static final byte PACKET_HEADER_VALUE_SIMULATION = (byte) (0x47 & 0xff);
-    public static final byte PACKET_HEADER_VALUE_LED = (byte) (0x48 & 0xff);
-
-    public static final byte PACKET_HEADER_MAP_INFO = (byte) (0x52 & 0xff);
-    public static final byte PACKET_HEADER_ISD_USER_NAME = (byte) (0x53 & 0xff);
-
-    //public static final byte PACKET_HEADER_VALUE_POWER_MODE = (byte) (0x99 & 0xff);
-    public static final byte PACKET_HEADER_VALUE_WARNNING = (byte) (0x4B & 0xff);
-    public static final byte PACKET_HEADER_ERROR = (byte) (0xf0 & 0xff);
+    static private final int LONG_TIME_IDLE_TIMEOUT_IN_MS = 600000;
+    private static final int CHECK_BATTERY_DELAY_IN_MS = 30000;
+    static private final int DISCOVER_SERVICES_TIMEOUT_IN_MS = 2000;
+    static private final int CCCD_TIMEOUT_IN_MS = 2000;
+    static private final int PASSWORD_TIMEOUT_IN_MS = 1000;
+    static private final int STATUS_TIMEOUT_IN_MS = 1000;
+    static private final int SEND_PACKET_DELAY_IN_MS = 50;
 
     // Bluetooth
+    public BluetoothGatt mBluetoothGatt;
     BluetoothManager mBluetoothManager;
     BluetoothAdapter mBluetoothAdapter;
     BluetoothLeScanner mBluetoothLeScanner;
     BluetoothDevice mBluetoothDevice;
-    public BluetoothGatt mBluetoothGatt;
     BluetoothGattService mBluetoothGattService;
     BluetoothGattCharacteristic mCharClientToServer;
     BluetoothGattCharacteristic mCharServerToClient;
 
+    // 뷰 바인딩
     public ActivityMainBinding mBinding;
 
+    // 잠금화면 관련
+    public LockScreen mLockScreen;
+
+    // 매뉴얼 화면 관련
     public ManualScreen mManualScreen;
 
-    public DatabaseUsers mDatabaseUsers;
-    public DatabaseDevices mDatabaseDevices;
-
-    private BleViewModel mBleViewModel;
+    // 뷰모델 관련
     private StatusViewModel mStatusViewModel;
 
+    // 사용자 전환 메뉴 버튼 관련
     private String[] mUserList;
     private int mCheckItem;
 
-    //
-    // Long time idle state handler
-    //
-    Handler longTimeIdleHandler = new Handler();
-
-    //
-    // Long time idle state runner
-    //
-    Runnable longTimeIdleRunner = new Runnable()
+    @Override
+    protected void onPause()
     {
-        @Override
-        public void run()
+        super.onPause();
+
+        // 화면이 가려질 때는 BLE 스캔 정지
+        if (Status.instance().scanState == Status.SCAN_STATE_STARTED)
         {
-            Log.d(TAG, "longTimeIdleRunner() called.");
-            AppParam.getInstance().longTimeIdle.setValue(true);
+            scanLe(false);
         }
-    };
-
-    //
-    // Long time idle handler updater
-    //
-    public void updateLongTimeIdleHandler()
-    {
-        Log.d(TAG, "updateLongTimeIdleHandler() called.");
-        //longTimeIdleHandler.removeCallbacks(longTimeIdleRunner);
-        //longTimeIdleHandler.postDelayed(longTimeIdleRunner, DELAY_IN_MS_FOR_LONG_TIME_IDLE);
     }
 
-    /**
-     * Callback - onDestroy
-     */
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        // 장시간 미사용 이벤트 핸들러 시작
+        Log.d(TAG, "액티비티 onResume() 상태이므로, 장시간 미사용 핸들러를 업데이트합니다.");
+        longTimeIdleHandlerUpdate(true);
+
+        if (Status.instance().lastDialog != null)
+        {
+            if (Status.instance().lastDialog.isShowing())
+            {
+                Status.instance().lastDialog.dismiss();
+            }
+        }
+
+        // Check lock screen password whether registered or not.
+        mLockScreen.resume();
+    }
+
     @Override
     protected void onDestroy()
     {
         super.onDestroy();
 
-        Log.d(TAG, "onDestroy() called.");
+        Log.d(TAG, "액티비티를 종료합니다. -> onDestroy()");
 
-        //
-        // 블루투스 핸들러 테스트
-        //
-        MyBluetooth.getInstance().uninit();
+        // 장시간 미사용 핸들러를 제거
+        longTimeIdleHandlerUpdate(false);
 
-        AppParam appParam = AppParam.getInstance();
-
-        AppParam.getInstance().willBeAppExit = true;
-
-        Log.d(TAG, "onDestroy : Unregister broadcast receiver.");
-        myUnregisterReceiver(); // Unregister broadcast receiver
-
-        // Close Database
-        if (appParam.database != null && appParam.database.isOpen())
+        // BLE가 연결된 상태인지 판별하고 사용자에 의한 연결해제로 연결해제를 진행.
+        if (Status.instance().connectionState != Status.CONNECTION_STATE_DISCONNECTED)
         {
-            Log.d(TAG, "onDestroy : Close database.");
-            appParam.database.close();
-            appParam.database = null;
+            if (Status.instance().connectionState != Status.CONNECTION_STATE_DISCONNECTING)
+            {
+                if (mBluetoothGatt != null)
+                {
+                    UtilLog.instance.writeLog("앱 종료 : 연결중인 장치이름=" + mBluetoothGatt.getDevice().getName());
+
+                    Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+                    mBluetoothGatt.disconnect();
+                }
+            }
         }
 
-        LoggingUtils.getInstance().closeLoggingDatabase(getApplicationContext()); // 로깅 데이터베이스 닫기.
-
-        //if (appParam.isTerminationServiceStarted)
-        //{
-        //Intent intent = new Intent(this, TerminationService.class);
-        //stopService(intent);
-        //}
-
-        if (appParam.isBleScanning)
+        // BLE 스캔 중이라면 스캔 정지.
+        if (Status.instance().scanState == Status.SCAN_STATE_STARTED)
         {
-            Log.d(TAG, "onDestroy : Stop BLE scanning.");
             scanLe(false);
         }
 
-        if (mBluetoothGatt != null && mBluetoothDevice != null && AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
+        // 강제 종료 포착 서비스가 동작중이면 서비스 정지.
+        if (Status.instance().exitCaptureState == Status.EXIT_CAPTURE_SERVICE_STATE_STARTED)
         {
-            Log.d(TAG, "onDestroy : Disconnect BLE connection.");
-            appParam.isDisconnectedByUser = true;
-            mBluetoothGatt.disconnect();
+            Intent intent = new Intent(this, ExitCaptureService.class);
+            stopService(intent);
+            Status.instance().exitCaptureState = Status.EXIT_CAPTURE_SERVICE_STATE_STOPPED;
         }
 
-        AppParam.getInstance().isAppLockState = true;
+        // 방송수신자 해제
+        appUnregisterReceiver(); // Unregister broadcast receiver
 
-        longTimeIdleHandler.removeCallbacks(longTimeIdleRunner); // Remove long time idle handler
+        // 데이터베이스 관련
+        UtilLog.instance.close(); // 히든 로그 데이터베이스 닫기.
+        UtilUser.instance.close(); // 사용자 데이터베이스 닫기.
+        UtilDevice.instance.close(); // 기기 데이터베이스 닫기.
+
+        // 모든 핸들러 제거하기
+        mLongTimeIdleHandler.removeCallbacks(mLongTimeIdleRunner); // 장시간 미사용 감지 핸들러 제거
+        mScanHandler.removeCallbacks(mScanRunner); // 스캔 핸들러 제거
+        mCheckBatteryHandler.removeCallbacks(mCheckBatteryRunner); // 배터리 체크 패킷 핸들러 제거
+        mDiscoverServicesHandler.removeCallbacks(mDiscoverServicesRunner); // 서비스 검색 핸들러 제거
+        mCCCDHandler.removeCallbacks(mCCCDRunner); // CCCD 설정 핸들러 제거
+        mPasswordHandler.removeCallbacks(mPasswordRunner); // 보안코드 인증 핸들러 제거
+        mStatusHandler.removeCallbacks(mStatusRunner); // 사운드처리기 상태 정보 획득 핸들러 제거
+        mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner); // 패킷 응답 시간 초과 핸들러 제거
+        mPacketSendHandler.removeCallbacks(mPacketSendRunner); // 패킷 전송 핸들러 제거
+
+        mStatusViewModel = null; // 뷰모델 객체 제거
+        mManualScreen = null; // 매뉴얼화면 객체 제거
+        mLockScreen = null; // 잠금화면 객체 제거
     }
 
-    /**
-     * Callback - onCreate
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -249,110 +227,67 @@ public class MainActivity extends AppCompatActivity
         View view = mBinding.getRoot();
         setContentView(view);
 
-        // Navigation bar color setting
-        getWindow().setNavigationBarColor(getColor(R.color.color_primary_variant));
+        Log.d(TAG, " \r\n*\r\n* *\r\n* * *\r\n* * * *\r\n* * * * *\r\n* * * * * *\r\n* * * * * * *\r\n* * * * * * * *\r\n* * * * * * * * *\n* * * * * * * * * *");
+        Log.d(TAG, "액티비티가 실행되었습니다. -> onCreate()");
 
-        // Init Tool bar.
-        initToolBar();
+        mLockScreen = new LockScreen(getApplicationContext(), MainActivity.this, mBinding); // 잠금화면 객체 생성
 
-        // Hide toolbar navigation icon.
-        showToolBarNavigationIcon(false);
+        initStatusNavigationToolBar(); // 상태바, 네비게이션바, 툴바 초기화
 
-        // Ble view model.
-        mBleViewModel = new ViewModelProvider(this).get(BleViewModel.class);
-
-        // Status view model.
-        mStatusViewModel = new ViewModelProvider(this).get(StatusViewModel.class);
-
-        // Database for Users
-        if (mDatabaseUsers == null)
-        {
-            mDatabaseUsers = Room.databaseBuilder(getApplicationContext(), DatabaseUsers.class, DatabaseUsers.DATABASE_NAME).addCallback(new RoomDatabase.Callback()
-            {
-                @Override
-                public void onCreate(@NonNull SupportSQLiteDatabase db)
-                {
-                    super.onCreate(db);
-                    db.execSQL(DatabaseUsers.DATABASE_ENCODING);
-                }
-            }).fallbackToDestructiveMigration().allowMainThreadQueries().build();
-        }
-
-        // Database for Devices
-        if (mDatabaseDevices == null)
-        {
-            mDatabaseDevices = Room.databaseBuilder(getApplicationContext(), DatabaseDevices.class, DatabaseDevices.DATABASE_NAME).addCallback(new RoomDatabase.Callback()
-            {
-                @Override
-                public void onCreate(@NonNull SupportSQLiteDatabase db)
-                {
-                    super.onCreate(db);
-                    db.execSQL(DatabaseDevices.DATABASE_ENCODING);
-                }
-            }).fallbackToDestructiveMigration().allowMainThreadQueries().build();
-        }
-
-        //
-        // 블루투스 핸들러 테스트
-        //
-        //MyBluetooth.getInstance().init();
-
-        AppParam.getInstance().bleConnectionState = AppParam.BLE_CONNECTION_STATE_DISCONNECTED;
-
-        Log.d(TAG, "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *");
-        Log.d(TAG, "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *");
-        Log.d(TAG, "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *");
-        Log.d(TAG, "onCreate() called.");
-        Log.d(TAG, AppParam.getInstance().toString());
-
-        AppParam.getInstance().callCounter++;
-        Log.d(TAG, "after callCounter++");
-        Log.d(TAG, AppParam.getInstance().toString());
-
-        DeviceParam deviceParam = new DeviceParam();
-        Log.d(TAG, deviceParam.toString());
-
-        ActionMessage actionMessage = new ActionMessage();
-        Log.d(TAG, actionMessage.toString());
-
-        // Check permissions
+        // 권한 체크
         if (grantPermissions())
         {
-            // Check Bluetooth enabling/disabling
+            // 블루투스 활성화 체크
             if (enableBluetooth())
             {
-                initMainActivity(); // Initiailze all of MainActivity
+                initMainActivity(); // 메인 액티비티 관련 초기화
             }
         }
     } // onCreate
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Activity initialization
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Initialize MainActivity (View, Database, Bluetooth, ...)
-     */
+    //
+    // 메인 액티비티 초기화 함수
+    //
     public void initMainActivity()
     {
-        // Register broadcast receiver
-        myRegisterReceiver();
-
-        // Start termination service
-        if (!AppParam.getInstance().isTerminationServiceStarted)
+        // 앱 종료 캡처 서비스 생성
+        if (Status.instance().exitCaptureState == Status.EXIT_CAPTURE_SERVICE_STATE_STOPPED)
         {
-            Log.d(TAG, "Try to start termination service.");
-            Intent intent = new Intent(this, TerminationService.class);
-            intent.setAction(TerminationService.ACTION_START_SERVICE);
+            Log.d(TAG, "강제 종료 포착 서비스를 시작합니다.");
+            Intent intent = new Intent(this, ExitCaptureService.class);
+            intent.setAction(ExitCaptureService.ACTION_START_SERVICE);
             startService(intent);
         }
         else
         {
-            Log.d(TAG, "Termination service created previously is not finished.");
+            Log.d(TAG, "강제 종료 포착 서비스가 이미 동작중입니다.");
         }
 
-        // Initialize Bluetooth
+        // 데이터 베이스 열기
+        // 1) 로그
+        UtilLog.instance.open(getApplicationContext());
+
+        // 2) 사용자
+        UtilUser.instance.open(getApplicationContext());
+
+        // 3) 사운드처리기
+        UtilDevice.instance.open(getApplicationContext());
+
+        // 상태 값 뷰 모델
+        Log.d(TAG, "사운드처리기 상태 값 뷰모델 클래스를 불러옵니다.");
+        mStatusViewModel = new ViewModelProvider(this).get(StatusViewModel.class);
+        mStatusViewModel.setConnectionState(StatusViewModel.CONNECTION_STATE_DISCONNECTED);
+
+        // 방송수신자 등록
+        appRegisterReceiver();
+
+        // 블루투스 관련 객체 획득
         initBluetooth();
+
+        // 생명주기 상 onResume 전에 onCreate가 호출된다. 실핼되는 최초의 한번은 onCreate에서 LockScreen.resume()을 호출해야
+        // 리모컨 프래그먼트에서 LockScreen 활성화 여부에 따른 스캔 시작/정지를 결정한다.
+        Log.d(TAG, "앱 실행 직후에 따른 잠금화면 초기화를 수행합니다.");
+        mLockScreen.resume();
 
         // Shared Preferences for Manual Screen.
         if (mManualScreen == null)
@@ -362,272 +297,238 @@ public class MainActivity extends AppCompatActivity
 
         if (mManualScreen.isEnabled())
         {
+            Log.d(TAG, "사용설명서 표시가 활성화 되어 있습니다.");
             Bundle bundle = new Bundle();
-            bundle.putBoolean("firstScreen", true);
+            bundle.putBoolean(ManualFragment.ARG_FIRST_SCREEN, true);
             ManualFragment manualFragment = new ManualFragment();
             manualFragment.setArguments(bundle);
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, manualFragment).commitAllowingStateLoss();
         }
         else // If the user manual screen is disabled, the first screen must be the remote control screen.
         {
+            Log.d(TAG, "사용설명서 표시가 비활성화 되어 있습니다. 리모컨 화면을 출력합니다.");
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new RemoteControlFragment()).commitAllowingStateLoss();
         }
-
-        // 로깅 관련 초기화
-        LoggingUtils.getInstance().openLoggingDatabase(getApplicationContext()); // 로깅 데이터베이스 불러오기 + 번호 ROW 초기화.
-        //LoggingUtils.getInstance().writeMessage(LoggingUtils.getInstance().getCurrentDate()); // 테스트 메시지 입력
-        //LoggingUtils.getInstance().printAllMessages(); // 테스트 메시지 출력
     } // initMainActivity
 
-    /**
-     * 앱 완전 초기화 함수
-     */
-    public void initAllForApp()
+    //
+    // 장시간 미사용 이벤트 핸들러 관련
+    //
+    public void longTimeIdleHandlerUpdate(boolean enable)
     {
-        // 1. 본딩된 블루투스 기기 목록 중, 앱 데이터베이스에 등록된 기기를 전부 본딩 제거하기.
-        BtUtils.getInstance().eraseAllBondedDevices();
-
-        // 2. 앱 데이터 베이스의 모든 사운드처리기를 삭제
-        List<Device> devices = AppParam.getInstance().database.deviceDao().findAll();
-
-        for (Device device : devices)
+        if (enable)
         {
-            Log.d(TAG, "사운드처리기 " + device.getDeviceName() + ", " + device.getDeviceMacAddress() + "를 삭제합니다.");
-            AppParam.getInstance().database.deviceDao().delete(device);
-
-            writeMessage(LoggingUtils.LOGGING_DEVICE_REMOVED, "name=" + device.getDeviceName() + ", addr=" + device.getDeviceMacAddress() + ", serial=" + device.getDeviceSerial() + ", user=" + device.getImplantUserName()); // Logging
+            mLongTimeIdleHandler.removeCallbacks(mLongTimeIdleRunner);
+            mLongTimeIdleHandler.postDelayed(mLongTimeIdleRunner, LONG_TIME_IDLE_TIMEOUT_IN_MS); // 10분
+            Log.d(TAG, "장시간 미사용 핸들러 업데이트 완료.");
         }
-
-        // 3. 데이터베이스 다시 로드하여 현재 정보 업데이트
-        AppParam.getInstance().registeredDevices = AppParam.getInstance().database.deviceDao().findAll();
-        Log.d(TAG, "데이터베이스 다시 로드");
-
-        // 7. 화면을 home 화면으로 변경
-        getSupportFragmentManager().beginTransaction().replace(R.id.frame, new HomeFragment()).commitAllowingStateLoss();
-        Log.d(TAG, "Home 화면으로 설정");
-
-        // 10. BLE 연결 중인 장치가 있다면 연결 해제 및 본딩이 되어 있다면 본딩 제거
-        if (AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED && mBluetoothDevice != null && mBluetoothGatt != null)
+        else
         {
-            String addr = mBluetoothDevice.getAddress();
-
-            AppParam.getInstance().isDisconnectedByUser = true;
-            mBluetoothGatt.disconnect();
-            Log.d(TAG, "연결된 장치가 있으므로 연결해제");
-
-            Log.d(TAG, "본딩이 되어 있다면 본딩 제거");
-            BtUtils.getInstance().eraseBondedDeviceUsingMacAddress(addr, BluetoothAdapter.getDefaultAdapter());
+            mLongTimeIdleHandler.removeCallbacks(mLongTimeIdleRunner);
+            Log.d(TAG, "장시간 미사용 핸들러 제거 완료.");
         }
-
-        // 11. 앱 비밀번호 플래그 설정
-        AppParam.getInstance().doesNeedToRegisterAppLockPassword = true;
-        AppParam.getInstance().doesNeedToVerifyAppLockPassword = false;
-        ConstraintLayout passLockLayout = findViewById(R.id.lock_screen); // 잠금 화면 켜기
-        passLockLayout.setVisibility(View.VISIBLE);
-        //((TextView) findViewById(R.id.main_applock_desc)).setText("의료기기 사이버 보안을 위해 등록할 앱 비밀번호를 입력해주세요."); // 텍스트뷰 설정
-        Log.d(TAG, "앱 비밀번호 플래그 설정 완료");
-
-        // 13. 확인 다이얼로그 생성
-        android.app.AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.MyAlertDialogTheme);
-
-        builder.setMessage("앱에 등록된 모든 사운드처리기의 정보를 삭제하고 앱 비밀번호를 초기화 하였습니다.");
-        builder.setPositiveButton("확인", new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i)
-            {
-                scanLe(false);
-            }
-        });
-        AppParam.getInstance().lastDialog = builder.create();
-        AppParam.getInstance().lastDialog.show();
-        Log.d(TAG, "앱 비밀번호 초기화 확인 다이얼로그 생성");
-
-        writeMessage(LoggingUtils.LOGGING_INIT_ALL_FOR_APP, "Init App"); // Logging
     }
 
-    /**
-     * Callback - 잠금 해제 화면에서 앱 비밀번호 초기화 버튼의 콜백 함수
-     */
-    public void onClickAppLockReset(View view)
+    private final Handler mLongTimeIdleHandler = new Handler();
+    private final Runnable mLongTimeIdleRunner = () ->
     {
-        updateLongTimeIdleHandler(); // Update long time idle handler
-        Log.d(TAG, "앱 비밀번호 초기화 버튼 클릭!");
-        vibrator(5);
+        Log.d(TAG, "장시간 미사용으로 인해 자동 절전모드로 진입합니다.");
 
-        runOnUiThread(new Runnable()
+        if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED
+                || Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTING)
         {
-            @Override
-            public void run()
+            if (mBluetoothGatt != null)
             {
-                android.app.AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.MyAlertDialogTheme);
+                Log.d(TAG, "현재 연결중인 사운드처리기와 연결을 해제합니다.");
+                Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING; // 사용자에 의한 연결 해제 설정
+                mBluetoothGatt.disconnect();
+            }
+        }
 
-                builder.setMessage("앱에 등록된 모든 사운드처리기의 정보를 삭제하고 앱 비밀번호를 초기화 할 수 있습니다. 비밀번호를 초기화 하시겠습니까?");
-                builder.setPositiveButton("네", new DialogInterface.OnClickListener()
+        if (Status.instance().scanState == Status.SCAN_STATE_STARTED)
+        {
+            Log.d(TAG, "스캔을 정지합니다.");
+            scanLe(false);
+        }
+
+        // 현재 리모컨 화면이고, 다이얼로그가 팝업되어 있다면 해당 다이얼로그를 제거한다.
+        Fragment fragment = MainActivity.this.getSupportFragmentManager().findFragmentById(R.id.frame);
+        if (fragment instanceof RemoteControlFragment)
+        {
+            if (((RemoteControlFragment) fragment).mDialog != null && ((RemoteControlFragment) fragment).mDialog.isShowing())
+            {
+                Log.d(TAG, "리모컨 화면의 등록 유도 다이얼로그를 제거합니다.");
+                ((RemoteControlFragment) fragment).mDialog.dismiss();
+            }
+        }
+
+        // 현재 화면에 출력되어 있는 다이얼로그가 있다면 제거한다.
+        if (Status.instance().lastDialog != null && Status.instance().lastDialog.isShowing())
+        {
+            Log.d(TAG, "화면에 출력되고 있는 다이얼로그가 있어, 이 다이얼로그를 제거합니다.");
+            Status.instance().lastDialog.dismiss();
+        }
+
+        // 잠금화면 기능이 활성화되어 있다면 화면을 잠금화면으로 설정한다.
+        // 만약 활성화되어 있다면 이 부분에서 다이얼로그들을 전부 제거하겠지만, 비활성화 상태를 생각하여 위에서 다이얼로그를 미리 제거했다.
+        mLockScreen.resume();
+
+        // 잠금화면 상태의 다이얼로그는 항상 최상위에 출력되어야 한다. 그래서 다이얼로그 객체를 따로 저장하지 않고,
+        // 오직 확인 버튼을 눌러서만 제거가 가능하도록 구현한다.
+        new MaterialAlertDialogBuilder(MainActivity.this)
+                .setTitle("안내")
+                .setMessage("장시간 앱이 사용되지 않아 전력소모를 줄이기 위해 절전모드로 진입하였습니다. 아래의 확인 버튼을 누르면 절전모드에서 빠져나옵니다.")
+                .setPositiveButton("확인", (dialogInterface, i) ->
                 {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i)
+                    Log.d(TAG, "절전모드에서 빠져나옵니다.");
+
+                    // 잠금화면 기능이 활성화 중이라면, 암호를 입력하고 진입하기 때문에 리모컨 화면의 경우 검색도 자동으로 시작하게 된다.
+                    // 하지만 잠금화면 기능이 비활성화 상태라면 현재 프래그먼트가 리모컨 화면이 체크하고,
+                    // 리모컨 화면이라면 등록 여부를 검사하는 것으로 검색까지 자동으로 시작하게 한다.
+                    if (!mLockScreen.isEnabled())
                     {
-                        initAllForApp();
+                        Fragment remoteControlFragment = MainActivity.this.getSupportFragmentManager().findFragmentById(R.id.frame);
+
+                        if (remoteControlFragment instanceof RemoteControlFragment)
+                        {
+                            Log.d(TAG, "잠금화면 기능이 비활성화 중인데, 현재 프래그먼트가 리모컨 화면입니다. 등록상황부터 다시 체크를 시작합니다.");
+                            ((RemoteControlFragment) remoteControlFragment).checkRegisteredList();
+                        }
                     }
-                });
-                builder.setNegativeButton("아니오", null);
-                AppParam.getInstance().lastDialog = builder.create();
-                AppParam.getInstance().lastDialog.show();
-                Log.d(TAG, "앱 비밀번호 초기화 다이얼로그 생성");
-            }
-        });
-    }
 
-    @Override
-    protected void onStop()
-    {
-        super.onStop();
+                    // 다시 장시간 미사용 핸들러를 시작한다.
+                    longTimeIdleHandlerUpdate(true);
+                })
+                .setCancelable(false)
+                .show();
+    };
 
-        AppParam.getInstance().isAppLockState = true;
-    }
-
-    @Override
-    protected void onResume()
-    {
-        super.onResume();
-
-        if (AppParam.getInstance().lastDialog != null)
-        {
-            if (AppParam.getInstance().lastDialog.isShowing())
-            {
-                AppParam.getInstance().lastDialog.dismiss();
-            }
-        }
-
-        // Check lock screen password whether registered or not.
-        LockScreen.resume(this, mBinding);
-    }
-
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Permission
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Callback - Request permissions
-     */
+    //
+    // 런타임 권한 요청 결과
+    //
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == REQUEST_PERMISSION_FINE_LOCATION)
+        if (requestCode == REQUEST_PERMISSION_CODE_NUMBER)
         {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            boolean access_fine_location = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
             {
-                if (enableBluetooth())
+                boolean bluetooth_scan = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED;
+                boolean bluetooth_connect = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED;
+
+                if ((!access_fine_location) || (!bluetooth_scan) || (!bluetooth_connect))
                 {
-                    initMainActivity(); // Initiailze all of MainActivity
+                    UtilLog.instance.writeLog("앱 사용을 위한 블루투스 및 위치 관련 권한 요청이 거부됨.");
+                    finish();
+                    return;
+                }
+                else
+                {
+                    UtilLog.instance.writeLog("앱 사용을 위한 블루투스 및 위치 관련 권한이 획득됨.");
                 }
             }
             else
             {
-                finish();
+
+                if (!access_fine_location)
+                {
+                    UtilLog.instance.writeLog("앱 사용을 위한 위치 관련 권한 요청이 거부됨.");
+                    finish();
+                    return;
+                }
+                else
+                {
+                    UtilLog.instance.writeLog("앱 사용을 위한 위치 관련 권한이 획득됨.");
+                }
+            }
+
+            if (enableBluetooth())
+            {
+                initMainActivity(); // Initiailze all of MainActivity
             }
         }
     }
 
-    /**
-     * Grant permissions
-     */
+    //
+    // 런타임 권한 요청
+    //
     public boolean grantPermissions()
     {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-        {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_PERMISSION_FINE_LOCATION);
+        boolean access_fine_location = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
 
-            return false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+        {
+            boolean bluetooth_scan = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED;
+            boolean bluetooth_connect = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED;
+
+            if ((!access_fine_location) || (!bluetooth_scan) || (!bluetooth_connect))
+            {
+                String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT};
+                ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION_CODE_NUMBER);
+                UtilLog.instance.writeLog("앱 사용을 위한 블루투스 및 위치 관련 권한 요청.");
+                return false;
+            }
+        }
+        else
+        {
+            if (!access_fine_location)
+            {
+                String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
+                ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION_CODE_NUMBER);
+                UtilLog.instance.writeLog("앱 사용을 위한 위치 관련 권한 요청.");
+                return false;
+            }
         }
 
         return true;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Broadcast Receiver
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Register broadcast receiver
-     */
-    private void myRegisterReceiver()
+    //
+    // 방송수신자 등록 관련
+    //
+    private void appRegisterReceiver()
     {
-        AppParam appParam = AppParam.getInstance();
-
-        if (!appParam.isBroadcastReceiverRegistered)
-        {
-            registerReceiver(mBroadcastReceiver, makeIntentFilter());
-
-            appParam.isBroadcastReceiverRegistered = true;
-
-            Log.d(TAG, "Finished registering broadcast receiver.");
-        }
+        registerReceiver(mBroadcastReceiver, makeIntentFilter());
+        Log.d(TAG, "방송수신자를 등록했습니다.");
     }
 
-    /**
-     * Unregister broadcast receiver
-     */
-    private void myUnregisterReceiver()
+    //
+    // 방송수신자 해제 관련
+    //
+    private void appUnregisterReceiver()
     {
-        AppParam appParam = AppParam.getInstance();
-
-        if (appParam.isBroadcastReceiverRegistered)
+        try
         {
             unregisterReceiver(mBroadcastReceiver);
-
-            appParam.isBroadcastReceiverRegistered = false;
-
-            Log.d(TAG, "Finished unregistering broadcast receiver.");
+            Log.d(TAG, "방송수신자를 해제했습니다.");
+        }
+        catch (IllegalArgumentException exception)
+        {
+            Log.d(TAG, "방송수신자를 등록한적 없습니다. 그래서 해제할 필요가 없습니다.");
         }
     }
 
-    /**
-     * Broadcast receiver filter maker
-     */
+    //
+    // 방송수신자 필터 생성
+    //
     private IntentFilter makeIntentFilter()
     {
         IntentFilter intentFilter = new IntentFilter();
 
-        // Bluetooth globally...
-        intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED); // For Bluetooth state change
-        intentFilter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        intentFilter.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);
-
-        // Activity...
-        intentFilter.addAction(ActionMessage.ACTIVITY_FINISH);
-
-        // BLE...
-        intentFilter.addAction(ActionMessage.BLE_SCAN_START);
-        intentFilter.addAction(ActionMessage.BLE_SCAN_STOP);
-        intentFilter.addAction(ActionMessage.BLE_SCAN_RESTART);
-        intentFilter.addAction(ActionMessage.BLE_CONNECT);
-        intentFilter.addAction(ActionMessage.BLE_DISCONNECT);
-
-        // Fragment...
-        intentFilter.addAction(ActionMessage.NEW_FRAGMENT_HOME);
-        intentFilter.addAction(ActionMessage.NEW_FRAGMENT_HOME_WITH_STOP_BLE_SCAN);
-        intentFilter.addAction(ActionMessage.NEW_FRAGMENT_PASSWORD);
-        intentFilter.addAction(ActionMessage.NEW_FRAGMENT_SEARCH_WITH_DISCONNECT_BLE);
-
-        // Database...
-        intentFilter.addAction(ActionMessage.DATABASE_CHECK_EMPTY);
-
-        // 사용자 관리 화면 전환
-        intentFilter.addAction(ActionMessage.NEW_FRAGMENT_USER);
-        intentFilter.addAction(ActionMessage.NEW_FRAGMENT_MANAGEMENT_USER);
-        intentFilter.addAction(ActionMessage.NEW_FRAGMENT_MANAGEMENT_DEVICE);
+        intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED); // 블루투스 자체에 대한 활성화/비활성화 이벤트
+        intentFilter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED); // 본딩 관련
+        intentFilter.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST); // 페어링 요청 관련
 
         return intentFilter;
     }
 
-    /**
-     * Broadcast receiver
-     */
+    //
+    // 방송수신자 핸들러
+    //
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver()
     {
         @Override
@@ -635,205 +536,139 @@ public class MainActivity extends AppCompatActivity
         {
             String action = intent.getAction();
 
-            Log.d(TAG, "Received action : " + action);
+            Log.d(TAG, "액션을 수신했습니다. -> " + action);
 
-            // Detect disabling Bluetooth
-            if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED))
+            // 블루투스 기능 꺼짐 감지
+            switch (action)
             {
-                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+                case BluetoothAdapter.ACTION_STATE_CHANGED:
+                    int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
 
-                if (state == BluetoothAdapter.STATE_OFF)
-                {
-                    finish();
-                }
-            } // BluetoothAdapter.ACTION_STATE_CHANGED
-            else if (action.equals(BluetoothDevice.ACTION_PAIRING_REQUEST))
-            {
-                // Do not use... If use, app wiil be confused.
-                //String pairingPin = mBleViewModel.getDevicePairingKeyConnecting();
-                //Log.d(TAG, "Set pairing pin : " + pairingPin);
-                //mBluetoothDevice.setPin(pairingPin.getBytes());
-            }
-            else if (action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED))
-            {
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-                if (device.getBondState() == BluetoothDevice.BOND_BONDED)
-                {
-                    Log.d(TAG, "BOND_BONDED, {" + device.getAddress() + "}");
-
-                    if (0 < mBleViewModel.getBondFailCounter())
+                    // 블루투스 기능을 꺼버리면, 앱도 같이 종료시킨다.
+                    if (state == BluetoothAdapter.STATE_OFF)
                     {
-                        mBleViewModel.clearBondFailCounter();
+                        finish();
+                    }
+                    break;
+                // 블루투스 페어링 요청 감지
+                case BluetoothDevice.ACTION_PAIRING_REQUEST:
+                    // Do not use... If use, app will be confused.
+                    break;
+                // 블루투스 본딩 상태 변경 감지
+                case BluetoothDevice.ACTION_BOND_STATE_CHANGED:
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
-                        Log.d(TAG, "0 < Bond_Fail_Counter -> So, retry connection process from discover services.");
+                    int bondState = device.getBondState();
 
-                        // Make handler to check timeout for discovering services.
-                        discoverServiceTimeoutHandler.postDelayed(discoverServiceTimeoutRunner, DELAY_IN_MS_FOR_DISCOVER_SERVICES_TIMEOUT);
+                    if (bondState == BluetoothDevice.BOND_BONDED)
+                    {
+                        Log.d(TAG, "본딩되었습니다. -> {" + device.getAddress() + "}");
 
-                        if (!mBluetoothGatt.discoverServices())
+                        // 본딩이 성공한 후에는 의도적으로 연결을 해제하여, 다시 처음부터 연결을 진행하도록 한다.
+                        if (mBluetoothGatt != null)
                         {
                             mBluetoothGatt.disconnect();
                         }
                     }
-                }
-                else if (device.getBondState() == BluetoothDevice.BOND_BONDING)
-                {
-                    Log.d(TAG, "BOND_BONDING, {" + device.getAddress() + "}");
-                    mBleViewModel.setBondState(BluetoothDevice.BOND_BONDING);
-                }
-                else if (device.getBondState() == BluetoothDevice.BOND_NONE)
-                {
-                    Log.d(TAG, "BOND_NONE, {" + device.getAddress() + "} -> This means that bonding was might failed.");
-
-                    mBleViewModel.increaseBondFailCounter();
-
-                    if (mBluetoothGatt != null)
+                    else if (bondState == BluetoothDevice.BOND_BONDING)
                     {
-                        mBluetoothGatt.disconnect();
+                        Log.d(TAG, "본딩 중입니다. -> {" + device.getAddress() + "}");
+
+                        if (mLockScreen.isEnabled())
+                        {
+                            Status.instance().lockScreenState = Status.LOCK_SCREEN_STATE_TEMPORARY_UNLOCK;
+                        }
+
+                        // CCCD 쓰기 과정에서 보안 연결이 유효하지 않으면 다시 본딩을 시도한다.
+                        // 그 때 이 곳에서 본딩 콜백을 수신하게 되므로, 이 경우에는 CCCD 시간초과 핸들러를 제거한다.
+                        mCCCDHandler.removeCallbacks(mCCCDRunner);
                     }
-                }
-            }
-            // ACTIVITY_FINISH
-            else if (action.equals(ActionMessage.ACTIVITY_FINISH))
-            {
-                finish();
-            }
-            // BLE_SCAN_START
-            else if (action.equals(ActionMessage.BLE_SCAN_START))
-            {
-                scanLe(true);
-            }
-            // BLE_SCAN_STOP
-            else if (action.equals(ActionMessage.BLE_SCAN_STOP))
-            {
-                scanLe(false);
-            }
-            // BLE_SCAN_RESTART
-            else if (action.equals(ActionMessage.BLE_SCAN_RESTART))
-            {
-                scanLe(false);
-                scanLe(true);
-            }
-            // BLE_CONNECT
-            else if (action.equals(ActionMessage.BLE_CONNECT))
-            {
-                Log.d(TAG, "Number of connected device before try to connect is " + mBluetoothManager.getConnectedDevices(BluetoothProfile.GATT).size() + ".");
-                Log.d(TAG, "MAC address want to connect is " + AppParam.getInstance().currentConnectDevice.getDeviceMacAddress() + ".");
-
-                mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(AppParam.getInstance().currentConnectDevice.getDeviceMacAddress());
-
-                if (mBluetoothDevice != null)
-                {
-                    mBluetoothGatt = mBluetoothDevice.connectGatt(getApplicationContext(), false, mGattCallback);
-
-                    if (mBluetoothGatt == null)
+                    else if (bondState == BluetoothDevice.BOND_NONE)
                     {
-                        Log.d(TAG, "Bluetooth GATT instance is null.");
-                    }
-                }
-                else
-                {
-                    Log.d(TAG, "Bluetooth device instance is null.");
-                }
-            }
-            // BLE_DISCONNECT
-            else if (action.equals(ActionMessage.BLE_DISCONNECT))
-            {
-                if (mBluetoothGatt != null && mBluetoothDevice != null && AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
-                {
-                    Log.d(TAG, "장치 연결을 해제합니다.");
-                    mBluetoothGatt.disconnect();
-                    //mBluetoothGatt.close();
-                    //mBluetoothGatt = null;
-                    //mBluetoothDevice = null;
-                    //mBleConnectionState = BLE_CONNECTION_STATE_DISCONNECTED;
-                    //AppParam.getInstance().currentConnectDevice = null;
-                    //AppParam.getInstance().isBusy = false;
-                }
-            }
-            // FRAGMENT HOME
-            else if (action.equals(ActionMessage.NEW_FRAGMENT_HOME))
-            {
-                getSupportFragmentManager().beginTransaction().replace(R.id.frame, new HomeFragment()).commitAllowingStateLoss();
-            }
-            // FRAGMENT HOME + STOP BLE SCAN
-            else if (action.equals(ActionMessage.NEW_FRAGMENT_HOME_WITH_STOP_BLE_SCAN))
-            {
-                scanLe(false);
-                getSupportFragmentManager().beginTransaction().replace(R.id.frame, new HomeFragment()).commitAllowingStateLoss();
-            }
-            // FRAGMENT PASSWORD
-            else if (action.equals(ActionMessage.NEW_FRAGMENT_PASSWORD))
-            {
-                getSupportFragmentManager().beginTransaction().replace(R.id.frame, new PasswordFragment()).commitAllowingStateLoss();
-            }
-            // DATABASE CHECK EMPTY
-            else if (action.equals(ActionMessage.DATABASE_CHECK_EMPTY))
-            {
-                //AppParam.getInstance().registeredDevices = AppParam.getInstance().database.deviceDao().findAll();
+                        Log.d(TAG, "본딩이 실패했습니다. -> {" + device.getAddress() + "} -> This means that bonding was might failed.");
 
-                //if (AppParam.getInstance().registeredDevices.size() == 0)
-                if (AppParam.getInstance().databaseUsers.daoUsers().findAll().size() == 0)
-                {
-                    //enableScreenNoDeviceRegistered(true);
-                }
+                        if (mBluetoothGatt != null)
+                        {
+                            mBluetoothGatt.disconnect();
+                        }
+                    }
+                    break;
             }
         } // onReceive
     };
 
-    /**
-     * 백버튼 콜백 메소드.
-     */
+    //
+    // 백버튼 콜백 리스너
+    //
     @Override
     public void onBackPressed()
     {
+        // 장시간 미사용 핸들러 업데이트
+        longTimeIdleHandlerUpdate(true);
 
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
 
+        // 리모컨 화면
         if (fragment instanceof RemoteControlFragment)
         {
-            new MaterialAlertDialogBuilder(this, R.style.add_user_screen_dialog).setTitle("주의").setMessage("앱을 종료하시겠습니까?").setPositiveButton("종료", new DialogInterface.OnClickListener()
+            if (Status.instance().lastDialog != null)
             {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i)
+                if (Status.instance().lastDialog.isShowing())
                 {
-                    finish();
+                    Status.instance().lastDialog.dismiss();
                 }
-            }).setNegativeButton("취소", null).show();
+            }
+
+            Status.instance().lastDialog =
+                    new MaterialAlertDialogBuilder(MainActivity.this)
+                            .setTitle("주의")
+                            .setMessage("앱을 종료하시겠습니까?")
+                            .setPositiveButton("종료", (dialogInterface, i) -> finish())
+                            .setNegativeButton("취소", null)
+                            .setCancelable(false)
+                            .create();
+            Status.instance().lastDialog.show();
         }
+        // 설정 화면
         else if (fragment instanceof SettingsFragment)
         {
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new RemoteControlFragment()).commitAllowingStateLoss();
         }
+        // 사용자 화면
         else if (fragment instanceof UserFragment)
         {
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new SettingsFragment()).commitAllowingStateLoss();
         }
+        // 사용자 추가 화면
         else if (fragment instanceof AddUserFragment)
         {
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new UserFragment()).commitAllowingStateLoss();
         }
+        // 사용자 수정 화면
         else if (fragment instanceof EditUserFragment)
         {
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new UserFragment()).commitAllowingStateLoss();
         }
+        // 사운드처리기 화면
         else if (fragment instanceof DeviceFragment)
         {
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new SettingsFragment()).commitAllowingStateLoss();
         }
+        // 사운드처리기 추가 화면
         else if (fragment instanceof AddDeviceFragment)
         {
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new DeviceFragment()).commitAllowingStateLoss();
         }
+        // 사운드처리기 수정 화면
         else if (fragment instanceof EditDeviceFragment)
         {
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new DeviceFragment()).commitAllowingStateLoss();
         }
+        // 사용설명서 화면
         else if (fragment instanceof ManualFragment)
         {
             Bundle bundle = ((ManualFragment) fragment).getArguments();
-            if (bundle != null && bundle.getBoolean("firstScreen"))
+            if (bundle != null && bundle.getBoolean(ManualFragment.ARG_FIRST_SCREEN))
             {
                 getSupportFragmentManager().beginTransaction().replace(R.id.frame, new RemoteControlFragment()).commitAllowingStateLoss();
             }
@@ -842,131 +677,69 @@ public class MainActivity extends AppCompatActivity
                 getSupportFragmentManager().beginTransaction().replace(R.id.frame, new SettingsFragment()).commitAllowingStateLoss();
             }
         }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Toolbar
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Bluetooth
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Callback - Activity results
-     */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
-    {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        switch (requestCode)
+        // 시스템로그 화면
+        else if (fragment instanceof LogFragment)
         {
-            case REQUEST_CODE_BLUETOOTH_ENABLE:
-            {
-                if (resultCode != RESULT_OK)
-                {
-                    finish();
-                }
-                else
-                {
-                    initMainActivity();
-                }
-            }
-            break;
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame, new AddUserFragment()).commitAllowingStateLoss();
         }
     }
 
-    /**
-     * Enable Bluetooth
-     */
+    //
+    // 블루투스 활성화 요청 결과
+    //
+    ActivityResultLauncher<Intent> mBluetoothEnableResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            result ->
+            {
+                if (result.getResultCode() == Activity.RESULT_OK)
+                {
+                    Log.d(TAG, "블루투스 활성화를 허용했습니다.");
+                    UtilLog.instance.writeLog("블루투스 활성화됨.");
+                    initMainActivity();
+                }
+                else
+                {
+                    Log.d(TAG, "블루투스 활성화를 거부당했습니다.");
+                    UtilLog.instance.writeLog("블루투스 활성화 요청 거부.");
+                    finish();
+                }
+            });
+
+    //
+    // 블루투스 활성화 요청
+    //
     public boolean enableBluetooth()
     {
         if (!BluetoothAdapter.getDefaultAdapter().isEnabled())
         {
-            startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), REQUEST_CODE_BLUETOOTH_ENABLE);
+            UtilLog.instance.writeLog("블루투스 비활성화 상태 -> 활성화 요청.");
+            mBluetoothEnableResult.launch(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE));
             return false;
         }
 
         return true;
     }
 
-    /**
-     * Get objects related with Bluetooth.
-     */
+    //
+    // 블루투스 관련 객체 획득
+    //
     public void initBluetooth()
     {
-        // uses-feature
-        // android:name="android.hardware.bluetooth_le"
-        // android:required="true"
-
         mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = mBluetoothManager.getAdapter();
         mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
-        mBluetoothLeScanner.stopScan(mScanCallback); // Stop scan if scanning
 
-        AppParam.getInstance().willBeAppExit = false;
-        AppParam.getInstance().isBleBusy = false;
-
-        mBleViewModel.getObjectSearching().observe(this, mSearchingObserver);
-        mBleViewModel.getObjectBleConnection().observe(this, mSearchingObserver);
+        Log.d(TAG, "블루투스 매니저, 어댑터, 스캐너 객체를 획득했습니다.");
     }
 
-    Observer mSearchingObserver = new Observer()
+    //
+    // 스캔 핸들러 관련
+    //
+    Handler mScanHandler = new Handler();
+    Runnable mScanRunner = () ->
     {
-        @Override
-        public void onChanged(Object o)
-        {
-            int connection = mBleViewModel.getBleConnection();
-            int searching = mBleViewModel.getSearching();
-
-            if (searching == BleViewModel.SEARCHING_ENABLED)
-            {
-                if (connection == BleViewModel.BLE_DISCONNECTED)
-                {
-                    Log.d(TAG, "Searching Observer : " + "SEARCHING_ENABLED + BLS_DISCONNECTED");
-                    scanLe(true);
-                }
-                else if (connection == BleViewModel.BLE_CONNECTING || connection == BleViewModel.BLE_CONNECTED)
-                {
-                    Log.d(TAG, "Searching Observer : " + "SEARCHING_ENABLED + BLE_CONNECT*");
-                    scanLe(false);
-                }
-            }
-            else if (searching == BleViewModel.SEARCHING_DISABLED)
-            {
-                if (connection == BleViewModel.BLE_DISCONNECTED)
-                {
-                    Log.d(TAG, "Searching Observer : " + "SEARCHING_DISABLED + BLE_DISCONNECTED");
-                    scanLe(false);
-                }
-                else if (connection == BleViewModel.BLE_CONNECTING || connection == BleViewModel.BLE_CONNECTED)
-                {
-                    Log.d(TAG, "Searching Observer : " + "SEARCHING_DISABLED + BLE_CONNECT*");
-                    scanLe(false);
-                }
-            }
-        }
-    };
-
-    /**
-     * Handler for scan timeout.
-     */
-    Handler scanHandler = new Handler();
-
-    /**
-     * Runner for scan timeout.
-     */
-    Runnable scanRunner = new Runnable()
-    {
-        @Override
-        public void run()
-        {
-            Log.d(TAG, "scanRunner : Bluetooth LE scan timeout.");
-
-            scanLe(false); // Stop scan
-            scanLe(true); // Restart scan
-        }
+        Log.d(TAG, "BLE 스캔 시간이 초과되었습니다.");
+        scanLe(false); // 스캔 정지
+        scanLe(true);  // 스캔 다시 시작
     }; // scanRunner
 
     //
@@ -974,36 +747,33 @@ public class MainActivity extends AppCompatActivity
     //
     public void scanLe(boolean enable)
     {
-        if (enable)
+        if (enable) // 스캔 시작
         {
-            mBluetoothLeScanner.startScan(mScanCallback);
-            Log.d(TAG, "scanLE : Bluetooth LE scan started.");
+            if (Status.instance().scanState == Status.SCAN_STATE_STOPPED)
+            {
+                Status.instance().scanState = Status.SCAN_STATE_STARTED;
+
+                Log.d(TAG, "BLE 스캔을 시작합니다.");
+                mScanHandler.postDelayed(mScanRunner, 10000); // 10초
+                mBluetoothLeScanner.startScan(mScanCallback);
+            }
         }
-        else
+        else // 스캔 정지
         {
-            mBluetoothLeScanner.stopScan(mScanCallback);
-            Log.d(TAG, "scanLE : Bluetooth LE scan stopped.");
+            if (Status.instance().scanState == Status.SCAN_STATE_STARTED)
+            {
+                Log.d(TAG, "BLE 스캔을 종료합니다.");
+                mBluetoothLeScanner.stopScan(mScanCallback);
+                mScanHandler.removeCallbacks(mScanRunner);
+
+                Status.instance().scanState = Status.SCAN_STATE_STOPPED;
+            }
         }
-        /*
-        if (enable && (mBleViewModel.getScanState() == BleViewModel.SCAN_STATE.STOPPED))
-        {
-            mBleViewModel.setScanState(BleViewModel.SCAN_STATE.SCANNING);
-            mBluetoothLeScanner.startScan(mScanCallback);
-            Log.d(TAG, "scanLE : Bluetooth LE scan started.");
-        }
-        else if ((!enable) && (mBleViewModel.getScanState() == BleViewModel.SCAN_STATE.SCANNING))
-        {
-            scanHandler.removeCallbacks(scanRunner); // Remove callback for scan handler.
-            mBluetoothLeScanner.stopScan(mScanCallback); // Stop scan.
-            mBleViewModel.setScanState(BleViewModel.SCAN_STATE.STOPPED);
-            Log.d(TAG, "scanLE : Bluetooth LE scan stopped.");
-        }
-        */
     }
 
-    /**
-     * Bluetooth LE scan callback.
-     */
+    //
+    // 스캔 콜백 리스너
+    //
     ScanCallback mScanCallback = new ScanCallback()
     {
         @Override
@@ -1012,6 +782,16 @@ public class MainActivity extends AppCompatActivity
             if (mBinding.lockScreen.getVisibility() == View.VISIBLE)
             {
                 // If lock screen is enabled, return.
+                return;
+            }
+
+            EntityUser defaultUser = UtilUser.instance.getDefaultUser();
+            List<EntityDevice> devices = UtilDevice.instance.getDevices();
+            EntityDevice targetDevice = null;
+
+            if (defaultUser == null || devices == null)
+            {
+                // If no user or device available, return.
                 return;
             }
 
@@ -1041,17 +821,7 @@ public class MainActivity extends AppCompatActivity
 
             String serviceString = new String(serviceBytes);
 
-            Log.d(TAG, "BLE Scan Result : NAME = " + name + ", SCAN RESPONSE = " + serviceString);
-
-            EntityUser defaultUser = mDatabaseUsers.daoUsers().getDbUserByDefaultUSer(EntityUser.USER_DEFAULT);
-            List<EntityDevice> devices = mDatabaseDevices.daoDevices().findAll();
-            EntityDevice targetDevice = null;
-
-            if (defaultUser == null || devices == null)
-            {
-                // If no user or device available, return.
-                return;
-            }
+            Log.d(TAG, "BLE 스캔 결과 : 이름 = " + name + ", 스캔 응답 데이터 = " + serviceString);
 
             boolean isFound = false;
 
@@ -1061,7 +831,7 @@ public class MainActivity extends AppCompatActivity
 
                 if (targetString.equals(serviceString))
                 {
-                    Log.d(TAG, "Found Target Device : " + targetString);
+                    Log.d(TAG, "타겟 장치 발견 : " + targetString);
                     isFound = true;
                     targetDevice = device;
                     break;
@@ -1070,146 +840,200 @@ public class MainActivity extends AppCompatActivity
 
             if (isFound)
             {
-                if (mBleViewModel.getConnState() == BleViewModel.CONN_STATE.DISCONNECTED)
+                // 모든 조건에 부합하므로, 검색된 장치와 연결한다. 단, 현재 BLE 연결 상태가 연결해제 상태여야 한다.
+                if (Status.instance().connectionState == Status.CONNECTION_STATE_DISCONNECTED)
                 {
-                    if (!mBleViewModel.getUserNameConnecting().equals(defaultUser.name) ||
-                            !mBleViewModel.getDeviceSerialConnecting().equals(targetDevice.serialNumber))
-                    {
-                        Log.d(TAG, "Previous User name = " + mBleViewModel.getUserNameConnecting() + ", new User name = " + defaultUser.name);
-                        Log.d(TAG, "Previous Device serial = " + mBleViewModel.getDeviceSerialConnecting() + ", new Device serial = " + targetDevice.serialNumber);
+                    Status.instance().connectionState = Status.CONNECTION_STATE_CONNECTING; // 연결 중 상태로 변경
+                    scanLe(false); // 스캔 정지
 
-                        mBleViewModel.clearBondFailCounter();
-                    }
-
-                    //mBleViewModel.setBleConnection(BleViewModel.BLE_CONNECTING);
-                    //scanLe(false);
-
-                    mBleViewModel.setUserNameConnecting(defaultUser.name);
-                    mBleViewModel.setUserEarConnecting(defaultUser.ear);
-                    mBleViewModel.setUserPasswordConnecting(defaultUser.passKey);
-                    mBleViewModel.setDeviceSerialConnecting(targetDevice.serialNumber);
-                    mBleViewModel.setDevicePairingKeyConnecting(targetDevice.pairingKey);
-                    mBleViewModel.setDeviceAddressConnecting(result.getDevice().getAddress());
+                    // 연결을 시도하려는 사용자와 사운드처리기 정보를 저장.
+                    Status.instance().connectedUser = defaultUser;
+                    Status.instance().connectedDevice = targetDevice;
 
                     mBluetoothDevice = result.getDevice();
                     mBluetoothGatt = mBluetoothDevice.connectGatt(getApplicationContext(), false, mGattCallback);
 
                     if (mBluetoothGatt == null)
                     {
-                        Log.d(TAG, "Bluetooth GATT instance is NULL -> connectGatt failed.");
-                        //scanLe(true);
+                        Log.d(TAG, "BLE 연결 시도가 실패했습니다. 검색을 다시 시작합니다.");
+
+                        Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTED;
+                        scanLe(true);
                     }
                 }
             }
         } // onScanResult
     }; // scanCallback
 
-    /**
-     * Hnadler for battery checking.
-     */
-    Handler checkBatteryHandler = new Handler();
-
-    /**
-     * Runner for battery checking
-     */
-    Runnable checkBatteryRunner = new Runnable()
+    //
+    // 배터리 체크 패킷 전송 핸들러
+    //
+    Handler mCheckBatteryHandler = new Handler();
+    Runnable mCheckBatteryRunner = () ->
     {
-        @Override
-        public void run()
-        {
-            Log.d(TAG, "[ checkBatteryRunner ] Try to check battery level.");
+        Log.d(TAG, "연결된 사운드처리기의 배터리 정보를 업데이트 하기 위해 상태정보 획득 패킷을 전송합니다.");
 
-            //if (AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED && !AppParam.getInstance().isBleBusy && mBluetoothGatt != null && mBluetoothDevice != null)
-            if (mBluetoothGatt != null)
-            {
-                // Try to read Sound Processor's status.
-                sendPacket(packetMaker(PACKET_HEADER_SOUND_PROCESSOR_STATUS, null, 1));
-            }
+        if (mBluetoothGatt != null && Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
+        {
+            sendPacket(packetMaker(PacketInfo.HEADER_SOUND_PROCESSOR_STATUS, null, 1));
+            mCheckBatteryHandler.postDelayed(MainActivity.this.mCheckBatteryRunner, CHECK_BATTERY_DELAY_IN_MS);
         }
-    }; // discoverServiceTimeoutRunner
+    };
 
-    /**
-     * Hnadler for discovering services.
-     */
-    Handler discoverServiceTimeoutHandler = new Handler();
-
-    /**
-     * Runner for discovering services.
-     */
-    Runnable discoverServiceTimeoutRunner = new Runnable()
+    //
+    // Discover services 시간초과 처리 핸들러
+    //
+    Handler mDiscoverServicesHandler = new Handler();
+    Runnable mDiscoverServicesRunner = () ->
     {
-        @Override
-        public void run()
-        {
-            Log.d(TAG, "[ discoverServiceTimeoutRunner ] Timeout occurred! -> discovering services.");
+        Log.d(TAG, "서비스 검색 시간초과입니다. 현재 연결된 기기와 연결해제합니다.");
 
-            AppParam.getInstance().isDisconnectedByUser = false;
+        if (mBluetoothGatt != null)
+        {
             mBluetoothGatt.disconnect();
         }
-    }; // discoverServiceTimeoutRunner
+    };
 
-    /**
-     * Callback - BLE GATT events
-     */
+    //
+    // Client Characteristic Configuration Descriptor 설정 시간초과 처리 핸들러
+    //
+    Handler mCCCDHandler = new Handler();
+    Runnable mCCCDRunner = () ->
+    {
+        Log.d(TAG, "CCCD 설정 시간초과입니다. 현재 연결된 기기와 연결해제합니다.");
+
+        if (mBluetoothGatt != null)
+        {
+            mBluetoothGatt.disconnect();
+        }
+    };
+
+    //
+    // Password 인증 시간초과 처리 핸들러
+    //
+    Handler mPasswordHandler = new Handler();
+    Runnable mPasswordRunner = () ->
+    {
+        Log.d(TAG, "보안코드 인증 시간초과입니다. 현재 연결된 기기와 연결해제합니다.");
+
+        if (mBluetoothGatt != null)
+        {
+            mBluetoothGatt.disconnect();
+        }
+    };
+
+    //
+    // 사운드처리기 상태 정보 획득 시간초과 처리 핸들러
+    //
+    Handler mStatusHandler = new Handler();
+    Runnable mStatusRunner = () ->
+    {
+        Log.d(TAG, "사운드처리기 상태정보 획득 시간초과입니다. 현재 연결된 기기와 연결해제합니다.");
+
+        if (mBluetoothGatt != null)
+        {
+            mBluetoothGatt.disconnect();
+        }
+    };
+
+    //
+    // GATT 콜백 핸들러
+    //
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback()
     {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState)
         {
-            String name = gatt.getDevice().getName();
-            String address = gatt.getDevice().getAddress();
-
-            // Connected state.
-            if (newState == BluetoothProfile.STATE_CONNECTED)
+            new Handler(Looper.getMainLooper()).post(() ->
             {
-                //mBleViewModel.setBleConnection(BleViewModel.BLE_CONNECTING);
-                mBleViewModel.postBleConnection(BleViewModel.BLE_CONNECTING);
+                String name = gatt.getDevice().getName();
+                String address = gatt.getDevice().getAddress();
 
-                //new Handler(Looper.getMainLooper()).post(() ->
-                //      mBleViewModel.setBleConnection(BleViewModel.BLE_CONNECTING));
-
-
-                Log.d(TAG, "GATT Callback Connection State : STATE = CONNECTED, NAME = " + name + ", ADDRESS = " + address);
-
-                if (gatt.getDevice().getBondState() == BluetoothDevice.BOND_BONDED)
+                // Connected state.
+                if (newState == BluetoothProfile.STATE_CONNECTED)
                 {
-                    Log.d(TAG, "Already bonded.");
+                    Status.instance().connectionState = Status.CONNECTION_STATE_CONNECTING;
 
-                    // Make handler to check timeout for discovering services.
-                    discoverServiceTimeoutHandler.postDelayed(discoverServiceTimeoutRunner, DELAY_IN_MS_FOR_DISCOVER_SERVICES_TIMEOUT);
+                    Log.d(TAG, "BLE 연결 이벤트 발생 -> NAME = " + name + ", ADDRESS = " + address);
 
-                    if (!gatt.discoverServices())
+                    if (gatt.getDevice().getBondState() == BluetoothDevice.BOND_BONDED)
                     {
-                        gatt.disconnect();
+                        Log.d(TAG, "이미 본딩된 기기입니다.");
+
+                        // 서비스 검색 시간초과 핸들러 설정 후 서비스 검색을 시작한다.
+                        mDiscoverServicesHandler.postDelayed(mDiscoverServicesRunner, DISCOVER_SERVICES_TIMEOUT_IN_MS);
+
+                        if (!gatt.discoverServices())
+                        {
+                            Log.d(TAG, "서비스 검색 시도가 실패했습니다.");
+
+                            // 서비스 검색 시도가 실패했으므로, 서비스 검색 시간초과 핸들러도 제거한다.
+                            mDiscoverServicesHandler.removeCallbacks(mDiscoverServicesRunner);
+                            gatt.disconnect(); // 연결 해제
+                        }
+                    }
+                    else
+                    {
+                        Log.d(TAG, "본딩을 시도합니다.");
+                        gatt.getDevice().createBond();
                     }
                 }
-                else
+                // Disconnected state.
+                else if (newState == BluetoothProfile.STATE_DISCONNECTED)
                 {
-                    Log.d(TAG, "Try to bond.");
-                    mBleViewModel.increaseBondFailCounter();
-                    gatt.getDevice().createBond();
+                    Log.d(TAG, "BLE 연결해제 이벤트 발생 -> NAME = " + name + ", ADDRESS = " + address);
+
+                    UtilLog.instance.writeLog("연결 종료 : 장치이름=" + gatt.getDevice().getName());
+
+                    mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner);
+                    mPacketSendHandler.removeCallbacks(mPacketSendRunner);
+                    mCheckBatteryHandler.removeCallbacks(mCheckBatteryRunner);
+                    mStatusHandler.removeCallbacks(mStatusRunner);
+                    mPasswordHandler.removeCallbacks(mPasswordRunner);
+                    mCCCDHandler.removeCallbacks(mCCCDRunner);
+                    mDiscoverServicesHandler.removeCallbacks(mDiscoverServicesRunner);
+
+                    gatt.close();
+                    mBluetoothGatt = null;
+
+                    // 패킷 전송 상태 초기화
+                    Status.instance().transferState = Status.TRANSFER_STATE_IDLE;
+
+                    // 사용자의 의도로 연결해제가 발생한게 아니라면, 다시 스캔을 시작한다.
+                    if (Status.instance().connectionState != Status.CONNECTION_STATE_DISCONNECTING)
+                    {
+                        Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTED;
+
+                        Log.d(TAG, "사용자가 아닌 다른 이유에 의한 연결해제로 인식되었습니다. (예, 장치 리셋, 통신 거리 벗어남 등)");
+
+                        if (mBinding.lockScreen.getVisibility() == View.VISIBLE)
+                        {
+                            Log.d(TAG, "현재 잠금화면이 활성화 중이므로 BLE 스캔을 시작하지 않습니다.");
+                        }
+                        else
+                        {
+                            Fragment fragment = getSupportFragmentManager().findFragmentById(mBinding.frame.getId());
+                            if (fragment instanceof RemoteControlFragment)
+                            {
+                                Log.d(TAG, "현재 리모컨 화면이므로 자동 재연결을 위해 BLE 스캔을 시작합니다.");
+                                scanLe(true);
+                            }
+                        }
+                    }
+                    else // 사용자의 의도로 연결해제 한 것이라면,
+                    {    // 이 후 사용자의 이벤트로 스캔을 다시 시작할 것이므로 지금은 스캔을 시작하지 않는다.
+                        Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTED;
+                        Log.d(TAG, "사용자에 의한 연결해제로 인식되었습니다.");
+                    }
+
+                    // 리모컨 화면 프래그먼트에서 "사운드처리기 검색 중" 화면을 출력시키기 위해 BLE 뷰모델 값을 업데이트한다.
+                    // 리모컨 화면 프래그먼트에서 옵저버로 감시하고 있다.
+                    if (mStatusViewModel != null)
+                    {
+                        mStatusViewModel.setConnectionState(StatusViewModel.CONNECTION_STATE_DISCONNECTED);
+                    }
                 }
-            }
-            // Disconnected state.
-            else if (newState == BluetoothProfile.STATE_DISCONNECTED)
-            {
-                Log.d(TAG, "GATT Callback Connection State : STATE = DISCONNECTED, NAME = " + name + ", ADDRESS = " + address);
-
-                discoverServiceTimeoutHandler.removeCallbacks(discoverServiceTimeoutRunner);
-                checkBatteryHandler.removeCallbacks(checkBatteryRunner);
-                packetTimeoutHandler.removeCallbacks(packetTimeoutRunner);
-                packetTimeoutHandler.removeCallbacks(packetTimeoutRunner2);
-
-                gatt.close();
-                mBluetoothGatt = null;
-
-                //mBleViewModel.setBleConnection(BleViewModel.BLE_DISCONNECTED);
-                mBleViewModel.postBleConnection(BleViewModel.BLE_DISCONNECTED);
-                //new Handler(Looper.getMainLooper()).post(() ->
-                //      mBleViewModel.setBleConnection(BleViewModel.BLE_DISCONNECTED));
-
-                //scanLe(true);
-            }
+            });
         }
 
         @Override
@@ -1218,8 +1042,8 @@ public class MainActivity extends AppCompatActivity
             String name = gatt.getDevice().getName();
             String address = gatt.getDevice().getAddress();
 
-            // Remove callback from handler checking timeout for discovering services.
-            discoverServiceTimeoutHandler.removeCallbacks(discoverServiceTimeoutRunner);
+            // 서비스 검색이 완료 되었으므로 서비스 검색 시간초과 핸들러를 제거한다.
+            mDiscoverServicesHandler.removeCallbacks(mDiscoverServicesRunner);
 
             if (status != BluetoothGatt.GATT_SUCCESS)
             {
@@ -1282,10 +1106,15 @@ public class MainActivity extends AppCompatActivity
 
             // Set descriptor on remote device.
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
+
+            mCCCDHandler.postDelayed(mCCCDRunner, CCCD_TIMEOUT_IN_MS);
+
             if (!mBluetoothGatt.writeDescriptor(descriptor))
             {
+                // CCCD 쓰기에 실패했으므로, 곧 바로 CCCD 시간초과 핸들러 제거한다.
+                mCCCDHandler.removeCallbacks(mCCCDRunner);
+
                 Log.d(TAG, "GATT Callback Service Discovered : Failed to write descriptor.");
-                AppParam.getInstance().isDisconnectedByUser = false;
                 gatt.disconnect();
             }
         }
@@ -1295,16 +1124,18 @@ public class MainActivity extends AppCompatActivity
         {
             //super.onDescriptorWrite(gatt, descriptor, status);
 
+            // CCCD 쓰기에 대한 응답을 받았으므로 시간초과 핸들러 제거한다.
+            mCCCDHandler.removeCallbacks(mCCCDRunner);
+
             if (status == BluetoothGatt.GATT_SUCCESS)
             {
                 // Success to write descriptor for indication on remote device.
-                Log.d(TAG, "onDescriptorWrite : Success to write descriptor.");
+                Log.d(TAG, "CCCD(클라이언트 특성 설정 설명자) 쓰기에 성공했습니다. 보안코드 인증 시간초과 핸들러를 생성하고, 보안코드 패킷을 전송합니다.");
 
-                if (!sendPacket(packetMaker(PACKET_HEADER_PASSWORD, mBleViewModel.getUserPasswordConnecting().getBytes(), 5)))
-                {
-                    Log.d(TAG, "onDescriptorWrite : Failed to send password packet.");
-                    gatt.disconnect();
-                }
+                // 보안코드 인증하기 전에 핸들러를 등록한다.
+                mPasswordHandler.postDelayed(mPasswordRunner, PASSWORD_TIMEOUT_IN_MS);
+                byte[] passKey = Status.instance().connectedUser.passKey.getBytes();
+                sendPacket(packetMaker(PacketInfo.HEADER_PASSWORD, passKey, 5));
             }
             else
             {
@@ -1322,395 +1153,512 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)
         {
-            new Handler(Looper.getMainLooper()).post(new Runnable()
+            // run
+            new Handler(Looper.getMainLooper()).post(() ->
             {
-                @Override
-                public void run()
+                // 수신 패킷 정보 획득
+                byte[] responsePacket = characteristic.getValue(); // Extract data from packet.
+                int packetSize = responsePacket.length; // Get size of packet data.
+
+                Log.d(TAG, "BLE 특성 변화 감지 : " + printLogBytesToString(responsePacket));
+
+                if (packetSize < 1)
                 {
-                    byte[] responsePacket = characteristic.getValue(); // Extract data from packet.
-                    int packetSize = responsePacket.length; // Get size of packet data.
+                    Log.d(TAG, "사이즈가 1보다 작은 패킷을 수신하였습니다. 패킷은 1보다 작을 수 없습니다.");
+                    Log.d(TAG, "수신한 패킷에 문제가 있으므로, 바로 return; 하여 패킷 응답 시간초과가 발생하도록 유도합니다.");
+                    return;
+                }
 
-                    Log.d(TAG, "onCharacteristicChanged : " + printLogBytesToString(responsePacket));
+                // 패킷 응답 시간초과 핸들러 제거
+                mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner);
 
-                    if (packetSize < 1)
+                // 패킷 전송 상태 초기화 -> 다시 IDLE 상태로 돌아간다.
+                Status.instance().transferState = Status.TRANSFER_STATE_IDLE;
+
+                // 수신 패킷 헤더 추출
+                byte packetHeader = byteExtractor(responsePacket[0]);
+
+                // 수신한 패킷 헤더에 따라 처리를 수행한다.
+                switch (packetHeader)
+                {
+                    // 보안코드
+                    case PacketInfo.HEADER_PASSWORD:
                     {
-                        Log.d(TAG, "onCharacteristicChanged : size 0 packet has arrived.");
-                        return;
-                    }
+                        // 보안코드 응답을 받았으므로, 핸들러를 제거한다.
+                        mPasswordHandler.removeCallbacks(mPasswordRunner);
 
-                    // Remove callbacks from handler checking timeout for response about packet sent.
-                    packetTimeoutHandler.removeCallbacks(packetTimeoutRunner);
-                    packetTimeoutHandler.removeCallbacks(packetTimeoutRunner2);
-                    AppParam.getInstance().isBleBusy = false; // release busy state.
-
-                    // Get currently running fragment number.
-                    int currentFragmentNumber = AppParam.getInstance().getCurrentFragmentNumber();
-
-                    // Get packet header.
-                    byte packetHeader = byteExtractor(responsePacket[0]);
-
-                    // Process response packet based on packet header.
-                    switch (packetHeader)
-                    {
-                        // Password
-                        case PACKET_HEADER_PASSWORD:
+                        if (packetSize != PacketInfo.PACKET_SIZE_PASSWORD) // 보안코드 응답 패킷 사이즈 체크
                         {
-                            if (packetSize < 2)
-                            {
-                                Log.d(TAG, "onCharacteristicChanged : Unexpected packet size error!");
-                                Toast.makeText(getApplicationContext(), getString(R.string.activity_main_toast_message_packet_length_error), Toast.LENGTH_LONG).show();
-                                return;
-                            }
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 보안코드 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : 보안코드 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
 
+                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                            packetSizeErrorDialog();
+                            return;
+                        }
+                        else // 보안코드 응답 패킷 사이즈가 올바를 때
+                        {
                             // Correct password.
-                            if (byteExtractor(responsePacket[1]) == 1)
+                            if (byteExtractor(responsePacket[1]) == PacketInfo.PASSWORD_PASS)
                             {
-                                Log.d(TAG, "onCharacteristicChanged : Correct password.");
+                                Log.d(TAG, "사용자의 보안코드가 올바릅니다.");
+                                Log.d(TAG, "보안코드 인증에 성공했습니다. 상태정보 획득 시간초과 핸들러를 생성하고, 상태정보 획득 패킷을 전송합니다. ");
 
-                                // Try to get Sound Processor information.
-                                sendPacket(packetMaker(PACKET_HEADER_SOUND_PROCESSOR_STATUS, null, 1));
+                                // 상태정보 획득 패킷을 보내기 전에 핸들러를 등록한다.
+                                mStatusHandler.postDelayed(mStatusRunner, STATUS_TIMEOUT_IN_MS);
+                                sendPacket(packetMaker(PacketInfo.HEADER_SOUND_PROCESSOR_STATUS, null, 1));
                             }
                             // Not correct password.
                             else
                             {
-                                Log.d(TAG, "onCharacteristicChanged : Not correct password.");
-                                Log.d(TAG, "onCharacteristicChanged : Security password of Sound Processor is not correct. This can't be happened!");
+                                Log.d(TAG, "사용자의 보안코드가 올바르지 않습니다.");
+                                Log.d(TAG, "스캔을 멈추고, 사운드처리기와의 연결을 해제합니다.");
 
-                                mBluetoothGatt.disconnect();
+                                UtilLog.instance.writeLog("패킷 에러 : 올바르지 않은 보안코드");
+
+                                // 사용자에 의한 연결 종료로 처리한다.
+                                Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+                                gatt.disconnect();    // 연결 종료
+
+                                // 이미 생성된 다이얼로그가 있다면, 그 다이얼로그를 종료하고 사용자 보안코드 재설정 다이얼로그를 생성해야 한다.
+                                Log.d(TAG, "현재 생성된 다이얼로그가 있다면 종료하고, 사용자 보안코드 재설정을 위한 다이얼로그를 새로 생성합니다.");
+
+                                if (Status.instance().lastDialog != null)
+                                {
+                                    if (Status.instance().lastDialog.isShowing())
+                                    {
+                                        Status.instance().lastDialog.dismiss();
+                                    }
+                                }
+
+                                Status.instance().lastDialog =
+                                        new MaterialAlertDialogBuilder(MainActivity.this)
+                                                .setTitle("주의")
+                                                .setMessage("연결중인 사용자의 보안코드가 올바르지 않습니다. 보안코드를 재설정하시겠습니까?")
+                                                .setPositiveButton("재설정", (dialogInterface, i) ->
+                                                {
+                                                    longTimeIdleHandlerUpdate(true);
+
+                                                    EntityUser user = UtilUser.instance.getDefaultUser();
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putString(EditUserFragment.ARG_NAME, user.name);
+                                                    bundle.putString(EditUserFragment.ARG_PASSKEY, user.passKey);
+                                                    bundle.putString(EditUserFragment.ARG_NICKNAME, user.nickname);
+                                                    bundle.putString(EditUserFragment.ARG_EAR, user.ear);
+                                                    bundle.putString(EditUserFragment.ARG_DEFAULT, user.defaultUser);
+                                                    EditUserFragment editUserFragment = new EditUserFragment();
+                                                    editUserFragment.setArguments(bundle);
+                                                    getSupportFragmentManager().beginTransaction().replace(mBinding.frame.getId(), editUserFragment).commitNowAllowingStateLoss();
+                                                })
+                                                .setNegativeButton("취소", (dialogInterface, i) ->
+                                                {
+                                                    longTimeIdleHandlerUpdate(true);
+
+                                                    scanLe(true);
+                                                })
+                                                .setCancelable(false)
+                                                .create();
+
+                                Status.instance().lastDialog.show();
                             }
-                        } // PACKET_HEADER_PASSWORD
-                        break;
+                        }
+                    } // PacketInfo.HEADER_PASSWORD
+                    break;
 
-                        // Sound Processor status
-                        case PACKET_HEADER_SOUND_PROCESSOR_STATUS:
+                    // 사운드처리기 상태 정보
+                    case PacketInfo.HEADER_SOUND_PROCESSOR_STATUS:
+                    {
+                        // 상태정보 획득 응답을 받았으므로, 핸들러를 제거한다.
+                        mStatusHandler.removeCallbacks(mStatusRunner);
+
+                        if (packetSize != PacketInfo.PACKET_SIZE_PROCESSOR_STATUS)
                         {
-                            if (packetSize != 8)
-                            {
-                                Log.d(TAG, "onCharacteristicChanged : Unexpected packet size error!");
-                                Toast.makeText(getApplicationContext(), getString(R.string.activity_main_toast_message_packet_length_error), Toast.LENGTH_LONG).show();
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 상태정보 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : 상태정보 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                            packetSizeErrorDialog();
+                            break;
+                        }
+
+                        PacketInfo packetInfo = new PacketInfo();
+
+                        packetInfo.battery = (byte) (responsePacket[1] & 0xff);
+                        packetInfo.program = (byte) (responsePacket[2] & 0xff);
+                        packetInfo.maxOutput = (byte) (responsePacket[3] & 0xff);
+                        packetInfo.volume = (byte) (responsePacket[4] & 0xff);
+                        packetInfo.led = (byte) (responsePacket[5] & 0xff);
+                        packetInfo.telecoil = (byte) (responsePacket[6] & 0xff);
+                        packetInfo.notification = (byte) (responsePacket[7] & 0xff);
+
+                        Log.d(TAG, "사운드처리기 상태 확인 패킷 수신 :");
+                        Log.d(TAG, "배터리 = " + packetInfo.battery);
+                        Log.d(TAG, "맵번호 = " + packetInfo.program);
+                        Log.d(TAG, "볼륨 = " + packetInfo.volume);
+                        Log.d(TAG, "최대출력 = " + packetInfo.maxOutput);
+                        Log.d(TAG, "LED = " + packetInfo.led);
+                        Log.d(TAG, "텔레코일 = " + packetInfo.telecoil);
+                        Log.d(TAG, "자극알림 = " + packetInfo.notification);
+
+                        mStatusViewModel.setValueBatteryLevel(packetInfo.battery);
+                        mStatusViewModel.setValueNotification(packetInfo.notification);
+                        mStatusViewModel.setValueLed(packetInfo.led);
+                        mStatusViewModel.setValueTelecoil(packetInfo.telecoil);
+                        mStatusViewModel.setValueMaxOutput(packetInfo.maxOutput);
+                        mStatusViewModel.setValueVolume(packetInfo.volume);
+                        mStatusViewModel.setValueProgram(packetInfo.program);
+
+                        // 현재 BLE 연결중(CONNECTING)인 상태라면, 주기적인 배터리 상태 핸들러를 생성한다.
+                        // 하지만 연결된(CONNECTED) 상태라면 핸들러를 생성하지 않는다.
+                        if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTING)
+                        {
+                            UtilLog.instance.writeLog("연결 성공 : 장치이름=" + gatt.getDevice().getName());
+
+                            Log.d(TAG, "사운드처리기와 BLE 통신이 온전하게 연결되었습니다.");
+                            Status.instance().connectionState = Status.CONNECTION_STATE_CONNECTED;
+                            mCheckBatteryHandler.postDelayed(mCheckBatteryRunner, CHECK_BATTERY_DELAY_IN_MS);
+
+                            // 리모컨 화면의 옵저버를 위해 뷰모델 값을 업데이트한다.
+                            mStatusViewModel.setConnectionState(StatusViewModel.CONNECTION_STATE_CONNECTED);
+                        }
+                    }
+                    break;
+
+                    // 자극알림
+                    case PacketInfo.HEADER_VALUE_NOTIFICATION:
+                    {
+                        if (packetSize != PacketInfo.PACKET_SIZE_NOTIFICATION)
+                        {
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 자극알림 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : 자극알림 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                            packetSizeErrorDialog();
+                            break;
+                        }
+
+                        int value = responsePacket[1];
+                        mStatusViewModel.setValueNotification(value);
+                        UtilLog.instance.writeLog("패킷 수신 : 자극알림->" + value);
+                    }
+                    break;
+
+                    // LED
+                    case PacketInfo.HEADER_VALUE_LED:
+                    {
+                        if (packetSize != PacketInfo.PACKET_SIZE_LED)
+                        {
+                            Log.d(TAG, "BLE 특성 변경 감지 -> LED 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : LED 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                            packetSizeErrorDialog();
+                            break;
+                        }
+
+                        int value = responsePacket[1];
+                        mStatusViewModel.setValueLed(value);
+                        UtilLog.instance.writeLog("패킷 수신 : LED알림->" + value);
+                    }
+                    break;
+
+                    // 텔레코일
+                    case PacketInfo.HEADER_VALUE_TELECOIL:
+                    {
+                        if (packetSize != PacketInfo.PACKET_SIZE_TELECOIL)
+                        {
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 텔레코일 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : 텔레코일 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                            packetSizeErrorDialog();
+                            break;
+                        }
+
+                        int value = responsePacket[1];
+                        mStatusViewModel.setValueTelecoil(value);
+                        UtilLog.instance.writeLog("패킷 수신 : 텔레코일->" + value);
+                    }
+                    break;
+
+                    // 맵번호
+                    case PacketInfo.HEADER_VALUE_PROMGRAM:
+                    {
+                        if (packetSize != PacketInfo.PACKET_SIZE_PROGRAM)
+                        {
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 맵번호 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : 맵번호 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                            packetSizeErrorDialog();
+                            break;
+                        }
+
+                        int value = responsePacket[1];
+                        mStatusViewModel.setValueProgram(value);
+                        UtilLog.instance.writeLog("패킷 수신 : 프로그램->" + value);
+                    }
+                    break;
+                    // 최대출력
+                    case PacketInfo.HEADER_VALUE_MAX_OUTPUT:
+                    {
+                        if (packetSize != PacketInfo.PACKET_SIZE_MAX_OUTPUT)
+                        {
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 최대출력 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : 최대출력 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                            packetSizeErrorDialog();
+                            break;
+                        }
+
+                        int value = responsePacket[1];
+                        mStatusViewModel.setValueMaxOutput(value);
+                        UtilLog.instance.writeLog("패킷 수신 : 최대출력->" + value);
+                    }
+                    break;
+                    // 볼륨
+                    case PacketInfo.HEADER_VALUE_VOLUME:
+                    {
+                        if (packetSize != PacketInfo.PACKET_SIZE_VOLUME)
+                        {
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 볼륨 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : 볼륨 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                            packetSizeErrorDialog();
+                            break;
+                        }
+
+                        int value = responsePacket[1];
+                        mStatusViewModel.setValueVolume(value);
+                        UtilLog.instance.writeLog("패킷 수신 : 볼륨->" + value);
+                    }
+                    break;
+                    // 에러
+                    case PacketInfo.HEADER_ERROR:
+                    {
+                        if (packetSize != PacketInfo.PACKET_SIZE_ERROR)
+                        {
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 에러 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : 에러 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                            packetSizeErrorDialog();
+                            break;
+                        }
+
+                        byte errorType = byteExtractor(responsePacket[2]);
+
+                        switch (errorType)
+                        {
+                            case 1: // 없는 명령
+                            case 2: // 데이터 범위 이탈
+                                Log.d(TAG, "패킷 위반 에러를 수신했습니다.");
+
+                                if (!Status.instance().isEnabledInvalidPacketToast)
+                                {
+                                    Toast.makeText(getApplicationContext(), "사운드처리기가 유효하지 않은 명령어를 전송했습니다.", Toast.LENGTH_LONG).show();
+
+                                    Status.instance().isEnabledInvalidPacketToast = true;
+
+                                    new Handler(Looper.getMainLooper()).postDelayed(() ->
+                                    {
+                                        Status.instance().isEnabledInvalidPacketToast = false;
+                                        longTimeIdleHandlerUpdate(true);
+                                    }, 3500);
+                                }
                                 break;
-                            }
 
-                            DeviceParam deviceParam = new DeviceParam();
+                            case 3: // Busy
+                                Log.d(TAG, "Busy 에러를 수신했습니다.");
 
-                            deviceParam.setBattery((byte) (responsePacket[1] & 0xff));
-                            deviceParam.setProgram((byte) (responsePacket[2] & 0xff));
-                            deviceParam.setSensitivity((byte) (responsePacket[3] & 0xff));
-                            deviceParam.setVolume((byte) (responsePacket[4] & 0xff));
-                            deviceParam.setAlarmLed((byte) (responsePacket[5] & 0xff));
-                            deviceParam.setTelecoil((byte) (responsePacket[6] & 0xff));
-                            deviceParam.setAlarmStimulation((byte) (responsePacket[7] & 0xff));
-                            //deviceParam.setPowerMode((byte) (responsePacket[8] & 0xff));
-                            //deviceParam.setWarnning((byte) (responsePacket[8] & 0xff));
+                                if (!Status.instance().isEnabledBusyToast)
+                                {
+                                    Toast.makeText(getApplicationContext(), "이전에 전송한 명령을 처리중입니다.", Toast.LENGTH_LONG).show();
 
-                            //AppParam.getInstance().currentStatusParams = deviceParam;
+                                    Status.instance().isEnabledBusyToast = true;
 
-                            Log.d(TAG, "onCharacteristicChanged : Successfully get Sound Processor status.");
-                            Log.d(TAG, "onCharacteristicChanged : Battery = " + deviceParam.getBattery());
-                            Log.d(TAG, "onCharacteristicChanged : Program = " + deviceParam.getProgram());
-                            Log.d(TAG, "onCharacteristicChanged : Volume = " + deviceParam.getVolume());
-                            Log.d(TAG, "onCharacteristicChanged : Sensitivity = " + deviceParam.getSensitivity());
-                            Log.d(TAG, "onCharacteristicChanged : Alarm LED = " + deviceParam.getAlarmLed());
-                            Log.d(TAG, "onCharacteristicChanged : Telecoil = " + deviceParam.getTelecoil());
-                            Log.d(TAG, "onCharacteristicChanged : Alarm Stimulation = " + deviceParam.getAlarmStimulation());
-
-                            mStatusViewModel.setValueBatteryLevel(deviceParam.getBattery());
-                            mStatusViewModel.setValueNotification(deviceParam.getAlarmStimulation());
-                            mStatusViewModel.setValueLed(deviceParam.getAlarmLed());
-                            mStatusViewModel.setValueTelecoil(deviceParam.getTelecoil());
-                            mStatusViewModel.setValueMaxOutput(deviceParam.getSensitivity());
-                            mStatusViewModel.setValueVolume(deviceParam.getVolume());
-                            mStatusViewModel.setValueProgram(deviceParam.getProgram());
-
-                            // Check value validation.
-
-                            boolean invalid = false;
-
-                            if (invalid)
-                            {
-                                makeDialogReattachSoundProcessorAndDisconnect();
-                            }
-                            else
-                            {
-                                // Make battery checking handler into main looper.
-                                checkBatteryHandler.removeCallbacks(checkBatteryRunner);
-                                checkBatteryHandler.postDelayed(checkBatteryRunner, DELAY_IN_MS_FOR_BATTERY_CHECKING);
-                            }
-
-                            //writeMessage(LoggingUtils.LOGGING_VALUE_STATUS, "name=" + AppParam.getInstance().currentConnectDevice.getDeviceName() + ", addr=" + AppParam.getInstance().currentConnectDevice.getDeviceMacAddress() + ", serial=" + AppParam.getInstance().currentConnectDevice.getDeviceSerial() + ", user=" + AppParam.getInstance().currentConnectDevice.getImplantUserName() + ", invalid=" + invalid + ", batt=" + deviceParam.getBattery()); // Logging
-
-                            mBleViewModel.setBleConnection(BleViewModel.BLE_CONNECTED);
-                        }
-                        break;
-
-                        // Alarm stimulation
-                        case PACKET_HEADER_VALUE_SIMULATION:
-                        {
-                            int value = responsePacket[1];
-                            mStatusViewModel.setValueNotification(value);
-                        }
-                        break;
-
-                        // Alarm LED
-                        case PACKET_HEADER_VALUE_LED:
-                        {
-                            int value = responsePacket[1];
-                            mStatusViewModel.setValueLed(value);
-                        }
-                        break;
-
-                        // Alarm Telecoil
-                        case PACKET_HEADER_VALUE_TELECOIL:
-                        {
-                            int value = responsePacket[1];
-                            mStatusViewModel.setValueTelecoil(value);
-                        }
-                        break;
-
-                        // Program
-                        case PACKET_HEADER_VALUE_PROMGRAM:
-                        {
-                            int value = responsePacket[1];
-                            mStatusViewModel.setValueProgram(value);
-                        }
-                        break;
-                        // Sensitivity
-                        case PACKET_HEADER_VALUE_SENSITIVITY:
-                        {
-                            int value = responsePacket[1];
-                            mStatusViewModel.setValueMaxOutput(value);
-                        }
-                        break;
-                        // Volume
-                        case PACKET_HEADER_VALUE_VOLUME:
-                        {
-                            int value = responsePacket[1];
-                            mStatusViewModel.setValueVolume(value);
-                        }
-                        break;
-                        // Error
-                        case PACKET_HEADER_ERROR:
-                        {
-                            if (packetSize < 3)
-                            {
-                                Log.d(TAG, "onCharacteristicChanged : Unexpected packet size error!");
-                                Toast.makeText(getApplicationContext(), getString(R.string.activity_main_toast_message_packet_length_error), Toast.LENGTH_LONG).show();
+                                    new Handler(Looper.getMainLooper()).postDelayed(() ->
+                                    {
+                                        longTimeIdleHandlerUpdate(true);
+                                        Status.instance().isEnabledBusyToast = false;
+                                    }, 3500);
+                                }
                                 break;
-                            }
 
-                            byte errorType = byteExtractor(responsePacket[2]);
+                            case 4: // 보안코드 미적용 에러
+                                Log.d(TAG, "보안코드 미적용 에러를 수신했습니다.");
 
-                            switch (errorType)
-                            {
-                                // Invalid command, Invalid packet data size
-                                case 1:
-                                case 2:
-                                    Log.d(TAG, "onCharacteristicChanged : Packet error!");
+                                if (!Status.instance().isEnabledUnlockedToast)
+                                {
+                                    Toast.makeText(getApplicationContext(), "사운드처리기의 암호가 풀리지 않았습니다. 보안 비밀번호를 사용해 잠금을 해제해주세요.", Toast.LENGTH_LONG).show();
+                                    Status.instance().isEnabledUnlockedToast = true;
 
-                                    if (!AppParam.getInstance().isEnabledInvalidPacketToast)
+                                    new Handler(Looper.getMainLooper()).postDelayed(() ->
                                     {
-                                        Toast.makeText(getApplicationContext(), getString(R.string.activity_main_toast_message_sound_processor_get_error_packet), Toast.LENGTH_LONG).show();
+                                        longTimeIdleHandlerUpdate(true);
+                                        Status.instance().isEnabledUnlockedToast = false;
+                                    }, 3500);
+                                }
+                                break;
 
-                                        AppParam.getInstance().isEnabledInvalidPacketToast = true;
+                            case 5: // SPI 통신 에러
+                            case 6: // CFX_CM3 통신 에러
+                            case 7: // NRF_FLASH 초기화 에러
+                                Log.d(TAG, "사운드처리기에 문제가 발생했습니다.");
 
-                                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
-                                        {
-                                            @Override
-                                            public void run()
-                                            {
-                                                AppParam.getInstance().isEnabledInvalidPacketToast = false;
-                                            }
-                                        }, 3500);
-                                    }
-                                    break;
+                                if (!Status.instance().isEnabledInternalErrorToast)
+                                {
+                                    Toast.makeText(getApplicationContext(), "사운드처리기 내부에서 에러가 발생했습니다. 탈착 후 다시 부착해주세요.", Toast.LENGTH_LONG).show();
+                                    Status.instance().isEnabledInternalErrorToast = true;
 
-                                // Busy state
-                                case 3:
-                                    Log.d(TAG, "onCharacteristicChanged : Sound Processor is busy!");
-
-                                    if (!AppParam.getInstance().isEnabledBusyToast)
+                                    new Handler(Looper.getMainLooper()).postDelayed(() ->
                                     {
-                                        Toast.makeText(getApplicationContext(), getString(R.string.fragment_password_toast_message_ble_busy), Toast.LENGTH_LONG).show();
-
-                                        AppParam.getInstance().isEnabledBusyToast = true;
-
-                                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
-                                        {
-                                            @Override
-                                            public void run()
-                                            {
-                                                AppParam.getInstance().isEnabledBusyToast = false;
-                                            }
-                                        }, 3500);
-                                    }
-                                    break;
-
-                                // Password unlocked...
-                                case 4:
-                                    Log.d(TAG, "onCharacteristicChanged : Sound Processor is locked! Unlock Sound Processor using password first.");
-
-                                    if (!AppParam.getInstance().isEnabledUnlockedToast)
-                                    {
-                                        Toast.makeText(getApplicationContext(), getString(R.string.activity_main_toast_message_sound_processor_locked), Toast.LENGTH_LONG).show();
-                                        AppParam.getInstance().isEnabledUnlockedToast = true;
-
-                                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
-                                        {
-                                            @Override
-                                            public void run()
-                                            {
-                                                AppParam.getInstance().isEnabledUnlockedToast = false;
-                                            }
-                                        }, 3500);
-                                    }
-                                    break;
-
-                                // Sound Processor system error...
-                                case 5:
-                                case 6:
-                                case 7:
-                                    Log.d(TAG, "onCharacteristicChanged : Sound Processor internal system error occurred...");
-
-                                    if (!AppParam.getInstance().isEnabledInternalErrorToast)
-                                    {
-                                        Toast.makeText(getApplicationContext(), getString(R.string.activity_main_toast_message_sound_processor_internal_error), Toast.LENGTH_LONG).show();
-                                        AppParam.getInstance().isEnabledInternalErrorToast = true;
-
-                                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable()
-                                        {
-                                            @Override
-                                            public void run()
-                                            {
-                                                AppParam.getInstance().isEnabledInternalErrorToast = false;
-                                            }
-                                        }, 3500);
-                                    }
-                                    break;
-                            }
+                                        longTimeIdleHandlerUpdate(true);
+                                        Status.instance().isEnabledInternalErrorToast = false;
+                                    }, 3500);
+                                }
+                                break;
                         }
-                        break;
-                    } // switch
-                } // run
+                    }
+                    break;
+                } // switch
             }); // handler mainLooper
         } // onCharacteristicChanged
     }; // BluetoothGattCallback
 
+    //
+    // 패킷 사이즈 에러 다이얼로그
+    //
+    private void packetSizeErrorDialog()
+    {
+        // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+        if (Status.instance().lastDialog != null)
+        {
+            if (Status.instance().lastDialog.isShowing())
+            {
+                Status.instance().lastDialog.dismiss();
+            }
+        }
+
+        Status.instance().lastDialog =
+                new MaterialAlertDialogBuilder(MainActivity.this)
+                        .setTitle("에러")
+                        .setMessage("상태정보 획득 중에 통신 문제가 발생했습니다. 앱을 종료하고 다시 시작해주세요. 같은 문제가 다시 발생한다면, 착용하신 사운드처리기를 다시 착용해주세요.")
+                        .setPositiveButton("확인", null)
+                        .setCancelable(false)
+                        .create();
+        Status.instance().lastDialog.show();
+
+        if (mBluetoothGatt != null)
+        {
+            if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTING ||
+                    Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
+            {
+                mBluetoothGatt.disconnect();
+            }
+        }
+    }
+
+    //
+    // 진동 발생 함수
+    //
     private void vibrator(int ms)
     {
         Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         vibrator.vibrate(ms);
     }
 
-    /**
-     * Value extractor - for byte
-     */
+    //
+    // 진동 생성기 호출자
+    //
+    public void onVibrator(int ms)
+    {
+        vibrator(ms);
+    }
+
+    //
+    // 바이트 추출기
+    //
     public byte byteExtractor(byte b)
     {
         return (byte) (b & 0xFF);
     }
 
-    /**
-     * Handler for packet timeout
-     */
-    Handler packetTimeoutHandler = new Handler();
-
-    /**
-     * Runner2 for packet timeout
-     */
-    Runnable packetTimeoutRunner2 = new Runnable()
+    //
+    // 패킷 응답 시간 초과 핸들러 관련
+    //
+    Handler mPacketResponseTimeoutHandler = new Handler();
+    Runnable mPacketResponseTimeoutRunner = () ->
     {
-        @Override
-        public void run()
-        {
-            Log.d(TAG, "packetTImeoutRunner2 : Timeout occurred for response packet. Then try to disconnect from current connected Sound Processor.");
+        Log.d(TAG, "패킷 응답 시간 초과 발생 -> 기기와 연결을 해제하겠습니다.");
 
-            if (mBluetoothGatt != null && AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
+        if (mBluetoothGatt != null)
+        {
+            if (Status.instance().connectionState != Status.CONNECTION_STATE_DISCONNECTED &&
+                    Status.instance().connectionState != Status.CONNECTION_STATE_DISCONNECTING)
             {
                 mBluetoothGatt.disconnect();
             }
         }
     }; // scanRunner
 
-    /**
-     * Runner for packet timeout
-     */
-    Runnable packetTimeoutRunner = new Runnable()
+    //
+    // 패킷 전송 핸들러 (너무 빠른 전송을 방지하기 위해 약 50ms의 딜레이를 생성하기 위함)
+    //
+    Handler mPacketSendHandler = new Handler();
+    Runnable mPacketSendRunner = () ->
     {
-        @Override
-        public void run()
+        if (mBluetoothGatt == null || Status.instance().sendingPacket == null)
         {
-            Log.d(TAG, "packetTImeoutRunner : Timeout occurred for response packet. Then Try to send previous packet again.");
+            Log.d(TAG, "패킷 전송 시도를 실패했습니다. -> GATT 객체가 null 이거나, 패킷 정보가 없습니다.");
+            return;
+        }
 
+        boolean isSuccess = false;
+
+        Log.d(TAG, "패킷을 전송합니다. -> {" + printLogBytesToString(Status.instance().sendingPacket) + "}");
+
+        Log.d(TAG, "패킷 응답 시간 초과 핸들러를 생성합니다.");
+        mPacketResponseTimeoutHandler.postDelayed(mPacketResponseTimeoutRunner, DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT);
+
+        if (mCharClientToServer.setValue(Status.instance().sendingPacket))
+        {
             if (mBluetoothGatt.writeCharacteristic(mCharClientToServer))
             {
-                packetTimeoutHandler.postDelayed(packetTimeoutRunner2, DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT); // Make Handler for timeout
+                isSuccess = true;
             }
-
-            //Toast.makeText(getApplicationContext(), getString(R.string.activity_main_toast_message_packet_timeout), Toast.LENGTH_SHORT).show();
         }
-    }; // scanRunner
 
-    /**
-     * Handler for send packet
-     */
-    Handler packetSendHandler = new Handler();
-
-    /**
-     * Runner for send packet
-     */
-    Runnable packetSendRunner = new Runnable()
-    {
-        @Override
-        public void run()
+        if (!isSuccess)
         {
-            if (mBluetoothGatt == null || mBluetoothDevice == null || mCharClientToServer == null || AppParam.getInstance().sendingPacket == null)
-            {
-                return;
-            }
-
-            if (mCharClientToServer.setValue(AppParam.getInstance().sendingPacket) && mBluetoothGatt.writeCharacteristic(mCharClientToServer))
-            {
-                packetTimeoutHandler.postDelayed(packetTimeoutRunner, DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT); // Make Handler for timeout
-            }
-            else
-            {
-                return;
-            }
-
-            Log.d(TAG, "packetSendRunner : packet = " + printLogBytesToString(AppParam.getInstance().sendingPacket));
-            AppParam.getInstance().sendingPacket = null;
+            Log.d(TAG, "패킷 전송을 실패했습니다. 패킷 전송 시간 초과 핸들러를 제거합니다.");
+            mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner);
         }
+
+        Status.instance().sendingPacket = null;
     };
 
-    /**
-     * Send packet that can be used anywhere
-     */
-    public boolean sendPacket(byte[] packet)
+    //
+    // 패킷 전송 메소드
+    //
+    public void sendPacket(byte[] packet)
     {
-        if (AppParam.getInstance().isBleBusy)
+        if (Status.instance().transferState == Status.TRANSFER_STATE_BUSY)
         {
-            Log.d(TAG, "sendPacket : Failed to send packet why Characteristic is busy.");
-            return false;
+            Log.d(TAG, "패킷 전송 처리 중입니다. 잠시 후 다시 시도해주세요.");
+            return;
         }
 
-        /*
-        if (AppParam.getInstance().bleConnectionState == AppParam.BLE_CONNECTION_STATE_DISCONNECTED)
-        {
-            Toast.makeText(getApplicationContext(), getString(R.string.activity_main_toast_message_ble_not_connected), Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        */
-
-        AppParam.getInstance().isBleBusy = true;
-        AppParam.getInstance().sendingPacket = packet;
-        packetSendHandler.postDelayed(packetSendRunner, DELAY_IN_MS_FOR_SEND_PACKET);
-
-        return true;
+        Status.instance().transferState = Status.TRANSFER_STATE_BUSY;
+        Status.instance().sendingPacket = packet;
+        mPacketSendHandler.postDelayed(mPacketSendRunner, SEND_PACKET_DELAY_IN_MS);
     }
 
-    /**
-     * Printer for String using bytes.
-     */
+    //
+    // 바이트 배열을 문자열로 출력하는 함수
+    //
     public String printLogBytesToString(byte[] bytes)
     {
         StringBuilder sb = new StringBuilder();
@@ -1725,9 +1673,9 @@ public class MainActivity extends AppCompatActivity
         return sb.toString();
     }
 
-    /**
-     * Make a packet that must less than equal length 20.
-     */
+    //
+    // 패킷 생성기
+    //
     public byte[] packetMaker(int header, byte[] payload, int maxLen)
     {
         byte[] packet = new byte[maxLen];
@@ -1739,145 +1687,155 @@ public class MainActivity extends AppCompatActivity
             System.arraycopy(payload, 0, packet, 1, Math.min((maxLen - 1), payload.length));
         }
 
-        Log.d(TAG, "New Packet = " + printLogBytesToString(packet));
+        Log.d(TAG, "새롭게 생성한 패킷 => " + printLogBytesToString(packet));
         return packet;
     }
 
-    /**
-     * Make a dialog for relaunch app message.
-     */
-    public void makeDialogRelaunchApp()
-    {
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this, R.style.MyAlertDialogTheme);
-
-        String message = getString(R.string.activity_main_dialog_message_relaunch_app_by_status_parameters);
-
-        builder.setMessage(message);
-
-        builder.setPositiveButton(getString(R.string.dialog_message_ok), null);
-
-        AppParam.getInstance().lastDialog = builder.create();
-        AppParam.getInstance().lastDialog.show();
-    }
-
-    /**
-     * Make a dialog for re-attach Sound Processor and disconnect.
-     */
-    public void makeDialogReattachSoundProcessorAndDisconnect()
-    {
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this, R.style.MyAlertDialogTheme);
-
-        String message = getString(R.string.activity_main_dialog_message_invalid_status_value);
-
-        builder.setCancelable(false);
-
-        builder.setMessage(message);
-
-        builder.setPositiveButton(getString(R.string.dialog_message_ok), new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i)
-            {
-                updateLongTimeIdleHandler(); // Update long time idle handler
-                if (AppParam.getInstance().bleConnectionState != AppParam.BLE_CONNECTION_STATE_DISCONNECTED && mBluetoothDevice != null && mBluetoothGatt != null)
-                {
-                    AppParam.getInstance().isDisconnectedByUser = true;
-                    mBluetoothGatt.disconnect();
-                }
-            }
-        });
-
-        AppParam.getInstance().invalidValueDialog = builder.create();
-        AppParam.getInstance().lastDialog = AppParam.getInstance().invalidValueDialog;
-        AppParam.getInstance().invalidValueDialog.show();
-    }
-
-    public void writeMessage(int type, String message)
-    {
-        LoggingUtils.getInstance().writeMessage(LoggingUtils.getInstance().typeMessage(type) + " : " + message);
-    }
-
     //
-    // Associated with "Tool bar".
+    // 상태바, 네비게이션바, 툴바 초기화
     //
-    public void showToolBarNavigationIcon(boolean enable)
+    public void initStatusNavigationToolBar()
     {
-        if (enable)
-        {
-            mBinding.toolbar.setNavigationIcon(getDrawable(R.drawable.toolbar_ic_back_arrow_24dp));
-        }
-        else
-        {
-            mBinding.toolbar.setNavigationIcon(null);
-        }
-    }
+        // 상태바, 하단 네비게이션바 그리고 툴바의 색상 설정
+        getWindow().setStatusBarColor(getColor(R.color.status_bar));
+        getWindow().setNavigationBarColor(getColor(R.color.bottom_navigation));
+        mBinding.toolbar.setBackgroundColor(getColor(R.color.toolbar_background));
 
-    public void initToolBar()
-    {
+        // 툴바의 네비게이션버튼 및 타이틀은 안보이게 설정
+        mBinding.toolbar.setNavigationIcon(null);
+        mBinding.toolbar.setTitle("");
+
+        // 툴바의 메뉴 아이콘들이 보이도록 설정
+        mBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(true);
+        mBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(true);
+
+        // 툴바의 네비게이션 및 메뉴 버튼 이벤트 리스너 등록
         mBinding.toolbar.setNavigationOnClickListener(mToolBarNavigationClickListener);
         mBinding.toolbar.setOnMenuItemClickListener(mToolBarMenuItemClickListener);
     }
 
-    View.OnClickListener mToolBarNavigationClickListener = new View.OnClickListener()
-    {
-        @Override
-        public void onClick(View view)
-        {
-            onBackPressed();
-        }
-    };
+    //
+    // 툴바 네비게이션 클릭 리스너
+    //
+    View.OnClickListener mToolBarNavigationClickListener = view -> onBackPressed();
 
-    Toolbar.OnMenuItemClickListener mToolBarMenuItemClickListener = new Toolbar.OnMenuItemClickListener()
+    //
+    // 툴바 메뉴 버튼 클릭 리스너
+    //
+    Toolbar.OnMenuItemClickListener mToolBarMenuItemClickListener = item ->
     {
-        @Override
-        public boolean onMenuItemClick(MenuItem item)
+        // 장시간 미사용 핸들러 업데이트
+        longTimeIdleHandlerUpdate(true);
+
+        if (item.getItemId() == R.id.toolbar_settings)
         {
-            if (item.getItemId() == R.id.settings)
+            if (Status.instance().scanState == Status.SCAN_STATE_STARTED)
             {
-                getSupportFragmentManager().beginTransaction().replace(R.id.frame, new SettingsFragment()).commitAllowingStateLoss();
-                return true;
+                scanLe(false);
             }
-            else if (item.getItemId() == R.id.toolbar_user)
+
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame, new SettingsFragment()).commitAllowingStateLoss();
+            return true;
+        }
+        else if (item.getItemId() == R.id.toolbar_user)
+        {
+            if (Status.instance().connectionState != Status.CONNECTION_STATE_DISCONNECTED)
             {
-                if (mBleViewModel.getBleConnection() != BleViewModel.BLE_DISCONNECTED)
+                if (Status.instance().lastDialog != null)
                 {
-                    new MaterialAlertDialogBuilder(MainActivity.this)
-                            .setTitle("주의")
-                            .setMessage("선택하신 사용자와 앱이 연결되어 있습니다. 연결을 종료하고 새 사용자를 선택하시겠습니까?")
-                            .setPositiveButton("네", (dialogInterface, i) ->
+                    if (Status.instance().lastDialog.isShowing())
+                    {
+                        Status.instance().lastDialog.dismiss();
+                    }
+                }
+
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(MainActivity.this)
+                        .setTitle("주의")
+                        .setMessage("선택하신 사용자와 앱이 연결되어 있습니다. 연결을 종료하고 새 사용자를 선택하시겠습니까?")
+                        .setPositiveButton("네", (dialogInterface, i) ->
+                        {
+                            // 장시간 미사용 핸들러 업데이트
+                            longTimeIdleHandlerUpdate(true);
+
+                            if (Status.instance().scanState == Status.SCAN_STATE_STARTED)
                             {
-                                mBleViewModel.setSearching(BleViewModel.SEARCHING_DISABLED);
-                                mBluetoothGatt.disconnect();
-                                mBinding.toolbar.setTitle("선택된 사용자 없음");
-                                makeDialogSelectUser();
-                            })
-                            .setNegativeButton("아니오", null)
-                            .show();
-                }
-                else // 현재 연결된 장치가 없을 때 수행.
-                {
-                    makeDialogSelectUser();
-                }
+                                scanLe(false);
+                            }
 
-                return true;
+                            if (Status.instance().connectionState != Status.CONNECTION_STATE_DISCONNECTED)
+                            {
+                                Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+
+                                if (mBluetoothGatt != null)
+                                {
+                                    mBluetoothGatt.disconnect();
+                                }
+                            }
+
+                            Fragment fragment = MainActivity.this.getSupportFragmentManager().findFragmentById(R.id.frame);
+
+                            if (fragment instanceof RemoteControlFragment)
+                            {
+                                ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText("선택된 사용자 없음");
+                            }
+
+                            makeDialogSelectUser();
+                        })
+                        .setNegativeButton("아니오", (dialogInterface, i) ->
+                        {
+                            // 장시간 미사용 핸들러 업데이트
+                            longTimeIdleHandlerUpdate(true);
+                        })
+                        .setCancelable(false);
+                Status.instance().lastDialog = builder.create();
+                Status.instance().lastDialog.show();
+            }
+            else // 현재 연결된 장치가 없을 때 수행.
+            {
+                makeDialogSelectUser();
             }
 
-            return false;
+            return true;
         }
+
+        return false;
     };
 
-    private void makeDialogSelectUser()
+    //
+    // 사용자 선택 다이얼로그 생성 함수
+    //
+    public void makeDialogSelectUser()
     {
-        List<EntityUser> users = mDatabaseUsers.daoUsers().findAll();
+        if (Status.instance().lastDialog != null)
+        {
+            if (Status.instance().lastDialog.isShowing())
+            {
+                Status.instance().lastDialog.dismiss();
+            }
+        }
+
+        if (Status.instance().scanState == Status.SCAN_STATE_STARTED)
+        {
+            scanLe(false);
+        }
+
+        List<EntityUser> users = UtilUser.instance.getUsers();
         mUserList = new String[users.size()];
+        String[] nicknameList = new String[users.size()];
 
         if (users.size() == 0)
         {
-            new MaterialAlertDialogBuilder(MainActivity.this)
-                    .setTitle("안내")
-                    .setMessage("등록된 사용자가 없습니다. 먼저 사용자를 등록해주세요.")
-                    .setPositiveButton("확인", null)
-                    .show();
+            Status.instance().lastDialog =
+                    new MaterialAlertDialogBuilder(MainActivity.this)
+                            .setTitle("안내")
+                            .setMessage("등록된 사용자가 없습니다. 먼저 사용자를 등록해주세요.")
+                            .setPositiveButton("확인", (dialogInterface, i) ->
+                            {
+                                // 장시간 미사용 핸들러 업데이트
+                                longTimeIdleHandlerUpdate(true);
+                            })
+                            .setCancelable(false)
+                            .create();
         }
         else
         {
@@ -1885,6 +1843,15 @@ public class MainActivity extends AppCompatActivity
 
             for (int i = 0; i < users.size(); i++)
             {
+                if (users.get(i).nickname != null && users.get(i).nickname.length() > 0)
+                {
+                    nicknameList[i] = users.get(i).nickname;
+                }
+                else
+                {
+                    nicknameList[i] = users.get(i).name;
+                }
+
                 mUserList[i] = users.get(i).name;
 
                 if (users.get(i).defaultUser.equals(EntityUser.USER_DEFAULT))
@@ -1893,66 +1860,167 @@ public class MainActivity extends AppCompatActivity
                 }
             }
 
-            new MaterialAlertDialogBuilder(MainActivity.this)
-                    .setTitle("사용자 목록")
-                    .setPositiveButton("선택", (dialogInterface, i) ->
-                    {
-                        String selectName = mUserList[mCheckItem];
-                        mBinding.toolbar.setTitle(selectName);
+            Status.instance().lastDialog =
+                    new MaterialAlertDialogBuilder(MainActivity.this)
+                            .setTitle("사용자 목록")
+                            .setPositiveButton("선택", (dialogInterface, i) ->
+                            {
+                                // 장시간 미사용 핸들러 업데이트
+                                longTimeIdleHandlerUpdate(true);
 
-                        EntityUser defaultUser = mDatabaseUsers.daoUsers().getDbUserByDefaultUSer(EntityUser.USER_DEFAULT);
+                                String selectName = mUserList[mCheckItem];
 
-                        if (defaultUser != null)
-                        {
-                            defaultUser.defaultUser = EntityUser.USER_NOT_DEFAULT;
-                            mDatabaseUsers.daoUsers().update(defaultUser);
-                        }
+                                EntityUser defaultUser = UtilUser.instance.getDefaultUser();
 
-                        EntityUser selectUser = mDatabaseUsers.daoUsers().getDbUserByName(selectName);
+                                if (defaultUser != null)
+                                {
+                                    defaultUser.defaultUser = EntityUser.USER_NOT_DEFAULT;
+                                    UtilUser.instance.update(defaultUser);
+                                }
 
-                        if (selectUser != null)
-                        {
-                            selectUser.defaultUser = EntityUser.USER_DEFAULT;
-                            mDatabaseUsers.daoUsers().update(selectUser);
-                        }
+                                EntityUser selectUser = UtilUser.instance.getUserByName(selectName);
 
-                        mBinding.toolbar.setTitleTextAppearance(MainActivity.this, R.style.TextAppearance_RemoteControl_Controller_Headline6);
-                        mBinding.toolbar.setTitle(selectUser.name);
+                                if (selectUser != null)
+                                {
+                                    selectUser.defaultUser = EntityUser.USER_DEFAULT;
+                                    UtilUser.instance.update(selectUser);
+                                }
 
-                        mBleViewModel.setSearching(BleViewModel.SEARCHING_ENABLED);
-                    })
-                    .setSingleChoiceItems(mUserList, mCheckItem, (dialogInterface, i) ->
-                    {
-                        mCheckItem = i;
-                    })
-                    .setCancelable(false)
-                    .show();
+                                Fragment fragment = MainActivity.this.getSupportFragmentManager().findFragmentById(R.id.frame);
+
+                                if (fragment instanceof RemoteControlFragment)
+                                {
+                                    if (selectUser != null && selectUser.nickname != null && selectUser.nickname.length() > 0)
+                                    {
+                                        ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(selectUser.nickname);
+                                    }
+                                    else if (selectUser != null)
+                                    {
+                                        ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(selectUser.name);
+                                    }
+                                }
+
+                                if (Status.instance().scanState == Status.SCAN_STATE_STOPPED)
+                                {
+                                    MainActivity.this.scanLe(true);
+                                }
+                            })
+                            .setSingleChoiceItems(nicknameList, mCheckItem, (dialogInterface, i) ->
+                            {
+                                // 장시간 미사용 핸들러 업데이트
+                                longTimeIdleHandlerUpdate(true);
+
+                                mCheckItem = i;
+                            })
+                            .setCancelable(false)
+                            .create();
         }
+        Status.instance().lastDialog.show();
     }
 
+    //
+    // 잠금화면 버튼 클릭 리스너
+    //
     public void onLockScreenNumberClickedListener(View view)
     {
-        LockScreen.numberClickListener(view);
+        // 장시간 미사용 핸들러 업데이트
+        longTimeIdleHandlerUpdate(true);
+
+        mLockScreen.numberClickListener(view);
     }
 
+    //
+    // 잠금화면 비밀번호 잊어버렸습니다 버튼 리스너
+    //
     public void onLockScreenForgetPasswordClickedListener(View view)
     {
-        new MaterialAlertDialogBuilder(this, R.style.lock_screen_dialog).setTitle(getString(R.string.lock_screen_dialog_title)).setMessage(getString(R.string.lock_screen_dialog_message)).setPositiveButton(getString(R.string.lock_screen_dialog_positive), new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i)
-            {
-                LockScreen.erasePassword();
-                LockScreen.resume(MainActivity.this, mBinding);
-            }
-        }).setNegativeButton(getString(R.string.lock_screen_dialog_negative), null).show();
-    }
+        // 장시간 미사용 핸들러 업데이트
+        longTimeIdleHandlerUpdate(true);
 
-    //
-    // Associated with "Vibrator".
-    //
-    public void onVibrator(int ms)
-    {
-        vibrator(ms);
+        if (Status.instance().lastDialog != null)
+        {
+            if (Status.instance().lastDialog.isShowing())
+            {
+                Status.instance().lastDialog.dismiss();
+            }
+        }
+
+        Status.instance().lastDialog =
+                new MaterialAlertDialogBuilder(this)
+                        .setTitle(getString(R.string.lock_screen_dialog_title))
+                        .setMessage(getString(R.string.lock_screen_dialog_message))
+                        .setPositiveButton(getString(R.string.lock_screen_dialog_positive), (dialogInterface, i) ->
+                        {
+                            // 장시간 미사용 핸들러 업데이트
+                            longTimeIdleHandlerUpdate(true);
+
+                            // 현재 연결 중인 사운드처리기가 있을 때
+                            if (Status.instance().connectionState != Status.CONNECTION_STATE_DISCONNECTED)
+                            {
+                                Status.instance().lastDialog =
+                                        new MaterialAlertDialogBuilder(MainActivity.this)
+                                                .setTitle("주의")
+                                                .setMessage("현재 연결된 사운드처리기가 있습니다. 연결을 해제하고 암호 재설정을 진행하시겠습니까?")
+                                                .setPositiveButton("연결해제", (dialogInterface1, i1) ->
+                                                {
+                                                    // 장시간 미사용 핸들러 업데이트
+                                                    longTimeIdleHandlerUpdate(true);
+
+                                                    Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+                                                    mBluetoothGatt.disconnect();
+
+                                                    List<EntityUser> users = UtilUser.instance.getUsers();
+                                                    List<EntityDevice> devices = UtilDevice.instance.getDevices();
+
+                                                    for (EntityUser user : users)
+                                                    {
+                                                        UtilUser.instance.delete(user);
+                                                    }
+
+                                                    for (EntityDevice device : devices)
+                                                    {
+                                                        UtilDevice.instance.delete(device);
+                                                    }
+
+                                                    mLockScreen.erasePassword();
+                                                    mLockScreen.resume();
+                                                    mManualScreen.setEnable(true);
+                                                })
+                                                .setNegativeButton("취소", (dialogInterface1, i1) ->
+                                                {
+                                                    // 장시간 미사용 핸들러 업데이트
+                                                    longTimeIdleHandlerUpdate(true);
+                                                })
+                                                .setCancelable(false)
+                                                .create();
+                                Status.instance().lastDialog.show();
+                            }
+                            else // 현재 아무런 사운드처리기와 연결되지 않았을 때
+                            {
+                                List<EntityUser> users = UtilUser.instance.getUsers();
+                                List<EntityDevice> devices = UtilDevice.instance.getDevices();
+
+                                for (EntityUser user : users)
+                                {
+                                    UtilUser.instance.delete(user);
+                                }
+
+                                for (EntityDevice device : devices)
+                                {
+                                    UtilDevice.instance.delete(device);
+                                }
+
+                                mLockScreen.erasePassword();
+                                mLockScreen.resume();
+                                mManualScreen.setEnable(true);
+                            }
+                        }).setNegativeButton(getString(R.string.lock_screen_dialog_negative), (dialogInterface, i) ->
+                        {
+                            // 장시간 미사용 핸들러 업데이트
+                            longTimeIdleHandlerUpdate(true);
+                        })
+                        .setCancelable(false)
+                        .create();
+        Status.instance().lastDialog.show();
     }
 }

@@ -1,35 +1,48 @@
 package todoc.cochlear.remoteapp.view_model;
 
+import android.os.Looper;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import todoc.cochlear.remoteapp.params.PacketInfo;
+
 public class StatusViewModel extends ViewModel
 {
-    static public final int NOTIFICATION_ON = 1;
-    static public final int NOTIFICATION_OFF = 2;
+    // BLE 연결 상태 관련
+    static public final int CONNECTION_STATE_DISCONNECTED = 0;
+    static public final int CONNECTION_STATE_CONNECTING = 1;
+    static public final int CONNECTION_STATE_CONNECTED = 2;
+    static public final int CONNECTION_STATE_DISCONNECTING = 3;
 
-    static public final int LED_ON = 1;
-    static public final int LED_OFF = 2;
+    private final MutableLiveData<Integer> mConnectionState = new MutableLiveData<>();
 
-    static public final int TELECOIL_ON = 1;
-    static public final int TELECOIL_OFF = 2;
+    public MutableLiveData<Integer> getObjectConnectionState()
+    {
+        return mConnectionState;
+    }
 
-    static public final int MAX_OUTPUT_UP = 1;
-    static public final int MAX_OUTPUT_DOWN = 2;
+    public int getConnectionState()
+    {
+        if (mConnectionState.getValue() == null)
+        {
+            mConnectionState.setValue(CONNECTION_STATE_DISCONNECTED);
+        }
 
-    static public final int VOLUME_UP = 1;
-    static public final int VOLUME_DOWN = 2;
+        return mConnectionState.getValue();
+    }
 
-    static public final int PROGRAM_UP = 1;
-    static public final int PROGRAM_DOWN = 2;
-
-    static public final int BATTERY_DEFAULT_VALUE = 0;
-    static public final int NOTIFICATION_DEFAULT_VALUE = 2;
-    static public final int LED_DEFAULT_VALUE = 2;
-    static public final int TELECOIL_DEFAULT_VALUE = 2;
-    static public final int MAX_OUTPUT_DEFAULT_VALUE = 7;
-    static public final int VOLUME_DEFAULT_VALUE = 1;
-    static public final int PROGRAM_DEFAULT_VALUE = 1;
+    public void setConnectionState(int connectionState)
+    {
+        if (Looper.getMainLooper().isCurrentThread())
+        {
+            mConnectionState.setValue(connectionState);
+        }
+        else
+        {
+            mConnectionState.postValue(connectionState);
+        }
+    }
 
     // Battery level
     private final MutableLiveData<Integer> mBatteryLevel = new MutableLiveData<>();
@@ -48,7 +61,7 @@ public class StatusViewModel extends ViewModel
     {
         if (mBatteryLevel.getValue() == null)
         {
-            mBatteryLevel.setValue(BATTERY_DEFAULT_VALUE);
+            mBatteryLevel.setValue(PacketInfo.INIT_VALUE_BATTERY);
         }
 
         return mBatteryLevel.getValue();
@@ -71,7 +84,7 @@ public class StatusViewModel extends ViewModel
     {
         if (mNotification.getValue() == null)
         {
-            mNotification.setValue(NOTIFICATION_DEFAULT_VALUE);
+            mNotification.setValue(PacketInfo.INIT_VALUE_NOTIFICATION);
         }
 
         return mNotification.getValue();
@@ -94,7 +107,7 @@ public class StatusViewModel extends ViewModel
     {
         if (mLed.getValue() == null)
         {
-            mLed.setValue(LED_DEFAULT_VALUE);
+            mLed.setValue(PacketInfo.INIT_VALUE_LED);
         }
 
         return mLed.getValue();
@@ -117,7 +130,7 @@ public class StatusViewModel extends ViewModel
     {
         if (mTelecoil.getValue() == null)
         {
-            mTelecoil.setValue(TELECOIL_DEFAULT_VALUE);
+            mTelecoil.setValue(PacketInfo.INIT_VALUE_TELECOIL);
         }
 
         return mTelecoil.getValue();
@@ -140,7 +153,7 @@ public class StatusViewModel extends ViewModel
     {
         if (mMaxOutput.getValue() == null)
         {
-            mMaxOutput.setValue(MAX_OUTPUT_DEFAULT_VALUE);
+            mMaxOutput.setValue(PacketInfo.INIT_VALUE_MAX_OUTPUT);
         }
 
         return mMaxOutput.getValue();
@@ -163,7 +176,7 @@ public class StatusViewModel extends ViewModel
     {
         if (mVolume.getValue() == null)
         {
-            mVolume.setValue(VOLUME_DEFAULT_VALUE);
+            mVolume.setValue(PacketInfo.INIT_VALUE_VOLUME);
         }
 
         return mVolume.getValue();
@@ -186,7 +199,7 @@ public class StatusViewModel extends ViewModel
     {
         if (mProgram.getValue() == null)
         {
-            mProgram.setValue(PROGRAM_DEFAULT_VALUE);
+            mProgram.setValue(PacketInfo.INIT_VALUE_PROGRAM);
         }
 
         return mProgram.getValue();

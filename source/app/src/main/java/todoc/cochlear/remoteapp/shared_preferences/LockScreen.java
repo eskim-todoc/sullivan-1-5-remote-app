@@ -1,6 +1,5 @@
 package todoc.cochlear.remoteapp.shared_preferences;
 
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
@@ -9,19 +8,17 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 
 import todoc.cochlear.remoteapp.activity.MainActivity;
 import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
 import todoc.cochlear.remoteapp.fragment.RemoteControlFragment;
-import todoc.cochlear.remoteapp.view_model.BleViewModel;
+import todoc.cochlear.remoteapp.params.Status;
 
 public class LockScreen
 {
-    static public LockScreen mInstance = new LockScreen();
-
     static private final String TAG = "TODOC_" + LockScreen.class.getSimpleName();
 
     static private final String SHARED_PREFERENCES_NAME = "LOCK_SCREEN";
@@ -35,35 +32,40 @@ public class LockScreen
     static public final int STATE_COMPARE = 1;
     static public final int STATE_DECODE = 2;
 
-    static public int mState;
-    static public int mPasswordCounter;
-    static public int[] mPassword;
-    static public int mPasswordCompareCounter;
-    static public int[] mPasswordCompare;
+    public int mState;
+    public int mPasswordCounter;
+    public int[] mPassword;
+    public int mPasswordCompareCounter;
+    public int[] mPasswordCompare;
 
-    static public String mPasswordString;
-    static public String mPasswordCompareString;
+    public String mPasswordString;
+    public String mPasswordCompareString;
 
-    static private Context mContext;
-    static private ActivityMainBinding mBinding;
+    private final Context mContext;
+    private final MainActivity mMainActivity;
+    private final ActivityMainBinding mBinding;
 
-    static public void resume(Context context, ActivityMainBinding binding)
+    public LockScreen(Context context, MainActivity activity, ActivityMainBinding binding)
     {
-        Log.v(TAG, "resume(" + context.toString() + ", " + binding.toString() + ") called.");
-
         mContext = context;
+        mMainActivity = activity;
         mBinding = binding;
+    }
+
+    public void resume()
+    {
+        Log.v(TAG, "resume(" + mContext.toString() + ", " + mBinding.toString() + ") called.");
 
         bufferInit();
         stateInit();
         updateCircle(0);
         updateMessage();
-        enableScreen(isEnabled(context));
+        enableScreen(isEnabled());
     }
 
-    static public void bufferInit()
+    public void bufferInit()
     {
-        Log.v(TAG, "bufferInit() called.");
+        Log.v(TAG, "잠금화면 비밀번호 버퍼 초기화.");
 
         if (mPassword == null)
         {
@@ -85,45 +87,45 @@ public class LockScreen
         mPasswordCompareCounter = 0;
     }
 
-    static public void stateInit()
+    public void stateInit()
     {
         Log.v(TAG, "stateInit() called.");
 
-        if (LockScreen.readPassword() == null)
+        if (readPassword() == null)
         {
-            LockScreen.mState = LockScreen.STATE_REGISTER;
+            mState = LockScreen.STATE_REGISTER;
         }
         else
         {
-            LockScreen.mState = LockScreen.STATE_DECODE;
+            mState = LockScreen.STATE_DECODE;
         }
     }
 
-    static public boolean isEnabled(Context context)
+    public boolean isEnabled()
     {
-        return context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(KEY_FOR_ENABLE, true);
+        return mContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(KEY_FOR_ENABLE, true);
     }
 
-    static public void setEnable(Context context, boolean enable)
+    public void setEnable(Context context, boolean enable)
     {
         context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit().putBoolean(KEY_FOR_ENABLE, enable).apply();
         Log.d(TAG, "Lock Screen Enable state = " + enable + ".");
     }
 
-    static public void erasePassword()
+    public void erasePassword()
     {
         Log.v(TAG, "Erase the lock screen password.");
         mContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit().putString(KEY_FOR_PASSWORD, null).apply();
     }
 
-    static public void writePassword(String password)
+    public void writePassword(String password)
     {
         Log.v(TAG, "writePassword() called.");
 
         mContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit().putString(KEY_FOR_PASSWORD, password).apply();
     }
 
-    static public String readPassword()
+    public String readPassword()
     {
         Log.v(TAG, "readPassword() called.");
 
@@ -137,7 +139,7 @@ public class LockScreen
         return null;
     }
 
-    static public void updateMessage()
+    public void updateMessage()
     {
         Log.v(TAG, "updateMessage() called.");
 
@@ -159,23 +161,21 @@ public class LockScreen
         }
     }
 
-    static public void enableScreen(boolean enable)
+    public void enableScreen(boolean enable)
     {
         Log.v(TAG, "enableScreen(" + enable + ") called.");
 
         if (enable)
         {
-            BleViewModel viewModel = new ViewModelProvider((MainActivity) mContext).get(BleViewModel.class);
-
-            if (viewModel.getBondState() == BluetoothDevice.BOND_BONDING)
+            if (Status.instance().lockScreenState == Status.LOCK_SCREEN_STATE_TEMPORARY_UNLOCK)
             {
-                viewModel.setBondState(BluetoothDevice.BOND_NONE);
+                Status.instance().lockScreenState = Status.LOCK_SCREEN_STATE_LOCK;
                 return;
             }
 
             mBinding.lockScreen.setVisibility(View.VISIBLE);
 
-            Fragment fragment = ((MainActivity) mContext).getSupportFragmentManager().findFragmentById(R.id.frame);
+            Fragment fragment = mMainActivity.getSupportFragmentManager().findFragmentById(R.id.frame);
             if (fragment instanceof RemoteControlFragment)
             {
                 AlertDialog dialog = ((RemoteControlFragment) fragment).mDialog;
@@ -186,14 +186,12 @@ public class LockScreen
                     ((RemoteControlFragment) fragment).mDialog = null;
                 }
             }
-
-            viewModel.setSearching(BleViewModel.SEARCHING_DISABLED);
         }
         else
         {
             mBinding.lockScreen.setVisibility(View.GONE);
 
-            Fragment fragment = ((MainActivity) mContext).getSupportFragmentManager().findFragmentById(R.id.frame);
+            Fragment fragment = mMainActivity.getSupportFragmentManager().findFragmentById(R.id.frame);
             if (fragment instanceof RemoteControlFragment)
             {
                 ((RemoteControlFragment) fragment).checkRegisteredList();
@@ -201,7 +199,7 @@ public class LockScreen
         }
     }
 
-    static public int parseNumber(int id)
+    public int parseNumber(int id)
     {
         Log.v(TAG, "parseNumber() called.");
 
@@ -212,7 +210,12 @@ public class LockScreen
             return -1;
         }
 
-        int[] numberIds = new int[]{R.id.lock_screen_number_0, R.id.lock_screen_number_1, R.id.lock_screen_number_2, R.id.lock_screen_number_3, R.id.lock_screen_number_4, R.id.lock_screen_number_5, R.id.lock_screen_number_6, R.id.lock_screen_number_7, R.id.lock_screen_number_8, R.id.lock_screen_number_9};
+        int[] numberIds = new int[]{
+                R.id.lock_screen_number_0, R.id.lock_screen_number_1,
+                R.id.lock_screen_number_2, R.id.lock_screen_number_3,
+                R.id.lock_screen_number_4, R.id.lock_screen_number_5,
+                R.id.lock_screen_number_6, R.id.lock_screen_number_7,
+                R.id.lock_screen_number_8, R.id.lock_screen_number_9};
 
         for (int i = 0; i < numberIds.length; i++)
         {
@@ -225,12 +228,12 @@ public class LockScreen
         return -1;
     }
 
-    static public void updateCircle(int count)
+    public void updateCircle(int count)
     {
         Log.v(TAG, "updateCircle(" + count + ") called.");
 
-        Drawable fill = mContext.getDrawable(R.drawable.lock_screen_ic_circle_fill_16dp);
-        Drawable empty = mContext.getDrawable(R.drawable.lock_screen_ic_circle_empty_16dp);
+        Drawable fill = AppCompatResources.getDrawable(mContext, R.drawable.lock_screen_ic_circle_fill_16dp);
+        Drawable empty = AppCompatResources.getDrawable(mContext, R.drawable.lock_screen_ic_circle_empty_16dp);
 
         switch (count)
         {
@@ -271,7 +274,7 @@ public class LockScreen
         }
     }
 
-    static public void processDel()
+    public void processDel()
     {
         Log.v(TAG, "processDel() called.");
 
@@ -295,7 +298,7 @@ public class LockScreen
         }
     }
 
-    static public void processNumber(int number)
+    public void processNumber(int number)
     {
         Log.v(TAG, "processNumber(" + number + ") called.");
 
@@ -326,7 +329,7 @@ public class LockScreen
         }
     }
 
-    static public void processChecking()
+    public void processChecking()
     {
         Log.v(TAG, "processChecking() called.");
 
@@ -348,8 +351,8 @@ public class LockScreen
 
                 for (int i = 0; i < VALUE_LENGTH; i++)
                 {
-                    mPasswordString += mPassword[i];
-                    mPasswordCompareString += mPasswordCompare[i];
+                    mPasswordString = mPasswordString + mPassword[i];
+                    mPasswordCompareString = mPasswordCompareString + mPasswordCompare[i];
                 }
 
                 if (mPasswordString.equals(mPasswordCompareString))
@@ -376,7 +379,7 @@ public class LockScreen
 
                 for (int i = 0; i < VALUE_LENGTH; i++)
                 {
-                    mPasswordString += mPassword[i];
+                    mPasswordString = mPasswordString + mPassword[i];
                 }
 
                 if (mPasswordString.equals(mPasswordCompareString))
@@ -395,7 +398,7 @@ public class LockScreen
         }
     }
 
-    static public void numberClickListener(View view)
+    public void numberClickListener(View view)
     {
         Log.v(TAG, "numberClickListener(" + view.toString() + ") called.");
 
@@ -413,23 +416,23 @@ public class LockScreen
         processChecking();
     }
 
-    static public void successAnimation()
+    public void successAnimation()
     {
         Animation disappear = AnimationUtils.loadAnimation(mContext, R.anim.lock_screen_correct_password);
         mBinding.lockScreen.startAnimation(disappear);
     }
 
-    static public void failAnimation()
+    public void failAnimation()
     {
         Log.v(TAG, "failAnimation() called.");
 
         Animation shaker = AnimationUtils.loadAnimation(mContext, R.anim.lock_screen_incorrect_password);
         shaker.setAnimationListener(mAnimationListener);
         mBinding.circleLayout.startAnimation(shaker);
-        ((MainActivity) mContext).onVibrator(50);
+        mMainActivity.onVibrator(50);
     }
 
-    static private Animation.AnimationListener mAnimationListener = new Animation.AnimationListener()
+    private final Animation.AnimationListener mAnimationListener = new Animation.AnimationListener()
     {
         @Override
         public void onAnimationStart(Animation animation)

@@ -12,12 +12,11 @@ import java.util.ArrayList;
 
 import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.database.devices.EntityDevice;
-import todoc.cochlear.remoteapp.database.users.EntityUser;
 import todoc.cochlear.remoteapp.fragment.DeviceFragment;
 
 public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder>
 {
-    private ArrayList<EntityDevice> mItems;
+    private final ArrayList<EntityDevice> mItems;
     DeviceFragment mDeviceFragment;
 
     public DeviceAdapter(DeviceFragment fragment)
@@ -79,14 +78,10 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
             serial = itemView.findViewById(R.id.serial);
             option = itemView.findViewById(R.id.option);
 
-            itemView.setOnClickListener(new View.OnClickListener()
+            itemView.setOnClickListener(view ->
             {
-                @Override
-                public void onClick(View view)
-                {
-                    int position = getAdapterPosition();
-                    mDeviceFragment.mItemClickListener(position);
-                }
+                int position = getAdapterPosition();
+                mDeviceFragment.mItemClickListener(position);
             });
         }
 

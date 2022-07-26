@@ -1,7 +1,9 @@
 package todoc.cochlear.remoteapp.list;
 
+import android.annotation.SuppressLint;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -10,17 +12,19 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import todoc.cochlear.remoteapp.activity.R;
+import todoc.cochlear.remoteapp.fragment.ManualFragment;
 
 public class ManualAdapter extends RecyclerView.Adapter<ManualAdapter.ViewHolder>
 {
-    private ArrayList<Drawable[]> mItems;
+    private final ArrayList<Drawable[]> mItems;
+    private final ManualFragment mFragment;
 
-    public ManualAdapter()
+    public ManualAdapter(ManualFragment fragment)
     {
         mItems = new ArrayList<>();
+        mFragment = fragment;
     }
 
     @Override
@@ -63,6 +67,12 @@ public class ManualAdapter extends RecyclerView.Adapter<ManualAdapter.ViewHolder
 
             title = itemView.findViewById(R.id.item_manual_title);
             body = itemView.findViewById(R.id.item_manual_body);
+
+            title.setClickable(true);
+            body.setClickable(true);
+
+            title.setOnTouchListener(mTouchListener);
+            body.setOnTouchListener(mTouchListener);
         }
 
         public void onBind(Drawable[] item)
@@ -70,5 +80,16 @@ public class ManualAdapter extends RecyclerView.Adapter<ManualAdapter.ViewHolder
             title.setImageDrawable(item[0]);
             body.setImageDrawable(item[1]);
         }
+
+        @SuppressLint("ClickableViewAccessibility")
+        View.OnTouchListener mTouchListener = (view, motionEvent) ->
+        {
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN)
+            {
+                mFragment.onTouchEvent();
+                return true;
+            }
+            return false;
+        };
     }
 }

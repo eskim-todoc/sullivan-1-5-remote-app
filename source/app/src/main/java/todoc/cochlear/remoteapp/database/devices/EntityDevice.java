@@ -13,6 +13,7 @@ public class EntityDevice
     public String pairingKey;
     public String additionalInformation;
 
+    @NonNull
     @Override
     public String toString()
     {

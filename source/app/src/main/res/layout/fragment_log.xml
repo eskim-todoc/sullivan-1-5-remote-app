@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black"
+        android:orientation="vertical"
+        tools:context="todoc.cochlear.remoteapp.fragment.LogFragment">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/log_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_margin="16dp"
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/log_exit_button"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@android:color/white"
+            android:backgroundTint="@android:color/white"
+            android:gravity="center"
+            android:text="나가기"
+            android:textColor="@color/black"
+            android:textSize="14dp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</layout>

@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "db83c6721df26c700131d5fba0abc88c",
+    "identityHash": "fcfbc023da52f6f66211abd7ccae31a2",
     "entities": [
       {
         "tableName": "EntityDevice",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`serialNumber` TEXT NOT NULL, `securityPassword` TEXT, `additionalInformation` TEXT, PRIMARY KEY(`serialNumber`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`serialNumber` TEXT NOT NULL, `pairingKey` TEXT, `additionalInformation` TEXT, PRIMARY KEY(`serialNumber`))",
         "fields": [
           {
             "fieldPath": "serialNumber",
@@ -15,8 +15,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "securityPassword",
-            "columnName": "securityPassword",
+            "fieldPath": "pairingKey",
+            "columnName": "pairingKey",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -40,7 +40,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'db83c6721df26c700131d5fba0abc88c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fcfbc023da52f6f66211abd7ccae31a2')"
     ]
   }
 }

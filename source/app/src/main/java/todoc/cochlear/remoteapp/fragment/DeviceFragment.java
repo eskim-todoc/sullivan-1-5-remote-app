@@ -2,6 +2,7 @@ package todoc.cochlear.remoteapp.fragment;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -18,6 +19,7 @@ import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
 import todoc.cochlear.remoteapp.activity.databinding.FragmentDeviceBinding;
 import todoc.cochlear.remoteapp.database.devices.EntityDevice;
+import todoc.cochlear.remoteapp.database.devices.UtilDevice;
 import todoc.cochlear.remoteapp.list.DeviceAdapter;
 
 public class DeviceFragment extends Fragment
@@ -48,15 +50,13 @@ public class DeviceFragment extends Fragment
 
         mMainBinding = ((MainActivity) requireContext()).mBinding;
         mMainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
-        mMainBinding.toolbar.getMenu().findItem(R.id.settings).setVisible(false);
+        mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
-        mMainBinding.toolbar.setTitleTextAppearance(requireContext(), R.style.TextAppearance_RemoteControl_Default_Headline6);
         mMainBinding.toolbar.setTitle(requireContext().getString(R.string.toolbar_title_management_device));
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         mDeviceBinding = FragmentDeviceBinding.inflate(inflater, container, false);
         View view = mDeviceBinding.getRoot();
@@ -73,6 +73,9 @@ public class DeviceFragment extends Fragment
 
     public void mItemClickListener(int position)
     {
+        // 장시간 미사용 핸들러 업데이트
+        ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
         EntityDevice item = mDeviceAdapter.getItem(position);
 
         Log.d(TAG, "Position = " + position + ", " + item.toString());
@@ -90,23 +93,25 @@ public class DeviceFragment extends Fragment
 
     private void initAddButton()
     {
-        mDeviceBinding.addBtn.setOnClickListener(new View.OnClickListener()
+        mDeviceBinding.addBtn.setOnClickListener(view ->
         {
-            @Override
-            public void onClick(View view)
-            {
-                ((MainActivity) requireActivity()).getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new AddDeviceFragment()).commitAllowingStateLoss();
-            }
+            // 장시간 미사용 핸들러 업데이트
+            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
+            ((MainActivity) requireActivity()).getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new AddDeviceFragment()).commitAllowingStateLoss();
         });
     }
 
     private void updateRecyclerView()
     {
-        List<EntityDevice> entityDevices = ((MainActivity) requireActivity()).mDatabaseDevices.daoDevices().findAll();
+        mDeviceBinding.deviceTitle.setVisibility(View.GONE);
+
+        List<EntityDevice> entityDevices = UtilDevice.instance.getDevices();
 
         for (EntityDevice entityDevice : entityDevices)
         {
             mDeviceAdapter.addItem(entityDevice);
+            mDeviceBinding.deviceTitle.setVisibility(View.VISIBLE);
         }
     }
 }

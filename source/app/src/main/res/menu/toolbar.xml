@@ -10,7 +10,7 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/settings"
+        android:id="@+id/toolbar_settings"
         android:enabled="true"
         android:icon="@drawable/toolbar_ic_settings_24dp"
         android:title="@string/toolbar_menu_settings"

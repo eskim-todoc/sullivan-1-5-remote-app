@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,6 +18,7 @@ import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
 import todoc.cochlear.remoteapp.activity.databinding.FragmentUserBinding;
 import todoc.cochlear.remoteapp.database.users.EntityUser;
+import todoc.cochlear.remoteapp.database.users.UtilUser;
 import todoc.cochlear.remoteapp.list.UserAdapter;
 
 public class UserFragment extends Fragment
@@ -27,6 +29,7 @@ public class UserFragment extends Fragment
     private FragmentUserBinding mUserBinding;
 
     UserAdapter mUserAdapter;
+    UserAdapter mDefaultUserAdapter;
 
     public UserFragment()
     {
@@ -47,14 +50,13 @@ public class UserFragment extends Fragment
 
         mMainBinding = ((MainActivity) requireContext()).mBinding;
         mMainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
-        mMainBinding.toolbar.getMenu().findItem(R.id.settings).setVisible(false);
+        mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
-        mMainBinding.toolbar.setTitleTextAppearance(requireContext(), R.style.TextAppearance_RemoteControl_Default_Headline6);
         mMainBinding.toolbar.setTitle(requireContext().getString(R.string.toolbar_title_management_user));
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         mUserBinding = FragmentUserBinding.inflate(inflater, container, false);
         View view = mUserBinding.getRoot();
@@ -63,22 +65,52 @@ public class UserFragment extends Fragment
         mUserBinding.userRecyclerview.setAdapter(mUserAdapter);
         mUserBinding.userRecyclerview.setLayoutManager(new LinearLayoutManager(requireContext()));
 
+        mDefaultUserAdapter = new UserAdapter(this);
+        mUserBinding.defaultUserRecyclerview.setAdapter(mDefaultUserAdapter);
+        mUserBinding.defaultUserRecyclerview.setLayoutManager(new LinearLayoutManager(requireContext()));
+
         updateRecyclerView();
         initAddButton();
 
         return view;
     }
 
+    public void mDefaultItemClickListener(int position)
+    {
+        // 장시간 미사용 핸들러 업데이트
+        ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
+        EntityUser item = mDefaultUserAdapter.getItem(position);
+
+        Log.d(TAG, "Default User Position = " + position + ", " + item.toString());
+
+        Bundle bundle = new Bundle();
+        bundle.putString(EditUserFragment.ARG_NAME, item.name);
+        bundle.putString(EditUserFragment.ARG_PASSKEY, item.passKey);
+        bundle.putString(EditUserFragment.ARG_NICKNAME, item.nickname);
+        bundle.putString(EditUserFragment.ARG_EAR, item.ear);
+        bundle.putString(EditUserFragment.ARG_DEFAULT, item.defaultUser);
+
+        EditUserFragment editUserFragment = new EditUserFragment();
+        editUserFragment.setArguments(bundle);
+
+        requireActivity().getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), editUserFragment).commitAllowingStateLoss();
+    }
+
     public void mItemClickListener(int position)
     {
+        // 장시간 미사용 핸들러 업데이트
+        ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
         EntityUser item = mUserAdapter.getItem(position);
 
         Log.d(TAG, "Position = " + position + ", " + item.toString());
 
         Bundle bundle = new Bundle();
         bundle.putString(EditUserFragment.ARG_NAME, item.name);
-        bundle.putString(EditUserFragment.ARG_EAR, item.ear);
         bundle.putString(EditUserFragment.ARG_PASSKEY, item.passKey);
+        bundle.putString(EditUserFragment.ARG_NICKNAME, item.nickname);
+        bundle.putString(EditUserFragment.ARG_EAR, item.ear);
         bundle.putString(EditUserFragment.ARG_DEFAULT, item.defaultUser);
 
         EditUserFragment editUserFragment = new EditUserFragment();
@@ -89,32 +121,44 @@ public class UserFragment extends Fragment
 
     private void initAddButton()
     {
-        mUserBinding.addBtn.setOnClickListener(new View.OnClickListener()
+        mUserBinding.addBtn.setOnClickListener(view ->
         {
-            @Override
-            public void onClick(View view)
-            {
-                requireActivity().getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new AddUserFragment()).commitAllowingStateLoss();
-            }
+            // 장시간 미사용 핸들러 업데이트
+            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
+            requireActivity().getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new AddUserFragment()).commitAllowingStateLoss();
         });
     }
 
     private void updateRecyclerView()
     {
-        EntityUser defaultUser = ((MainActivity) requireActivity()).mDatabaseUsers.daoUsers().getDbUserByDefaultUSer(EntityUser.USER_DEFAULT);
+        mUserBinding.defaultUserTitle.setVisibility(View.GONE);
+        mUserBinding.defaultUserRecyclerview.setVisibility(View.GONE);
+
+        mUserBinding.userTitle.setVisibility(View.GONE);
+        mUserBinding.userRecyclerview.setVisibility(View.GONE);
+
+
+        EntityUser defaultUser = UtilUser.instance.getDefaultUser();
 
         if (defaultUser != null)
         {
-            mUserAdapter.addItem(defaultUser);
+            //mUserAdapter.addItem(defaultUser);
+            mDefaultUserAdapter.addItem(defaultUser);
+            mUserBinding.defaultUserTitle.setVisibility(View.VISIBLE);
+            mUserBinding.defaultUserRecyclerview.setVisibility(View.VISIBLE);
         }
 
-        List<EntityUser> entityUsers = ((MainActivity) requireActivity()).mDatabaseUsers.daoUsers().findAll();
+        List<EntityUser> entityUsers = UtilUser.instance.getUsers();
+
 
         for (EntityUser entityUser : entityUsers)
         {
             if (entityUser.defaultUser.equals(EntityUser.USER_NOT_DEFAULT))
             {
                 mUserAdapter.addItem(entityUser);
+                mUserBinding.userTitle.setVisibility(View.VISIBLE);
+                mUserBinding.userRecyclerview.setVisibility(View.VISIBLE);
             }
         }
     }
