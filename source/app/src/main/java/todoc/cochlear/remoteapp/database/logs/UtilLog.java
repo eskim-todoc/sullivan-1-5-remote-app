@@ -141,7 +141,7 @@ public class UtilLog
             mDatabase.daoLog().insert(entityNew); // 새 메시지 삽입
             mDatabase.daoLog().insert(entityIndex); // 인덱스 업데이트 (OnConflictStrategy.REPLACE 라서 업데이트 대신 추가를 사용)
 
-            Log.d(TAG, "[로그] 로그 입력 -> " + message);
+            Log.d(TAG, "[로그] 로그 입력 : " + message);
         }
     }
 
@@ -161,7 +161,7 @@ public class UtilLog
     {
         if (mDatabase != null)
         {
-            Log.d(TAG, "[로그] 로그 전체 출력 :");
+            Log.d(TAG, "[로그] 로그 전체 출력 : ");
 
             List<EntityLog> entityLogs = mDatabase.daoLog().findAll();
 

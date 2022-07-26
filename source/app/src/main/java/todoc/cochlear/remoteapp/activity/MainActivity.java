@@ -1310,14 +1310,14 @@ public class MainActivity extends AppCompatActivity
                         packetInfo.telecoil = (byte) (responsePacket[6] & 0xff);
                         packetInfo.notification = (byte) (responsePacket[7] & 0xff);
 
-                        Log.d(TAG, "사운드처리기 상태 확인 패킷 수신 :");
-                        Log.d(TAG, "배터리 = " + packetInfo.battery);
-                        Log.d(TAG, "맵번호 = " + packetInfo.program);
-                        Log.d(TAG, "볼륨 = " + packetInfo.volume);
-                        Log.d(TAG, "최대출력 = " + packetInfo.maxOutput);
-                        Log.d(TAG, "LED = " + packetInfo.led);
-                        Log.d(TAG, "텔레코일 = " + packetInfo.telecoil);
-                        Log.d(TAG, "자극알림 = " + packetInfo.notification);
+                        Log.d(TAG, "사운드처리기 상태 확인 패킷 수신 : "
+                                + "배터리 = " + packetInfo.battery + ", "
+                                + "맵번호 = " + packetInfo.program + ", "
+                                + "볼륨 = " + packetInfo.volume + ", "
+                                + "최대출력 = " + packetInfo.maxOutput + ", "
+                                + "LED = " + packetInfo.led + ", "
+                                + "텔레코일 = " + packetInfo.telecoil + ", "
+                                + "자극알림 = " + packetInfo.notification);
 
                         mStatusViewModel.setValueBatteryLevel(packetInfo.battery);
                         mStatusViewModel.setValueNotification(packetInfo.notification);
@@ -1637,7 +1637,7 @@ public class MainActivity extends AppCompatActivity
 
         boolean isSuccess = false;
 
-        Log.d(TAG, "패킷을 전송합니다. -> {" + printLogBytesToString(Status.instance().sendingPacket) + "}");
+        Log.d(TAG, "패킷 전송 : " + printLogBytesToString(Status.instance().sendingPacket));
 
         Log.d(TAG, "패킷 응답 시간 초과 핸들러를 생성합니다.");
         mPacketResponseTimeoutHandler.postDelayed(mPacketResponseTimeoutRunner, DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT);
@@ -1706,7 +1706,7 @@ public class MainActivity extends AppCompatActivity
             System.arraycopy(payload, 0, packet, 1, Math.min((maxLen - 1), payload.length));
         }
 
-        Log.d(TAG, "새롭게 생성한 패킷 => " + printLogBytesToString(packet));
+        Log.d(TAG, "새롭게 생성한 패킷 : " + printLogBytesToString(packet));
         return packet;
     }
 

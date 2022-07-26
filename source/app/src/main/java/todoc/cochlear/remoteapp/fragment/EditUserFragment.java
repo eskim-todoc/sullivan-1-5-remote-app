@@ -259,6 +259,49 @@ public class EditUserFragment extends Fragment
                     mItem.nickname = nickName;
                 }
 
+                if (mItem.defaultUser.equals(EntityUser.USER_NOT_DEFAULT))
+                {
+                    //기본사용자를 해제했는데,
+                    // 현재 연결된 사용자가 이 사용자라면 연결을 해제하고 수정을 진행할 것인지 물어야 한다.
+                    if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED ||
+                            Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTING)
+                    {
+                        if (mItem.name.equals(Status.instance().connectedUser.name))
+                        {
+                            Log.d(TAG, "기본사용자를 해제하려고 하는데, 현재 연결중인 사용자입니다. 연결을 끊고 기본사용자를 해제할지 물어보기 위해 다이얼로그를 생성합니다.");
+
+                            Status.instance().lastDialog =
+                                    new MaterialAlertDialogBuilder(requireContext())
+                                            .setTitle("주의")
+                                            .setMessage("현재 연결중인 사용자입니다. 연결을 해제하고, 기본 사용자 설정을 변경하시겠습니까?")
+                                            .setPositiveButton("확인", (dialogInterface, i) ->
+                                            {
+                                                // 장시간 미사용 핸들러 업데이트
+                                                ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
+                                                if (((MainActivity) requireActivity()).mBluetoothGatt != null)
+                                                {
+                                                    if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED ||
+                                                            Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTING)
+                                                    {
+                                                        Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+                                                        ((MainActivity) requireActivity()).mBluetoothGatt.disconnect();
+                                                    }
+                                                }
+                                                mEditUserBinding.editUserEditButton.callOnClick();
+                                            })
+                                            .setNegativeButton("취소", (dialogInterface, i) ->
+                                            {
+                                                // 장시간 미사용 핸들러 업데이트
+                                                ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+                                            })
+                                            .setCancelable(false)
+                                            .create();
+                            Status.instance().lastDialog.show();
+                            return;
+                        }
+                    }
+                }
                 if (mItem.defaultUser.equals(EntityUser.USER_DEFAULT))
                 {
                     // 기본사용자로 선택했을 때, 현재 연결된 사용자가 있는지 확인하여 현재 연결중인 사용자가

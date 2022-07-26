@@ -127,7 +127,7 @@ public class RemoteControlFragment extends Fragment
     {
         mStatusViewModel.getObjectConnectionState().observe(getViewLifecycleOwner(), integer ->
         {
-            Log.d(TAG, "Obsever : Connection -> " + integer);
+            Log.v(TAG, "옵저버 : 연결상태 -> " + integer);
 
             if (integer == StatusViewModel.CONNECTION_STATE_DISCONNECTED)
             {
@@ -151,7 +151,7 @@ public class RemoteControlFragment extends Fragment
         {
             int value = mStatusViewModel.getValueBatteryLevel();
             String textValue = "" + value;
-            Log.d(TAG, "Observer : Battery -> " + textValue + "%");
+            Log.v(TAG, "옵저버 : 배터리 -> " + textValue + "%");
             mRemoteControlBinding.remoteControlBatteryPercentTextview.setText(textValue);
             mRemoteControlBinding.remoteControlBatteryProgressbar.setProgress(value);
         });
@@ -164,7 +164,7 @@ public class RemoteControlFragment extends Fragment
         {
             int value = mStatusViewModel.getValueNotification();
 
-            Log.d(TAG, "Observer : Notification -> " + value);
+            Log.v(TAG, "옵저버 : 자극알림 -> " + value);
 
             if (value == PacketInfo.NOTIFICATION_ON)
             {
@@ -184,7 +184,7 @@ public class RemoteControlFragment extends Fragment
         {
             int value = mStatusViewModel.getValueLed();
 
-            Log.d(TAG, "Observer : LED -> " + value);
+            Log.v(TAG, "옵저버 : LED -> " + value);
 
             if (value == PacketInfo.LED_ON)
             {
@@ -204,7 +204,7 @@ public class RemoteControlFragment extends Fragment
         {
             int value = mStatusViewModel.getValueTelecoil();
 
-            Log.d(TAG, "Observer : Telecoil -> " + value);
+            Log.v(TAG, "옵저버 : 텔레코일 -> " + value);
 
             if (value == PacketInfo.TELECOIL_ON)
             {
@@ -226,7 +226,7 @@ public class RemoteControlFragment extends Fragment
             int percent = 60 + (10 * value);
             String text = percent + "%";
 
-            Log.d(TAG, "Observer : Max output -> " + text);
+            Log.v(TAG, "옵저버 : 최대출력 -> " + text);
             mRemoteControlBinding.remoteControlMaxOutputValueTextview.setText(text);
             mRemoteControlBinding.remoteControlMaxOutputProgressbar.setProgress(value);
         });
@@ -239,7 +239,7 @@ public class RemoteControlFragment extends Fragment
         {
             int value = mStatusViewModel.getValueVolume();
             String text = value + "";
-            Log.d(TAG, "Observer : Volume -> " + text);
+            Log.v(TAG, "옵저버 : 볼륨 -> " + text);
             mRemoteControlBinding.remoteControlVolumeValueTextview.setText(text);
             mRemoteControlBinding.remoteControlVolumeProgressbar.setProgress(value);
         });
@@ -252,7 +252,7 @@ public class RemoteControlFragment extends Fragment
         {
             int value = mStatusViewModel.getValueProgram();
             String text = value + "";
-            Log.d(TAG, "Observer : Program -> " + text);
+            Log.v(TAG, "옵저버 : 프로그램 -> " + text);
             mRemoteControlBinding.remoteControlProgramValueTextview.setText(text);
         });
     }
