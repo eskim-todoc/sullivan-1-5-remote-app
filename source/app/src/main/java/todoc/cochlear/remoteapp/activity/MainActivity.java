@@ -1254,7 +1254,15 @@ public class MainActivity extends AppCompatActivity
                                                 {
                                                     longTimeIdleHandlerUpdate(true);
 
-                                                    scanLe(true);
+                                                    if (getSupportFragmentManager().findFragmentById(R.id.frame) instanceof RemoteControlFragment)
+                                                    {
+                                                        Log.d(TAG, "현재 리모컨 화면이므로 스캔을 다시 시작합니다.");
+                                                        scanLe(true);
+                                                    }
+                                                    else
+                                                    {
+                                                        Log.d(TAG, "현재 리모컨 화면이 아니므로 스캔을 다시 시작하지 않습니다.");
+                                                    }
                                                 })
                                                 .setCancelable(false)
                                                 .create();
