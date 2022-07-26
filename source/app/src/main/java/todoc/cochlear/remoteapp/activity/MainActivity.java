@@ -1975,16 +1975,25 @@ public class MainActivity extends AppCompatActivity
                                                     for (EntityUser user : users)
                                                     {
                                                         UtilUser.instance.delete(user);
+                                                        Log.d(TAG, "사용자 " + user.name + "  삭제됨.");
                                                     }
 
                                                     for (EntityDevice device : devices)
                                                     {
                                                         UtilDevice.instance.delete(device);
+                                                        Log.d(TAG, "사운드처리기 " + device.serialNumber + "  삭제됨.");
                                                     }
 
                                                     mLockScreen.erasePassword();
+                                                    mLockScreen.setEnable(this, true);
                                                     mLockScreen.resume();
                                                     mManualScreen.setEnable(true);
+
+                                                    Bundle bundle = new Bundle();
+                                                    bundle.putBoolean(ManualFragment.ARG_FIRST_SCREEN, true);
+                                                    ManualFragment manualFragment = new ManualFragment();
+                                                    manualFragment.setArguments(bundle);
+                                                    getSupportFragmentManager().beginTransaction().replace(R.id.frame, manualFragment).commitAllowingStateLoss();
                                                 })
                                                 .setNegativeButton("취소", (dialogInterface1, i1) ->
                                                 {
@@ -2003,16 +2012,25 @@ public class MainActivity extends AppCompatActivity
                                 for (EntityUser user : users)
                                 {
                                     UtilUser.instance.delete(user);
+                                    Log.d(TAG, "사용자 " + user.name + "  삭제됨.");
                                 }
 
                                 for (EntityDevice device : devices)
                                 {
                                     UtilDevice.instance.delete(device);
+                                    Log.d(TAG, "사운드처리기 " + device.serialNumber + "  삭제됨.");
                                 }
 
                                 mLockScreen.erasePassword();
+                                mLockScreen.setEnable(this, true);
                                 mLockScreen.resume();
                                 mManualScreen.setEnable(true);
+
+                                Bundle bundle = new Bundle();
+                                bundle.putBoolean(ManualFragment.ARG_FIRST_SCREEN, true);
+                                ManualFragment manualFragment = new ManualFragment();
+                                manualFragment.setArguments(bundle);
+                                getSupportFragmentManager().beginTransaction().replace(R.id.frame, manualFragment).commitAllowingStateLoss();
                             }
                         }).setNegativeButton(getString(R.string.lock_screen_dialog_negative), (dialogInterface, i) ->
                         {
