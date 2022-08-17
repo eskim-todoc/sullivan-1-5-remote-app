@@ -77,14 +77,15 @@ public class MainActivity extends AppCompatActivity
 
     static private final String BT_NAME_REGEX_FILTER = "^TD_.*$";
     public static final UUID BLE_UUID_SERVICE = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-    public static final UUID BLE_UUID_DESCRIPTION_CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
     public static final UUID BLE_UUID_CHARACTERISTIC_CLIENT_TO_SERVER = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
     public static final UUID BLE_UUID_CHARACTERISTIC_SERVER_TO_CLIENT = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
+    public static final UUID BLE_UUID_DESCRIPTION_CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
     static private final ParcelUuid SERVICE_DATA_UUID = new ParcelUuid(UUID.fromString("00004944-0000-1000-8000-00805F9B34FB"));
 
     private static final int DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT = 500;
 
     static private final int LONG_TIME_IDLE_TIMEOUT_IN_MS = 600000;
+    //static private final int LONG_TIME_IDLE_TIMEOUT_IN_MS = 10000;
     private static final int CHECK_BATTERY_DELAY_IN_MS = 30000;
     static private final int DISCOVER_SERVICES_TIMEOUT_IN_MS = 2000;
     static private final int CCCD_TIMEOUT_IN_MS = 2000;
@@ -222,6 +223,41 @@ public class MainActivity extends AppCompatActivity
         mStatusViewModel = null; // 뷰모델 객체 제거
         mManualScreen = null; // 매뉴얼화면 객체 제거
         mLockScreen = null; // 잠금화면 객체 제거
+
+        // 다이얼로그 생성되어있으면 제거
+        if (Status.instance().lastDialog != null)
+        {
+            if (Status.instance().lastDialog.isShowing())
+            {
+                Status.instance().lastDialog.dismiss();
+            }
+
+            Status.instance().lastDialog = null;
+        }
+
+        // 장시간 미사용 다이얼로그 제거
+        if (Status.instance().longTimeIdleDialog != null)
+        {
+            if (Status.instance().longTimeIdleDialog.isShowing())
+            {
+                Status.instance().longTimeIdleDialog.dismiss();
+            }
+
+            Status.instance().longTimeIdleDialog = null;
+        }
+
+        // 리모컨 화면 다이얼로그 제거
+        Fragment fragment = getSupportFragmentManager().findFragmentById(mBinding.frame.getId());
+        if (fragment instanceof RemoteControlFragment)
+        {
+            if (((RemoteControlFragment) fragment).mDialog != null)
+            {
+                if (((RemoteControlFragment) fragment).mDialog.isShowing())
+                {
+                    ((RemoteControlFragment) fragment).mDialog.dismiss();
+                }
+            }
+        }
     }
 
     @Override
@@ -385,7 +421,7 @@ public class MainActivity extends AppCompatActivity
 
         // 잠금화면 상태의 다이얼로그는 항상 최상위에 출력되어야 한다. 그래서 다이얼로그 객체를 따로 저장하지 않고,
         // 오직 확인 버튼을 눌러서만 제거가 가능하도록 구현한다.
-        new MaterialAlertDialogBuilder(MainActivity.this)
+        Status.instance().longTimeIdleDialog = new MaterialAlertDialogBuilder(MainActivity.this)
                 .setTitle("안내")
                 .setMessage("장시간 앱이 사용되지 않아 전력소모를 줄이기 위해 절전모드로 진입하였습니다. 아래의 확인 버튼을 누르면 절전모드에서 빠져나옵니다.")
                 .setPositiveButton("확인", (dialogInterface, i) ->
@@ -412,7 +448,9 @@ public class MainActivity extends AppCompatActivity
                     longTimeIdleHandlerUpdate(true);
                 })
                 .setCancelable(false)
-                .show();
+                .create();
+
+        Status.instance().longTimeIdleDialog.show();
     };
 
     //
@@ -579,7 +617,12 @@ public class MainActivity extends AppCompatActivity
                         // 본딩이 성공한 후에는 의도적으로 연결을 해제하여, 다시 처음부터 연결을 진행하도록 한다.
                         if (mBluetoothGatt != null)
                         {
+                            Log.d(TAG, "연결중이므로 연결을 강제 해제하겠습니다.");
                             mBluetoothGatt.disconnect();
+                        }
+                        else
+                        {
+                            Log.d(TAG, "왜 연결중이 아닐까요?");
                         }
                     }
                     else if (bondState == BluetoothDevice.BOND_BONDING)
@@ -622,6 +665,14 @@ public class MainActivity extends AppCompatActivity
                                 Status.instance().lockScreenState = Status.LOCK_SCREEN_STATE_LOCK;
                             }
 
+                            if (Status.instance().lastDialog != null)
+                            {
+                                if (Status.instance().lastDialog.isShowing())
+                                {
+                                    Status.instance().lastDialog.dismiss();
+                                }
+                            }
+
                             Status.instance().lastDialog =
                                     new MaterialAlertDialogBuilder(MainActivity.this)
                                             .setTitle("안내")
@@ -662,7 +713,7 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
 
         // 리모컨 화면
-        if (fragment instanceof RemoteControlFragment)
+        if (fragment instanceof RemoteControlFragment || mBinding.lockScreen.getVisibility() == View.VISIBLE)
         {
             if (Status.instance().lastDialog != null)
             {
@@ -855,6 +906,8 @@ public class MainActivity extends AppCompatActivity
                 // If the name is null or not mathed to the regex filter, return.
                 return;
             }
+
+            Log.d(TAG, "BLE 스캔 결과 : 이름 = " + name);
 
             Map<ParcelUuid, byte[]> map = result.getScanRecord().getServiceData();
 
@@ -1994,7 +2047,10 @@ public class MainActivity extends AppCompatActivity
         // 장시간 미사용 핸들러 업데이트
         longTimeIdleHandlerUpdate(true);
 
-        mLockScreen.numberClickListener(view);
+        if (mBinding.lockScreen.getVisibility() == View.VISIBLE)
+        {
+            mLockScreen.numberClickListener(view);
+        }
     }
 
     //

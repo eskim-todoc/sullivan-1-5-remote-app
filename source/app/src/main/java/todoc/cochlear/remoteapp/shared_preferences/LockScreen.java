@@ -391,7 +391,7 @@ public class LockScreen
                 if (mPasswordString.equals(mPasswordCompareString))
                 {
                     enableScreen(false);
-                    successAnimation();
+                    //successAnimation();
                 }
                 else
                 {

@@ -46,6 +46,12 @@ public class RemoteControlFragment extends Fragment
     @Override
     public void onDestroyView()
     {
+        if (mDialog != null && mDialog.isShowing())
+        {
+            mDialog.dismiss();
+            mDialog = null;
+        }
+
         super.onDestroyView();
     }
 

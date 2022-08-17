@@ -7,18 +7,21 @@ public class PacketInfo
     // 패킷별 헤더 정보
     static public final byte HEADER_PASSWORD = (byte) (0x40 & 0xff);
     static public final byte HEADER_SOUND_PROCESSOR_INFO = (byte) (0x41 & 0xff);
-    static public final byte HEADER_SOUND_PROCESSOR_STATUS = (byte) (0x42 & 0xff);
-    static public final byte HEADER_VALUE_PROMGRAM = (byte) (0x43 & 0xff);
-    static public final byte HEADER_VALUE_MAX_OUTPUT = (byte) (0x44 & 0xff);
-    static public final byte HEADER_VALUE_VOLUME = (byte) (0x45 & 0xff);
-    static public final byte HEADER_VALUE_TELECOIL = (byte) (0x46 & 0xff);
-    static public final byte HEADER_VALUE_NOTIFICATION = (byte) (0x47 & 0xff);
-    static public final byte HEADER_VALUE_LED = (byte) (0x48 & 0xff);
+    static public final byte HEADER_MAP_DATA_INFORMATION = (byte) (0x42 & 0xff);
+    static public final byte HEADER_SOUND_PROCESSOR_STATUS = (byte) (0x43 & 0xff);
+    static public final byte HEADER_VALUE_PROMGRAM = (byte) (0x44 & 0xff);
+    static public final byte HEADER_VALUE_MAX_OUTPUT = (byte) (0x45 & 0xff);
+    static public final byte HEADER_VALUE_VOLUME = (byte) (0x46 & 0xff);
+    static public final byte HEADER_VALUE_TELECOIL = (byte) (0x47 & 0xff);
+    static public final byte HEADER_VALUE_NOTIFICATION = (byte) (0x48 & 0xff);
+    static public final byte HEADER_VALUE_LED = (byte) (0x49 & 0xff);
+    static public final byte HEADER_SYSTEM_WARNING = (byte) (0x4A & 0xff);
     static public final byte HEADER_ERROR = (byte) (0xf0 & 0xff);
 
-    // 패킷별 사이즈 정보
+    // 응답 패킷별 사이즈 정보
     static public final int PACKET_SIZE_PASSWORD = 2;
-    static public final int PACKET_SIZE_PROCESSOR_INFO = 15;
+    static public final int PACKET_SIZE_PROCESSOR_INFO = 9;
+    static public final int PACKET_SIZE_MAP_DATA_INFO = 7;
     static public final int PACKET_SIZE_PROCESSOR_STATUS = 8;
     static public final int PACKET_SIZE_PROGRAM = 2;
     static public final int PACKET_SIZE_MAX_OUTPUT = 2;
@@ -26,6 +29,7 @@ public class PacketInfo
     static public final int PACKET_SIZE_TELECOIL = 2;
     static public final int PACKET_SIZE_NOTIFICATION = 2;
     static public final int PACKET_SIZE_LED = 2;
+    static public final int PACKET_SIZE_SYSTEM_WARNING = 1;
     static public final int PACKET_SIZE_ERROR = 3;
 
     static public final int INIT_VALUE_BATTERY = 0;
