@@ -12,6 +12,9 @@ android {
         versionCode 1
         versionName "1.0"
 
+        renderscriptTargetApi 19
+        renderscriptSupportModeEnabled true    // Enable RS support
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         javaCompileOptions {
@@ -69,4 +72,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     // LiveData
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+
+    implementation 'com.github.mmin18:realtimeblurview:1.2.1'
+    implementation 'com.skyfishjy.ripplebackground:library:1.0.1'
 }

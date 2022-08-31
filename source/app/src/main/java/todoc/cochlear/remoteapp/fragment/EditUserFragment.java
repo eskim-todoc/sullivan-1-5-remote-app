@@ -1,15 +1,18 @@
 package todoc.cochlear.remoteapp.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
+import androidx.renderscript.ScriptGroup;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -34,7 +37,7 @@ public class EditUserFragment extends Fragment
     static public final String ARG_EAR = "ear";
     static public final String ARG_DEFAULT = "default";
 
-    private FragmentEditUserBinding mEditUserBinding;
+    public FragmentEditUserBinding mEditUserBinding;
     private EntityUser mItem;
 
     public EditUserFragment()
@@ -46,6 +49,12 @@ public class EditUserFragment extends Fragment
     public void onDestroyView()
     {
         super.onDestroyView();
+
+        InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mEditUserBinding.edittextName.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(mEditUserBinding.edittextPasskey.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(mEditUserBinding.edittextNickname.getWindowToken(), 0);
+
         mEditUserBinding = null;
     }
 
@@ -56,8 +65,11 @@ public class EditUserFragment extends Fragment
 
         todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding mainBinding = ((MainActivity) requireContext()).mBinding;
         mainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
+        mainBinding.toolbarNavigationMessage.setText("사용자\n목록");
+        mainBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
+        mainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
         mainBinding.toolbar.setTitle(requireContext().getString(R.string.toolbar_title_edit_user));
 
         Bundle bundle = getArguments();
@@ -92,17 +104,19 @@ public class EditUserFragment extends Fragment
 
     private void fillInformation()
     {
-        mEditUserBinding.edittextName.setText(mItem.name);
+        mEditUserBinding.edittextName.setText(mItem.name.substring(0, mItem.name.length() - 2));
         mEditUserBinding.edittextPasskey.setText(mItem.passKey);
         mEditUserBinding.edittextNickname.setText(mItem.nickname);
 
         if (mItem.ear.equals(EntityUser.EAR_LEFT))
         {
             mEditUserBinding.editUserLeftRadiobutton.setChecked(true);
+            mEditUserBinding.editUserRightRadiobutton.setVisibility(View.GONE);
         }
         else if (mItem.ear.equals(EntityUser.EAR_RIGHT))
         {
             mEditUserBinding.editUserRightRadiobutton.setChecked(true);
+            mEditUserBinding.editUserLeftRadiobutton.setVisibility(View.GONE);
         }
 
         boolean isDefault = mItem.defaultUser.equals(EntityUser.USER_DEFAULT);
@@ -132,8 +146,8 @@ public class EditUserFragment extends Fragment
                 Status.instance().lastDialog =
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
-                                .setMessage("현재 연결중인 사용자입니다. 이 사용자의 등록정보를 제거하시겠습니까? 제거하면 현재 연결상태가 해제됩니다.")
-                                .setPositiveButton("제거", (dialogInterface, i) ->
+                                .setMessage("현재 연결을 해제하고 사용자 정보를 삭제하시겠습니까?")
+                                .setPositiveButton("삭제", (dialogInterface, i) ->
                                 {
                                     // 장시간 미사용 핸들러 업데이트
                                     ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
@@ -166,8 +180,8 @@ public class EditUserFragment extends Fragment
                 Status.instance().lastDialog =
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
-                                .setMessage("사용자의 등록정보를 제거하시겠습니까?")
-                                .setPositiveButton("제거", (dialogInterface, i) ->
+                                .setMessage("사용자 정보를 삭제하시겠습니까?")
+                                .setPositiveButton("삭제", (dialogInterface, i) ->
                                 {
                                     // 장시간 미사용 핸들러 업데이트
                                     ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
@@ -195,17 +209,10 @@ public class EditUserFragment extends Fragment
             // 장시간 미사용 핸들러 업데이트
             ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
-            boolean invalid = false;
-
             String passKey = Objects.requireNonNull(mEditUserBinding.edittextPasskey.getText()).toString();
             if (passKey.length() != 4)
             {
-                mEditUserBinding.edittextPasskey.setError("내부기 키는 4자리 번호입니다.");
-                invalid = true;
-            }
-
-            if (invalid) // 보안코드에 문제가 있음
-            {
+                //mEditUserBinding.edittextPasskey.setError("내부기 키는 4자리 번호입니다.");
                 if (Status.instance().lastDialog != null)
                 {
                     if (Status.instance().lastDialog.isShowing())
@@ -217,7 +224,7 @@ public class EditUserFragment extends Fragment
                 Status.instance().lastDialog =
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
-                                .setMessage("정보가 올바로 입력되지 않았습니다. 내부기 키 항목은 필수 입력 사항입니다.")
+                                .setMessage("내부기 키는 4자리 번호입니다.")
                                 .setPositiveButton("확인", (dialogInterface, i) ->
                                 {
                                     // 장시간 미사용 핸들러 업데이트
@@ -281,7 +288,7 @@ public class EditUserFragment extends Fragment
                             Status.instance().lastDialog =
                                     new MaterialAlertDialogBuilder(requireContext())
                                             .setTitle("주의")
-                                            .setMessage("현재 연결중인 사용자입니다. 연결을 해제하고, 기본 사용자 설정을 변경하시겠습니까?")
+                                            .setMessage("현재 연결을 해제하고 사용자 정보를 수정하시겠습니까?")
                                             .setPositiveButton("확인", (dialogInterface, i) ->
                                             {
                                                 // 장시간 미사용 핸들러 업데이트
@@ -310,6 +317,7 @@ public class EditUserFragment extends Fragment
                         }
                     }
                 }
+
                 if (mItem.defaultUser.equals(EntityUser.USER_DEFAULT))
                 {
                     // 기본사용자로 선택했을 때, 현재 연결된 사용자가 있는지 확인하여 현재 연결중인 사용자가
@@ -335,7 +343,7 @@ public class EditUserFragment extends Fragment
                                 Status.instance().lastDialog =
                                         new MaterialAlertDialogBuilder(requireContext())
                                                 .setTitle("주의")
-                                                .setMessage("현재 연결중인 기본사용자가 있습니다. 연결을 해제하고, 기본 사용자 설정을 변경하시겠습니까?")
+                                                .setMessage("현재 연결을 해제하고 사용자 정보를 수정하시겠습니까?")
                                                 .setPositiveButton("확인", (dialogInterface, i) ->
                                                 {
                                                     // 장시간 미사용 핸들러 업데이트

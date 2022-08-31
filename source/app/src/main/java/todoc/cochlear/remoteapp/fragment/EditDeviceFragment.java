@@ -1,5 +1,6 @@
 package todoc.cochlear.remoteapp.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -29,12 +31,25 @@ public class EditDeviceFragment extends Fragment
     static public final String ARG_PAIRING_KEY = "pairing_key";
     static public final String ARG_OPTION = "option";
 
-    private FragmentEditDeviceBinding mEditDeviceBinding;
+    public FragmentEditDeviceBinding mEditDeviceBinding;
     private EntityDevice mItem;
 
     public EditDeviceFragment()
     {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onDestroyView()
+    {
+        super.onDestroyView();
+
+        InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mEditDeviceBinding.editDeviceSerialEdittext.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(mEditDeviceBinding.editDeviePairingKeyEdittext.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(mEditDeviceBinding.editDeviceOptionEdittext.getWindowToken(), 0);
+
+        mEditDeviceBinding = null;
     }
 
     @Override
@@ -44,8 +59,11 @@ public class EditDeviceFragment extends Fragment
 
         todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding mainBinding = ((MainActivity) requireContext()).mBinding;
         mainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
+        mainBinding.toolbarNavigationMessage.setText("외부기\n목록");
+        mainBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
+        mainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
         mainBinding.toolbar.setTitle(requireContext().getString(R.string.toolbar_title_edit_device));
 
         Bundle bundle = getArguments();
@@ -107,8 +125,8 @@ public class EditDeviceFragment extends Fragment
                 Status.instance().lastDialog =
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
-                                .setMessage("현재 연결중인 사운드처리기입니다. 이 사운드처리기의 등록정보를 제거하시겠습니까? 제거하면 현재 연결상태가 해제됩니다.")
-                                .setPositiveButton("제거", (dialogInterface, i) ->
+                                .setMessage("현재 연결을 해제하고 외부기 정보를 삭제하시겠습니까?")
+                                .setPositiveButton("삭제", (dialogInterface, i) ->
                                 {
                                     // 장시간 미사용 핸들러 업데이트
                                     ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
@@ -136,8 +154,8 @@ public class EditDeviceFragment extends Fragment
                 Status.instance().lastDialog =
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
-                                .setMessage("사운드처리기의 등록정보를 제거하시겠습니까?")
-                                .setPositiveButton("제거", (dialogInterface, i) ->
+                                .setMessage("외부기 정보를 삭제하시겠습니까?")
+                                .setPositiveButton("삭제", (dialogInterface, i) ->
                                 {
                                     // 장시간 미사용 핸들러 업데이트
                                     ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
@@ -165,19 +183,12 @@ public class EditDeviceFragment extends Fragment
     {
         mEditDeviceBinding.editDeviceEditButton.setOnClickListener(view ->
         {
-            boolean invalid = false;
-
             mItem.pairingKey = Objects.requireNonNull(mEditDeviceBinding.editDeviePairingKeyEdittext.getText()).toString();
             mItem.additionalInformation = Objects.requireNonNull(mEditDeviceBinding.editDeviceOptionEdittext.getText()).toString();
 
             if (mItem.pairingKey == null || mItem.pairingKey.length() != 6)
             {
-                mEditDeviceBinding.editDeviePairingKeyEdittext.setError("보안코드는 6자리 번호입니다.");
-                invalid = true;
-            }
-
-            if (invalid)
-            {
+                //mEditDeviceBinding.editDeviePairingKeyEdittext.setError("보안코드는 6자리 번호입니다.");
                 if (Status.instance().lastDialog != null)
                 {
                     if (Status.instance().lastDialog.isShowing())
@@ -189,7 +200,7 @@ public class EditDeviceFragment extends Fragment
                 Status.instance().lastDialog =
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
-                                .setMessage("정보가 올바로 입력되지 않았습니다. 보안코드 항목은 필수 입력 사항입니다.")
+                                .setMessage("페어링 키는 6자리 번호입니다.")
                                 .setPositiveButton("확인", (dialogInterface, i) ->
                                 {
                                     // 장시간 미사용 핸들러 업데이트

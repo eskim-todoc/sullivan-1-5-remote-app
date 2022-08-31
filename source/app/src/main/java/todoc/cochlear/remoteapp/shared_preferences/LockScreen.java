@@ -145,19 +145,31 @@ public class LockScreen
 
         if (mState == STATE_REGISTER)
         {
+            mBinding.lockScreenTitle.setText("암호 등록");
             mBinding.lockScreenInfo.setText(mContext.getString(R.string.lock_screen_register_password));
+            mBinding.lockScreenInfo.setVisibility(View.GONE);
+            mBinding.forgotPassword.setVisibility(View.GONE);
         }
         else if (mState == STATE_COMPARE)
         {
+            mBinding.lockScreenTitle.setText("암호 확인");
             mBinding.lockScreenInfo.setText(mContext.getString(R.string.lock_screen_compare_password));
+            mBinding.lockScreenInfo.setVisibility(View.GONE);
+            mBinding.forgotPassword.setVisibility(View.GONE);
         }
         else if (mState == STATE_DECODE)
         {
+            mBinding.lockScreenTitle.setText("암호 입력");
             mBinding.lockScreenInfo.setText(mContext.getString(R.string.lock_screen_decode_password));
+            mBinding.lockScreenInfo.setVisibility(View.GONE);
+            mBinding.forgotPassword.setVisibility(View.VISIBLE);
         }
         else
         {
+            mBinding.lockScreenTitle.setText("암호 입력");
             mBinding.lockScreenInfo.setText(mContext.getString(R.string.lock_screen_invalid_state));
+            mBinding.lockScreenInfo.setVisibility(View.GONE);
+            mBinding.forgotPassword.setVisibility(View.VISIBLE);
         }
     }
 
@@ -192,7 +204,7 @@ public class LockScreen
         {
             if (Status.instance().longTimeIdleState == Status.LONG_TIME_IDLE_STATE_TRIGGERED)
             {
-                return;
+                //return;
             }
 
             mBinding.lockScreen.setVisibility(View.GONE);

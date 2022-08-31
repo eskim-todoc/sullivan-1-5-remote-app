@@ -7,6 +7,10 @@
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
+    <!-- 블루투스 페어링 키 자동 입력을 위한 권한을 사용한다.
+    <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" />
+    -->
+
     <!-- 위치 권한은 동일하게 모든 버전에서 사용된다. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
@@ -52,7 +56,8 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

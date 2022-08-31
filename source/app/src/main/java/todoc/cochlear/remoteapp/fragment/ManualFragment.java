@@ -45,8 +45,20 @@ public class ManualFragment extends Fragment
 
         todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding mainBinding = ((MainActivity) requireContext()).mBinding;
         mainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
+        Bundle bundle = getArguments();
+        if (bundle != null && bundle.getBoolean(ManualFragment.ARG_FIRST_SCREEN))
+        {
+            mainBinding.toolbarNavigationMessage.setText("주화면");
+        }
+        else
+        {
+            mainBinding.toolbarNavigationMessage.setText("메뉴");
+        }
+        mainBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
+        //mainBinding.toolbar.setNavigationIcon(null);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
+        mainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
         mainBinding.toolbar.setTitle(requireContext().getString(R.string.toolbar_title_manual));
     }
 

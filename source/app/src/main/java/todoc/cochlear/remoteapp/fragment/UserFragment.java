@@ -50,8 +50,11 @@ public class UserFragment extends Fragment
 
         mMainBinding = ((MainActivity) requireContext()).mBinding;
         mMainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
+        mMainBinding.toolbarNavigationMessage.setText("메뉴");
+        mMainBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
+        mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
         mMainBinding.toolbar.setTitle(requireContext().getString(R.string.toolbar_title_management_user));
     }
 

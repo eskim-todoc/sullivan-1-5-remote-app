@@ -19,7 +19,8 @@
                 android:layout_height="wrap_content"
                 android:text="보안"
                 android:textColor="@color/white_70"
-                android:textSize="14dp" />
+                android:textSize="14dp"
+                android:visibility="gone" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switch_lock_screen"
@@ -37,7 +38,8 @@
                 android:layout_marginTop="16dp"
                 android:text="등록관리"
                 android:textColor="@color/white_70"
-                android:textSize="14dp" />
+                android:textSize="14dp"
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/button_user"
@@ -73,15 +75,16 @@
                 android:layout_marginTop="16dp"
                 android:text="고객지원"
                 android:textColor="@color/white_70"
-                android:textSize="14dp" />
+                android:textSize="14dp"
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/button_manual"
                 style="@style/Widget.MaterialComponents.Button.Icon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/settings_button_manual"
                 android:minHeight="56dp"
+                android:text="@string/settings_button_manual"
                 android:textAlignment="textStart"
                 android:textColor="@color/black_90"
                 app:icon="@drawable/settings_ic_arrow_24dp"

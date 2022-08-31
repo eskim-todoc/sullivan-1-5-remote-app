@@ -3,13 +3,13 @@
     <string name="app_name">토닥 리모컨</string>
     <!-- Toolbar -->
     <string name="toolbar_menu_settings">설정</string>
-    <string name="toolbar_title_settings">설정</string>
-    <string name="toolbar_title_management_user">사용자 관리</string>
-    <string name="toolbar_title_management_device">사운드처리기 관리</string>
+    <string name="toolbar_title_settings">메뉴</string>
+    <string name="toolbar_title_management_user">사용자 목록</string>
+    <string name="toolbar_title_management_device">외부기 목록</string>
     <string name="toolbar_title_add_user">사용자 등록</string>
-    <string name="toolbar_title_edit_user">사용자 수정</string>
-    <string name="toolbar_title_add_device">사운드처리기 등록</string>
-    <string name="toolbar_title_edit_device">사운드처리기 수정</string>
+    <string name="toolbar_title_edit_user">사용자 정보 수정</string>
+    <string name="toolbar_title_add_device">외부기 등록</string>
+    <string name="toolbar_title_edit_device">외부기 정보 수정</string>
     <string name="toolbar_title_manual">사용설명서</string>
     <!-- Lock screen -->
     <string name="lock_screen_decode_password">리모컨 앱 암호를 입력해주세요.</string>
@@ -28,12 +28,19 @@
     <string name="lock_screen_number_9">9</string>
     <string name="lock_screen_number_0">0</string>
     <string name="lock_screen_dialog_title">주의</string>
-    <string name="lock_screen_dialog_message">암호 재설정 시 보안을 위해 등록된 모든 사용자 및 사운드처리기 정보가 삭제됩니다. 암호를 재설정하시겠습니까?</string>
-    <string name="lock_screen_dialog_positive">재설정</string>
+    <string name="lock_screen_dialog_message">모든 데이터 및 설정이 삭제됩니다.</string>
+    <string name="lock_screen_dialog_positive">초기화</string>
     <string name="lock_screen_dialog_negative">취소</string>
+    <!-- Remote Control -->
+    <string name="remote_control_no_user_dialog_title">안내</string>
+    <string name="remote_control_no_user_dialog_message">사용자 등록을 진행합니다.</string>
+    <string name="remote_control_no_user_positive">확인</string>
+    <string name="remote_control_no_device_dialog_title">안내</string>
+    <string name="remote_control_no_device_dialog_message">외부기 등록을 진행합니다.</string>
+    <string name="remote_control_no_device_positive">확인</string>
     <!-- Settings -->
-    <string name="settings_button_user">사용자</string>
-    <string name="settings_button_device">사운드처리기</string>
+    <string name="settings_button_user">사용자 목록</string>
+    <string name="settings_button_device">외부기 목록</string>
     <string name="settings_button_manual">사용설명서</string>
     <!-- Manual Screen -->
     <string name="manual_screen_checkbox">다시보지 않기</string>

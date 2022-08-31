@@ -113,7 +113,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder>
                 defaultUserIv.setImageDrawable(AppCompatResources.getDrawable(mUserFragment.requireContext(), R.drawable.item_user_ic_person_40dp));
             }
 
-            nameTv.setText(item.name);
+            nameTv.setText(item.name.substring(0, item.name.length() - 2));
 
             if (item.ear.equals(EntityUser.EAR_LEFT))
             {

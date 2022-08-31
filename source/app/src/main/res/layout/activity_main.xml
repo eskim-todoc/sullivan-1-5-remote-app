@@ -30,11 +30,29 @@
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
+                    android:layout_height="56dp"
                     app:menu="@menu/toolbar"
                     app:navigationIcon="@drawable/toolbar_ic_back_arrow_24dp"
+                    app:titleCentered="true"
                     app:titleTextColor="@color/white_90" />
+
             </com.google.android.material.appbar.AppBarLayout>
+
+            <TextView
+                android:id="@+id/toolbar_navigation_message"
+                android:layout_width="wrap_content"
+                android:layout_height="56dp"
+                android:layout_marginStart="@dimen/toolbar_navigation_message_margin_start"
+                android:gravity="center_vertical"
+                android:lineSpacingMultiplier="1.2"
+                android:paddingStart="24dp"
+                android:text="뒤로"
+                android:textColor="@color/accent_50"
+                android:textSize="12dp"
+                android:textStyle="bold"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <FrameLayout
                 android:id="@+id/frame"
@@ -47,6 +65,57 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <!-- Pairing Key screen -->
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/pairing_key_layout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="?attr/actionBarSize"
+            android:background="@android:color/transparent"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/black_90"
+                android:gravity="center"
+                android:padding="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="등록된 페어링 키 : "
+                    android:textColor="@color/white_70"
+                    android:textSize="14dp" />
+
+                <TextView
+                    android:id="@+id/pairing_key_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textColor="@color/accent_70"
+                    android:textSize="14dp"
+                    android:textStyle="bold"
+                    tools:text="123456" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textColor="@color/white_70"
+                    android:textSize="14dp" />
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
         <!-- Lock screen -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/lock_screen"
@@ -57,7 +126,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="gone">
 
             <ImageView
                 android:layout_width="0dp"
@@ -104,7 +174,8 @@
                 app:layout_constraintBottom_toTopOf="@id/circle_layout"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/lock_screen_title" />
+                app:layout_constraintTop_toBottomOf="@id/lock_screen_title"
+                tools:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/circle_layout"
@@ -243,10 +314,10 @@
             <Button
                 android:id="@+id/lock_screen_number_0"
                 style="@style/RemoteControl.LockScreen.NumberText"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="16dp"
                 android:onClick="onLockScreenNumberClickedListener"
                 android:text="@string/lock_screen_number_0"
-                app:layout_constraintBottom_toTopOf="@id/forgot_password"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/lock_screen_number_8"
@@ -265,23 +336,22 @@
                 app:layout_constraintTop_toTopOf="@id/lock_screen_number_0"
                 app:tint="@color/lock_screen_del_image_color_selector" />
 
-            <TextView
+            <ImageButton
                 android:id="@+id/forgot_password"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginBottom="24dp"
+                android:background="@android:color/transparent"
                 android:clickable="true"
                 android:onClick="onLockScreenForgetPasswordClickedListener"
-                android:text="@string/lock_screen_forgot_password"
+                android:src="@drawable/lock_screen_ic_reset"
+                android:text="리모컨 앱 초기화"
                 android:textAlignment="center"
-                android:textColor="@color/white_70"
+                android:textColor="@color/accent_40"
                 android:textSize="12dp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/lock_screen_number_0" />
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

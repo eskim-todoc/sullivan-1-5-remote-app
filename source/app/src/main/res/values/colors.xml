@@ -34,6 +34,15 @@
     <color name="accent_10">#879695</color>
 
     <color name="error_100">#EC407A</color>
+    <color name="error_90">#DA4074</color>
+    <color name="error_80">#C9406E</color>
+    <color name="error_70">#B84068</color>
+    <color name="error_60">#A74062</color>
+    <color name="error_50">#96405D</color>
+    <color name="error_40">#844057</color>
+    <color name="error_30">#734051</color>
+    <color name="error_20">#62404B</color>
+    <color name="error_10">#514045</color>
 
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>

@@ -7,7 +7,7 @@
         <!-- 하단 네비게이션바 색상 -->
         <item name="android:navigationBarColor">@color/bottom_navigation</item>
         <!-- 앱 폰트 설정 -->
-        <item name="android:fontFamily">@font/gothic_a1_regular</item>
+        <item name="android:fontFamily">@font/nanum_gothic_regular</item>
         <item name="android:includeFontPadding">false</item>
         <item name="colorSurface">@color/white_90</item>
         <item name="colorSecondary">@color/accent_70</item>
@@ -33,12 +33,13 @@
         <item name="counterTextColor">@color/white_70</item>
         <item name="errorTextAppearance">@style/TextAppearance.App.Caption</item>
         <item name="errorTextColor">@color/error_100</item>
+        <item name="boxBackgroundColor">@color/white_40</item>
     </style>
 
     <style name="ThemeOverlay.App.TextInputLayout" parent="">
         <item name="colorPrimary">@color/accent_70</item>
         <item name="colorSurface">@color/black_30</item>
-        <item name="colorOnSurface">@color/white_70</item>
+        <item name="colorOnSurface">@color/white_90</item>
         <item name="android:textColorPrimary">@color/white_90</item>
         <item name="colorError">@color/error_100</item>
         <item name="textAppearanceSubtitle1">@style/TextAppearance.App.Subtitle1</item>

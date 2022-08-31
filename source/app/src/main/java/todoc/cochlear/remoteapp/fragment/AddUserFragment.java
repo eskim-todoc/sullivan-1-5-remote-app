@@ -1,9 +1,11 @@
 package todoc.cochlear.remoteapp.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,7 +30,7 @@ public class AddUserFragment extends Fragment
     static private final String TAG = "TODOC_" + AddUserFragment.class.getSimpleName();
 
     private ActivityMainBinding mMainBinding;
-    private FragmentAddUserBinding mAddUserBinding;
+    public FragmentAddUserBinding mAddUserBinding;
 
     public AddUserFragment()
     {
@@ -39,6 +41,12 @@ public class AddUserFragment extends Fragment
     public void onDestroyView()
     {
         super.onDestroyView();
+
+        InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mAddUserBinding.nameEdittext.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(mAddUserBinding.passkeyEdittext.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(mAddUserBinding.nicknameEdittext.getWindowToken(), 0);
+
         mAddUserBinding = null;
     }
 
@@ -62,9 +70,18 @@ public class AddUserFragment extends Fragment
 
         mMainBinding = ((MainActivity) requireContext()).mBinding;
         mMainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
+        mMainBinding.toolbarNavigationMessage.setText("사용자\n목록");
+        mMainBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
+        mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
         mMainBinding.toolbar.setTitle(requireContext().getString(R.string.toolbar_title_add_user));
+
+        EntityUser defaultUser = UtilUser.instance.getDefaultUser();
+        if (defaultUser == null)
+        {
+            mAddUserBinding.defaultCheckbox.setChecked(true);
+        }
 
         initAddButton();
     }
@@ -131,22 +148,53 @@ public class AddUserFragment extends Fragment
 
             if (user.name.length() < 1)
             {
-                mAddUserBinding.nameEdittext.setError("이름을 입력하세요.");
-                invalid = true;
-            }
+                //mAddUserBinding.nameEdittext.setError("사용자 이니셜을 입력해주세요.");
+                if (Status.instance().lastDialog != null)
+                {
+                    if (Status.instance().lastDialog.isShowing())
+                    {
+                        Status.instance().lastDialog.dismiss();
+                    }
+                }
 
-            if (user.passKey == null || user.passKey.length() != 4)
+                Status.instance().lastDialog =
+                        new MaterialAlertDialogBuilder(requireContext())
+                                .setTitle("주의")
+                                .setMessage("사용자 이니셜을 입력해주세요.")
+                                .setPositiveButton("확인", (dialogInterface, i) ->
+                                {
+                                    // 장시간 미사용 핸들러 업데이트
+                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+                                })
+                                .setCancelable(false)
+                                .create();
+                Status.instance().lastDialog.show();
+            }
+            else if (user.passKey == null || user.passKey.length() != 4)
             {
-                mAddUserBinding.passkeyEdittext.setError("내부기 키는 4자리 번호입니다.");
-                invalid = true;
-            }
+                //mAddUserBinding.passkeyEdittext.setError("내부기 키는 4자리 번호입니다.");
+                if (Status.instance().lastDialog != null)
+                {
+                    if (Status.instance().lastDialog.isShowing())
+                    {
+                        Status.instance().lastDialog.dismiss();
+                    }
+                }
 
-            if (user.ear == null)
-            {
-                invalid = true;
+                Status.instance().lastDialog =
+                        new MaterialAlertDialogBuilder(requireContext())
+                                .setTitle("주의")
+                                .setMessage("내부기 키는 4자리 번호입니다.")
+                                .setPositiveButton("확인", (dialogInterface, i) ->
+                                {
+                                    // 장시간 미사용 핸들러 업데이트
+                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+                                })
+                                .setCancelable(false)
+                                .create();
+                Status.instance().lastDialog.show();
             }
-
-            if (invalid)
+            else if (user.ear == null)
             {
                 if (Status.instance().lastDialog != null)
                 {
@@ -159,7 +207,7 @@ public class AddUserFragment extends Fragment
                 Status.instance().lastDialog =
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
-                                .setMessage("정보를 입력해주세요. 사용자 이름, 내부기 키 그리고 착용 위치 항목은 필수 입력 사항입니다.")
+                                .setMessage("착용 위치를 선택해주세요.")
                                 .setPositiveButton("확인", (dialogInterface, i) ->
                                 {
                                     // 장시간 미사용 핸들러 업데이트
@@ -171,10 +219,11 @@ public class AddUserFragment extends Fragment
             }
             else
             {
+                user.name = user.name + "_" + user.ear; // 사용자 이니셜 + 착용 위치를 사용자 이름으로 구성한다.
                 EntityUser readUser = UtilUser.instance.getUserByName(user.name);
-                if (readUser != null)
+                if (readUser != null) // 이미 등록된 사용자 정보일 때
                 {
-                    mAddUserBinding.nameEdittext.setError("이미 등록된 이름입니다.");
+                    //mAddUserBinding.nameEdittext.setError("이미 등록된 사용자 이니셜입니다.");
 
                     if (Status.instance().lastDialog != null)
                     {
@@ -187,7 +236,7 @@ public class AddUserFragment extends Fragment
                     Status.instance().lastDialog =
                             new MaterialAlertDialogBuilder(requireContext())
                                     .setTitle("주의")
-                                    .setMessage("이미 같은 이름이 등록되어있습니다. 수정을 원하는 경우, 사용자 목록에서 수정을 원하는 사용자 이름을 누르세요.")
+                                    .setMessage("이미 등록된 사용자 정보입니다.")
                                     .setPositiveButton("확인", (dialogInterface, i) ->
                                     {
                                         // 장시간 미사용 핸들러 업데이트
@@ -197,7 +246,7 @@ public class AddUserFragment extends Fragment
                                     .create();
                     Status.instance().lastDialog.show();
                 }
-                else
+                else // 새로 등록하는 사용자 정보일 때
                 {
                     String nickName = Objects.requireNonNull(mAddUserBinding.nicknameEdittext.getText()).toString();
                     if (nickName.length() == 0)
@@ -209,7 +258,7 @@ public class AddUserFragment extends Fragment
                         user.nickname = nickName;
                     }
 
-                    if (user.defaultUser.equals(EntityUser.USER_DEFAULT))
+                    if (user.defaultUser.equals(EntityUser.USER_DEFAULT)) // 새로 등록하려는 정보가 기본사용자일 떄
                     {
                         EntityUser defaultUser = UtilUser.instance.getDefaultUser();
 
@@ -235,7 +284,7 @@ public class AddUserFragment extends Fragment
                                         Status.instance().lastDialog =
                                                 new MaterialAlertDialogBuilder(requireContext())
                                                         .setTitle("주의")
-                                                        .setMessage("현재 연결중인 기본사용자가 있습니다. 연결을 해제하고, 입력하신 사용자를 기본사용자로 등록하시겠습니까?")
+                                                        .setMessage("현재 연결을 해제하고 기본사용자 정보를 등록하시겠습니까?")
                                                         .setPositiveButton("확인", (dialogInterface, i) ->
                                                         {
                                                             // 장시간 미사용 핸들러 업데이트
@@ -264,20 +313,46 @@ public class AddUserFragment extends Fragment
                                     }
                                 }
                             }
+                            else
+                            {
+                                defaultUser.defaultUser = EntityUser.USER_NOT_DEFAULT;
+                                UtilUser.instance.update(defaultUser);
 
-                            defaultUser.defaultUser = EntityUser.USER_NOT_DEFAULT;
-                            UtilUser.instance.update(defaultUser);
+                                UtilUser.instance.insert(user);
+                                UtilLog.instance.writeLog(
+                                        "사용자 추가 : 이름=" + user.name + ", 패스키=" + user.passKey +
+                                                ", 별칭=" + user.nickname + ", 위치=" + user.ear + ", 기본사용자=" + user.defaultUser);
+
+                                if (UtilUser.instance.getUserByName(user.name) != null)
+                                {
+                                    requireActivity().onBackPressed();
+                                }
+                            }
+                        }
+                        else // 등록된 기본 사용자가 없을 때
+                        {
+                            UtilUser.instance.insert(user);
+                            UtilLog.instance.writeLog(
+                                    "사용자 추가 : 이름=" + user.name + ", 패스키=" + user.passKey +
+                                            ", 별칭=" + user.nickname + ", 위치=" + user.ear + ", 기본사용자=" + user.defaultUser);
+
+                            if (UtilUser.instance.getUserByName(user.name) != null)
+                            {
+                                requireActivity().onBackPressed();
+                            }
                         }
                     }
-
-                    UtilUser.instance.insert(user);
-                    UtilLog.instance.writeLog(
-                            "사용자 추가 : 이름=" + user.name + ", 패스키=" + user.passKey +
-                                    ", 별칭=" + user.nickname + ", 위치=" + user.ear + ", 기본사용자=" + user.defaultUser);
-
-                    if (UtilUser.instance.getUserByName(user.name) != null)
+                    else // 그냥 일반 사용자로 등록할 때
                     {
-                        requireActivity().onBackPressed();
+                        UtilUser.instance.insert(user);
+                        UtilLog.instance.writeLog(
+                                "사용자 추가 : 이름=" + user.name + ", 패스키=" + user.passKey +
+                                        ", 별칭=" + user.nickname + ", 위치=" + user.ear + ", 기본사용자=" + user.defaultUser);
+
+                        if (UtilUser.instance.getUserByName(user.name) != null)
+                        {
+                            requireActivity().onBackPressed();
+                        }
                     }
                 }
             }

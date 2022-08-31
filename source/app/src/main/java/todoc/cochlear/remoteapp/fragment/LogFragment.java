@@ -54,6 +54,7 @@ public class LogFragment extends Fragment
         ((MainActivity) requireActivity()).mBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
         ((MainActivity) requireActivity()).mBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
         ((MainActivity) requireActivity()).mBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
+        ((MainActivity) requireActivity()).mBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
         ((MainActivity) requireActivity()).mBinding.toolbar.setTitle("시스템 로그");
 
         mLogBinding.logExitButton.setOnClickListener(view1 -> requireActivity().onBackPressed());

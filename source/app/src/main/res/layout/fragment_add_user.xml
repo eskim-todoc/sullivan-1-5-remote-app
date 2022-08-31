@@ -21,19 +21,19 @@
                 android:layout_marginBottom="4dp"
                 android:text="입력"
                 android:textColor="@color/white_70"
-                android:textSize="14dp" />
+                android:textSize="14dp"
+                android:visibility="gone" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:counterEnabled="true"
-                app:helperText="글자 수">
+                app:counterEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/name_edittext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="사용자 이름"
+                    android:hint="사용자 이니셜"
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -42,8 +42,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 app:counterEnabled="true"
-                app:counterMaxLength="4"
-                app:helperText="글자 수">
+                app:counterMaxLength="4">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/passkey_edittext"
@@ -59,8 +58,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 app:counterEnabled="true"
-                app:counterMaxLength="10"
-                app:helperText="글자 수">
+                app:counterMaxLength="10">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/nickname_edittext"
@@ -121,6 +119,17 @@
                 android:text="기본 사용자로 등록"
                 android:textColor="@color/white_90"
                 android:textSize="14dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:lineSpacingMultiplier="1.4"
+                android:text="* 사용자 이니셜은 병원에서 제공.\n* 내부기 키는 병원에서 제공한 4자리 번호."
+                android:textColor="@color/accent_20"
+                android:textSize="14dp"
+                android:textStyle="bold"
+                android:visibility="visible" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/add_button"

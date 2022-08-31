@@ -21,24 +21,26 @@
                 android:layout_marginBottom="4dp"
                 android:text="입력"
                 android:textColor="@color/white_70"
-                android:textSize="14dp" />
+                android:textSize="14dp"
+                android:visibility="gone" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clickable="false"
-                android:enabled="false"
+                android:enabled="true"
                 android:focusable="false"
-                app:helperText="사용자 이름은 수정할 수 없습니다.">
+                app:boxBackgroundColor="@color/black_70"
+                app:counterEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edittext_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clickable="false"
-                    android:enabled="false"
+                    android:enabled="true"
                     android:focusable="false"
-                    android:hint="사용자 이름"
+                    android:hint="사용자 이니셜"
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -47,8 +49,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 app:counterEnabled="true"
-                app:counterMaxLength="4"
-                app:helperText="글자 수">
+                app:counterMaxLength="4">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edittext_passkey"
@@ -64,8 +65,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 app:counterEnabled="true"
-                app:counterMaxLength="10"
-                app:helperText="글자 수">
+                app:counterMaxLength="10">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edittext_nickname"
@@ -87,6 +87,7 @@
             <RadioGroup
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clickable="false"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -96,6 +97,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:clickable="false"
                     android:text="왼쪽"
                     android:textColor="@color/white_90"
                     android:textSize="14dp" />
@@ -106,6 +108,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:clickable="false"
                     android:text="오른쪽"
                     android:textColor="@color/white_90"
                     android:textSize="14dp" />
@@ -126,6 +129,17 @@
                 android:text="기본 사용자로 등록"
                 android:textColor="@color/white_90"
                 android:textSize="14dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:lineSpacingMultiplier="1.4"
+                android:text="* 사용자 이니셜 및 착용 위치 수정 불가.\n* 내부기 키는 병원에서 제공한 4자리 번호."
+                android:textColor="@color/accent_20"
+                android:textSize="14dp"
+                android:textStyle="bold"
+                android:visibility="visible" />
 
             <LinearLayout
                 android:layout_width="match_parent"

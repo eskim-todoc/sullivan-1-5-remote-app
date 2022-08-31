@@ -52,6 +52,8 @@ public class RemoteControlFragment extends Fragment
             mDialog = null;
         }
 
+        mRemoteControlBinding.remoteControlSearchingAnimator.stopRippleAnimation();
+
         super.onDestroyView();
     }
 
@@ -62,10 +64,14 @@ public class RemoteControlFragment extends Fragment
 
         mMainBinding = ((MainActivity) requireActivity()).mBinding;
         mMainBinding.toolbar.setNavigationIcon(null);
+        mMainBinding.toolbarNavigationMessage.setText("");
+        mMainBinding.toolbarNavigationMessage.setVisibility(View.GONE);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(true);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(true);
+        mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
         //mMainBinding.toolbar.setTitleTextAppearance(requireContext(), R.style.TextAppearance_RemoteControl_Default_Headline6);
-        mMainBinding.toolbar.setTitle("리모컨");
+        //mMainBinding.toolbar.setTitle("리모컨");
+        mMainBinding.toolbar.setTitle("");
     }
 
     @Override
@@ -138,6 +144,21 @@ public class RemoteControlFragment extends Fragment
             if (integer == StatusViewModel.CONNECTION_STATE_DISCONNECTED)
             {
                 mRemoteControlBinding.remoteControlConnectionLayout.setVisibility(View.VISIBLE);
+
+                if (Status.instance().scanState == Status.SCAN_STATE_STOPPED)
+                {
+                    mRemoteControlBinding.remoteControlSearchingAnimator.stopRippleAnimation();
+                    mRemoteControlBinding.remoteControlBlurLayout.setVisibility(View.VISIBLE);
+                    mRemoteControlBinding.remoteControlFindLayout.setVisibility(View.GONE);
+                    mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(true);
+                }
+                else
+                {
+                    mRemoteControlBinding.remoteControlBlurLayout.setVisibility(View.GONE);
+                    mRemoteControlBinding.remoteControlFindLayout.setVisibility(View.VISIBLE);
+                    mRemoteControlBinding.remoteControlSearchingAnimator.startRippleAnimation();
+                    mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
+                }
             }
             else if (integer == StatusViewModel.CONNECTION_STATE_CONNECTING)
             {
@@ -146,6 +167,8 @@ public class RemoteControlFragment extends Fragment
             else
             {
                 mRemoteControlBinding.remoteControlConnectionLayout.setVisibility(View.GONE);
+                mRemoteControlBinding.remoteControlSearchingAnimator.stopRippleAnimation();
+                mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
             }
         });
     }
@@ -413,7 +436,17 @@ public class RemoteControlFragment extends Fragment
                     }
                     else
                     {
-                        mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(defaultUser.name);
+                        String name = defaultUser.name.substring(0, defaultUser.name.length() - 2);
+                        if (defaultUser.ear.equals(EntityUser.EAR_LEFT))
+                        {
+                            name = name + " (왼쪽)";
+                        }
+                        else if (defaultUser.ear.equals(EntityUser.EAR_RIGHT))
+                        {
+                            name = name + " (오른쪽)";
+                        }
+
+                        mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(name);
                     }
 
                     if (mMainBinding.lockScreen.getVisibility() == View.GONE)
@@ -421,7 +454,8 @@ public class RemoteControlFragment extends Fragment
                         if (Status.instance().connectionState == Status.CONNECTION_STATE_DISCONNECTED)
                         {
                             Log.d(TAG, "연결 해제 상태이므로 검색을 시작합니다.");
-                            ((MainActivity) requireActivity()).scanLe(true);
+                            //((MainActivity) requireActivity()).scanLe(true);
+                            ((MainActivity) requireActivity()).scanLeWithDelay(true, 0);
                         }
                         else
                         {
@@ -431,21 +465,22 @@ public class RemoteControlFragment extends Fragment
                 }
                 else
                 {
-                    mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText("선택된 사용자 없음");
+                    mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText("");
                     ((MainActivity) requireActivity()).makeDialogSelectUser();
                 }
             }
         }
     }
 
+    // NO 사용자 다이얼로그
     private void makeNoUserDialog()
     {
         if (mDialog == null)
         {
             mDialog = new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("안내")
-                    .setMessage("리모컨 앱을 사용하려면 등록된 사용자 정보가 필요합니다. 아래의 등록 버튼을 눌러 사용자 정보를 등록해주세요.")
-                    .setPositiveButton("등록", (dialogInterface, i) ->
+                    .setTitle(getString(R.string.remote_control_no_user_dialog_title))
+                    .setMessage(getString(R.string.remote_control_no_user_dialog_message))
+                    .setPositiveButton(getString(R.string.remote_control_no_user_positive), (dialogInterface, i) ->
                     {
                         // 장시간 미사용 핸들러 업데이트
                         ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
@@ -461,14 +496,15 @@ public class RemoteControlFragment extends Fragment
         }
     }
 
+    // NO 사운드처리기 다이얼로그
     private void makeNoDeviceDialog()
     {
         if (mDialog == null)
         {
             mDialog = new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("안내")
-                    .setMessage("리모컨 앱을 사용하려면 등록된 사운드처리기 정보가 필요합니다. 아래의 등록 버튼을 눌러 사운드처리기 정보를 등록해주세요.")
-                    .setPositiveButton("등록", (dialogInterface, i) ->
+                    .setTitle(getString(R.string.remote_control_no_device_dialog_title))
+                    .setMessage(getString(R.string.remote_control_no_device_dialog_message))
+                    .setPositiveButton(getString(R.string.remote_control_no_device_positive), (dialogInterface, i) ->
                     {
                         // 장시간 미사용 핸들러 업데이트
                         ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);

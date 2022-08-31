@@ -1,5 +1,6 @@
 package todoc.cochlear.remoteapp.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -25,7 +27,7 @@ import todoc.cochlear.remoteapp.params.Status;
 
 public class AddDeviceFragment extends Fragment
 {
-    private FragmentAddDeviceBinding mAddDeviceBinding;
+    public FragmentAddDeviceBinding mAddDeviceBinding;
 
     public AddDeviceFragment()
     {
@@ -36,6 +38,12 @@ public class AddDeviceFragment extends Fragment
     public void onDestroyView()
     {
         super.onDestroyView();
+
+        InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mAddDeviceBinding.addDevieSerialEdittext.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(mAddDeviceBinding.addDeviePairingKeyEdittext.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(mAddDeviceBinding.addDeviceOptionEdittext.getWindowToken(), 0);
+
         mAddDeviceBinding = null;
     }
 
@@ -46,8 +54,11 @@ public class AddDeviceFragment extends Fragment
 
         todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding mainBinding = ((MainActivity) requireContext()).mBinding;
         mainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
+        mainBinding.toolbarNavigationMessage.setText("외부기\n목록");
+        mainBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
+        mainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
         mainBinding.toolbar.setTitle(requireContext().getString(R.string.toolbar_title_add_device));
     }
 
@@ -73,7 +84,6 @@ public class AddDeviceFragment extends Fragment
             // 장시간 미사용 핸들러 업데이트
             ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
-            boolean invalid = false;
             EntityDevice device = new EntityDevice();
 
             device.serialNumber = Objects.requireNonNull(mAddDeviceBinding.addDevieSerialEdittext.getText()).toString();
@@ -82,18 +92,8 @@ public class AddDeviceFragment extends Fragment
 
             if (device.serialNumber.length() < 1)
             {
-                mAddDeviceBinding.addDevieSerialEdittext.setError("제조번호를 입력하세요.");
-                invalid = true;
-            }
+                //mAddDeviceBinding.addDevieSerialEdittext.setError("제조번호를 입력하세요.");
 
-            if (device.pairingKey == null || device.pairingKey.length() != 6)
-            {
-                mAddDeviceBinding.addDeviePairingKeyEdittext.setError("보안코드는 6자리 번호입니다.");
-                invalid = true;
-            }
-
-            if (invalid)
-            {
                 if (Status.instance().lastDialog != null)
                 {
                     if (Status.instance().lastDialog.isShowing())
@@ -105,7 +105,32 @@ public class AddDeviceFragment extends Fragment
                 Status.instance().lastDialog =
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
-                                .setMessage("정보가 올바로 입력되지 않았습니다. 제조번호 및 보안코드 항목은 필수 입력 사항입니다.")
+                                .setMessage("제조번호를 입력해주세요.")
+                                .setPositiveButton("확인", (dialogInterface, i) ->
+                                {
+                                    // 장시간 미사용 핸들러 업데이트
+                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+                                })
+                                .setCancelable(false)
+                                .create();
+                Status.instance().lastDialog.show();
+            }
+            else if (device.pairingKey == null || device.pairingKey.length() != 6)
+            {
+                //mAddDeviceBinding.addDeviePairingKeyEdittext.setError("페어링 키는 6자리입니다.");
+
+                if (Status.instance().lastDialog != null)
+                {
+                    if (Status.instance().lastDialog.isShowing())
+                    {
+                        Status.instance().lastDialog.dismiss();
+                    }
+                }
+
+                Status.instance().lastDialog =
+                        new MaterialAlertDialogBuilder(requireContext())
+                                .setTitle("주의")
+                                .setMessage("페어링 키는 6자리 번호입니다.")
                                 .setPositiveButton("확인", (dialogInterface, i) ->
                                 {
                                     // 장시간 미사용 핸들러 업데이트
@@ -120,7 +145,7 @@ public class AddDeviceFragment extends Fragment
                 EntityDevice readDevice = UtilDevice.instance.getDeviceBySerialNumber(device.serialNumber);
                 if (readDevice != null)
                 {
-                    mAddDeviceBinding.addDevieSerialEdittext.setError("이미 등록된 제조번호입니다.");
+                    //mAddDeviceBinding.addDevieSerialEdittext.setError("등록된 제조번호입니다.");
 
                     if (Status.instance().lastDialog != null)
                     {
@@ -133,7 +158,7 @@ public class AddDeviceFragment extends Fragment
                     Status.instance().lastDialog =
                             new MaterialAlertDialogBuilder(requireContext())
                                     .setTitle("주의")
-                                    .setMessage("이미 같은 제조번호가 등록되어있습니다. 수정을 원하는 경우, 사운드처리기 목록에서 수정을 원하는 사운드처리기 제조번호를 누르세요.")
+                                    .setMessage("이미 등록된 제조번호입니다.")
                                     .setPositiveButton("확인", (dialogInterface, i) ->
                                     {
                                         // 장시간 미사용 핸들러 업데이트
