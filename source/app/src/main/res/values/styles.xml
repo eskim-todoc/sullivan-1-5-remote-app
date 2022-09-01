@@ -3,156 +3,151 @@
     <!-- Base application theme. -->
     <style name="app_theme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- 상태바 색상 -->
-        <item name="android:statusBarColor">@color/status_bar</item>
+        <selectUserItem name="android:statusBarColor">@color/status_bar</selectUserItem>
         <!-- 하단 네비게이션바 색상 -->
-        <item name="android:navigationBarColor">@color/bottom_navigation</item>
+        <selectUserItem name="android:navigationBarColor">@color/bottom_navigation</selectUserItem>
         <!-- 앱 폰트 설정 -->
-        <item name="android:fontFamily">@font/nanum_gothic_regular</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="colorSurface">@color/white_90</item>
-        <item name="colorSecondary">@color/accent_70</item>
-        <item name="colorOnSurface">@color/white_70</item>
-        <item name="colorPrimary">@color/black_30</item>
-        <item name="colorOnPrimary">@color/accent_70</item>
+        <selectUserItem name="android:fontFamily">@font/nanum_gothic_regular</selectUserItem>
+        <selectUserItem name="android:includeFontPadding">false</selectUserItem>
+        <selectUserItem name="colorSurface">@color/white_90</selectUserItem>
+        <selectUserItem name="colorSecondary">@color/accent_70</selectUserItem>
+        <selectUserItem name="colorOnSurface">@color/white_70</selectUserItem>
+        <selectUserItem name="colorPrimary">@color/black_30</selectUserItem>
+        <selectUserItem name="colorOnPrimary">@color/accent_70</selectUserItem>
         <!-- 에디트텍스트 스타일 -->
-        <item name="textInputStyle">@style/Widget.App.TextInputLayout</item>
+        <selectUserItem name="textInputStyle">@style/Widget.App.TextInputLayout</selectUserItem>
         <!-- 다이얼로그 스타일 -->
-        <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
+        <selectUserItem name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</selectUserItem>
     </style>
 
     <!-- 에디트 텍스트 스타일 -->
     <style name="Widget.App.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="android:layout_marginTop">4dp</item>
-        <item name="android:layout_marginBottom">4dp</item>
-        <item name="materialThemeOverlay">@style/ThemeOverlay.App.TextInputLayout</item>
-        <item name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</item>
-        <item name="hintTextColor">@color/accent_70</item>
-        <item name="helperTextTextAppearance">@style/TextAppearance.App.Caption</item>
-        <item name="helperTextTextColor">@color/white_70</item>
-        <item name="counterTextAppearance">@style/TextAppearance.App.Caption</item>
-        <item name="counterTextColor">@color/white_70</item>
-        <item name="errorTextAppearance">@style/TextAppearance.App.Caption</item>
-        <item name="errorTextColor">@color/error_100</item>
-        <item name="boxBackgroundColor">@color/white_40</item>
+        <selectUserItem name="android:layout_marginTop">4dp</selectUserItem>
+        <selectUserItem name="android:layout_marginBottom">4dp</selectUserItem>
+        <selectUserItem name="materialThemeOverlay">@style/ThemeOverlay.App.TextInputLayout</selectUserItem>
+        <selectUserItem name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</selectUserItem>
+        <selectUserItem name="hintTextColor">@color/accent_70</selectUserItem>
+        <selectUserItem name="helperTextTextAppearance">@style/TextAppearance.App.Caption</selectUserItem>
+        <selectUserItem name="helperTextTextColor">@color/white_70</selectUserItem>
+        <selectUserItem name="counterTextAppearance">@style/TextAppearance.App.Caption</selectUserItem>
+        <selectUserItem name="counterTextColor">@color/white_70</selectUserItem>
+        <selectUserItem name="errorTextAppearance">@style/TextAppearance.App.Caption</selectUserItem>
+        <selectUserItem name="errorTextColor">@color/error_100</selectUserItem>
+        <selectUserItem name="boxBackgroundColor">@color/white_40</selectUserItem>
     </style>
 
     <style name="ThemeOverlay.App.TextInputLayout" parent="">
-        <item name="colorPrimary">@color/accent_70</item>
-        <item name="colorSurface">@color/black_30</item>
-        <item name="colorOnSurface">@color/white_90</item>
-        <item name="android:textColorPrimary">@color/white_90</item>
-        <item name="colorError">@color/error_100</item>
-        <item name="textAppearanceSubtitle1">@style/TextAppearance.App.Subtitle1</item>
-        <item name="textAppearanceCaption">@style/TextAppearance.App.Caption</item>
-        <item name="editTextStyle">@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox
-        </item>
+        <selectUserItem name="colorPrimary">@color/accent_70</selectUserItem>
+        <selectUserItem name="colorSurface">@color/black_30</selectUserItem>
+        <selectUserItem name="colorOnSurface">@color/white_90</selectUserItem>
+        <selectUserItem name="android:textColorPrimary">@color/white_90</selectUserItem>
+        <selectUserItem name="colorError">@color/error_100</selectUserItem>
+        <selectUserItem name="textAppearanceSubtitle1">@style/TextAppearance.App.Subtitle1</selectUserItem>
+        <selectUserItem name="textAppearanceCaption">@style/TextAppearance.App.Caption</selectUserItem>
+        <selectUserItem name="editTextStyle">@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox</selectUserItem>
     </style>
 
     <!-- 이 녀석은 에디트텍스트와 다이얼로그에서 공통으로 사용함 -->
     <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
-        <item name="cornerFamily">cut</item>
-        <item name="cornerSize">2dp</item>
+        <selectUserItem name="cornerFamily">cut</selectUserItem>
+        <selectUserItem name="cornerSize">2dp</selectUserItem>
     </style>
 
     <!-- 이 녀석은 에디트텍스트와 다이얼로그에서 공통으로 사용함 -->
     <style name="TextAppearance.App.Subtitle1" parent="TextAppearance.MaterialComponents.Subtitle1">
-        <item name="android:textSize">16dp</item>
+        <selectUserItem name="android:textSize">16dp</selectUserItem>
     </style>
 
     <style name="TextAppearance.App.Caption" parent="TextAppearance.MaterialComponents.Caption">
-        <item name="android:textSize">12dp</item>
+        <selectUserItem name="android:textSize">12dp</selectUserItem>
     </style>
 
     <style name="TextAppearance.App.Body2" parent="TextAppearance.MaterialComponents.Body2">
-        <item name="android:textSize">14dp</item>
+        <selectUserItem name="android:textSize">14dp</selectUserItem>
     </style>
 
     <!-- 다이얼로그 스타일 -->
     <style name="ThemeOverlay.App.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
-        <item name="colorPrimary">@color/accent_70</item>
-        <item name="colorSecondary">@color/error_100</item>
-        <item name="colorSurface">@color/black_10</item>
-        <item name="colorOnSurface">@color/black_90</item>
-        <item name="alertDialogStyle">@style/MaterialAlertDialog.App</item>
-        <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialog.App.Title.Text
-        </item>
-        <item name="materialAlertDialogBodyTextStyle">@style/MaterialAlertDialog.App.Body.Text
-        </item>
-        <item name="buttonBarPositiveButtonStyle">@style/Widget.App.PositiveButton</item>
-        <item name="buttonBarNegativeButtonStyle">@style/Widget.App.NegativeButton</item>
-        <item name="checkedTextViewStyle">@style/MaterialAlertDialog.App.CheckedTextView</item>
+        <selectUserItem name="colorPrimary">@color/accent_70</selectUserItem>
+        <selectUserItem name="colorSecondary">@color/error_100</selectUserItem>
+        <selectUserItem name="colorSurface">@color/black_10</selectUserItem>
+        <selectUserItem name="colorOnSurface">@color/black_90</selectUserItem>
+        <selectUserItem name="alertDialogStyle">@style/MaterialAlertDialog.App</selectUserItem>
+        <selectUserItem name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialog.App.Title.Text</selectUserItem>
+        <selectUserItem name="materialAlertDialogBodyTextStyle">@style/MaterialAlertDialog.App.Body.Text</selectUserItem>
+        <selectUserItem name="buttonBarPositiveButtonStyle">@style/Widget.App.PositiveButton</selectUserItem>
+        <selectUserItem name="buttonBarNegativeButtonStyle">@style/Widget.App.NegativeButton</selectUserItem>
+        <selectUserItem name="checkedTextViewStyle">@style/MaterialAlertDialog.App.CheckedTextView</selectUserItem>
     </style>
 
     <style name="MaterialAlertDialog.App.CheckedTextView" parent="@style/Widget.MaterialComponents.CheckedTextView">
-        <item name="android:textColor">@color/black_90</item>
-        <item name="android:textSize">14dp</item>
+        <selectUserItem name="android:textColor">@color/black_90</selectUserItem>
+        <selectUserItem name="android:textSize">14dp</selectUserItem>
     </style>
 
     <style name="MaterialAlertDialog.App" parent="MaterialAlertDialog.MaterialComponents">
-        <item name="shapeAppearance">@style/ShapeAppearance.App.MediumComponent</item>
+        <selectUserItem name="shapeAppearance">@style/ShapeAppearance.App.MediumComponent</selectUserItem>
     </style>
 
     <style name="MaterialAlertDialog.App.Title.Text" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
-        <item name="android:textColor">@color/black_90</item>
-        <item name="android:textSize">16dp</item>
+        <selectUserItem name="android:textColor">@color/black_90</selectUserItem>
+        <selectUserItem name="android:textSize">16dp</selectUserItem>
     </style>
 
     <style name="MaterialAlertDialog.App.Body.Text" parent="">
-        <item name="android:textColor">@color/black_90</item>
-        <item name="android:lineSpacingMultiplier">1.2</item>
-        <item name="android:textSize">14dp</item>
+        <selectUserItem name="android:textColor">@color/black_90</selectUserItem>
+        <selectUserItem name="android:lineSpacingMultiplier">1.2</selectUserItem>
+        <selectUserItem name="android:textSize">14dp</selectUserItem>
     </style>
 
     <style name="Widget.App.PositiveButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Button.PositiveTextButton</item>
-        <item name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</item>
+        <selectUserItem name="materialThemeOverlay">@style/ThemeOverlay.App.Button.PositiveTextButton</selectUserItem>
+        <selectUserItem name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</selectUserItem>
     </style>
 
     <style name="Widget.App.NegativeButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Button.NegativeTextButton</item>
-        <item name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</item>
+        <selectUserItem name="materialThemeOverlay">@style/ThemeOverlay.App.Button.NegativeTextButton</selectUserItem>
+        <selectUserItem name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</selectUserItem>
     </style>
 
     <style name="ThemeOverlay.App.Button.PositiveTextButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="colorPrimary">@color/black_90</item>
+        <selectUserItem name="colorPrimary">@color/black_90</selectUserItem>
     </style>
 
     <style name="ThemeOverlay.App.Button.NegativeTextButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-        <item name="colorPrimary">@color/error_100</item>
+        <selectUserItem name="colorPrimary">@color/error_100</selectUserItem>
     </style>
 
     <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
-        <item name="cornerFamily">cut</item>
-        <item name="cornerSize">2dp</item>
+        <selectUserItem name="cornerFamily">cut</selectUserItem>
+        <selectUserItem name="cornerSize">2dp</selectUserItem>
     </style>
 
     <!-- 잠금화면 번호 스타일 -->
     <style name="RemoteControl.LockScreen.NumberText" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:textColor">@color/white_90</item>
-        <item name="android:textSize">24dp</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+        <selectUserItem name="android:textColor">@color/white_90</selectUserItem>
+        <selectUserItem name="android:textSize">24dp</selectUserItem>
+        <selectUserItem name="android:layout_width">wrap_content</selectUserItem>
+        <selectUserItem name="android:layout_height">wrap_content</selectUserItem>
     </style>
 
     <!-- 잠금화면 번호 스타일 -->
     <style name="RemoteControl.LockScreen.CircleImage" parent="">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginEnd">16dp</item>
+        <selectUserItem name="android:layout_width">wrap_content</selectUserItem>
+        <selectUserItem name="android:layout_height">wrap_content</selectUserItem>
+        <selectUserItem name="android:layout_marginStart">16dp</selectUserItem>
+        <selectUserItem name="android:layout_marginEnd">16dp</selectUserItem>
     </style>
 
     <!-- 리모컨 화면 동그란 (ON/OFF) 이미지 버튼 -->
     <style name="RemoteControl.RemoteControl.CircleButton" parent="">
-        <item name="android:layout_width">56dp</item>
-        <item name="android:layout_height">56dp</item>
-        <item name="android:elevation">4dp</item>
-        <item name="android:scaleType">center</item>
-        <item name="android:background">
-            @drawable/remote_control_ic_ripple_circle_background
-        </item>
+        <selectUserItem name="android:layout_width">56dp</selectUserItem>
+        <selectUserItem name="android:layout_height">56dp</selectUserItem>
+        <selectUserItem name="android:elevation">4dp</selectUserItem>
+        <selectUserItem name="android:scaleType">center</selectUserItem>
+        <selectUserItem name="android:background">@drawable/remote_control_ic_ripple_circle_background</selectUserItem>
         <!--
-        <item name="tint">@color/color_on_primary</item>
+        <selectUserItem name="tint">@color/color_on_primary</selectUserItem>
         -->
     </style>
     <!--

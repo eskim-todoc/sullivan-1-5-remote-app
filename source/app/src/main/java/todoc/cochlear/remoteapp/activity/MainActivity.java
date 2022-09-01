@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.UiAutomation;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -31,20 +30,17 @@ import android.os.ParcelUuid;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -67,6 +63,7 @@ import todoc.cochlear.remoteapp.fragment.LogFragment;
 import todoc.cochlear.remoteapp.fragment.ManualFragment;
 import todoc.cochlear.remoteapp.fragment.RemoteControlFragment;
 import todoc.cochlear.remoteapp.fragment.SettingsFragment;
+import todoc.cochlear.remoteapp.fragment.ShareFragment;
 import todoc.cochlear.remoteapp.fragment.UserFragment;
 import todoc.cochlear.remoteapp.database.logs.UtilLog;
 import todoc.cochlear.remoteapp.params.Status;
@@ -98,6 +95,7 @@ public class MainActivity extends AppCompatActivity
     static private final int CCCD_TIMEOUT_IN_MS = 2000;
     static private final int PASSWORD_TIMEOUT_IN_MS = 1000;
     static private final int STATUS_TIMEOUT_IN_MS = 1000;
+    static private final int DEVICE_AND_MAP_INFO_IN_MS = 1000;
     static private final int SEND_PACKET_DELAY_IN_MS = 50;
 
     // Bluetooth
@@ -253,6 +251,7 @@ public class MainActivity extends AppCompatActivity
         mCCCDHandler.removeCallbacks(mCCCDRunner); // CCCD 설정 핸들러 제거
         mPasswordHandler.removeCallbacks(mPasswordRunner); // 보안코드 인증 핸들러 제거
         mStatusHandler.removeCallbacks(mStatusRunner); // 사운드처리기 상태 정보 획득 핸들러 제거
+        mDeviceAndMapInfoHandler.removeCallbacks(mDeviceAndMapInfoRunner); // 사운드처리기 기기 및 맵 정보 읽기 핸들러 제거
         mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner); // 패킷 응답 시간 초과 핸들러 제거
         mPacketSendHandler.removeCallbacks(mPacketSendRunner); // 패킷 전송 핸들러 제거
 
@@ -893,6 +892,10 @@ public class MainActivity extends AppCompatActivity
         {
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new AddUserFragment()).commitAllowingStateLoss();
         }
+        else if (fragment instanceof ShareFragment)
+        {
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame, new SettingsFragment()).commitAllowingStateLoss();
+        }
     }
 
     //
@@ -1177,6 +1180,20 @@ public class MainActivity extends AppCompatActivity
     };
 
     //
+    // 사운드처리기 기기 및 맵 정보 읽기 시간초과 처리 핸들러
+    //
+    Handler mDeviceAndMapInfoHandler = new Handler();
+    Runnable mDeviceAndMapInfoRunner = () ->
+    {
+        Log.d(TAG, "사운드처리기 기기 및 맵 정보 읽기 시간초과입니다. 현재 연결된 기기와 연결해제합니다.");
+
+        if (mBluetoothGatt != null)
+        {
+            mBluetoothGatt.disconnect();
+        }
+    };
+
+    //
     // 사운드처리기 상태 정보 획득 시간초과 처리 핸들러
     //
     Handler mStatusHandler = new Handler();
@@ -1243,6 +1260,7 @@ public class MainActivity extends AppCompatActivity
                     mPacketSendHandler.removeCallbacks(mPacketSendRunner);
                     mCheckBatteryHandler.removeCallbacks(mCheckBatteryRunner);
                     mStatusHandler.removeCallbacks(mStatusRunner);
+                    mDeviceAndMapInfoHandler.removeCallbacks(mDeviceAndMapInfoRunner);
                     mPasswordHandler.removeCallbacks(mPasswordRunner);
                     mCCCDHandler.removeCallbacks(mCCCDRunner);
                     mDiscoverServicesHandler.removeCallbacks(mDiscoverServicesRunner);
@@ -1477,8 +1495,12 @@ public class MainActivity extends AppCompatActivity
                                 Log.d(TAG, "내부기 키 인증에 성공했습니다. 상태정보 획득 시간초과 핸들러를 생성하고, 상태정보 획득 패킷을 전송합니다. ");
 
                                 // 상태정보 획득 패킷을 보내기 전에 핸들러를 등록한다.
-                                mStatusHandler.postDelayed(mStatusRunner, STATUS_TIMEOUT_IN_MS);
-                                sendPacket(packetMaker(PacketInfo.HEADER_SOUND_PROCESSOR_STATUS, null, 1));
+                                //mStatusHandler.postDelayed(mStatusRunner, STATUS_TIMEOUT_IN_MS);
+                                //sendPacket(packetMaker(PacketInfo.HEADER_SOUND_PROCESSOR_STATUS, null, 1));
+
+                                // 사운드처리기 기기 및 맵 정보 읽기 패킷을 보내기 전에 핸들러를 등록한다.
+                                mDeviceAndMapInfoHandler.postDelayed(mDeviceAndMapInfoRunner, DEVICE_AND_MAP_INFO_IN_MS);
+                                sendPacket(packetMaker(PacketInfo.HEADER_SOUND_PROCESSOR_INFO, null, 1));
                             }
                             // Not correct password.
                             else
@@ -1545,6 +1567,35 @@ public class MainActivity extends AppCompatActivity
                             }
                         }
                     } // PacketInfo.HEADER_PASSWORD
+                    break;
+
+                    // 사운드처리기 기기 및 맵 정보 읽기
+                    case PacketInfo.HEADER_SOUND_PROCESSOR_INFO:
+                    {
+                        // 기기 및 맵 정보 읽기 응답을 받았으므로, 핸들러를 제거한다.
+                        mDeviceAndMapInfoHandler.removeCallbacks(mDeviceAndMapInfoRunner);
+
+                        if (packetSize != PacketInfo.PACKET_SIZE_PROCESSOR_INFO)
+                        {
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 사운드처리기 기기 및 맵 정보 읽기 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : 사운드처리기 기기 및 맵 정보 읽기 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                            packetSizeErrorDialog();
+                            break;
+                        }
+
+                        int fwVerLower = responsePacket[7];
+                        int fwVerUpper = responsePacket[8];
+
+                        mStatusViewModel.setFwVerLower(fwVerLower);
+                        mStatusViewModel.setFwVerUpper(fwVerUpper);
+
+                        Log.d(TAG, "사운드처리기 펌웨어 버전은 '" + fwVerUpper + "." + fwVerLower + "' 입니다.");
+
+                        // 상태정보 획득 패킷을 보내기 전에 핸들러를 등록한다.
+                        mStatusHandler.postDelayed(mStatusRunner, STATUS_TIMEOUT_IN_MS);
+                        sendPacket(packetMaker(PacketInfo.HEADER_SOUND_PROCESSOR_STATUS, null, 1));
+                    }
                     break;
 
                     // 사운드처리기 상태 정보

@@ -44,6 +44,54 @@ public class StatusViewModel extends ViewModel
         }
     }
 
+    // OTE FW Version
+    private final MutableLiveData<Integer> mFwVerUpper = new MutableLiveData<>();
+    private final MutableLiveData<Integer> mFwVerLower = new MutableLiveData<>();
+
+    public int getFwVerUpper()
+    {
+        if (mFwVerUpper.getValue() == null)
+        {
+            mFwVerUpper.setValue(-1);
+        }
+
+        return mFwVerUpper.getValue();
+    }
+
+    public int getFwVerLower()
+    {
+        if (mFwVerLower.getValue() == null)
+        {
+            mFwVerLower.setValue(-1);
+        }
+
+        return mFwVerLower.getValue();
+    }
+
+    public void setFwVerUpper(int fwVerUpper)
+    {
+        if (Looper.getMainLooper().isCurrentThread())
+        {
+            mFwVerUpper.setValue(fwVerUpper);
+        }
+        else
+        {
+            mFwVerUpper.postValue(fwVerUpper);
+        }
+    }
+
+    public void setFwVerLower(int fwVerLower)
+    {
+        if (Looper.myLooper().isCurrentThread())
+        {
+            mFwVerLower.setValue(fwVerLower);
+        }
+        else
+        {
+            mFwVerLower.postValue(fwVerLower);
+        }
+    }
+
     // Battery level
     private final MutableLiveData<Integer> mBatteryLevel = new MutableLiveData<>();
 

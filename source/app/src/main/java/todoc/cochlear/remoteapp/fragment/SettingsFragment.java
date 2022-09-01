@@ -1,20 +1,25 @@
 package todoc.cochlear.remoteapp.fragment;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import todoc.cochlear.remoteapp.activity.MainActivity;
 import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
 import todoc.cochlear.remoteapp.activity.databinding.FragmentSettingsBinding;
+import todoc.cochlear.remoteapp.database.users.EntityUser;
+import todoc.cochlear.remoteapp.params.Status;
+import todoc.cochlear.remoteapp.view_model.StatusViewModel;
 
 public class SettingsFragment extends Fragment
 {
@@ -27,6 +32,7 @@ public class SettingsFragment extends Fragment
 
     private ActivityMainBinding mMainBinding;
     private FragmentSettingsBinding mSettingBinding;
+    StatusViewModel mStatusViewModel;
 
     @Override
     public void onDestroyView()
@@ -63,10 +69,14 @@ public class SettingsFragment extends Fragment
     {
         super.onViewCreated(view, savedInstanceState);
 
+        mStatusViewModel = new ViewModelProvider(requireActivity()).get(StatusViewModel.class);
+
         updateLockScreenSwitch();
 
         initManagementButtons();
         initSupportButtons();
+        initCheckConnOteInfoButton();
+        initShareOteInfoButton();
     }
 
     //
@@ -137,4 +147,87 @@ public class SettingsFragment extends Fragment
             }
         }
     };
+
+    //
+    // 연결된 외부기 정보 확인 버튼 관련
+    //
+    private void initCheckConnOteInfoButton()
+    {
+        mSettingBinding.settingsCheckConnOteInfoButton.setOnClickListener(view ->
+        {
+            // 장시간 미사용 핸들러 업데이트
+            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
+            if (Status.instance().lastDialog != null && Status.instance().lastDialog.isShowing())
+            {
+                Status.instance().lastDialog.dismiss();
+            }
+
+            if (Status.instance().connectionState != Status.CONNECTION_STATE_DISCONNECTED)
+            {
+                String msg;
+                String ear;
+                String serial = Status.instance().connectedDevice.serialNumber;
+                String name = Status.instance().connectedUser.name.substring(0, Status.instance().connectedUser.name.length() - 2);
+                String fwVersion = "" + mStatusViewModel.getFwVerUpper() + "." + mStatusViewModel.getFwVerLower();
+
+                if (Status.instance().connectedUser.ear.equals(EntityUser.EAR_LEFT))
+                {
+                    ear = "왼쪽";
+                }
+                else
+                {
+                    ear = "오른쪽";
+                }
+
+                msg = "제조번호 : " + serial + "\n"
+                        + "사용자 : " + name + "\n"
+                        + "착용위치 : " + ear + "\n"
+                        + "펌웨어 버전 : " + fwVersion;
+
+                Status.instance().lastDialog =
+                        new MaterialAlertDialogBuilder(requireContext())
+                                .setTitle("외부기 정보")
+                                .setMessage(msg)
+                                .setPositiveButton("닫기", (dialogInterface, i) ->
+                                {
+                                    // 장시간 미사용 핸들러 업데이트
+                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+                                })
+                                .setCancelable(false)
+                                .create();
+
+                Status.instance().lastDialog.show();
+            }
+            else
+            {
+                Status.instance().lastDialog =
+                        new MaterialAlertDialogBuilder(requireContext())
+                                .setMessage("외부기와 연결되지 않았습니다.")
+                                .setPositiveButton("닫기", (dialogInterface, i) ->
+                                {
+                                    // 장시간 미사용 핸들러 업데이트
+                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+                                })
+                                .setCancelable(false)
+                                .create();
+
+                Status.instance().lastDialog.show();
+            }
+        });
+    }
+
+    //
+    // 외부기 공유 버튼 관련
+    //
+    private void initShareOteInfoButton()
+    {
+        mSettingBinding.settingsShareOteInfoButton.setOnClickListener(view ->
+        {
+            // 장시간 미사용 핸들러 업데이트
+            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
+            ((MainActivity) requireActivity()).getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new ShareFragment()).commitAllowingStateLoss();
+        });
+    }
 }

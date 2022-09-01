@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
+    <selectUserItem
         android:id="@+id/toolbar_search"
         android:enabled="true"
         android:icon="@drawable/toolbar_ic_search_24dp"
@@ -10,14 +10,14 @@
         android:visible="false"
         app:showAsAction="always" />
 
-    <item
+    <selectUserItem
         android:id="@+id/toolbar_user"
         android:enabled="true"
         android:icon="@drawable/toolbar_ic_user_24dp"
         android:title="사용자"
         app:showAsAction="always" />
 
-    <item
+    <selectUserItem
         android:id="@+id/toolbar_settings"
         android:enabled="true"
         android:icon="@drawable/toolbar_ic_settings_24dp"

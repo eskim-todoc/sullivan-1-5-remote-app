@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@android:id/background">
+    <selectUserItem android:id="@android:id/background">
         <shape android:shape="rectangle">
             <corners android:radius="8dp" />
             <gradient android:angle="180" />
             <solid android:color="@color/black_30" />
         </shape>
-    </item>
-    <item android:id="@android:id/progress">
+    </selectUserItem>
+    <selectUserItem android:id="@android:id/progress">
         <clip
             android:clipOrientation="horizontal"
             android:gravity="start">
@@ -19,5 +19,5 @@
                     android:color="@color/black_30" />
             </shape>
         </clip>
-    </item>
+    </selectUserItem>
 </layer-list>

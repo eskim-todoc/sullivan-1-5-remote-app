@@ -2,4 +2,4 @@ GitHub
 --
 ID: verybigttukbaegi
 HTTPS: https://github.com/verybigttukbaegi/TD2-Remote-Application.git
-TOKEN : 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
+2022-08-31 TOKEN : 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
