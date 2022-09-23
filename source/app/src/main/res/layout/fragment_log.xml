@@ -3,32 +3,428 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/black"
-        android:orientation="vertical"
         tools:context="todoc.cochlear.remoteapp.fragment.LogFragment">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/log_recyclerview"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_margin="16dp"
-            android:layout_weight="1" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/log_exit_button"
-            style="@style/Widget.AppCompat.Button"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:background="@android:color/white"
-            android:backgroundTint="@android:color/white"
-            android:gravity="center"
-            android:text="나가기"
-            android:textColor="@color/black"
+        <Button
+            android:id="@+id/log_log_button"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="4dp"
+            android:minHeight="56dp"
+            android:text="시스템로그"
+            android:textAlignment="center"
+            android:textColor="@color/black_90"
             android:textSize="14dp"
-            android:textStyle="bold"
-            android:visibility="gone" />
-    </LinearLayout>
+            app:layout_constraintEnd_toStartOf="@id/log_diagnostics_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/log_diagnostics_button"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="16dp"
+            android:minHeight="56dp"
+            android:text="오디오 입력\n최대값 테스트"
+            android:textAlignment="center"
+            android:textColor="@color/black_90"
+            android:textSize="14dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/log_log_button"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/log_layout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/log_log_button"
+            tools:visibility="gone">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/log_recyclerview"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:layout_weight="1" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/log_exit_button"
+                style="@style/Widget.AppCompat.Button"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@android:color/white"
+                android:backgroundTint="@android:color/white"
+                android:gravity="center"
+                android:text="나가기"
+                android:textColor="@color/black"
+                android:textSize="14dp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/log_diagnostics_layout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:paddingStart="16dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="16dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/log_diagnostics_button"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/log_audio_signal_title_state_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="상태"
+                android:textAlignment="textEnd"
+                android:textColor="@color/white_70"
+                android:textSize="14dp"
+                app:layout_constraintBottom_toBottomOf="@+id/log_audio_signal_state_tv"
+                app:layout_constraintEnd_toStartOf="@id/log_audio_signal_state_tv"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/log_audio_signal_state_tv" />
+
+            <TextView
+                android:id="@+id/log_audio_signal_state_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="38dp"
+                android:text="정지"
+                android:textAlignment="textStart"
+                android:textColor="@color/white_90"
+                android:textSize="14dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/log_audio_signal_title_state_tv"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/log_rssi_title_state_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Rssi"
+                android:textAlignment="textEnd"
+                android:textColor="@color/white_70"
+                android:textSize="14dp"
+                app:layout_constraintBottom_toBottomOf="@+id/log_rssi_state_tv"
+                app:layout_constraintEnd_toStartOf="@id/log_rssi_state_tv"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/log_rssi_state_tv" />
+
+            <TextView
+                android:id="@+id/log_rssi_state_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text=""
+                android:textAlignment="textStart"
+                android:textColor="@color/white_90"
+                android:textSize="14dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/log_rssi_title_state_tv"
+                app:layout_constraintTop_toBottomOf="@id/log_audio_signal_state_tv"
+                tools:text="-123" />
+
+            <TextView
+                android:id="@+id/log_audio_signal_title_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="오디오 신호"
+                android:textAlignment="textEnd"
+                android:textColor="@color/white_70"
+                android:textSize="14dp"
+                app:layout_constraintBottom_toBottomOf="@id/log_audio_signal_data_tv"
+                app:layout_constraintEnd_toStartOf="@id/log_audio_signal_data_tv"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/log_audio_signal_data_tv" />
+
+            <TextView
+                android:id="@+id/log_audio_signal_data_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="24dp"
+                android:text=""
+                android:textAlignment="textStart"
+                android:textColor="@color/white_90"
+                android:textSize="18dp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/log_audio_signal_title_tv"
+                app:layout_constraintTop_toBottomOf="@id/log_rssi_state_tv"
+                tools:text="1234" />
+
+            <TextView
+                android:id="@+id/log_offset_dac_slope_title_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="오프셋 DAC 기울기"
+                android:textAlignment="textEnd"
+                android:textColor="@color/white_70"
+                android:textSize="14dp"
+                app:layout_constraintBottom_toBottomOf="@id/log_offset_dac_slope_data_tv"
+                app:layout_constraintEnd_toStartOf="@id/log_offset_dac_slope_data_tv"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/log_offset_dac_slope_data_tv" />
+
+            <TextView
+                android:id="@+id/log_offset_dac_slope_data_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text=""
+                android:textAlignment="textStart"
+                android:textColor="@color/white_90"
+                android:textSize="18dp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/log_offset_dac_slope_title_tv"
+                app:layout_constraintTop_toBottomOf="@id/log_audio_signal_data_tv"
+                tools:text="12.3456" />
+
+            <TextView
+                android:id="@+id/log_offset_dac_output_title_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="오프셋 DAC 출력 레벨"
+                android:textAlignment="textEnd"
+                android:textColor="@color/white_70"
+                android:textSize="14dp"
+                app:layout_constraintBottom_toBottomOf="@id/log_offset_dac_output_data_tv"
+                app:layout_constraintEnd_toStartOf="@id/log_offset_dac_output_data_tv"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/log_offset_dac_output_data_tv" />
+
+            <TextView
+                android:id="@+id/log_offset_dac_output_data_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text=""
+                android:textAlignment="textStart"
+                android:textColor="@color/white_90"
+                android:textSize="18dp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/log_offset_dac_output_title_tv"
+                app:layout_constraintTop_toBottomOf="@id/log_offset_dac_slope_data_tv"
+                tools:text="1234" />
+
+            <TextView
+                android:id="@+id/log_stim_dac_slope_title_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="자극 DAC 기울기"
+                android:textAlignment="textEnd"
+                android:textColor="@color/white_70"
+                android:textSize="14dp"
+                app:layout_constraintBottom_toBottomOf="@id/log_stim_dac_slope_data_tv"
+                app:layout_constraintEnd_toStartOf="@id/log_stim_dac_slope_data_tv"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/log_stim_dac_slope_data_tv" />
+
+            <TextView
+                android:id="@+id/log_stim_dac_slope_data_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text=""
+                android:textAlignment="textStart"
+                android:textColor="@color/white_90"
+                android:textSize="18dp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/log_stim_dac_slope_title_tv"
+                app:layout_constraintTop_toBottomOf="@id/log_offset_dac_output_data_tv"
+                tools:text="12.3456" />
+
+            <TextView
+                android:id="@+id/log_stim_dac_output_title_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="자극 DAC 출력 레벨"
+                android:textAlignment="textEnd"
+                android:textColor="@color/white_70"
+                android:textSize="14dp"
+                app:layout_constraintBottom_toBottomOf="@id/log_stim_dac_output_data_tv"
+                app:layout_constraintEnd_toStartOf="@id/log_stim_dac_output_data_tv"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/log_stim_dac_output_data_tv" />
+
+            <TextView
+                android:id="@+id/log_stim_dac_output_data_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text=""
+                android:textAlignment="textStart"
+                android:textColor="@color/white_90"
+                android:textSize="18dp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/log_stim_dac_output_title_tv"
+                app:layout_constraintTop_toBottomOf="@id/log_stim_dac_slope_data_tv"
+                tools:text="1234" />
+
+            <TextView
+                android:id="@+id/log_audio_stim_out_title_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="자극출력 uA"
+                android:textAlignment="textEnd"
+                android:textColor="@color/white_70"
+                android:textSize="14dp"
+                app:layout_constraintBottom_toBottomOf="@id/log_audio_stim_out_data_tv"
+                app:layout_constraintEnd_toStartOf="@id/log_audio_stim_out_data_tv"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/log_audio_stim_out_data_tv" />
+
+            <TextView
+                android:id="@+id/log_audio_stim_out_data_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text=""
+                android:textAlignment="textStart"
+                android:textColor="@color/white_90"
+                android:textSize="18dp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/log_audio_stim_out_title_tv"
+                app:layout_constraintTop_toBottomOf="@id/log_stim_dac_output_data_tv"
+                tools:text="1234" />
+
+            <TextView
+                android:id="@+id/log_diagnostics_spinner_title_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="채널:"
+                android:textAlignment="textEnd"
+                android:textColor="@color/white_70"
+                android:textSize="14dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/log_audio_stim_out_data_tv" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/log_diagnostics_spinner_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/log_diagnostics_spinner_title_tv">
+
+                <Button
+                    style="@style/Widget.MaterialComponents.Button.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/white_80"
+                    android:clickable="false"
+                    android:minHeight="56dp"
+                    android:text=""
+                    android:textAlignment="center"
+                    android:textColor="@color/black_90"
+                    android:textSize="14dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Spinner
+                    android:id="@+id/log_diagnostics_spinner_spinner"
+                    style="@style/Widget.AppCompat.DropDownItem.Spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:elevation="2dp"
+                    android:entries="@array/stim_test_spinner"
+                    android:gravity="center"
+                    android:minHeight="36dp"
+                    android:textAlignment="center"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageButton
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@android:color/transparent"
+                    android:clickable="false"
+                    android:elevation="2dp"
+                    android:src="@drawable/log_ic_spinner_down_arror"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <Button
+                android:id="@+id/log_diagnostics_start_button"
+                style="@style/Widget.MaterialComponents.Button.Icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/accent_70"
+                android:minHeight="56dp"
+                android:text="시작"
+                android:textAlignment="center"
+                android:textColor="@color/black_90"
+                android:textSize="14dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/log_diagnostics_spinner_layout" />
+
+            <Button
+                android:id="@+id/log_diagnostics_stop_button"
+                style="@style/Widget.MaterialComponents.Button.Icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/error_70"
+                android:minHeight="56dp"
+                android:text="정지"
+                android:textAlignment="center"
+                android:textColor="@color/black_90"
+                android:textSize="14dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/log_diagnostics_start_button" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

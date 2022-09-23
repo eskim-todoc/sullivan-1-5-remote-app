@@ -2,78 +2,65 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/black_70"
-        android:padding="16dp"
+        android:overScrollMode="never"
+        android:scrollbars="none"
         tools:context="todoc.cochlear.remoteapp.fragment.ShareFragment">
 
-        <!-- 진행순서 설명화면 -->
-        <ScrollView
-            android:id="@+id/share_process_explain_layout"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:overScrollMode="never"
-            android:scrollbars="none"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
 
+            <!-- 맨 처음 진행순서 설명화면 -->
             <LinearLayout
+                android:id="@+id/share_first_screen_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:visibility="visible"
+                tools:visibility="gone">
 
-                <!-- 설명서 -->
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <!-- 주 설명 -->
+                <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:lineSpacingMultiplier="1.2"
+                    android:text="외부기에 여러 내부기의 매핑 데이터를 저장하여, 외부기를 사용자간 공유할 수 있게 합니다."
+                    android:textColor="@color/white_90"
+                    android:textSize="14dp" />
+
+                <!-- 보조 설명 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/share_explain_manual_tv"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:lineSpacingMultiplier="1.2"
-                        android:text="외부기에 여러 내부기의 매핑 데이터를 저장하여, 외부기를 사용자간 공유할 수 있게 합니다."
-                        android:textAlignment="textStart"
-                        android:textColor="@color/white_90"
-                        android:textSize="14dp"
-                        app:layout_constraintBottom_toTopOf="@id/share_explain_warning_desc_tv"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/share_explain_warning_start_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:lineSpacingMultiplier="1.2"
                         android:text="*"
-                        android:textColor="@color/accent_40"
-                        android:textSize="14dp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/share_explain_warning_desc_tv" />
+                        android:textColor="@color/accent_70"
+                        android:textSize="14dp" />
 
                     <TextView
-                        android:id="@+id/share_explain_warning_desc_tv"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
+                        android:layout_weight="1"
                         android:lineSpacingMultiplier="1.2"
                         android:text="매핑 데이터 공유 절차 진행 동안에는 사용자들이 같은 공간에 있어야 합니다."
-                        android:textColor="@color/accent_40"
-                        android:textSize="14dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/share_explain_warning_start_tv"
-                        app:layout_constraintTop_toBottomOf="@id/share_explain_manual_tv" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                        android:textColor="@color/accent_70"
+                        android:textSize="14dp" />
+                </LinearLayout>
 
-                <!-- 진행 순서 텍스트 뷰 -->
+                <!-- 진행순서 -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -85,330 +72,501 @@
                     android:textColor="@color/white_90"
                     android:textSize="14dp" />
 
-                <!-- 내부기 선택 박스 -->
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/share_desc_textview_background"
-                    android:padding="8dp">
-
-                    <TextView
-                        android:id="@+id/share_explain_select_isd_number_tv"
-                        android:layout_width="24dp"
-                        android:layout_height="wrap_content"
-                        android:text="1."
-                        android:textColor="@color/white_90"
-                        android:textSize="14dp"
-                        app:layout_constraintEnd_toStartOf="@id/share_explain_select_isd_title_tv"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/share_explain_select_isd_title_tv" />
-
-                    <TextView
-                        android:id="@+id/share_explain_select_isd_title_tv"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="내부기 선택"
-                        android:textAlignment="textStart"
-                        android:textColor="@color/white_90"
-                        android:textSize="14dp"
-                        app:layout_constraintBottom_toTopOf="@id/share_explain_select_isd_desc_tv"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/share_explain_select_isd_number_tv"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/share_explain_select_isd_star_tv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:lineSpacingMultiplier="1.2"
-                        android:text="*"
-                        android:textColor="@color/white_70"
-                        android:textSize="14dp"
-                        app:layout_constraintEnd_toStartOf="@id/share_explain_select_isd_desc_tv"
-                        app:layout_constraintStart_toStartOf="@id/share_explain_select_isd_title_tv"
-                        app:layout_constraintTop_toTopOf="@id/share_explain_select_isd_desc_tv" />
-
-                    <TextView
-                        android:id="@+id/share_explain_select_isd_desc_tv"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
-                        android:lineSpacingMultiplier="1.2"
-                        android:text="매핑 데이터 공유 절차 진행 동안에는 사용자들이 같은 공간에 있어야 합니다."
-                        android:textColor="@color/white_70"
-                        android:textSize="14dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/share_explain_select_isd_star_tv"
-                        app:layout_constraintTop_toBottomOf="@id/share_explain_select_isd_title_tv" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <!-- 매핑 데이터 수집 박스 -->
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/share_desc_textview_background"
-                    android:padding="8dp">
-
-                    <TextView
-                        android:id="@+id/share_explain_collect_map_data_number_tv"
-                        android:layout_width="24dp"
-                        android:layout_height="wrap_content"
-                        android:text="2."
-                        android:textColor="@color/white_90"
-                        android:textSize="14dp"
-                        app:layout_constraintEnd_toStartOf="@id/share_explain_collect_map_data_title_tv"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/share_explain_collect_map_data_title_tv" />
-
-                    <TextView
-                        android:id="@+id/share_explain_collect_map_data_title_tv"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="매핑 데이터 수집"
-                        android:textAlignment="textStart"
-                        android:textColor="@color/white_90"
-                        android:textSize="14dp"
-                        app:layout_constraintBottom_toTopOf="@id/share_explain_collect_map_data_desc_tv"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/share_explain_collect_map_data_number_tv"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/share_explain_collect_map_data_star_tv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:lineSpacingMultiplier="1.2"
-                        android:text="*"
-                        android:textColor="@color/white_70"
-                        android:textSize="14dp"
-                        app:layout_constraintEnd_toStartOf="@id/share_explain_collect_map_data_desc_tv"
-                        app:layout_constraintStart_toStartOf="@id/share_explain_collect_map_data_title_tv"
-                        app:layout_constraintTop_toTopOf="@id/share_explain_collect_map_data_desc_tv" />
-
-                    <TextView
-                        android:id="@+id/share_explain_collect_map_data_desc_tv"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
-                        android:lineSpacingMultiplier="1.2"
-                        android:text="각 외부기에 보관된 내부기 매핑 데이터를 리모컨으로 가져옵니다."
-                        android:textColor="@color/white_70"
-                        android:textSize="14dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/share_explain_collect_map_data_star_tv"
-                        app:layout_constraintTop_toBottomOf="@id/share_explain_collect_map_data_title_tv" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <!-- 매핑 데이터 공유 박스 -->
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/share_desc_textview_background"
-                    android:padding="8dp">
-
-                    <TextView
-                        android:id="@+id/share_explain_distribute_map_data_number_tv"
-                        android:layout_width="24dp"
-                        android:layout_height="wrap_content"
-                        android:text="3."
-                        android:textColor="@color/white_90"
-                        android:textSize="14dp"
-                        app:layout_constraintEnd_toStartOf="@id/share_explain_distribute_map_data_title_tv"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/share_explain_distribute_map_data_title_tv" />
-
-                    <TextView
-                        android:id="@+id/share_explain_distribute_map_data_title_tv"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="매핑 데이터 공유"
-                        android:textAlignment="textStart"
-                        android:textColor="@color/white_90"
-                        android:textSize="14dp"
-                        app:layout_constraintBottom_toTopOf="@id/share_explain_distribute_map_data_desc_tv"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/share_explain_distribute_map_data_number_tv"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/share_explain_distribute_map_data_star_tv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:lineSpacingMultiplier="1.2"
-                        android:text="*"
-                        android:textColor="@color/white_70"
-                        android:textSize="14dp"
-                        app:layout_constraintEnd_toStartOf="@id/share_explain_distribute_map_data_desc_tv"
-                        app:layout_constraintStart_toStartOf="@id/share_explain_distribute_map_data_title_tv"
-                        app:layout_constraintTop_toTopOf="@id/share_explain_distribute_map_data_desc_tv" />
-
-                    <TextView
-                        android:id="@+id/share_explain_distribute_map_data_desc_tv"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
-                        android:lineSpacingMultiplier="1.2"
-                        android:text="리모컨에 수집된 매핑 데이터들을 외부기로 전송합니다."
-                        android:textColor="@color/white_70"
-                        android:textSize="14dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/share_explain_distribute_map_data_star_tv"
-                        app:layout_constraintTop_toBottomOf="@id/share_explain_distribute_map_data_title_tv" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <!-- 진행 버튼 -->
-                <Button
-                    android:id="@+id/share_explain_start_button"
-                    style="@style/Widget.MaterialComponents.Button.Icon"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:backgroundTint="@color/accent_70"
-                    android:minHeight="56dp"
-                    android:text="진행"
-                    android:textAlignment="center"
-                    android:textColor="@color/black_90" />
-
-                <!-- 외부기 맵 데이터 초기화 버튼 -->
-                <Button
-                    android:id="@+id/share_explain_init_map_data_button"
-                    style="@style/Widget.MaterialComponents.Button.Icon"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="56dp"
-                    android:text="외부기 맵 데이터 초기화"
-                    android:textAlignment="center"
-                    android:textColor="@color/black_90" />
-            </LinearLayout>
-        </ScrollView>
-
-        <!-- 1. 내부기 선택 화면 -->
-        <androidx.core.widget.NestedScrollView
-            android:id="@+id/share_select_isd_layout"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:overScrollMode="never"
-            android:scrollbars="none"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <!-- 설명서 -->
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:id="@+id/share_select_isd_manual_number_tv"
-                        android:layout_width="24dp"
-                        android:layout_height="wrap_content"
-                        android:text="1."
-                        android:textColor="@color/white_90"
-                        android:textSize="14dp"
-                        app:layout_constraintEnd_toStartOf="@id/share_select_isd_manual_title_tv"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/share_select_isd_manual_title_tv"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:lineSpacingMultiplier="1.2"
-                        android:text="내부기 선택\n(공유하고자 하는 내부기를 선택합니다.)"
-                        android:textAlignment="textStart"
-                        android:textColor="@color/white_90"
-                        android:textSize="14dp"
-                        app:layout_constraintBottom_toTopOf="@id/share_select_isd_warning_desc_1_tv"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/share_select_isd_manual_number_tv"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/share_select_isd_warning_star_1_tv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:lineSpacingMultiplier="1.2"
-                        android:text="*"
-                        android:textColor="@color/accent_40"
-                        android:textSize="14dp"
-                        app:layout_constraintEnd_toStartOf="@id/share_select_isd_warning_desc_1_tv"
-                        app:layout_constraintStart_toStartOf="@id/share_select_isd_manual_title_tv"
-                        app:layout_constraintTop_toTopOf="@id/share_select_isd_warning_desc_1_tv" />
-
-                    <TextView
-                        android:id="@+id/share_select_isd_warning_desc_1_tv"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
-                        android:lineSpacingMultiplier="1.2"
-                        android:text="원하는 내부기가 목록에 없을 경우, 사용자 등록을 먼저 진행해주세요."
-                        android:textColor="@color/accent_40"
-                        android:textSize="14dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/share_select_isd_warning_star_1_tv"
-                        app:layout_constraintTop_toBottomOf="@id/share_select_isd_manual_title_tv" />
-
-                    <TextView
-                        android:id="@+id/share_select_isd_warning_star_2_tv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:lineSpacingMultiplier="1.2"
-                        android:text="*"
-                        android:textColor="@color/accent_40"
-                        android:textSize="14dp"
-                        app:layout_constraintEnd_toStartOf="@id/share_select_isd_warning_desc_2_tv"
-                        app:layout_constraintStart_toStartOf="@id/share_select_isd_warning_star_1_tv"
-                        app:layout_constraintTop_toTopOf="@id/share_select_isd_warning_desc_2_tv" />
-
-                    <TextView
-                        android:id="@+id/share_select_isd_warning_desc_2_tv"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
-                        android:lineSpacingMultiplier="1.2"
-                        android:text="최대 4개의 내부기를 선택할 수 있습니다."
-                        android:textColor="@color/accent_40"
-                        android:textSize="14dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/share_select_isd_warning_star_2_tv"
-                        app:layout_constraintTop_toBottomOf="@id/share_select_isd_warning_desc_1_tv" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <!-- 사용자 목록 카테고리 -->
+                <!-- 1. 내부기 선택 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/share_desc_textview_background"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="24dp"
+                            android:layout_height="wrap_content"
+                            android:text="1."
+                            android:textColor="@color/black_90"
+                            android:textSize="14dp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="내부기 선택"
+                            android:textColor="@color/black_90"
+                            android:textSize="14dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="24dp"
+                            android:lineSpacingMultiplier="1.2"
+                            android:text="*"
+                            android:textColor="@color/black_70"
+                            android:textSize="14dp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:lineSpacingMultiplier="1.2"
+                            android:text="매핑 데이터 공유 절차 진행 동안에는 사용자들이 같은 공간에 있어야 합니다."
+                            android:textColor="@color/black_70"
+                            android:textSize="14dp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 2. 매핑 데이터 수집 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/share_desc_textview_background"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="24dp"
+                            android:layout_height="wrap_content"
+                            android:text="2."
+                            android:textColor="@color/black_90"
+                            android:textSize="14dp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="매핑 데이터 수집"
+                            android:textColor="@color/black_90"
+                            android:textSize="14dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="24dp"
+                            android:lineSpacingMultiplier="1.2"
+                            android:text="*"
+                            android:textColor="@color/black_70"
+                            android:textSize="14dp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:lineSpacingMultiplier="1.2"
+                            android:text="각 외부기에 보관된 내부기 매핑 데이터를 리모컨으로 가져옵니다."
+                            android:textColor="@color/black_70"
+                            android:textSize="14dp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 3. 매핑 데이터 공유 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/share_desc_textview_background"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="24dp"
+                            android:layout_height="wrap_content"
+                            android:text="3."
+                            android:textColor="@color/black_90"
+                            android:textSize="14dp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="매핑 데이터 공유"
+                            android:textColor="@color/black_90"
+                            android:textSize="14dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="24dp"
+                            android:lineSpacingMultiplier="1.2"
+                            android:text="*"
+                            android:textColor="@color/black_70"
+                            android:textSize="14dp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:lineSpacingMultiplier="1.2"
+                            android:text="리모컨에 수집된 매핑 데이터들을 외부기로 전송합니다."
+                            android:textColor="@color/black_70"
+                            android:textSize="14dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 이미 등록된 맵 정보 화면 -->
+            <LinearLayout
+                android:id="@+id/share_exist_map_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="gone">
+                <!-- 주 설명 -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingMultiplier="1.2"
+                    android:text="이미 수집된 매핑 데이터가 존재합니다."
+                    android:textColor="@color/white_90"
+                    android:textSize="14dp" />
+
+                <!-- 보조 설명 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="*"
+                        android:textColor="@color/accent_70"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="새로운 매핑 데이터 수집을 진행하면 현재 수집된 데이터는 삭제됩니다."
+                        android:textColor="@color/accent_70"
+                        android:textSize="14dp" />
+                </LinearLayout>
+
+                <!-- 목록 카테고리 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/share_category_height_dp"
                     android:layout_marginTop="16dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
                     <TextView
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
                         android:background="@color/black_80"
+                        android:gravity="center"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="사용자\n이니셜"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="4dp"
+                        android:layout_height="4dp"
+                        android:text="" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@color/black_80"
+                        android:gravity="center"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="수술\n부위"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="4dp"
+                        android:layout_height="4dp"
+                        android:text="" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@color/black_80"
+                        android:gravity="center"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="매핑\n일시"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+                </LinearLayout>
+
+                <!-- 사용자 목록 리사이클러 뷰 -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/share_exist_map_recyclerview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:overScrollMode="never"
+                    android:scrollbars="none"
+                    tools:itemCount="4"
+                    tools:listitem="@layout/item_share_select_user" />
+            </LinearLayout>
+
+            <!-- 최초 매핑 시점 복귀 화면 -->
+            <LinearLayout
+                android:id="@+id/share_map_reset_default_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <!-- 주 설명 -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingMultiplier="1.2"
+                    android:text="병원에서 최초 매핑을 진행했던 사용자만 사용할 수 있도록 맵 정보를 되돌립니다."
+                    android:textColor="@color/white_90"
+                    android:textSize="14dp" />
+
+                <!-- 보조 설명 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="*"
+                        android:textColor="@color/accent_70"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="공유되어 있는 매핑 데이터를 제거하고 하나의 내부기만 사용하도록 합니다."
+                        android:textColor="@color/accent_70"
+                        android:textSize="14dp" />
+                </LinearLayout>
+
+                <!-- 목록 카테고리 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/share_category_height_dp"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@color/black_80"
+                        android:gravity="center"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="사용자\n이니셜"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="4dp"
+                        android:layout_height="4dp"
+                        android:text="" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@color/black_80"
+                        android:gravity="center"
                         android:padding="4dp"
-                        android:text="사용자 이니셜"
-                        android:textAlignment="center"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="수술\n부위"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="4dp"
+                        android:layout_height="4dp"
+                        android:text="" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@color/black_80"
+                        android:gravity="center"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="외부기\n제조번호"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="4dp"
+                        android:layout_height="4dp"
+                        android:text="" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@color/black_80"
+                        android:gravity="center"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="초기화\n상태"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- 사용자 목록 리사이클러 뷰 -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/share_map_reset_default_recyclerview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:overScrollMode="never"
+                        android:scrollbars="none"
+                        tools:itemCount="4"
+                        tools:listitem="@layout/item_share_map_reset" />
+
+                    <LinearLayout
+                        android:id="@+id/share_map_reset_default_info_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+                        <!-- 진행 순서 텍스트 뷰 -->
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:background="@drawable/share_title_textview_background"
+                            android:gravity="center"
+                            android:padding="8dp"
+                            android:text="초기화 작업 진행"
+                            android:textColor="@color/white_90"
+                            android:textSize="14dp" />
+
+                        <!-- 내부기 선택 박스 -->
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/share_title_textview_background">
+
+                            <ProgressBar
+                                android:id="@+id/share_map_reset_default_percent_pb"
+                                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                                android:layout_width="0dp"
+                                android:layout_height="72dp"
+                                android:max="100"
+                                android:progress="0"
+                                android:progressDrawable="@drawable/share_collect_map_data_background_progressbar"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                tools:progress="0" />
+
+                            <TextView
+                                android:id="@+id/share_map_reset_default_progress_tv"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:layout_marginEnd="16dp"
+                                android:gravity="center_horizontal"
+                                android:paddingStart="16dp"
+                                android:paddingEnd="16dp"
+                                android:text=""
+                                android:textColor="@color/black_100"
+                                android:textSize="14dp"
+                                app:layout_constraintBottom_toBottomOf="@id/share_map_reset_default_percent_pb"
+                                app:layout_constraintEnd_toEndOf="@id/share_map_reset_default_percent_pb"
+                                app:layout_constraintStart_toStartOf="@id/share_map_reset_default_percent_pb"
+                                app:layout_constraintTop_toTopOf="@+id/share_map_reset_default_percent_pb"
+                                tools:text="AAAAA님 오른쪽 내부기의 매핑 데이터 수신을 진행합니다." />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 1. 내부기 선택 화면 -->
+            <LinearLayout
+                android:id="@+id/share_select_isd_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="gone">
+
+                <!-- 주 설명 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="24dp"
+                        android:layout_height="wrap_content"
+                        android:text="1."
                         android:textColor="@color/white_90"
                         android:textSize="14dp" />
 
@@ -416,18 +574,119 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="내부기 선택\n(공유하고자 하는 내부기를 선택합니다.)"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+                </LinearLayout>
+
+                <!-- 보조 설명 1 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="*"
+                        android:textColor="@color/accent_40"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="원하는 내부기가 목록에 없을 경우, 사용자 등록을 먼저 진행해주세요."
+                        android:textColor="@color/accent_40"
+                        android:textSize="14dp" />
+                </LinearLayout>
+
+                <!-- 보조 설명 2 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="*"
+                        android:textColor="@color/accent_40"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="최대 4개의 내부기를 선택할 수 있습니다."
+                        android:textColor="@color/accent_40"
+                        android:textSize="14dp" />
+                </LinearLayout>
+
+                <!-- 목록 카테고리 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/share_category_height_dp"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
                         android:background="@color/black_80"
-                        android:padding="4dp"
-                        android:text="수술 부위"
-                        android:textAlignment="center"
+                        android:gravity="center"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="사용자\n이니셜"
                         android:textColor="@color/white_90"
                         android:textSize="14dp" />
 
-                    <CheckBox
-                        android:layout_width="wrap_content"
-                        android:layout_height="8dp"
-                        android:clickable="false"
-                        android:visibility="invisible" />
+                    <TextView
+                        android:layout_width="4dp"
+                        android:layout_height="4dp"
+                        android:text="" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@color/black_80"
+                        android:gravity="center"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="수술\n부위"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="4dp"
+                        android:layout_height="4dp"
+                        android:text="" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@color/black_80"
+                        android:gravity="center"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="선택"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
                 </LinearLayout>
 
                 <!-- 사용자 목록 리사이클러 뷰 -->
@@ -435,128 +694,574 @@
                     android:id="@+id/share_select_isd_user_recyclerview"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
                     android:overScrollMode="never"
                     android:scrollbars="none"
                     tools:itemCount="4"
                     tools:listitem="@layout/item_share_select_user" />
+            </LinearLayout>
 
-                <!-- 다음 절차 진행 버튼-->
-                <Button
-                    android:id="@+id/share_select_isd_next_step_button"
-                    style="@style/Widget.MaterialComponents.Button.Icon"
+            <!-- 2. 매핑 데이터 수집 -->
+            <LinearLayout
+                android:id="@+id/share_collect_map_data_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="gone">
+
+                <!-- 주 설명 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="24dp"
+                        android:layout_height="wrap_content"
+                        android:text="2."
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="매핑 데이터 수집\n(각 외부기에 보관된 내부기 매핑 데이터를 리모컨으로 가져옵니다.)"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+                </LinearLayout>
+
+                <!-- 보조 설명 1 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="*"
+                        android:textColor="@color/accent_40"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="외부기가 내부기에 부착되어, 소리가 들리는 상태에서 진행되어야 합니다."
+                        android:textColor="@color/accent_40"
+                        android:textSize="14dp" />
+                </LinearLayout>
+
+                <!-- 보조 설명 2 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="*"
+                        android:textColor="@color/accent_40"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="데이터 전송 중에는 소리가 들리지 않습니다."
+                        android:textColor="@color/accent_40"
+                        android:textSize="14dp" />
+                </LinearLayout>
+
+                <!-- 목록 카테고리 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/share_category_height_dp"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@color/black_80"
+                        android:gravity="center"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="사용자\n이니셜"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="4dp"
+                        android:layout_height="4dp"
+                        android:text="" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@color/black_80"
+                        android:gravity="center"
+                        android:padding="4dp"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="수술\n부위"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="4dp"
+                        android:layout_height="4dp"
+                        android:text="" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@color/black_80"
+                        android:gravity="center"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="외부기\n제조번호"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="4dp"
+                        android:layout_height="4dp"
+                        android:text="" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@color/black_80"
+                        android:gravity="center"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="수집\n결과"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- 사용자 목록 리사이클러 뷰 -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/share_collect_map_data_recyclerview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:overScrollMode="never"
+                        android:scrollbars="none"
+                        tools:itemCount="4"
+                        tools:listitem="@layout/item_share_collect_map" />
+
+                    <LinearLayout
+                        android:id="@+id/share_collect_map_data_info_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+                        <!-- 진행 순서 텍스트 뷰 -->
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:background="@drawable/share_title_textview_background"
+                            android:gravity="center"
+                            android:padding="8dp"
+                            android:text="매핑 데이터 수신"
+                            android:textColor="@color/white_90"
+                            android:textSize="14dp" />
+
+                        <!-- 내부기 선택 박스 -->
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/share_title_textview_background">
+
+                            <ProgressBar
+                                android:id="@+id/share_collect_map_data_percent_pb"
+                                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                                android:layout_width="0dp"
+                                android:layout_height="88dp"
+                                android:max="100"
+                                android:progress="0"
+                                android:progressDrawable="@drawable/share_collect_map_data_background_progressbar"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                tools:progress="0" />
+
+                            <TextView
+                                android:id="@+id/share_collect_map_data_percent_tv"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginEnd="16dp"
+                                android:gravity="center"
+                                android:text="0%"
+                                android:textColor="@color/black_100"
+                                android:textSize="16dp"
+                                android:textStyle="bold"
+                                android:visibility="invisible"
+                                app:layout_constraintEnd_toEndOf="@id/share_collect_map_data_percent_pb"
+                                app:layout_constraintStart_toStartOf="@id/share_collect_map_data_percent_pb"
+                                app:layout_constraintTop_toTopOf="@id/share_collect_map_data_percent_pb"
+                                tools:text="32%"
+                                tools:visibility="visible" />
+
+                            <TextView
+                                android:id="@+id/share_collect_map_data_progress_tv"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginEnd="16dp"
+                                android:gravity="center_horizontal"
+                                android:paddingStart="16dp"
+                                android:paddingEnd="16dp"
+                                android:text=""
+                                android:textColor="@color/black_100"
+                                android:textSize="14dp"
+                                app:layout_constraintBottom_toBottomOf="@id/share_collect_map_data_percent_pb"
+                                app:layout_constraintEnd_toEndOf="@id/share_collect_map_data_percent_pb"
+                                app:layout_constraintStart_toStartOf="@id/share_collect_map_data_percent_pb"
+                                app:layout_constraintTop_toBottomOf="@id/share_collect_map_data_percent_tv"
+                                app:layout_constraintVertical_bias="0"
+                                tools:text="AAAAA님 오른쪽 내부기의 매핑 데이터 수신을 진행합니다." />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/share_collect_map_data_start_button"
+                        style="@style/Widget.MaterialComponents.Button.Icon"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:backgroundTint="@color/accent_70"
+                        android:minHeight="56dp"
+                        android:text="시작"
+                        android:textAlignment="center"
+                        android:textColor="@color/black_90"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 3. 매핑 데이터 공유 -->
+            <LinearLayout
+                android:id="@+id/share_distribute_map_data_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="gone">
+
+                <!-- 주 설명 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="24dp"
+                        android:layout_height="wrap_content"
+                        android:text="3."
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="매핑 데이터 공유\n(리모컨에 수집된 매핑 데이터들을 외부기로 전송합니다.)"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+                </LinearLayout>
+
+                <!-- 보조 설명 1 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="*"
+                        android:textColor="@color/accent_40"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="외부기가 내부기에 부착되어, 소리가 들리는 상태에서 진행되어야 합니다."
+                        android:textColor="@color/accent_40"
+                        android:textSize="14dp" />
+                </LinearLayout>
+
+                <!-- 보조 설명 2 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="*"
+                        android:textColor="@color/accent_40"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:lineSpacingMultiplier="1.2"
+                        android:text="데이터 전송 중에는 소리가 들리지 않습니다."
+                        android:textColor="@color/accent_40"
+                        android:textSize="14dp" />
+                </LinearLayout>
+
+                <!-- 안내 사항 -->
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:backgroundTint="@color/accent_70"
-                    android:minHeight="56dp"
-                    android:text="다음 절차 진행"
+                    android:padding="4dp"
+                    android:text="내부기와 연결된 외부기만 표시됩니다."
                     android:textAlignment="center"
-                    android:textColor="@color/black_90" />
-            </LinearLayout>
-        </androidx.core.widget.NestedScrollView>
+                    android:textColor="@color/white_70"
+                    android:textSize="12dp"
+                    android:visibility="visible" />
 
-        <!-- 2. 매핑 데이터 수집 -->
-        <ScrollView
-            android:id="@+id/share_collect_map_data_layout"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:overScrollMode="never"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="gone">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:lineSpacingMultiplier="1.2"
-                    android:text="외부기에 여러 내부기의 매핑 데이터를 저장하여, 외부기를 사용자간 공유할 수 있게 합니다."
-                    android:textColor="@color/white_90"
-                    android:textSize="14dp" />
-
+                <!-- 목록 카테고리 -->
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_height="@dimen/share_category_height_dp"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:lineSpacingMultiplier="1.2"
-                        android:text="*"
-                        android:textColor="@color/accent_40"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@color/black_80"
+                        android:gravity="center"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="사용자\n이니셜"
+                        android:textColor="@color/white_90"
                         android:textSize="14dp" />
 
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:lineSpacingMultiplier="1.2"
-                        android:text="매핑 데이터 공유 절차 진행 동안에는 사용자들이 같은 공간에 있어야 합니다."
-                        android:textColor="@color/accent_40"
+                        android:layout_width="4dp"
+                        android:layout_height="4dp"
+                        android:text="" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@color/black_80"
+                        android:gravity="center"
+                        android:padding="4dp"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="수술\n부위"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="4dp"
+                        android:layout_height="4dp"
+                        android:text="" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@color/black_80"
+                        android:gravity="center"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="외부기\n제조번호"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:layout_width="4dp"
+                        android:layout_height="4dp"
+                        android:text="" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@color/black_80"
+                        android:gravity="center"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:text="공유\n상태"
+                        android:textColor="@color/white_90"
                         android:textSize="14dp" />
                 </LinearLayout>
+
+                <!-- 사용자 및 외부기 목록 리사이클러 뷰 -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/share_distribute_map_data_recyclerview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:overScrollMode="never"
+                    android:scrollbars="none"
+                    tools:itemCount="4"
+                    tools:listitem="@layout/item_share_distribute_map" />
+
+                <!-- 매핑 데이터 전송 중 화면 -->
+                <LinearLayout
+                    android:id="@+id/share_distribute_transfer_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@color/white_80"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <!-- 사용자 목록 카테고리 -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/black_80"
+                        android:padding="4dp"
+                        android:text="매핑 데이터 전송"
+                        android:textAlignment="center"
+                        android:textColor="@color/white_90"
+                        android:textSize="14dp"
+                        android:visibility="visible" />
+
+                    <!-- 매핑 데이터 전송 퍼센트 표시 -->
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/share_title_textview_background">
+
+                        <ProgressBar
+                            android:id="@+id/share_distribute_percent_progressbar"
+                            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                            android:layout_width="0dp"
+                            android:layout_height="88dp"
+                            android:max="100"
+                            android:progress="0"
+                            android:progressDrawable="@drawable/share_collect_map_data_background_progressbar"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:progress="0" />
+
+                        <TextView
+                            android:id="@+id/share_distribute_percent_tv"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginEnd="16dp"
+                            android:gravity="center"
+                            android:text=""
+                            android:textColor="@color/black_100"
+                            android:textSize="16dp"
+                            android:textStyle="bold"
+                            app:layout_constraintEnd_toEndOf="@id/share_distribute_percent_progressbar"
+                            app:layout_constraintStart_toStartOf="@id/share_distribute_percent_progressbar"
+                            app:layout_constraintTop_toTopOf="@id/share_distribute_percent_progressbar"
+                            tools:text="32%" />
+
+                        <TextView
+                            android:id="@+id/share_distribute_progress_tv"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginEnd="16dp"
+                            android:gravity="center_horizontal"
+                            android:text=""
+                            android:textColor="@color/black_100"
+                            android:textSize="14dp"
+                            app:layout_constraintBottom_toBottomOf="@id/share_distribute_percent_progressbar"
+                            app:layout_constraintEnd_toEndOf="@id/share_distribute_percent_progressbar"
+                            app:layout_constraintStart_toStartOf="@id/share_distribute_percent_progressbar"
+                            app:layout_constraintTop_toBottomOf="@id/share_distribute_percent_tv"
+                            app:layout_constraintVertical_bias="0"
+                            tools:text="AAAAA님 오른쪽 내부기의 매핑 데이터 수신을 진행합니다." />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </LinearLayout>
             </LinearLayout>
-        </ScrollView>
 
-        <!-- 3. 매핑 데이터 공유 -->
-        <ScrollView
-            android:id="@+id/share_distribute_map_data_layout"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:overScrollMode="never"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="gone">
-
-            <LinearLayout
+            <!-- 주 확인 버튼 -->
+            <Button
+                android:id="@+id/share_ok_button"
+                style="@style/Widget.MaterialComponents.Button.Icon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_marginTop="8dp"
+                android:minHeight="56dp"
+                android:text=""
+                android:textAlignment="center"
+                android:textColor="@color/black_90"
+                android:visibility="visible"
+                tools:text="진행"
+                tools:visibility="visible" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:lineSpacingMultiplier="1.2"
-                    android:text="외부기에 여러 내부기의 매핑 데이터를 저장하여, 외부기를 사용자간 공유할 수 있게 합니다."
-                    android:textColor="@color/white_90"
-                    android:textSize="14dp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:lineSpacingMultiplier="1.2"
-                        android:text="*"
-                        android:textColor="@color/accent_40"
-                        android:textSize="14dp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:lineSpacingMultiplier="1.2"
-                        android:text="매핑 데이터 공유 절차 진행 동안에는 사용자들이 같은 공간에 있어야 합니다."
-                        android:textColor="@color/accent_40"
-                        android:textSize="14dp" />
-                </LinearLayout>
-            </LinearLayout>
-        </ScrollView>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- 맵 데이터 초기화 버튼 -->
+            <Button
+                android:id="@+id/share_map_delete_button"
+                style="@style/Widget.MaterialComponents.Button.Icon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
+                android:text=""
+                android:textAlignment="center"
+                android:textColor="@color/black_90"
+                android:visibility="visible"
+                tools:text="외부기 맵 데이터 초기화"
+                tools:visibility="visible" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </layout>

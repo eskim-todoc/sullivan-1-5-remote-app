@@ -69,6 +69,7 @@
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/drawable/settings_ic_plus_24dp.xml" value="0.192" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/drawable/settings_item_background.xml" value="0.192" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/drawable/settings_scroll_view_background.xml" value="0.192" />
+        <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/drawable/share_collect_map_data_background_progressbar.xml" value="0.2485" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/drawable/share_desc_textview_background.xml" value="0.2345" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/drawable/share_title_textview_background.xml" value="0.2345" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/drawable/textview_underline_backgroup.xml" value="0.2535" />
@@ -93,15 +94,15 @@
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/fragment_hidden_log.xml" value="0.32175925925925924" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/fragment_home.xml" value="0.3729166666666667" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/fragment_list.xml" value="0.271484375" />
-        <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/fragment_log.xml" value="0.20944625407166123" />
+        <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/fragment_log.xml" value="0.2546875" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/fragment_management_device.xml" value="0.271484375" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/fragment_management_user.xml" value="0.24131944444444445" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/fragment_manual.xml" value="0.21447368421052632" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/fragment_password.xml" value="0.3194444444444444" />
-        <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/fragment_remote_control.xml" value="0.33958333333333335" />
+        <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/fragment_remote_control.xml" value="0.2902949978623343" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/fragment_search.xml" value="0.3619791666666667" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/fragment_settings.xml" value="0.21447368421052632" />
-        <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/fragment_share.xml" value="0.2546875" />
+        <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/fragment_share.xml" value="0.32083333333333336" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/fragment_sound_procecssor.xml" value="0.3194444444444444" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/fragment_user.xml" value="0.21447368421052632" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/item_device.xml" value="0.29713552800342025" />
@@ -110,12 +111,17 @@
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/item_logging.xml" value="0.19814814814814816" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/item_manual.xml" value="0.240625" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/item_search.xml" value="0.19814814814814816" />
-        <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/item_share_select_user.xml" value="0.2778965369816161" />
+        <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/item_share_collect_map.xml" value="0.2778965369816161" />
+        <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/item_share_distribute_map.xml" value="0.2787516032492518" />
+        <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/item_share_exist_map.xml" value="0.2860196665241556" />
+        <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/item_share_map_reset.xml" value="0.2868747327917914" />
+        <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/item_share_select_user.xml" value="0.2546875" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/item_single_choic.xml" value="0.29628046173578454" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/item_sound_processor.xml" value="0.3194444444444444" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/item_user.xml" value="0.29713552800342025" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/menu_switch.xml" value="0.22861842105263158" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/service_custom_notification.xml" value="0.40185830429732866" />
+        <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/layout/spinner_stim_test.xml" value="0.2778965369816161" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/menu/home_fragment_toolbar.xml" value="0.271484375" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/menu/menu_toolbar.xml" value="0.271484375" />
         <entry key="..\:/TD2/Android/TD2-Remote-Application-Multi-User/source/app/src/main/res/menu/settings_menu.xml" value="0.22861842105263158" />

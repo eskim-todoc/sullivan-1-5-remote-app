@@ -48,6 +48,5 @@
     <!-- 강제 종료 캡처 서비스 -->
     <string name="service_termination_notification_company">토닥</string>
     <string name="service_termination_notification_title">리모컨</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

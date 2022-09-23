@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="no_meaning">10dp</dimen>
+    <dimen name="share_category_height_dp">42dp</dimen>
 </resources>

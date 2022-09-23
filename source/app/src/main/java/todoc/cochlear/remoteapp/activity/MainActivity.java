@@ -46,12 +46,14 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
 import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
 import todoc.cochlear.remoteapp.database.devices.EntityDevice;
 import todoc.cochlear.remoteapp.database.devices.UtilDevice;
+import todoc.cochlear.remoteapp.database.maps.UtilMap;
 import todoc.cochlear.remoteapp.database.users.EntityUser;
 import todoc.cochlear.remoteapp.database.users.UtilUser;
 import todoc.cochlear.remoteapp.fragment.AddDeviceFragment;
@@ -90,20 +92,20 @@ public class MainActivity extends AppCompatActivity
 
     static private final int LONG_TIME_IDLE_TIMEOUT_IN_MS = 600000;
     //static private final int LONG_TIME_IDLE_TIMEOUT_IN_MS = 10000;
-    private static final int CHECK_BATTERY_DELAY_IN_MS = 30000;
-    static private final int DISCOVER_SERVICES_TIMEOUT_IN_MS = 2000;
-    static private final int CCCD_TIMEOUT_IN_MS = 2000;
-    static private final int PASSWORD_TIMEOUT_IN_MS = 1000;
-    static private final int STATUS_TIMEOUT_IN_MS = 1000;
-    static private final int DEVICE_AND_MAP_INFO_IN_MS = 1000;
-    static private final int SEND_PACKET_DELAY_IN_MS = 50;
+    public static final int CHECK_BATTERY_DELAY_IN_MS = 30000;
+    public static final int DISCOVER_SERVICES_TIMEOUT_IN_MS = 2000;
+    public static final int CCCD_TIMEOUT_IN_MS = 2000;
+    public static final int PASSWORD_TIMEOUT_IN_MS = 1000;
+    public static final int STATUS_TIMEOUT_IN_MS = 1000;
+    public static final int DEVICE_AND_MAP_INFO_IN_MS = 1000;
+    public static final int SEND_PACKET_DELAY_IN_MS = 50;
 
     // Bluetooth
+    public BluetoothDevice mBluetoothDevice;
     public BluetoothGatt mBluetoothGatt;
     BluetoothManager mBluetoothManager;
     BluetoothAdapter mBluetoothAdapter;
     BluetoothLeScanner mBluetoothLeScanner;
-    BluetoothDevice mBluetoothDevice;
     BluetoothGattService mBluetoothGattService;
     BluetoothGattCharacteristic mCharClientToServer;
     BluetoothGattCharacteristic mCharServerToClient;
@@ -242,6 +244,7 @@ public class MainActivity extends AppCompatActivity
         UtilLog.instance.close(); // 히든 로그 데이터베이스 닫기.
         UtilUser.instance.close(); // 사용자 데이터베이스 닫기.
         UtilDevice.instance.close(); // 기기 데이터베이스 닫기.
+        UtilMap.instance.close(); // 맵 데이터베이스 닫기.
 
         // 모든 핸들러 제거하기
         mLongTimeIdleHandler.removeCallbacks(mLongTimeIdleRunner); // 장시간 미사용 감지 핸들러 제거
@@ -348,6 +351,9 @@ public class MainActivity extends AppCompatActivity
 
         // 3) 사운드처리기
         UtilDevice.instance.open(getApplicationContext());
+
+        // 4) 맵 정보
+        UtilMap.instance.open(getApplicationContext());
 
         // 상태 값 뷰 모델
         Log.d(TAG, "사운드처리기 상태 값 뷰모델 클래스를 불러옵니다.");
@@ -954,6 +960,15 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, "BLE 스캔 시간이 초과되었습니다.");
         scanLe(false); // 스캔 정지
         //scanLe(true);  // 스캔 다시 시작
+
+        if (getSupportFragmentManager().findFragmentById(R.id.frame) instanceof ShareFragment)
+        {
+            if (Status.instance().connectionState == Status.CONNECTION_STATE_DISCONNECTED)
+            {
+                scanLeWithDelay(true, 10);
+            }
+        }
+
         new Handler(getMainLooper()).postDelayed(() ->
         {
             /*
@@ -1044,10 +1059,13 @@ public class MainActivity extends AppCompatActivity
             List<EntityDevice> devices = UtilDevice.instance.getDevices();
             EntityDevice targetDevice = null;
 
-            if (defaultUser == null || devices == null)
+            if (!(getSupportFragmentManager().findFragmentById(R.id.frame) instanceof ShareFragment))
             {
-                // If no user or device available, return.
-                return;
+                if (defaultUser == null || devices == null)
+                {
+                    // If no user or device available, return.
+                    return;
+                }
             }
 
             String name = result.getDevice().getName();
@@ -1080,42 +1098,108 @@ public class MainActivity extends AppCompatActivity
 
             Log.d(TAG, "BLE 스캔 결과 : 이름 = " + name + ", 스캔 응답 데이터 = " + serviceString);
 
-            boolean isFound = false;
-
-            for (EntityDevice device : devices)
+            if (getSupportFragmentManager().findFragmentById(R.id.frame) instanceof ShareFragment)
             {
-                String targetString = defaultUser.ear + "_" + defaultUser.name.substring(0, defaultUser.name.length() - 2) + "_" + device.serialNumber;
+                ShareFragment shareFragment = (ShareFragment) getSupportFragmentManager().findFragmentById(R.id.frame);
 
-                if (targetString.equals(serviceString))
+                String[] splits = serviceString.split("_");
+                String serial = splits[splits.length - 1];
+                String ear = splits[0];
+                String user = splits[1];
+                for (int i = 2; i < splits.length - 1; i++)
                 {
-                    Log.d(TAG, "타겟 장치 발견 : " + targetString);
-                    isFound = true;
-                    targetDevice = device;
-                    break;
+                    user = user + "_" + splits[i];
+                }
+
+                if (shareFragment.mFsm == ShareFragment.FSM_COLLECT_MAP_SCREEN)
+                {
+                    for (int i = 0; i < shareFragment.mCollectMapAdapter.getItemCount(); i++)
+                    {
+                        if (!shareFragment.mCollectMapAdapter.isScanned(i))
+                        {
+                            if (shareFragment.mCollectMapAdapter.getName(i).equals(user)
+                                    && shareFragment.mCollectMapAdapter.getEar(i).equals(ear))
+                            {
+                                shareFragment.mCollectMapAdapter.setScanned(i, true);
+                                shareFragment.mCollectMapAdapter.setSerial(i, serial);
+                                shareFragment.mCollectMapAdapter.setBtDevice(i, result.getDevice());
+                                break;
+                            }
+                        }
+                    }
+                } // End of FSM_COLLECT_MAP_SCREEN;
+                else if (shareFragment.mFsm == ShareFragment.FSM_SHARE_MAP_SCREEN && shareFragment.mShareMapAdapter != null)
+                {
+                    for (int i = 0; i < shareFragment.mCollectMapAdapter.getItemCount(); i++)
+                    {
+                        if (shareFragment.mCollectMapAdapter.isCollected(i)
+                                && shareFragment.mCollectMapAdapter.getName(i).equals(user)
+                                && shareFragment.mCollectMapAdapter.getEar(i).equals(ear))
+                        {
+                            shareFragment.mShareMapAdapter.addItem(user, ear, serial, result.getDevice());
+                        }
+                    }
+                }
+                else if (shareFragment.mFsm == ShareFragment.FSM_MAP_RESET_DEFAULT_SCREEN && shareFragment.mMapResetAdapter != null)
+                {
+                    boolean isAdded = false;
+
+                    for (int i = 0; i < shareFragment.mMapResetAdapter.getItemCount(); i++)
+                    {
+                        if (shareFragment.mMapResetAdapter.getSimpleName(i).equals(user)
+                                && shareFragment.mMapResetAdapter.getEar(i).equals(ear)
+                                && shareFragment.mMapResetAdapter.getSerial(i).equals(serial))
+                        {
+                            isAdded = true;
+                            break;
+                        }
+                    }
+
+                    if (!isAdded)
+                    {
+                        shareFragment.mMapResetAdapter.addItem(user, ear, serial, result.getDevice());
+                    }
                 }
             }
-
-            if (isFound)
+            else
             {
-                // 모든 조건에 부합하므로, 검색된 장치와 연결한다. 단, 현재 BLE 연결 상태가 연결해제 상태여야 한다.
-                if (Status.instance().connectionState == Status.CONNECTION_STATE_DISCONNECTED)
+                boolean isFound = false;
+
+                for (EntityDevice device : devices)
                 {
-                    Status.instance().connectionState = Status.CONNECTION_STATE_CONNECTING; // 연결 중 상태로 변경
-                    scanLe(false); // 스캔 정지
+                    String targetString = defaultUser.ear + "_" + defaultUser.name.substring(0, defaultUser.name.length() - 2) + "_" + device.serialNumber;
 
-                    // 연결을 시도하려는 사용자와 사운드처리기 정보를 저장.
-                    Status.instance().connectedUser = defaultUser;
-                    Status.instance().connectedDevice = targetDevice;
-
-                    mBluetoothDevice = result.getDevice();
-                    mBluetoothGatt = mBluetoothDevice.connectGatt(getApplicationContext(), false, mGattCallback);
-
-                    if (mBluetoothGatt == null)
+                    if (targetString.equals(serviceString))
                     {
-                        Log.d(TAG, "BLE 연결 시도가 실패했습니다. 검색을 다시 시작합니다.");
+                        Log.d(TAG, "타겟 장치 발견 : " + targetString);
+                        isFound = true;
+                        targetDevice = device;
+                        break;
+                    }
+                }
 
-                        Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTED;
-                        scanLe(true);
+                if (isFound)
+                {
+                    // 모든 조건에 부합하므로, 검색된 장치와 연결한다. 단, 현재 BLE 연결 상태가 연결해제 상태여야 한다.
+                    if (Status.instance().connectionState == Status.CONNECTION_STATE_DISCONNECTED)
+                    {
+                        Status.instance().connectionState = Status.CONNECTION_STATE_CONNECTING; // 연결 중 상태로 변경
+                        scanLe(false); // 스캔 정지
+
+                        // 연결을 시도하려는 사용자와 사운드처리기 정보를 저장.
+                        Status.instance().connectedUser = defaultUser;
+                        Status.instance().connectedDevice = targetDevice;
+
+                        mBluetoothDevice = result.getDevice();
+                        mBluetoothGatt = mBluetoothDevice.connectGatt(getApplicationContext(), false, mGattCallback);
+
+                        if (mBluetoothGatt == null)
+                        {
+                            Log.d(TAG, "BLE 연결 시도가 실패했습니다. 검색을 다시 시작합니다.");
+
+                            Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTED;
+                            scanLe(true);
+                        }
                     }
                 }
             }
@@ -1125,8 +1209,8 @@ public class MainActivity extends AppCompatActivity
     //
     // 배터리 체크 패킷 전송 핸들러
     //
-    Handler mCheckBatteryHandler = new Handler();
-    Runnable mCheckBatteryRunner = () ->
+    public Handler mCheckBatteryHandler = new Handler();
+    public Runnable mCheckBatteryRunner = () ->
     {
         Log.d(TAG, "연결된 사운드처리기의 배터리 정보를 업데이트 하기 위해 상태정보 획득 패킷을 전송합니다.");
 
@@ -1210,7 +1294,7 @@ public class MainActivity extends AppCompatActivity
     //
     // GATT 콜백 핸들러
     //
-    private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback()
+    public final BluetoothGattCallback mGattCallback = new BluetoothGattCallback()
     {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState)
@@ -1306,6 +1390,47 @@ public class MainActivity extends AppCompatActivity
                                 else
                                 {
                                     Log.d(TAG, "현재 리모컨 화면이지만, 액티비티 화면이 포그라운드 상태가 아니므로 BLE 스캔을 시작하지 않습니다.");
+                                }
+                            }
+                            else if (fragment instanceof LogFragment)
+                            {
+                                if (((LogFragment) fragment).isStarted)
+                                {
+                                    Log.d(TAG, "오디오 입력 최대값 측정 화면이며, 측정 중인 상태이므로 자동 재연결을 위해 BLE 스캔을 시작합니다.");
+                                    scanLe(true);
+                                }
+                                else
+                                {
+                                    Log.d(TAG, "오디오 입력 최대값 측정 화면이지만, 측정 중인 상태가 아니므로 BLE 스캔을 시작하지 않습니다.");
+                                }
+                            }
+                            else if (fragment instanceof ShareFragment)
+                            {
+                                ShareFragment shareFragment = (ShareFragment) fragment;
+
+                                if (shareFragment.mFsm == ShareFragment.FSM_COLLECT_MAP_SCREEN)
+                                {
+                                    if (shareFragment.mCollectFsm == ShareFragment.COLLECT_FSM_CONNECTING
+                                            || shareFragment.mCollectFsm == ShareFragment.COLLECT_FSM_COLLECTING)
+                                    {
+                                        shareFragment.okButtonCollectMapScreen();
+                                    }
+                                }
+                                else if (shareFragment.mFsm == ShareFragment.FSM_SHARE_MAP_SCREEN)
+                                {
+                                    if (shareFragment.mShareFsm == ShareFragment.SHARE_FSM_USER_CHECK
+                                            || shareFragment.mShareFsm == ShareFragment.SHARE_FSM_SHARING)
+                                    {
+                                        shareFragment.okButtonShareMapScreen();
+                                    }
+                                }
+                                else if (shareFragment.mFsm == ShareFragment.FSM_MAP_RESET_DEFAULT_SCREEN)
+                                {
+                                    if (shareFragment.mResetFsm == ShareFragment.RESET_FSM_CONNECTING
+                                            || shareFragment.mResetFsm == ShareFragment.RESET_FSM_RESETTING)
+                                    {
+                                        shareFragment.okButtonMapReset();
+                                    }
                                 }
                             }
                         }
@@ -1641,18 +1766,76 @@ public class MainActivity extends AppCompatActivity
                         mStatusViewModel.setValueVolume(packetInfo.volume);
                         mStatusViewModel.setValueProgram(packetInfo.program);
 
-                        // 현재 BLE 연결중(CONNECTING)인 상태라면, 주기적인 배터리 상태 핸들러를 생성한다.
-                        // 하지만 연결된(CONNECTED) 상태라면 핸들러를 생성하지 않는다.
-                        if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTING)
+                        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
+
+                        if (fragment instanceof LogFragment && ((LogFragment) fragment).isStarted)
                         {
                             UtilLog.instance.writeLog("연결 성공 : 장치이름=" + gatt.getDevice().getName());
-
                             Log.d(TAG, "사운드처리기와 BLE 통신이 온전하게 연결되었습니다.");
                             Status.instance().connectionState = Status.CONNECTION_STATE_CONNECTED;
-                            mCheckBatteryHandler.postDelayed(mCheckBatteryRunner, CHECK_BATTERY_DELAY_IN_MS);
+
+                            byte ch = (byte) (0xff & (((LogFragment) fragment).mLogBinding.logDiagnosticsSpinnerSpinner.getSelectedItemPosition() + 1));
+                            sendPacket(packetMaker(PacketInfo.HEADER_AUDIO_INPUT_MAX_READ, new byte[]{ch}, 2));
 
                             // 리모컨 화면의 옵저버를 위해 뷰모델 값을 업데이트한다.
                             mStatusViewModel.setConnectionState(StatusViewModel.CONNECTION_STATE_CONNECTED);
+                        }
+                        else if (fragment instanceof ShareFragment)
+                        {
+                            ShareFragment shareFragment = (ShareFragment) fragment;
+
+                            if (shareFragment.mFsm == ShareFragment.FSM_COLLECT_MAP_SCREEN)
+                            {
+                                shareFragment.mCollectFsm = ShareFragment.COLLECT_FSM_COLLECTING;
+
+                                Log.d(TAG, "맵 데이터 수집에 대한 디버그 메시지 : COLLECT_FSM_COLLECTING!");
+                                shareFragment.whichPacketShouldBeTransferred();
+
+                                //shareFragment.debugPercentCollectMap1();
+                                // ID AND USER의 첫번째 슬롯을 전송해야 한다.
+                                //shareFragment.setCollectPercent(true, 0);
+                                //sendPacket(packetMaker(PacketInfo.HEADER_READ_ISD_ID_AND_USER, new byte[]{PacketInfo.SLOT_MIN}, 2));
+                            }
+                            else if (shareFragment.mFsm == ShareFragment.FSM_SHARE_MAP_SCREEN)
+                            {
+                                //shareFragment.mShareFsm = ShareFragment.SHARE_FSM_SHARING;
+
+                                Log.d(TAG, "맵 데이터 공유에 대한 디버그 메시지 : SHARE_MAP_SHARING!");
+                                shareFragment.whichPacketShouldBeTransferred();
+
+                                //shareFragment.setSharePercent(true, 0);
+                                //shareFragment.debugPercentShareMap1();
+                            }
+                            else if (shareFragment.mFsm == ShareFragment.FSM_MAP_RESET_DEFAULT_SCREEN)
+                            {
+                                shareFragment.mResetFsm = ShareFragment.RESET_FSM_RESETTING;
+
+                                Log.d(TAG, "맵 데이터 초기화에 대한 디버그 메시지 : RESETTING!");
+                                sendPacket(packetMaker(PacketInfo.HEADER_MAP_RESET_DEFAULT, null, 1));
+                            }
+
+                            UtilLog.instance.writeLog("연결 성공 : 장치이름=" + gatt.getDevice().getName());
+                            Log.d(TAG, "사운드처리기와 BLE 통신이 온전하게 연결되었습니다.");
+                            Status.instance().connectionState = Status.CONNECTION_STATE_CONNECTED;
+
+                            // 리모컨 화면의 옵저버를 위해 뷰모델 값을 업데이트한다.
+                            mStatusViewModel.setConnectionState(StatusViewModel.CONNECTION_STATE_CONNECTED);
+                        }
+                        else
+                        {
+                            // 현재 BLE 연결중(CONNECTING)인 상태라면, 주기적인 배터리 상태 핸들러를 생성한다.
+                            // 하지만 연결된(CONNECTED) 상태라면 핸들러를 생성하지 않는다.
+                            if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTING)
+                            {
+                                UtilLog.instance.writeLog("연결 성공 : 장치이름=" + gatt.getDevice().getName());
+
+                                Log.d(TAG, "사운드처리기와 BLE 통신이 온전하게 연결되었습니다.");
+                                Status.instance().connectionState = Status.CONNECTION_STATE_CONNECTED;
+                                mCheckBatteryHandler.postDelayed(mCheckBatteryRunner, CHECK_BATTERY_DELAY_IN_MS);
+
+                                // 리모컨 화면의 옵저버를 위해 뷰모델 값을 업데이트한다.
+                                mStatusViewModel.setConnectionState(StatusViewModel.CONNECTION_STATE_CONNECTED);
+                            }
                         }
                     }
                     break;
@@ -1768,6 +1951,121 @@ public class MainActivity extends AppCompatActivity
                         UtilLog.instance.writeLog("패킷 수신 : 볼륨->" + value);
                     }
                     break;
+                    // 오디오 입력 최대값 가져오기
+                    case PacketInfo.HEADER_AUDIO_INPUT_MAX_READ:
+                    {
+                        if (packetSize != PacketInfo.PACKET_SIZE_AUDIO_INPUT_MAX_READ)
+                        {
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 오디오 입력 최대값 가져오기 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+
+                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                            packetSizeErrorDialog();
+                            break;
+                        }
+
+                        int audioSignal = ((responsePacket[1] << 24) & 0xff000000)
+                                | ((responsePacket[2] << 16) & 0x00ff0000)
+                                | ((responsePacket[3] << 8) & 0x0000ff00)
+                                | (responsePacket[4] & 0x000000ff);
+
+                        double offsetDacSlope = (double) (responsePacket[5] & 0x000000ff) / 16.0;
+
+                        int offsetDacOutput = responsePacket[6] & 0x000000ff;
+
+                        double stimDacSlope = (double) (responsePacket[7] & 0x000000ff) / 16.0;
+
+                        int stimDacOutput = responsePacket[8] & 0x000000ff;
+
+                        int stimOutput = ((responsePacket[9] << 8) & 0x0000ff00)
+                                | (responsePacket[10] & 0x000000ff);
+
+                        Log.d(TAG, "오디오 입력 최대값 : 오디오 신호 = " + audioSignal
+                                + ", 오프셋 DAC 기울기 = " + offsetDacSlope
+                                + ", 오프셋 DAC 출력 레벨 = " + offsetDacOutput
+                                + ", 자극 DAC 기울기 = " + stimDacSlope
+                                + ", 자극 DAC 츨력 레벨 = " + stimDacOutput
+                                + ", 자극출력 = " + stimOutput);
+
+                        longTimeIdleHandlerUpdate(true);
+
+                        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
+
+                        if (fragment instanceof LogFragment)
+                        {
+                            ((LogFragment) fragment).mLogBinding.logAudioSignalDataTv.setText("" + audioSignal);
+                            ((LogFragment) fragment).mLogBinding.logOffsetDacSlopeDataTv.setText(String.format(Locale.ENGLISH, "%.4f", offsetDacSlope));
+                            ((LogFragment) fragment).mLogBinding.logOffsetDacOutputDataTv.setText("" + offsetDacOutput);
+                            ((LogFragment) fragment).mLogBinding.logStimDacSlopeDataTv.setText(String.format(Locale.ENGLISH, "%.4f", stimDacSlope));
+                            ((LogFragment) fragment).mLogBinding.logStimDacOutputDataTv.setText("" + stimDacOutput);
+                            ((LogFragment) fragment).mLogBinding.logAudioStimOutDataTv.setText("" + stimOutput);
+
+                            gatt.readRemoteRssi();
+
+                            if (((LogFragment) fragment).isStarted)
+                            {
+                                Log.d(TAG, "오디오 입력 최대값 가져오기 재전송!");
+                                byte ch = (byte) (0xff & (((LogFragment) fragment).mLogBinding.logDiagnosticsSpinnerSpinner.getSelectedItemPosition() + 1));
+                                sendPacket(packetMaker(PacketInfo.HEADER_AUDIO_INPUT_MAX_READ, new byte[]{ch}, 2));
+                            }
+                            else
+                            {
+                                Log.d(TAG, "오디오 입력 최대값 가져오기 정지!");
+                                ((LogFragment) fragment).mLogBinding.logAudioSignalStateTv.setText("정지");
+                            }
+                        }
+                    }
+                    break;
+                    // 맵 공유 관련 패킷들
+                    case PacketInfo.HEADER_READ_ISD_ID_AND_USER:
+                    case PacketInfo.HEADER_READ_MAP_DATA:
+                    case PacketInfo.HEADER_WRITE_ISD_ID_AND_USER:
+                    case PacketInfo.HEADER_WRITE_MAP_DATA:
+                    {
+                        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
+                        if (!(fragment instanceof ShareFragment))
+                        {
+                            break;
+                        }
+
+                        ShareFragment shareFragment = (ShareFragment) fragment;
+
+                        if (packetHeader == PacketInfo.HEADER_READ_ISD_ID_AND_USER)
+                        {
+                            if (shareFragment.mFsm == ShareFragment.FSM_COLLECT_MAP_SCREEN)
+                            {
+                                shareFragment.packetProcessIdUser(responsePacket);
+                            }
+                            else if (shareFragment.mFsm == ShareFragment.FSM_SHARE_MAP_SCREEN)
+                            {
+                                shareFragment.packetCheckIdUser(responsePacket);
+                            }
+                        }
+                        else if (packetHeader == PacketInfo.HEADER_READ_MAP_DATA)
+                        {
+                            shareFragment.packetProcessMapData(responsePacket);
+                        }
+                        else if (packetHeader == PacketInfo.HEADER_WRITE_ISD_ID_AND_USER)
+                        {
+                            shareFragment.packetWrittenIdUser(responsePacket);
+                        }
+                        else if (packetHeader == PacketInfo.HEADER_WRITE_MAP_DATA)
+                        {
+                            shareFragment.packetWrittenMapData(responsePacket);
+                        }
+                    }
+                    break;
+                    // 맵 초기화 관련 패킷
+                    case PacketInfo.HEADER_MAP_RESET_DEFAULT:
+                    {
+                        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
+
+                        if (fragment instanceof ShareFragment)
+                        {
+                            ShareFragment shareFragment = (ShareFragment) fragment;
+                            shareFragment.packetResetMapData(responsePacket);
+                        }
+                    }
+                    break;
                     // 에러
                     case PacketInfo.HEADER_ERROR:
                     {
@@ -1859,6 +2157,30 @@ public class MainActivity extends AppCompatActivity
                 } // switch
             }); // handler mainLooper
         } // onCharacteristicChanged
+
+        @Override
+        public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status)
+        {
+            new Handler(Looper.getMainLooper()).post(() ->
+            {
+                //super.onReadRemoteRssi(gatt, rssi, status);
+                Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
+
+                if (fragment instanceof LogFragment)
+                {
+                    LogFragment logFragment = (LogFragment) fragment;
+
+                    if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
+                    {
+                        logFragment.mLogBinding.logRssiStateTv.setText("" + rssi);
+                    }
+                    else
+                    {
+                        logFragment.mLogBinding.logRssiStateTv.setText("");
+                    }
+                }
+            });
+        }
     }; // BluetoothGattCallback
 
     //
@@ -1925,14 +2247,50 @@ public class MainActivity extends AppCompatActivity
     Handler mPacketResponseTimeoutHandler = new Handler();
     Runnable mPacketResponseTimeoutRunner = () ->
     {
-        Log.d(TAG, "패킷 응답 시간 초과 발생 -> 기기와 연결을 해제하겠습니다.");
+        //
+        // 패킷 응답 시간 초과일 때 오디오 입력 최대 신호 측정 중일 때를 위한 부분입니다.
+        //
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
 
-        if (mBluetoothGatt != null)
+        if (fragment instanceof LogFragment)
         {
-            if (Status.instance().connectionState != Status.CONNECTION_STATE_DISCONNECTED &&
-                    Status.instance().connectionState != Status.CONNECTION_STATE_DISCONNECTING)
+            LogFragment logFragment = (LogFragment) fragment;
+
+            if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
             {
-                mBluetoothGatt.disconnect();
+                if (logFragment.isStarted)
+                {
+                    Log.e(TAG, "패킷 수신 에러로 인해 다시 오디오 입력 최대값 가져오기 재전송!");
+
+                    Status.instance().transferState = Status.TRANSFER_STATE_IDLE; // 패킷 전송 상태 초기화 -> 다시 IDLE 상태로 돌아간다.
+
+                    Toast.makeText(MainActivity.this, "패킷 응답 시간 초과이므로 다시 패킷을 전송합니다.", Toast.LENGTH_SHORT).show();
+
+                    byte ch = (byte) (0xff & (logFragment.mLogBinding.logDiagnosticsSpinnerSpinner.getSelectedItemPosition() + 1));
+                    sendPacket(packetMaker(PacketInfo.HEADER_AUDIO_INPUT_MAX_READ, new byte[]{ch}, 2));
+                }
+                else
+                {
+                    Log.e(TAG, "오디오 입력 최대값 가져오기 정지!");
+                    ((LogFragment) fragment).mLogBinding.logAudioSignalStateTv.setText("정지");
+                }
+            }
+            else
+            {
+                Toast.makeText(MainActivity.this, "연결이 종료되었습니다. 연결부터 다시 시작해주세요.", Toast.LENGTH_LONG).show();
+            }
+        }
+        else // 로그 프래그먼트가 아닐 때는 그냥 연결을 종료합니다.
+        {
+            Log.d(TAG, "패킷 응답 시간 초과 발생 -> 기기와 연결을 해제하겠습니다.");
+
+            if (mBluetoothGatt != null)
+            {
+                if (Status.instance().connectionState != Status.CONNECTION_STATE_DISCONNECTED &&
+                        Status.instance().connectionState != Status.CONNECTION_STATE_DISCONNECTING)
+                {
+                    mBluetoothGatt.disconnect();
+                }
             }
         }
     }; // scanRunner

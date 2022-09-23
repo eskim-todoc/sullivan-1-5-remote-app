@@ -15,7 +15,13 @@ public class PacketInfo
     static public final byte HEADER_VALUE_TELECOIL = (byte) (0x47 & 0xff);
     static public final byte HEADER_VALUE_NOTIFICATION = (byte) (0x48 & 0xff);
     static public final byte HEADER_VALUE_LED = (byte) (0x49 & 0xff);
-    static public final byte HEADER_SYSTEM_WARNING = (byte) (0x4A & 0xff);
+    static public final byte HEADER_AUDIO_INPUT_MAX_READ = (byte) (0x4A & 0xff);
+    static public final byte HEADER_READ_ISD_ID_AND_USER = (byte) (0x4B & 0xff);
+    static public final byte HEADER_READ_MAP_DATA = (byte) (0x4C & 0xff);
+    static public final byte HEADER_WRITE_ISD_ID_AND_USER = (byte) (0x4D & 0xff);
+    static public final byte HEADER_WRITE_MAP_DATA = (byte) (0x4E & 0xff);
+    static public final byte HEADER_MAP_RESET_DEFAULT = (byte) (0x51 & 0xff);
+    static public final byte HEADER_SYSTEM_WARNING = (byte) (0x53 & 0xff);
     static public final byte HEADER_ERROR = (byte) (0xf0 & 0xff);
 
     // 응답 패킷별 사이즈 정보
@@ -29,6 +35,7 @@ public class PacketInfo
     static public final int PACKET_SIZE_TELECOIL = 2;
     static public final int PACKET_SIZE_NOTIFICATION = 2;
     static public final int PACKET_SIZE_LED = 2;
+    static public final int PACKET_SIZE_AUDIO_INPUT_MAX_READ = 11;
     static public final int PACKET_SIZE_SYSTEM_WARNING = 1;
     static public final int PACKET_SIZE_ERROR = 3;
 
@@ -76,6 +83,17 @@ public class PacketInfo
 
     static public final byte PROGRAM_UP = 1;
     static public final byte PROGRAM_DOWN = 2;
+
+    static public final int SLOT_MIN = 1;
+    static public final int SLOT_MAX = 4;
+
+    static public final int ID_AND_USER_INDEX_MIN = 1;
+    static public final int ID_AND_USER_INDEX_MAX = 3;
+
+    static public final int MAP_DATA_INDEX_MIN = 1;
+    static public final int MAP_DATA_INDEX_MAX = 15;
+
+    static public final int MAP_RESET_DEFAULT_OK = 1;
 
     public byte battery;
     public byte program;

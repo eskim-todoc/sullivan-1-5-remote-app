@@ -44,6 +44,20 @@
     <color name="error_20">#62404B</color>
     <color name="error_10">#514045</color>
 
+    <color name="field_100">#FFF296</color>
+    <color name="field_90">#FFF4A0</color>
+    <color name="field_80">#FFF5A9</color>
+    <color name="field_70">#FFF6B2</color>
+    <color name="field_60">#FFF8BB</color>
+    <color name="field_50">#FFF9C4</color>
+    <color name="field_40">#FFFACE</color>
+    <color name="field_30">#FFFCD7</color>
+    <color name="field_20">#FFFDE0</color>
+    <color name="field_10">#FFFEE9</color>
+
+
+
+
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
 

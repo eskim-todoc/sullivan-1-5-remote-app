@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -21,12 +23,15 @@ import todoc.cochlear.remoteapp.activity.databinding.FragmentLogBinding;
 import todoc.cochlear.remoteapp.database.logs.EntityLog;
 import todoc.cochlear.remoteapp.list.LogAdapter;
 import todoc.cochlear.remoteapp.database.logs.UtilLog;
+import todoc.cochlear.remoteapp.params.PacketInfo;
+import todoc.cochlear.remoteapp.params.Status;
 
 public class LogFragment extends Fragment
 {
     static private final String TAG = "TODOC_" + LogFragment.class.getSimpleName();
 
-    private FragmentLogBinding mLogBinding;
+    public FragmentLogBinding mLogBinding;
+    public boolean isStarted;
 
     public LogFragment()
     {
@@ -59,7 +64,85 @@ public class LogFragment extends Fragment
 
         mLogBinding.logExitButton.setOnClickListener(view1 -> requireActivity().onBackPressed());
 
+        mLogBinding.logLogButton.setOnClickListener(view1 ->
+        {
+            ((MainActivity) requireActivity()).mBinding.toolbar.setTitle("시스템 로그");
+            mLogBinding.logDiagnosticsLayout.setVisibility(View.GONE);
+            mLogBinding.logLayout.setVisibility(View.VISIBLE);
+        });
+
+        mLogBinding.logDiagnosticsButton.setOnClickListener(view1 ->
+        {
+            ((MainActivity) requireActivity()).mBinding.toolbar.setTitle("오디오 입력 측정");
+            mLogBinding.logLayout.setVisibility(View.GONE);
+            mLogBinding.logDiagnosticsLayout.setVisibility(View.VISIBLE);
+        });
+
+        String[] spinnerItems = requireActivity().getResources().getStringArray(R.array.stim_test_spinner);
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(requireContext(), R.layout.spinner_stim_test, spinnerItems);
+        spinnerAdapter.setDropDownViewResource(R.layout.spinner_stim_test);
+        mLogBinding.logDiagnosticsSpinnerSpinner.setAdapter(spinnerAdapter);
+
         printHiddenLogs();
+
+        isStarted = false;
+        start_button();
+        stop_button();
+    }
+
+    //
+    // start button
+    //
+    public void start_button()
+    {
+        mLogBinding.logDiagnosticsStartButton.setOnClickListener(view ->
+        {
+            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
+            if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
+            {
+                if (!isStarted)
+                {
+                    ((MainActivity) requireActivity()).mCheckBatteryHandler.removeCallbacks(((MainActivity) requireActivity()).mCheckBatteryRunner);
+
+                    isStarted = true;
+                    mLogBinding.logAudioSignalStateTv.setText("동작");
+                    byte ch = (byte) (0xff & (mLogBinding.logDiagnosticsSpinnerSpinner.getSelectedItemPosition() + 1));
+                    ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_AUDIO_INPUT_MAX_READ, new byte[]{ch}, 2));
+                }
+            }
+            else
+            {
+                Toast.makeText(requireContext(), "연결되지 않았습니다. 기본사용자를 기반으로 연결을 시도합니다.", Toast.LENGTH_SHORT).show();
+                isStarted = true;
+                mLogBinding.logAudioSignalStateTv.setText("동작");
+                ((MainActivity) requireActivity()).scanLe(true);
+            }
+        });
+    }
+
+    //
+    // stop button
+    //
+    public void stop_button()
+    {
+        mLogBinding.logDiagnosticsStopButton.setOnClickListener(view ->
+        {
+            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
+
+            if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
+            {
+                if (isStarted)
+                {
+                    isStarted = false;
+                    ((MainActivity) requireActivity()).mCheckBatteryHandler.postDelayed(((MainActivity) requireActivity()).mCheckBatteryRunner, MainActivity.CHECK_BATTERY_DELAY_IN_MS);
+                }
+            }
+            else
+            {
+                Toast.makeText(requireContext(), "연결되지 않았습니다.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void printHiddenLogs()
