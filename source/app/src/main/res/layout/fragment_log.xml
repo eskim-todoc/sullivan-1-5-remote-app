@@ -150,6 +150,37 @@
                 app:layout_constraintTop_toBottomOf="@id/log_audio_signal_state_tv"
                 tools:text="-123" />
 
+
+            <TextView
+                android:id="@+id/log_connected_isd_id_title_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="ID (년/월/모델/시리얼)"
+                android:textAlignment="textEnd"
+                android:textColor="@color/white_70"
+                android:textSize="14dp"
+                app:layout_constraintBottom_toBottomOf="@id/log_connected_isd_id_data_tv"
+                app:layout_constraintEnd_toStartOf="@id/log_connected_isd_id_data_tv"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/log_connected_isd_id_data_tv" />
+
+            <TextView
+                android:id="@+id/log_connected_isd_id_data_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text=""
+                android:textAlignment="textStart"
+                android:textColor="@color/white_90"
+                android:textSize="18dp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/log_connected_isd_id_title_tv"
+                app:layout_constraintTop_toBottomOf="@id/log_rssi_state_tv"
+                tools:text="22-09-01-00001" />
+
             <TextView
                 android:id="@+id/log_audio_signal_title_tv"
                 android:layout_width="0dp"
@@ -177,7 +208,7 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/log_audio_signal_title_tv"
-                app:layout_constraintTop_toBottomOf="@id/log_rssi_state_tv"
+                app:layout_constraintTop_toBottomOf="@id/log_connected_isd_id_data_tv"
                 tools:text="1234" />
 
             <TextView

@@ -35,7 +35,7 @@ public class PacketInfo
     static public final int PACKET_SIZE_TELECOIL = 2;
     static public final int PACKET_SIZE_NOTIFICATION = 2;
     static public final int PACKET_SIZE_LED = 2;
-    static public final int PACKET_SIZE_AUDIO_INPUT_MAX_READ = 11;
+    static public final int PACKET_SIZE_AUDIO_INPUT_MAX_READ = 15;
     static public final int PACKET_SIZE_SYSTEM_WARNING = 1;
     static public final int PACKET_SIZE_ERROR = 3;
 

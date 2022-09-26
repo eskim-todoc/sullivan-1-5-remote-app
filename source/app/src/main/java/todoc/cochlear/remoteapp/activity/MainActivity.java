@@ -1979,12 +1979,20 @@ public class MainActivity extends AppCompatActivity
                         int stimOutput = ((responsePacket[9] << 8) & 0x0000ff00)
                                 | (responsePacket[10] & 0x000000ff);
 
+                        int isdIdYear = responsePacket[11] & 0x000000ff;
+                        int isdIdMonth = (responsePacket[12] >> 4) & 0x0000000f;
+                        int isdIdModel = responsePacket[12] & 0x0000000f;
+                        int isdIdSerial = ((responsePacket[13] << 8) & 0x0000ff00) | responsePacket[14] & 0x000000ff;
+
+                        String isdId = String.format(Locale.ENGLISH, "%d-%02d-%02d-%05d", isdIdYear, isdIdMonth, isdIdModel, isdIdSerial);
+
                         Log.d(TAG, "오디오 입력 최대값 : 오디오 신호 = " + audioSignal
                                 + ", 오프셋 DAC 기울기 = " + offsetDacSlope
                                 + ", 오프셋 DAC 출력 레벨 = " + offsetDacOutput
                                 + ", 자극 DAC 기울기 = " + stimDacSlope
                                 + ", 자극 DAC 츨력 레벨 = " + stimDacOutput
-                                + ", 자극출력 = " + stimOutput);
+                                + ", 자극출력 = " + stimOutput
+                                + ", 내부기 ID = " + isdId);
 
                         longTimeIdleHandlerUpdate(true);
 
@@ -1998,6 +2006,7 @@ public class MainActivity extends AppCompatActivity
                             ((LogFragment) fragment).mLogBinding.logStimDacSlopeDataTv.setText(String.format(Locale.ENGLISH, "%.4f", stimDacSlope));
                             ((LogFragment) fragment).mLogBinding.logStimDacOutputDataTv.setText("" + stimDacOutput);
                             ((LogFragment) fragment).mLogBinding.logAudioStimOutDataTv.setText("" + stimOutput);
+                            ((LogFragment) fragment).mLogBinding.logConnectedIsdIdDataTv.setText(isdId);
 
                             gatt.readRemoteRssi();
 

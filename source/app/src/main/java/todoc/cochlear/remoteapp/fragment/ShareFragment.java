@@ -110,19 +110,23 @@ public class ShareFragment extends Fragment
     public int mSelectedUserCount;
     public int mMapInfoIndex;
 
+    MainActivity mActivity;
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
-        mMainBinding = ((MainActivity) requireContext()).mBinding;
+        mActivity = (MainActivity) requireActivity();
+
+        mMainBinding = mActivity.mBinding;
+
         mMainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
         mMainBinding.toolbarNavigationMessage.setText("메뉴");
         mMainBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
-        //mMainBinding.toolbar.setTitleTextAppearance(requireContext(), R.style.TextAppearance_RemoteControl_Default_Headline6);
         mMainBinding.toolbar.setTitle("외부기 공유");
 
         mFsm = FSM_FIRST_SCREEN;
@@ -151,104 +155,6 @@ public class ShareFragment extends Fragment
         updateScreen();
 
         mSelectedUserCount = 0;
-
-        temporaryTest();
-    }
-
-    //
-    // 각종 임시 테스트를 위한 함수
-    //
-    public void temporaryTest()
-    {
-        byte[] srcBytes = new byte[]{1, 2, 3, 4, 'A', 'B', 'C', 'D', 'E', 0, 0, 1, 2, 3, 4, 0, 0, 0, 127, -128};
-        String srcString = MapInfo.bytesToString(srcBytes);
-        byte[] dstBytes = MapInfo.stringToBytes(srcString);
-
-        Log.d("TemporaryTest", srcString);
-        Log.d("TemporaryTest", ((MainActivity) requireActivity()).printLogBytesToString(srcBytes));
-        Log.d("TemporaryTest", ((MainActivity) requireActivity()).printLogBytesToString(dstBytes));
-    }
-
-    //
-    // 2. 매핑 데이터 수집 화면에서 수집 중 퍼센트 증가 디버그 함수
-    //
-    public void debugPercentCollectMap1()
-    {
-        new Handler(Looper.getMainLooper()).postDelayed(() ->
-        {
-            String strPercent = mShareBinding.shareCollectMapDataPercentTv.getText().toString();
-            String[] splits = strPercent.split("%");
-            int intPercent = Integer.parseInt(splits[0]);
-
-            if (intPercent == 100)
-            {
-                mCollectFsm = COLLECT_FSM_COLLECTED;
-
-                for (int i = 0; i < mCollectMapAdapter.getItemCount(); i++)
-                {
-                    if (mCollectMapAdapter.isSelected(i))
-                    {
-                        mCollectMapAdapter.setCollect(i);
-                        setCollectInfoText(i);
-
-                        if (mCollectMapAdapter.getCollectedCount() != mCollectMapAdapter.getItemCount())
-                        {
-                            setOkButtonVisibility(false);
-                        }
-                        else
-                        {
-                            setOkButtonVisibility(true);
-                            setOkButtonText("다음 절차 진행");
-                            setOkButtonBackgroundColor(BUTTON_COLOR_ACCENT);
-                        }
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                intPercent++;
-                setCollectPercent(true, intPercent);
-                debugPercentCollectMap1();
-            }
-        }, 20);
-    }
-
-    //
-    // 3. 매핑 데이터 공유 화면에서 수집 중 퍼센트 증가 디버그 함수
-    //
-    public void debugPercentShareMap1()
-    {
-        new Handler(Looper.getMainLooper()).postDelayed(() ->
-        {
-            String strPercent = mShareBinding.shareDistributePercentTv.getText().toString();
-            String[] splits = strPercent.split("%");
-            int intPercent = Integer.parseInt(splits[0]);
-
-            if (intPercent == 100)
-            {
-                mShareFsm = SHARE_FSM_SHARED;
-
-                for (int i = 0; i < mShareMapAdapter.getItemCount(); i++)
-                {
-                    if (mShareMapAdapter.isSelected(i))
-                    {
-                        mShareMapAdapter.setShare(i, true);
-                        setShareInfoText(i);
-
-                        Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
-                        ((MainActivity) requireActivity()).mBluetoothGatt.disconnect();
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                intPercent++;
-                setSharePercent(true, intPercent);
-                debugPercentShareMap1();
-            }
-        }, 20);
     }
 
     public void updateScreen()
@@ -431,7 +337,7 @@ public class ShareFragment extends Fragment
         // 리사이클러뷰 설정
         updateListCollectMap();
         mCollectFsm = COLLECT_FSM_IDLE;
-        ((MainActivity) requireActivity()).scanLeWithDelay(true, 10);
+        mActivity.scanLeWithDelay(true, 10);
 
         mMapInfo = new MapInfo[mSelectedUserCount];
     }
@@ -458,7 +364,7 @@ public class ShareFragment extends Fragment
         // 리사이클러뷰 설정
         updateListShareMap();
         mShareFsm = SHARE_FSM_IDLE;
-        ((MainActivity) requireActivity()).scanLeWithDelay(true, 10);
+        mActivity.scanLeWithDelay(true, 10);
     }
 
     //
@@ -511,22 +417,14 @@ public class ShareFragment extends Fragment
         mResetFsm = RESET_FSM_IDLE;
 
         Status status = Status.instance();
-        MainActivity activity = (MainActivity) requireActivity();
 
         if (status.connectionState == Status.CONNECTION_STATE_CONNECTED)
         {
-            /*
-            String name = status.connectedUser.name.substring(0, status.connectedUser.name.length() - 2);
-            String ear = status.connectedUser.ear;
-            String serial = status.connectedDevice.serialNumber;
-            BluetoothDevice btDevice = activity.mBluetoothDevice;
-            mMapResetAdapter.addItem(name, ear, serial, btDevice);
-            */
             status.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
-            activity.mBluetoothGatt.disconnect();
+            mActivity.mBluetoothGatt.disconnect();
         }
 
-        ((MainActivity) requireActivity()).scanLeWithDelay(true, 10);
+        mActivity.scanLeWithDelay(true, 10);
     }
 
     //
@@ -568,7 +466,7 @@ public class ShareFragment extends Fragment
             if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
             {
                 Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
-                ((MainActivity) requireActivity()).mBluetoothGatt.disconnect();
+                mActivity.mBluetoothGatt.disconnect();
             }
 
             mFsm = FSM_COLLECT_MAP_SCREEN;
@@ -593,7 +491,7 @@ public class ShareFragment extends Fragment
             if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
             {
                 Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
-                ((MainActivity) requireActivity()).mBluetoothGatt.disconnect();
+                mActivity.mBluetoothGatt.disconnect();
             }
 
             mFsm = FSM_SHARE_MAP_SCREEN;
@@ -615,7 +513,7 @@ public class ShareFragment extends Fragment
                         if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
                         {
                             Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
-                            ((MainActivity) requireActivity()).mBluetoothGatt.disconnect();
+                            mActivity.mBluetoothGatt.disconnect();
                         }
 
                         mMapInfoIndex = i;
@@ -631,7 +529,7 @@ public class ShareFragment extends Fragment
                         }
 
                         //Status.instance().connectionState = Status.CONNECTION_STATE_CONNECTING;
-                        ((MainActivity) requireActivity()).scanLe(false);
+                        mActivity.scanLe(false);
 
                         Status.instance().connectedUser = mCollectMapAdapter.getItem(i);
                         Status.instance().connectedDevice = UtilDevice.instance.getDeviceBySerialNumber(serial);
@@ -656,11 +554,10 @@ public class ShareFragment extends Fragment
                                 mMapInfo[mMapInfoIndex].dataType = MapInfo.DATA_TYPE_ID_USER;
                             }
 
-                            ((MainActivity) requireActivity()).mBluetoothDevice = mConnBtDevice;
-                            ((MainActivity) requireActivity()).mBluetoothGatt =
-                                    mConnBtDevice.connectGatt(requireContext().getApplicationContext(), false, ((MainActivity) requireActivity()).mGattCallback);
+                            mActivity.mBluetoothDevice = mConnBtDevice;
+                            mActivity.mBluetoothGatt = mConnBtDevice.connectGatt(requireContext().getApplicationContext(), false, mActivity.mGattCallback);
 
-                            if (((MainActivity) requireActivity()).mBluetoothGatt == null)
+                            if (mActivity.mBluetoothGatt == null)
                             {
                                 Log.d(TAG, "수집 화면에서 BLE 연결 시도가 실패했습니다.");
 
@@ -697,7 +594,7 @@ public class ShareFragment extends Fragment
                     if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
                     {
                         Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
-                        ((MainActivity) requireActivity()).mBluetoothGatt.disconnect();
+                        mActivity.mBluetoothGatt.disconnect();
                     }
 
                     if (mShareMapInfo == null)
@@ -705,7 +602,7 @@ public class ShareFragment extends Fragment
                         mShareMapInfo = new MapInfo();
                     }
 
-                    ((MainActivity) requireActivity()).scanLe(false);
+                    mActivity.scanLe(false);
 
                     Status.instance().connectedUser = mShareMapAdapter.getEntityUser(i);
                     Status.instance().connectedDevice = mShareMapAdapter.getEntityDevice(i);
@@ -726,11 +623,10 @@ public class ShareFragment extends Fragment
                         }
 
 
-                        ((MainActivity) requireActivity()).mBluetoothDevice = mConnBtDevice;
-                        ((MainActivity) requireActivity()).mBluetoothGatt =
-                                mConnBtDevice.connectGatt(requireContext().getApplicationContext(), false, ((MainActivity) requireActivity()).mGattCallback);
+                        mActivity.mBluetoothDevice = mConnBtDevice;
+                        mActivity.mBluetoothGatt = mConnBtDevice.connectGatt(requireContext().getApplicationContext(), false, mActivity.mGattCallback);
 
-                        if (((MainActivity) requireActivity()).mBluetoothGatt == null)
+                        if (mActivity.mBluetoothGatt == null)
                         {
                             Log.d(TAG, "공유 화면에서 BLE 연결 시도가 실패했습니다.");
 
@@ -770,7 +666,6 @@ public class ShareFragment extends Fragment
             return;
         }
 
-        MainActivity activity = (MainActivity) requireActivity();
         Status status = Status.instance();
 
         for (int i = 0; i < mMapResetAdapter.getItemCount(); i++)
@@ -780,10 +675,10 @@ public class ShareFragment extends Fragment
                 if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
                 {
                     Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
-                    activity.mBluetoothGatt.disconnect();
+                    mActivity.mBluetoothGatt.disconnect();
                 }
 
-                activity.scanLe(false);
+                mActivity.scanLe(false);
 
                 status.connectedUser = mMapResetAdapter.getEntityUser(i);
                 status.connectedDevice = mMapResetAdapter.getEntityDevice(i);
@@ -794,10 +689,10 @@ public class ShareFragment extends Fragment
                     status.connectionState = Status.CONNECTION_STATE_CONNECTING;
                     mResetFsm = RESET_FSM_CONNECTING;
 
-                    activity.mBluetoothDevice = mConnBtDevice;
-                    activity.mBluetoothGatt = mConnBtDevice.connectGatt(activity, false, activity.mGattCallback);
+                    mActivity.mBluetoothDevice = mConnBtDevice;
+                    mActivity.mBluetoothGatt = mConnBtDevice.connectGatt(mActivity, false, mActivity.mGattCallback);
 
-                    if (activity.mBluetoothGatt == null)
+                    if (mActivity.mBluetoothGatt == null)
                     {
                         Log.d(TAG, "맵 초기화 화면에서 BLE 연결 시도가 실패했습니다.");
 
@@ -896,7 +791,7 @@ public class ShareFragment extends Fragment
 
         for (int slot_init_i = 0; slot_init_i < 4; slot_init_i++)
         {
-            MapInfo.setMapInfoFromString(MapInfo.EMPTY_MAP_DATA_TD_OTE, mMostRecentMapInfo, slot_init_i);
+            MapInfo.setMapInfoFromString(MapInfo.EMPTY_MAP_DATA, mMostRecentMapInfo, slot_init_i);
         }
 
         mMostRecentMapInfo.metadata.isFilled = true;
@@ -922,7 +817,7 @@ public class ShareFragment extends Fragment
         if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
         {
             Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
-            ((MainActivity) requireActivity()).mBluetoothGatt.disconnect();
+            mActivity.mBluetoothGatt.disconnect();
         }
 
         mFsm = FSM_SHARE_MAP_SCREEN;
@@ -1010,7 +905,6 @@ public class ShareFragment extends Fragment
     public void scanListUpdateMapReset()
     {
         Status status = Status.instance();
-        MainActivity activity = (MainActivity) requireActivity();
 
         for (int i = 0; i < mMapResetAdapter.getItemCount(); i++)
         {
@@ -1362,13 +1256,11 @@ public class ShareFragment extends Fragment
                     setCollectPercent(true, 0);
                 }
 
-                MainActivity activity = (MainActivity) requireActivity();
-
                 if (mCollectDataType == COLLECT_DATA_TYPE_ID_AND_USER)
                 {
                     mMapInfo[mMapInfoIndex].idUser.indexNum = MapInfo.ID_USER_INDEX_MIN;
-                    activity.sendPacket(
-                            activity.packetMaker(
+                    mActivity.sendPacket(
+                            mActivity.packetMaker(
                                     PacketInfo.HEADER_READ_ISD_ID_AND_USER,
                                     new byte[]{(byte) mMapInfo[mMapInfoIndex].idUser.slotNum},
                                     2
@@ -1378,8 +1270,8 @@ public class ShareFragment extends Fragment
                 else if (mCollectDataType == COLLECT_DATA_TYPE_MAP_DATA)
                 {
                     mMapInfo[mMapInfoIndex].mapData.indexNum = MapInfo.MAP_DATA_INDEX_MIN;
-                    activity.sendPacket(
-                            activity.packetMaker(
+                    mActivity.sendPacket(
+                            mActivity.packetMaker(
                                     PacketInfo.HEADER_READ_MAP_DATA,
                                     new byte[]{(byte) mMapInfo[mMapInfoIndex].mapData.slotNum, (byte) mMapInfo[mMapInfoIndex].mapData.indexNum},
                                     3
@@ -1390,8 +1282,6 @@ public class ShareFragment extends Fragment
         } // 끝, mFsm == FSM_COLLECT_MAP_SCREEN
         else if (mFsm == FSM_SHARE_MAP_SCREEN)
         {
-            MainActivity activity = (MainActivity) requireActivity();
-
             new Handler(Looper.getMainLooper()).post(() ->
             {
                 if (mShareFsm != SHARE_FSM_CONNECTING)
@@ -1406,8 +1296,8 @@ public class ShareFragment extends Fragment
 
                 mShareFsm = SHARE_FSM_USER_CHECK;
 
-                activity.sendPacket(
-                        activity.packetMaker(
+                mActivity.sendPacket(
+                        mActivity.packetMaker(
                                 PacketInfo.HEADER_READ_ISD_ID_AND_USER,
                                 new byte[]{(byte) 1},
                                 2
@@ -1419,12 +1309,10 @@ public class ShareFragment extends Fragment
 
     public void packetProcessIdUser(byte[] packet)
     {
-        MainActivity activity = (MainActivity) requireActivity();
-
         int slotNum = mMapInfo[mMapInfoIndex].idUser.slotNum;
         int indexNum = mMapInfo[mMapInfoIndex].idUser.indexNum;
 
-        Log.d("MapCollecting", "IdUser 패킷 : " + activity.printLogBytesToString(packet));
+        Log.d("MapCollecting", "IdUser 패킷 : " + mActivity.printLogBytesToString(packet));
 
         if (indexNum != packet[1])
         {
@@ -1449,8 +1337,8 @@ public class ShareFragment extends Fragment
                 mCollectDataType = COLLECT_DATA_TYPE_MAP_DATA;
 
                 // MapData 수집을 시작해야 한다.
-                activity.sendPacket(
-                        activity.packetMaker(
+                mActivity.sendPacket(
+                        mActivity.packetMaker(
                                 PacketInfo.HEADER_READ_MAP_DATA,
                                 new byte[]{(byte) mMapInfo[mMapInfoIndex].mapData.slotNum, (byte) mMapInfo[mMapInfoIndex].mapData.mapNum},
                                 3
@@ -1459,8 +1347,8 @@ public class ShareFragment extends Fragment
             }
             else
             {
-                activity.sendPacket(
-                        activity.packetMaker(
+                mActivity.sendPacket(
+                        mActivity.packetMaker(
                                 PacketInfo.HEADER_READ_ISD_ID_AND_USER,
                                 new byte[]{(byte) mMapInfo[mMapInfoIndex].idUser.slotNum},
                                 2
@@ -1484,13 +1372,11 @@ public class ShareFragment extends Fragment
 
     public void packetProcessMapData(byte[] packet)
     {
-        MainActivity activity = (MainActivity) requireActivity();
-
         int slotNum = mMapInfo[mMapInfoIndex].mapData.slotNum;
         int mapNum = mMapInfo[mMapInfoIndex].mapData.mapNum;
         int indexNum = mMapInfo[mMapInfoIndex].mapData.indexNum;
 
-        Log.d("MapCollecting", "MapData 패킷 : " + activity.printLogBytesToString(packet));
+        Log.d("MapCollecting", "MapData 패킷 : " + mActivity.printLogBytesToString(packet));
 
         if (indexNum != packet[1])
         {
@@ -1535,7 +1421,7 @@ public class ShareFragment extends Fragment
 
                                 if (Status.instance().scanState == Status.SCAN_STATE_STOPPED)
                                 {
-                                    activity.scanLeWithDelay(true, 100);
+                                    mActivity.scanLeWithDelay(true, 100);
                                 }
                             }
                             else
@@ -1548,8 +1434,8 @@ public class ShareFragment extends Fragment
                                 Log.d("MapCollecting", "mMapInfo[] 사이즈 = " + mMapInfo.length);
                                 for (int k = 0; k < mMapInfo.length; k++)
                                 {
-                                    Log.d("MapCollecting", "mMapInfo[" + k + "].idUser.data[0][0] => " + activity.printLogBytesToString(mMapInfo[k].idUser.data[0][0]));
-                                    Log.d("MapCollecting", "mMapInfo[" + k + "].idUser.data[0][1] => " + activity.printLogBytesToString(mMapInfo[k].idUser.data[0][1]));
+                                    Log.d("MapCollecting", "mMapInfo[" + k + "].idUser.data[0][0] => " + mActivity.printLogBytesToString(mMapInfo[k].idUser.data[0][0]));
+                                    Log.d("MapCollecting", "mMapInfo[" + k + "].idUser.data[0][1] => " + mActivity.printLogBytesToString(mMapInfo[k].idUser.data[0][1]));
                                 }
 
                                 for (int k = 0; k < mMapInfo.length; k++)
@@ -1600,7 +1486,7 @@ public class ShareFragment extends Fragment
                                     entityMaps[slot_i].stamp = mMostRecentMapInfo.metadata.stamps[slot_i];
                                     entityMaps[slot_i].serialize_map_data = stringMapDataSlots[slot_i];
 
-                                    if (!entityMaps[slot_i].name.equals("TD_OTE"))
+                                    if (!entityMaps[slot_i].name.equals(MapInfo.EMPTY_MAP_NAME))
                                     {
                                         UtilMap.instance.insert(entityMaps[slot_i]);
                                     }
@@ -1649,8 +1535,8 @@ public class ShareFragment extends Fragment
                 else
                 {
                     // 슬롯 번호 값을 증가하고 전송 시작
-                    activity.sendPacket(
-                            activity.packetMaker(
+                    mActivity.sendPacket(
+                            mActivity.packetMaker(
                                     PacketInfo.HEADER_READ_MAP_DATA,
                                     new byte[]{(byte) mMapInfo[mMapInfoIndex].mapData.slotNum, (byte) mMapInfo[mMapInfoIndex].mapData.mapNum},
                                     3
@@ -1661,8 +1547,8 @@ public class ShareFragment extends Fragment
             else
             {
                 // 맵 번호 값을 올리고 전송 시작
-                activity.sendPacket(
-                        activity.packetMaker(
+                mActivity.sendPacket(
+                        mActivity.packetMaker(
                                 PacketInfo.HEADER_READ_MAP_DATA,
                                 new byte[]{(byte) mMapInfo[mMapInfoIndex].mapData.slotNum, (byte) mMapInfo[mMapInfoIndex].mapData.mapNum},
                                 3
@@ -1692,12 +1578,10 @@ public class ShareFragment extends Fragment
     //
     public void packetCheckIdUser(byte[] packet)
     {
-        MainActivity activity = (MainActivity) requireActivity();
-
         int slotNum = mShareMapInfo.idUser.slotNum;
         int indexNum = mShareMapInfo.idUser.indexNum;
 
-        Log.d("MapSharing", "IdUser 패킷 : " + activity.printLogBytesToString(packet));
+        Log.d("MapSharing", "IdUser 패킷 : " + mActivity.printLogBytesToString(packet));
 
         if (indexNum != packet[1])
         {
@@ -1784,7 +1668,7 @@ public class ShareFragment extends Fragment
                 mShareMapInfo.prepareWriting();
 
                 // IdUser 정보부터 쓰기 시작해야 한다.
-                activity.sendPacket(mShareMapInfo.idUser.writing[0][0]);
+                mActivity.sendPacket(mShareMapInfo.idUser.writing[0][0]);
             }
         }
         else
@@ -1804,13 +1688,11 @@ public class ShareFragment extends Fragment
 
     public void packetWrittenIdUser(byte[] packet)
     {
-        MainActivity activity = (MainActivity) requireActivity();
-
         boolean isDone = false;
         int slotNum = mShareMapInfo.idUser.slotNum;
         int indexNum = mShareMapInfo.idUser.indexNum;
 
-        Log.d("MapSharing", "IdUser 패킷 : " + activity.printLogBytesToString(packet));
+        Log.d("MapSharing", "IdUser 패킷 : " + mActivity.printLogBytesToString(packet));
 
         if (indexNum != packet[1])
         {
@@ -1837,13 +1719,13 @@ public class ShareFragment extends Fragment
             // MapData 공유 시작
             mShareDataType = SHARE_DATA_TYPE_WRITE_MAP_DATA;
 
-            activity.sendPacket(mShareMapInfo.mapData.writing
+            mActivity.sendPacket(mShareMapInfo.mapData.writing
                     [mShareMapInfo.mapData.slotNum - 1][mShareMapInfo.mapData.mapNum - 1][mShareMapInfo.mapData.indexNum - 1]);
         }
         else
         {
             // 다음 데이터 전송
-            activity.sendPacket(mShareMapInfo.idUser.writing[mShareMapInfo.idUser.slotNum - 1][mShareMapInfo.idUser.indexNum - 1]);
+            mActivity.sendPacket(mShareMapInfo.idUser.writing[mShareMapInfo.idUser.slotNum - 1][mShareMapInfo.idUser.indexNum - 1]);
         }
 
         new Handler(Looper.getMainLooper()).post(() ->
@@ -1858,14 +1740,12 @@ public class ShareFragment extends Fragment
 
     public void packetWrittenMapData(byte[] packet)
     {
-        MainActivity activity = (MainActivity) requireActivity();
-
         boolean isDone = false;
         int slotNum = mShareMapInfo.mapData.slotNum;
         int mapNum = mShareMapInfo.mapData.mapNum;
         int indexNum = mShareMapInfo.mapData.indexNum;
 
-        Log.d("MapSharing", "MapData 패킷 : " + activity.printLogBytesToString(packet));
+        Log.d("MapSharing", "MapData 패킷 : " + mActivity.printLogBytesToString(packet));
 
         if (indexNum != packet[1])
         {
@@ -1901,7 +1781,7 @@ public class ShareFragment extends Fragment
                             setShareInfoText(i);
 
                             Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
-                            ((MainActivity) requireActivity()).mBluetoothGatt.disconnect();
+                            mActivity.mBluetoothGatt.disconnect();
                             break;
                         }
                     }
@@ -1911,7 +1791,7 @@ public class ShareFragment extends Fragment
 
         if (!isDone)
         {
-            activity.sendPacket(mShareMapInfo.mapData.writing
+            mActivity.sendPacket(mShareMapInfo.mapData.writing
                     [mShareMapInfo.mapData.slotNum - 1][mShareMapInfo.mapData.mapNum - 1][mShareMapInfo.mapData.indexNum - 1]);
         }
 
@@ -1934,7 +1814,6 @@ public class ShareFragment extends Fragment
     public void packetResetMapData(byte[] packet)
     {
         Status status = Status.instance();
-        MainActivity activity = (MainActivity) requireActivity();
 
         if (packet.length != 2)
         {
@@ -1942,7 +1821,7 @@ public class ShareFragment extends Fragment
 
             if (status.connectionState == Status.CONNECTION_STATE_CONNECTED)
             {
-                activity.mBluetoothGatt.disconnect();
+                mActivity.mBluetoothGatt.disconnect();
             }
 
             return;
@@ -1954,7 +1833,7 @@ public class ShareFragment extends Fragment
 
             if (status.connectionState == Status.CONNECTION_STATE_CONNECTED)
             {
-                activity.mBluetoothGatt.disconnect();
+                mActivity.mBluetoothGatt.disconnect();
             }
 
             return;
@@ -1975,11 +1854,11 @@ public class ShareFragment extends Fragment
                     setMapResetInfoText(position);
 
                     status.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
-                    activity.mBluetoothGatt.disconnect();
+                    mActivity.mBluetoothGatt.disconnect();
 
                     if (mMapResetAdapter.getItemCount() == mMapResetAdapter.getResetDoneCount())
                     {
-                        activity.scanLe(true);
+                        mActivity.scanLe(true);
                     }
                 });
 
@@ -2035,7 +1914,7 @@ public class ShareFragment extends Fragment
                         for (int empty_i = 0; empty_i < 4; empty_i++)
                         {
                             // 가장 최신 맵 정보에서 TD_OTE 인 곳에다가 현재 맵 정보의 슬롯을 넣어준다.
-                            if (mMostRecentMapInfo.metadata.names[empty_i].equals("TD_OTE"))
+                            if (mMostRecentMapInfo.metadata.names[empty_i].equals(MapInfo.EMPTY_MAP_NAME))
                             {
                                 mapInfoSlotCopy(mMapInfo[len], mMostRecentMapInfo, slot_i, empty_i);
                                 break;

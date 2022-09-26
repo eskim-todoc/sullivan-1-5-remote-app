@@ -15,6 +15,7 @@ import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.database.maps.EntityMap;
 import todoc.cochlear.remoteapp.database.users.EntityUser;
 import todoc.cochlear.remoteapp.database.users.UtilUser;
+import todoc.cochlear.remoteapp.params.MapInfo;
 
 public class ShareExistMapAdapter extends RecyclerView.Adapter<ShareExistMapAdapter.ViewHolder>
 {
@@ -67,7 +68,7 @@ public class ShareExistMapAdapter extends RecyclerView.Adapter<ShareExistMapAdap
 
     public void addItem(EntityMap map)
     {
-        if (!map.name.equals("TD_OTE"))
+        if (!map.name.equals(MapInfo.EMPTY_MAP_NAME))
         {
             ExistMapItem item = new ExistMapItem();
 
@@ -80,7 +81,7 @@ public class ShareExistMapAdapter extends RecyclerView.Adapter<ShareExistMapAdap
             month = (int) ((map.stamp >> 32) & 0xffL);
             year = (int) ((map.stamp >> 40) & 0xffL);
 
-            item.date = String.format("%4d-%2d-%2d\n%2d:%2d:%2d", 2000 + year, month, day, hour, minute, second);
+            item.date = String.format("%4d-%02d-%02d\n%02d:%02d:%02d", 2000 + year, month, day, hour, minute, second);
             item.name = map.name;
             item.ear = map.ear;
 
