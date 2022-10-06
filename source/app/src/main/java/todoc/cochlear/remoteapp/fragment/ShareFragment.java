@@ -21,16 +21,14 @@ import java.util.List;
 
 import todoc.cochlear.remoteapp.activity.MainActivity;
 import todoc.cochlear.remoteapp.activity.R;
-import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
 import todoc.cochlear.remoteapp.activity.databinding.FragmentShareBinding;
-import todoc.cochlear.remoteapp.database.devices.EntityDevice;
 import todoc.cochlear.remoteapp.database.devices.UtilDevice;
 import todoc.cochlear.remoteapp.database.maps.EntityMap;
 import todoc.cochlear.remoteapp.database.maps.UtilMap;
 import todoc.cochlear.remoteapp.database.users.EntityUser;
 import todoc.cochlear.remoteapp.database.users.UtilUser;
 import todoc.cochlear.remoteapp.list.ShareCollectMapAdapter;
-import todoc.cochlear.remoteapp.list.ShareDistributeMapAdapter;
+import todoc.cochlear.remoteapp.list.ShareShareMapAdapter;
 import todoc.cochlear.remoteapp.list.ShareExistMapAdapter;
 import todoc.cochlear.remoteapp.list.ShareMapResetDefaultAdapter;
 import todoc.cochlear.remoteapp.list.ShareSelectUserAdapter;
@@ -42,27 +40,18 @@ public class ShareFragment extends Fragment
 {
     static private final String TAG = "TODOC_" + ShareFragment.class.getSimpleName();
 
-    private ActivityMainBinding mMainBinding;
-    private FragmentShareBinding mShareBinding;
+    static private final int HANDLER_TIMEOUT_IN_MS = 5000;
+    static private final int HANDLER_START_DELAY_FOR_COLLECT_MAP_IN_MS = 50;
+    static private final int HANDLER_START_DELAY_FOR_SHARE_MAP_IN_MS = 50;
+    static private final int HANDLER_START_DELAY_FOR_RESET_MAP_IN_MS = 50;
 
-    public ShareSelectUserAdapter mSelectUserAdapter;
-    public ShareCollectMapAdapter mCollectMapAdapter;
-    public ShareDistributeMapAdapter mShareMapAdapter;
-    public ShareExistMapAdapter mExistMapAdapter;
-    public ShareMapResetDefaultAdapter mMapResetAdapter;
+    static private final int BUTTON_COLOR_NORMAL = 0xFFB2B2B2; // White 70
+    static private final int BUTTON_COLOR_ACCENT = 0xFF2D968D; // Accent 70
+    static private final int BUTTON_COLOR_ERROR = 0xFFB84068;  // Error 70
 
-    public BluetoothDevice mConnBtDevice;
+    static private final int AT_LEAST_SELECTED_USER_COUNT = 2;
 
-    Handler percentHandler = new Handler(Looper.getMainLooper());
-    Runnable percentRunner1;
-    Runnable percentRunner2;
-    Runnable distPercentRunner1;
-    Runnable distPercentRunner2;
-    static private int MY_DEMO_DELAY_IN_MS = 20;
-
-    static public int BUTTON_COLOR_NORMAL = 0;
-    static public int BUTTON_COLOR_ACCENT = 0;
-    static public int BUTTON_COLOR_ERROR = 0;
+    static public final int MAX_COUNT_CONNECTION_FAIL = 4;
 
     static public final int FSM_FIRST_SCREEN = 0;
     static public final int FSM_SELECT_USER_SCREEN = 1;
@@ -70,47 +59,60 @@ public class ShareFragment extends Fragment
     static public final int FSM_SHARE_MAP_SCREEN = 3;
     static public final int FSM_EXIST_MAP_SCREEN = 4;
     static public final int FSM_MAP_RESET_DEFAULT_SCREEN = 5;
-    public int mFsm;
 
-    static public final int COLLECT_FSM_IDLE = 0;
-    static public final int COLLECT_FSM_CONNECTING = 1;
-    static public final int COLLECT_FSM_COLLECTING = 2;
-    static public final int COLLECT_FSM_COLLECTED = 3;
-    static public final int COLLECT_FSM_DISCONNECTING = 4;
-    public int mCollectFsm;
+    static public final int COLLECT_FSM_IDLE = 10;
+    static public final int COLLECT_FSM_CONNECTING = 11;
+    static public final int COLLECT_FSM_COLLECTING = 12;
+    static public final int COLLECT_FSM_COLLECTED = 13;
+    static public final int COLLECT_FSM_DISCONNECTING = 14;
 
-    static public final int SHARE_FSM_IDLE = 0;
-    static public final int SHARE_FSM_CONNECTING = 1;
-    static public final int SHARE_FSM_USER_CHECK = 2;
-    static public final int SHARE_FSM_SHARING = 3;
-    static public final int SHARE_FSM_SHARED = 4;
-    static public final int SHARE_FSM_DISCONNECTING = 5;
-    public int mShareFsm;
+    static public final int SHARE_FSM_IDLE = 20;
+    static public final int SHARE_FSM_CONNECTING = 21;
+    static public final int SHARE_FSM_USER_CHECK = 22;
+    static public final int SHARE_FSM_SHARING = 23;
+    static public final int SHARE_FSM_SHARED = 24;
+    static public final int SHARE_FSM_DISCONNECTING = 25;
 
-    static public final int RESET_FSM_IDLE = 0;
-    static public final int RESET_FSM_CONNECTING = 1;
-    static public final int RESET_FSM_RESETTING = 2;
-    static public final int RESET_FSM_DONE = 3;
-    static public final int RESET_FSM_DISCONNECTING = 4;
-    public int mResetFsm;
+    static public final int RESET_FSM_IDLE = 30;
+    static public final int RESET_FSM_CONNECTING = 31;
+    static public final int RESET_FSM_RESETTING = 32;
+    static public final int RESET_FSM_DONE = 33;
+    static public final int RESET_FSM_DISCONNECTING = 34;
 
-    static public final int COLLECT_DATA_TYPE_ID_AND_USER = 0;
-    static public final int COLLECT_DATA_TYPE_MAP_DATA = 1;
-    public int mCollectDataType;
+    static public final int COLLECT_DATA_TYPE_ID_AND_USER = 5000;
+    static public final int COLLECT_DATA_TYPE_MAP_DATA = 5001;
 
-    static public final int SHARE_DATA_TYPE_READ_ID_AND_USER = 2;
-    static public final int SHARE_DATA_TYPE_WRITE_ID_AND_USER = 3;
-    static public final int SHARE_DATA_TYPE_WRITE_MAP_DATA = 4;
-    public int mShareDataType;
+    static public final int SHARE_DATA_TYPE_READ_ID_AND_USER = 6000;
+    static public final int SHARE_DATA_TYPE_WRITE_ID_AND_USER = 6001;
+    static public final int SHARE_DATA_TYPE_WRITE_MAP_DATA = 6002;
 
-    // 맵 공유에 사용되는 버퍼
-    MapInfo mMostRecentMapInfo;
-    MapInfo[] mMapInfo;
-    MapInfo mShareMapInfo;
-    public int mSelectedUserCount;
-    public int mMapInfoIndex;
+    private MainActivity mActivity;
+    private Status mStatus;
+    private FragmentShareBinding mShareBinding;
 
-    MainActivity mActivity;
+    public int mFsm = FSM_FIRST_SCREEN;
+    public int mCollectFsm = COLLECT_FSM_IDLE;
+    public int mShareFsm = SHARE_FSM_IDLE;
+    public int mResetFsm = RESET_FSM_IDLE;
+    public int mCollectDataType = COLLECT_DATA_TYPE_ID_AND_USER;
+    public int mShareDataType = SHARE_DATA_TYPE_READ_ID_AND_USER;
+
+    public ShareExistMapAdapter mExistMapAdapter;
+    public ShareSelectUserAdapter mSelectUserAdapter;
+    public ShareCollectMapAdapter mCollectMapAdapter;
+    public ShareShareMapAdapter mShareMapAdapter;
+    public ShareMapResetDefaultAdapter mMapResetAdapter;
+
+    public BluetoothDevice mBtDevice;
+
+    private MapInfo mMostRecentMapInfo;
+    private MapInfo mShareMapInfo;
+
+    private MapInfo[] mCollectedMapInfo;
+    public int mCollectedMapInfoCurrentIndex = 0;
+
+    public int mSelectedUserCount = 0;
+    public int mCountForConnectionFail = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -118,20 +120,15 @@ public class ShareFragment extends Fragment
         super.onCreate(savedInstanceState);
 
         mActivity = (MainActivity) requireActivity();
+        mStatus = Status.instance();
 
-        mMainBinding = mActivity.mBinding;
-
-        mMainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
-        mMainBinding.toolbarNavigationMessage.setText("메뉴");
-        mMainBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
-        mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
-        mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
-        mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
-        mMainBinding.toolbar.setTitle("외부기 공유");
-
-        mFsm = FSM_FIRST_SCREEN;
-        mCollectFsm = COLLECT_FSM_IDLE;
-        mShareFsm = SHARE_FSM_IDLE;
+        mActivity.mBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
+        mActivity.mBinding.toolbarNavigationMessage.setText("메뉴");
+        mActivity.mBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
+        mActivity.mBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
+        mActivity.mBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
+        mActivity.mBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
+        mActivity.mBinding.toolbar.setTitle("외부기 공유");
     }
 
     @Override
@@ -146,16 +143,48 @@ public class ShareFragment extends Fragment
     {
         super.onViewCreated(view, savedInstanceState);
 
-        BUTTON_COLOR_NORMAL = requireActivity().getColor(R.color.white_70);
-        BUTTON_COLOR_ACCENT = requireActivity().getColor(R.color.accent_70);
-        BUTTON_COLOR_ERROR = requireActivity().getColor(R.color.error_70);
-
-        initOkButton();
-        initDeleteButton();
+        mShareBinding.shareOkButton.setOnClickListener(mOkButtonClickListener);         // 버튼 클릭 리스너 - OK
+        mShareBinding.shareCancelButton.setOnClickListener(mCancelButtonClickListener); // 버튼 클릭 리스너 - CANCEL
         updateScreen();
-
-        mSelectedUserCount = 0;
     }
+
+    //
+    // 프래그먼트 종료 함수
+    //
+    public void exitFragment()
+    {
+        // 동작 중인 핸들러를 제거한다.
+        mDataIndexHandler.removeCallbacks(mDataIndexRunner);
+
+        // 연결 중인 장치가 있다면, 연결을 해제시킨다.
+        if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED)
+        {
+            if (mActivity.mBluetoothGatt != null)
+            {
+                mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+                mActivity.mBluetoothGatt.disconnect();
+            }
+        }
+
+        mActivity.scanLeWithDelay(false, 0);
+    }
+
+    //
+    // 데이터인덱스 핸들러
+    //
+    public Handler mDataIndexHandler = new Handler();
+
+    public Runnable mDataIndexRunner = () ->
+    {
+        Log.d(TAG, "데이터 인덱스 타임아웃 발생!");
+
+        if (mActivity.mBluetoothGatt != null)
+        {
+            Log.d(TAG, "연결 중인 장치를 해제합니다.");
+
+            mActivity.mBluetoothGatt.disconnect();
+        }
+    };
 
     public void updateScreen()
     {
@@ -184,17 +213,21 @@ public class ShareFragment extends Fragment
             case FSM_MAP_RESET_DEFAULT_SCREEN:
                 updateFsmMapResetDefaultScreen();
                 break;
-
-            default:
-                break;
         }
+
+        updateLayoutsWithFsm(); // FSM에 해당하는 레이아웃 표시
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 리사이클러뷰 관련
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //
     // 리사이클러뷰 준비 - 1. 내부기 선택 화면
     //
     public void updateListSelectUser()
     {
+        // 생성된 사용자 선택 어댑터가 없다면, 사용자 선택 어댑터 생성
         if (mSelectUserAdapter == null)
         {
             mSelectUserAdapter = new ShareSelectUserAdapter();
@@ -202,9 +235,13 @@ public class ShareFragment extends Fragment
             mShareBinding.shareSelectIsdUserRecyclerview.setLayoutManager(new LinearLayoutManager(requireContext()));
         }
 
+        // 리모컨 앱에 등록된 모든 사용자 정보를 읽어온다.
+        List<EntityUser> registeredUsers = UtilUser.instance.getUsers();
+
+        // 사용자 선택 어댑터의 내용을 비운다.
         mSelectUserAdapter.clearItems();
 
-        List<EntityUser> registeredUsers = UtilUser.instance.getUsers();
+        // 사용자 선택 어탭터에 리모컨 앱에 등록된 모든 사용자 정보를 추가한다.
         mSelectUserAdapter.addUsers(registeredUsers);
     }
 
@@ -213,6 +250,7 @@ public class ShareFragment extends Fragment
     //
     public void updateListCollectMap()
     {
+        // 생성된 맵 수집 어댑터가 없다면, 맵 수집 어댑터 생성
         if (mCollectMapAdapter == null)
         {
             mCollectMapAdapter = new ShareCollectMapAdapter(this);
@@ -220,8 +258,14 @@ public class ShareFragment extends Fragment
             mShareBinding.shareCollectMapDataRecyclerview.setLayoutManager(new LinearLayoutManager(requireContext()));
         }
 
+        // 맵 수집 어댑터의 내용을 비운다.
         mCollectMapAdapter.clearItems();
-        mCollectMapAdapter.addUsers(mSelectUserAdapter.getSelectedItems());
+
+        // 맵 수집 어댑터에 사용자 선택 어댑터에 등록된 사용자들 중 선택된 사용자 정보만 추가한다.
+        if (mSelectUserAdapter != null && 0 < mSelectUserAdapter.getSelectedUserCount())
+        {
+            mCollectMapAdapter.addUsers(mSelectUserAdapter.getSelectedUsers());
+        }
     }
 
     //
@@ -229,13 +273,15 @@ public class ShareFragment extends Fragment
     //
     public void updateListShareMap()
     {
+        // 생성된 맵 공유 어댑터가 없다면, 맵 공유 어댑터 생성
         if (mShareMapAdapter == null)
         {
-            mShareMapAdapter = new ShareDistributeMapAdapter(this);
+            mShareMapAdapter = new ShareShareMapAdapter(this);
             mShareBinding.shareDistributeMapDataRecyclerview.setAdapter(mShareMapAdapter);
             mShareBinding.shareDistributeMapDataRecyclerview.setLayoutManager(new LinearLayoutManager(requireContext()));
         }
 
+        // 맵 공유 어댑터의 내용을 비운다.
         mShareMapAdapter.clearItems();
     }
 
@@ -244,6 +290,7 @@ public class ShareFragment extends Fragment
     //
     public void updateListExistMap()
     {
+        // 이미 등록된 맵 어댑터가 없다면, 이미 등록된 맵 어댑터 생성
         if (mExistMapAdapter == null)
         {
             mExistMapAdapter = new ShareExistMapAdapter();
@@ -251,7 +298,10 @@ public class ShareFragment extends Fragment
             mShareBinding.shareExistMapRecyclerview.setLayoutManager(new LinearLayoutManager(requireContext()));
         }
 
+        // 이미 등록된 맵 어댑터의 내용을 비운다.
         mExistMapAdapter.clearItems();
+
+        // 데이터베이스에서 등록된 맵 정보를 읽어서 이미 등록된 맵 어댑터에 추가한다.
         mExistMapAdapter.addMaps(UtilMap.instance.getAll());
     }
 
@@ -260,6 +310,7 @@ public class ShareFragment extends Fragment
     //
     public void updateListResetMap()
     {
+        // 맵 초기화 어댑터가 없다면, 맵 초기화 어댑터 생성
         if (mMapResetAdapter == null)
         {
             mMapResetAdapter = new ShareMapResetDefaultAdapter(this);
@@ -267,29 +318,28 @@ public class ShareFragment extends Fragment
             mShareBinding.shareMapResetDefaultRecyclerview.setLayoutManager(new LinearLayoutManager(requireContext()));
         }
 
+        // 맵 초기화 어댑터의 내용을 비운다.
         mMapResetAdapter.clearItems();
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 화면 업데이트 관련
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //
     // 화면 업데이트 - 맨 처음 진행순서 설명화면
     //
     public void updateFsmFirstScreen()
     {
-        //버튼 설정
+        // OK 버튼 설정
         setOkButtonText("진행");
         setOkButtonBackgroundColor(BUTTON_COLOR_ACCENT);
         setOkButtonVisibility(true);
-        setDeleteButtonText("외부기 맵 데이터 초기화");
-        setDeleteButtonBackgroundColor(BUTTON_COLOR_ERROR);
-        setDeleteButtonVisibility(true);
 
-        // 레이아웃 설정
-        setLayoutSelectUser(false);
-        setLayoutCollectMap(false);
-        setLayoutDistributeMap(false);
-        setLayoutFirstScreen(true);
-        setLayoutMapResetDefault(false);
-        setLayoutExistMap(false);
+        // CANCEL 버튼 설정
+        setCancelButtonText("외부기 맵 데이터 초기화");
+        setCancelButtonBackgroundColor(BUTTON_COLOR_ERROR);
+        setCancelButtonVisibility(true);
     }
 
     //
@@ -297,19 +347,13 @@ public class ShareFragment extends Fragment
     //
     public void updateFsmSelectUSerScreen()
     {
-        // 버튼 설정
+        // OK 버튼 설정
         setOkButtonText("다음 절차 진행");
         setOkButtonBackgroundColor(BUTTON_COLOR_ACCENT);
         setOkButtonVisibility(true);
-        setDeleteButtonVisibility(false);
 
-        // 레이아웃 설정
-        setLayoutFirstScreen(false);
-        setLayoutCollectMap(false);
-        setLayoutDistributeMap(false);
-        setLayoutSelectUser(true);
-        setLayoutMapResetDefault(false);
-        setLayoutExistMap(false);
+        // CANCEL 버튼 설정
+        setCancelButtonVisibility(false);
 
         // 리사이클러뷰 설정
         updateListSelectUser();
@@ -320,26 +364,22 @@ public class ShareFragment extends Fragment
     //
     public void updateFsmCollectMapScreen()
     {
-        // 버튼 설정
+        // OK 버튼 설정
         setOkButtonText("시작");
         setOkButtonBackgroundColor(BUTTON_COLOR_ACCENT);
         setOkButtonVisibility(false);
-        setDeleteButtonVisibility(false);
 
-        // 레이아웃 설정
-        setLayoutFirstScreen(false);
-        setLayoutSelectUser(false);
-        setLayoutDistributeMap(false);
-        setLayoutCollectMap(true);
-        setLayoutMapResetDefault(false);
-        setLayoutExistMap(false);
+        // CANCEL 버튼 설정
+        setCancelButtonVisibility(false);
 
         // 리사이클러뷰 설정
         updateListCollectMap();
-        mCollectFsm = COLLECT_FSM_IDLE;
-        mActivity.scanLeWithDelay(true, 10);
 
-        mMapInfo = new MapInfo[mSelectedUserCount];
+        // 수집 FSM 초기화
+        mCollectFsm = COLLECT_FSM_IDLE;
+
+        // BLE 스캔 시작
+        mActivity.scanLeWithDelay(true, 10);
     }
 
     //
@@ -347,23 +387,24 @@ public class ShareFragment extends Fragment
     //
     public void updateFsmShareMapScreen()
     {
-        // 버튼 설정
+        // OK 버튼 설정
         setOkButtonText("시작");
         setOkButtonBackgroundColor(BUTTON_COLOR_ACCENT);
         setOkButtonVisibility(false);
-        setDeleteButtonVisibility(false);
 
-        // 레이아웃 설정
-        setLayoutFirstScreen(false);
-        setLayoutSelectUser(false);
-        setLayoutCollectMap(false);
-        setLayoutDistributeMap(true);
-        setLayoutMapResetDefault(false);
-        setLayoutExistMap(false);
+        // CANCEL 버큰 설정
+        setCancelButtonVisibility(false);
 
         // 리사이클러뷰 설정
         updateListShareMap();
+
+        // 공유할 맵 버퍼 생성
+        mShareMapInfo = new MapInfo();
+
+        // 공유 FSM 초기화
         mShareFsm = SHARE_FSM_IDLE;
+
+        // BLE 스캔 시작
         mActivity.scanLeWithDelay(true, 10);
     }
 
@@ -372,21 +413,15 @@ public class ShareFragment extends Fragment
     //
     public void updateFsmExistMapScreen()
     {
-        // 버튼 설정
+        // OK 버튼 설정
         setOkButtonText("새로운 매핑 데이터 수집 진행");
         setOkButtonBackgroundColor(BUTTON_COLOR_ACCENT);
         setOkButtonVisibility(true);
-        setDeleteButtonText("시작");
-        setDeleteButtonBackgroundColor(BUTTON_COLOR_NORMAL);
-        setDeleteButtonVisibility(true);
 
-        // 레이아웃 설정
-        setLayoutFirstScreen(false);
-        setLayoutSelectUser(false);
-        setLayoutCollectMap(false);
-        setLayoutDistributeMap(false);
-        setLayoutMapResetDefault(false);
-        setLayoutExistMap(true);
+        // CANCEL 버튼 설정
+        setCancelButtonText("시작");
+        setCancelButtonBackgroundColor(BUTTON_COLOR_NORMAL);
+        setCancelButtonVisibility(true);
 
         // 리사이클러뷰 설정
         updateListExistMap();
@@ -397,50 +432,54 @@ public class ShareFragment extends Fragment
     //
     public void updateFsmMapResetDefaultScreen()
     {
-        // 버튼 설정
+        // OK 버튼 설정
         setOkButtonText("초기화");
         setOkButtonBackgroundColor(BUTTON_COLOR_ACCENT);
         setOkButtonVisibility(false);
-        setDeleteButtonVisibility(false);
 
-        // 레이아웃 설정
-        setLayoutFirstScreen(false);
-        setLayoutSelectUser(false);
-        setLayoutCollectMap(false);
-        setLayoutDistributeMap(false);
-        setLayoutExistMap(false);
-        setLayoutMapResetDefault(true);
+        // CANCEL 버튼 설정
+        setCancelButtonVisibility(false);
 
         // 리사이클러뷰 설정
         updateListResetMap();
 
+        // 초기화 FSM 초기화
         mResetFsm = RESET_FSM_IDLE;
 
-        Status status = Status.instance();
-
-        if (status.connectionState == Status.CONNECTION_STATE_CONNECTED)
+        // 연결된 장치가 있다면 연결해제
+        if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED)
         {
-            status.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+            mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
             mActivity.mBluetoothGatt.disconnect();
         }
 
+        // BLE 스캔 시작
         mActivity.scanLeWithDelay(true, 10);
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // 버튼 관련
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //
     // 주 확인 버튼의 맨 처음 진행순서 설명화면 클릭 핸들러
     //
     public void okButtonFirstScreen()
     {
-        // 이미 등록된 맵 정보가 있는지 체크해야 한다.
+        // 데이터베이스 상에 저장된 맵 정보가 있는지 체크하여
+        // 데이터 수집을 위한 사용자 선택 화면
+        // 또는 이미 등록된 맵 정보 화면 중 하나로 전환되도록 한다.
+
         List<EntityMap> maps = UtilMap.instance.getAll();
 
-        if (maps == null || maps.size() == 0) // 저장된 맵 데이터 없음
+        if (maps == null || maps.size() == 0)
         {
+            // 데이터베이스 상에 저장된 맵 정보가 없으므로, 데이터 수집을 위한 사용자 선택 화면 선택
             mFsm = FSM_SELECT_USER_SCREEN;
         }
-        else // 저장된 맵 데이터 있음
+        else
         {
+            // 데이터베이스 상에 저장된 맵 정보가 있으므로, 이미 등록된 맵 정보 화면 선택
             mFsm = FSM_EXIST_MAP_SCREEN;
         }
 
@@ -457,25 +496,28 @@ public class ShareFragment extends Fragment
             return;
         }
 
-        Log.d(TAG, "선택된 내부기의 수는 " + mSelectUserAdapter.getSelectedCount() + " 입니다.");
+        // 선택된 사용자(내부기)의 개수를 구한다.
+        mSelectedUserCount = mSelectUserAdapter.getSelectedUserCount();
 
-        mSelectedUserCount = mSelectUserAdapter.getSelectedCount();
+        Log.d(TAG, "선택된 사용자(내부기) 수 : " + mSelectedUserCount);
 
-        if (1 < mSelectUserAdapter.getSelectedCount())
+        // 최소 사용자 선택 수 이상으로 사용자를 선택해야 다음 화면으로 진행할 수 있다.
+        if (mSelectedUserCount < AT_LEAST_SELECTED_USER_COUNT)
         {
-            if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
-            {
-                Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
-                mActivity.mBluetoothGatt.disconnect();
-            }
+            String message = "사용자(내부기)를 최소 " + AT_LEAST_SELECTED_USER_COUNT + " 이상 선택해주세요.";
+            Toast.makeText(mActivity, message, Toast.LENGTH_LONG).show();
+            return;
+        }
 
-            mFsm = FSM_COLLECT_MAP_SCREEN;
-            updateScreen();
-        }
-        else
+        // 연결중인 외부기가 있다면 연결을 해제한다.
+        if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED)
         {
-            Toast.makeText(requireActivity(), "내부기를 최소 2 이상 선택해주세요.", Toast.LENGTH_LONG).show();
+            mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+            mActivity.mBluetoothGatt.disconnect();
         }
+
+        mFsm = FSM_COLLECT_MAP_SCREEN;  // 맵 수집 상태로 변경하고
+        updateScreen();                 // 화면을 업데이트 시킨다.
     }
 
     //
@@ -483,97 +525,102 @@ public class ShareFragment extends Fragment
     //
     public void okButtonCollectMapScreen()
     {
-        if (mCollectMapAdapter.getCollectedCount() == mCollectMapAdapter.getItemCount())
+        // 맵 데이터 수집이 완료되었는지 체크하고, 수집이 완료되었다면 맵 공유 화면으로 전환한다.
+        if (mCollectMapAdapter.getCollectedMapCount() == mCollectMapAdapter.getItemCount())
         {
-            // 수집 완료된 상태
-            Log.d(TAG, "연결되어 있는 상태라면 연결을 해제하고, 다음 절차로 진행합니다.");
+            Log.d(TAG, "연결된 외부기가 있다면 연결을 해제하고, 맵 공유 화면으로 전환합니다.");
 
-            if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
+            if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED)
             {
-                Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+                mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
                 mActivity.mBluetoothGatt.disconnect();
             }
 
             mFsm = FSM_SHARE_MAP_SCREEN;
+
             updateScreen();
         }
+        // 아직 맵 데이터 수집이 완료되지 않았다면, 아래를 진행한다.
         else
         {
-            for (int i = 0; i < mCollectMapAdapter.getItemCount(); i++)
+            // 맵 수집 어댑터에 추가된 모든 아이템에 대하여 현재 사용자에 의하여 수집되기 위해 선택된 상태인지,
+            // 선택된 상태라면 블루투스로 외부기가 검색되었는지를 검사하고
+            // 모든 조건에 부합되면 선택한 장치와 연결 후 맵 데이터 수집을 진행한다.
+            for (int collectMapAdapterIndex = 0; collectMapAdapterIndex < mCollectMapAdapter.getItemCount(); collectMapAdapterIndex++)
             {
-                if (mCollectMapAdapter.isSelected(i) && mCollectMapAdapter.isScanned(i))
+                if (mCollectMapAdapter.isItemSelected(collectMapAdapterIndex) && mCollectMapAdapter.isBleScanned(collectMapAdapterIndex))
                 {
-                    String serial = mCollectMapAdapter.getSerial(i);
-                    if (UtilDevice.instance.getDeviceBySerialNumber(serial) == null)
+                    String oteSerial = mCollectMapAdapter.getOteSerial(collectMapAdapterIndex);
+
+                    if (UtilDevice.instance.getDeviceBySerialNumber(oteSerial) == null)
                     {
-                        Toast.makeText(requireContext(), "등록되지 않은 외부기입니다. 등록 먼저 해주세요.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(requireContext(), "앱에 등록되지 않은 외부기입니다. 먼저 외부기 등록을 진행해주세요.", Toast.LENGTH_LONG).show();
+                        break;
                     }
-                    else
+
+                    if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED)
                     {
-                        if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
-                        {
-                            Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
-                            mActivity.mBluetoothGatt.disconnect();
-                        }
-
-                        mMapInfoIndex = i;
-
-                        if (mMapInfo == null || mMapInfo.length != mCollectMapAdapter.getItemCount())
-                        {
-                            mMapInfo = new MapInfo[mCollectMapAdapter.getItemCount()];
-                        }
-
-                        if (mMapInfo[mMapInfoIndex] == null)
-                        {
-                            mMapInfo[mMapInfoIndex] = new MapInfo();
-                        }
-
-                        //Status.instance().connectionState = Status.CONNECTION_STATE_CONNECTING;
-                        mActivity.scanLe(false);
-
-                        Status.instance().connectedUser = mCollectMapAdapter.getItem(i);
-                        Status.instance().connectedDevice = UtilDevice.instance.getDeviceBySerialNumber(serial);
-                        mConnBtDevice = mCollectMapAdapter.getBtDevice(i);
-
-                        new Handler(Looper.getMainLooper()).postDelayed(() ->
-                        {
-                            Status.instance().connectionState = Status.CONNECTION_STATE_CONNECTING;
-
-                            if (mCollectFsm != COLLECT_FSM_COLLECTING)
-                            {
-                                mCollectFsm = COLLECT_FSM_CONNECTING;
-
-                                mCollectDataType = COLLECT_DATA_TYPE_ID_AND_USER;
-
-                                mMapInfo[mMapInfoIndex].idUser.slotNum = MapInfo.SLOT_MIN;
-                                mMapInfo[mMapInfoIndex].idUser.indexNum = MapInfo.ID_USER_INDEX_MIN;
-                                mMapInfo[mMapInfoIndex].mapData.slotNum = MapInfo.SLOT_MIN;
-                                mMapInfo[mMapInfoIndex].mapData.mapNum = MapInfo.MAP_DATA_MAP_MIN;
-                                mMapInfo[mMapInfoIndex].mapData.indexNum = MapInfo.MAP_DATA_INDEX_MIN;
-
-                                mMapInfo[mMapInfoIndex].dataType = MapInfo.DATA_TYPE_ID_USER;
-                            }
-
-                            mActivity.mBluetoothDevice = mConnBtDevice;
-                            mActivity.mBluetoothGatt = mConnBtDevice.connectGatt(requireContext().getApplicationContext(), false, mActivity.mGattCallback);
-
-                            if (mActivity.mBluetoothGatt == null)
-                            {
-                                Log.d(TAG, "수집 화면에서 BLE 연결 시도가 실패했습니다.");
-
-                                setOkButtonVisibility(true);
-                                Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTED;
-                                Toast.makeText(requireContext(), "연결 실패입니다. 다시 연결 해주세요.", Toast.LENGTH_LONG).show();
-                            }
-                            else
-                            {
-                                setOkButtonVisibility(false);
-                            }
-                        }, 100);
+                        mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+                        mActivity.mBluetoothGatt.disconnect();
                     }
-                }
-            }
-        }
+
+                    mActivity.scanLeWithDelay(false, 0);
+
+                    mCollectedMapInfoCurrentIndex = collectMapAdapterIndex;
+
+                    // 맵 수집 버퍼가 수집할 사용자(내부기) 수만큼 생성된 상태가 아니면, 맵 수집 버퍼를 새로 생성한다.
+                    if (mCollectedMapInfo == null || mCollectedMapInfo.length != mCollectMapAdapter.getItemCount())
+                    {
+                        mCollectedMapInfo = new MapInfo[mCollectMapAdapter.getItemCount()];
+                    }
+
+                    // 맵 수집 어댑터의 인덱스와 일치하는 사용자(내부기)의 맵 수집 버퍼가 없으면 새로 생성한다.
+                    if (mCollectedMapInfo[mCollectedMapInfoCurrentIndex] == null)
+                    {
+                        mCollectedMapInfo[mCollectedMapInfoCurrentIndex] = new MapInfo();
+                    }
+
+                    mStatus.connectedUser = mCollectMapAdapter.getItem(collectMapAdapterIndex);
+                    mStatus.connectedDevice = UtilDevice.instance.getDeviceBySerialNumber(oteSerial);
+                    mBtDevice = mCollectMapAdapter.getBtDevice(collectMapAdapterIndex);
+
+                    new Handler(Looper.getMainLooper()).postDelayed(() ->
+                    {
+                        mStatus.connectionState = Status.CONNECTION_STATE_CONNECTING;
+
+                        if (mCollectFsm != COLLECT_FSM_COLLECTING)
+                        {
+                            mCollectFsm = COLLECT_FSM_CONNECTING;
+                            mCollectDataType = COLLECT_DATA_TYPE_ID_AND_USER;
+
+                            mCollectedMapInfo[mCollectedMapInfoCurrentIndex].idUser.slotNum = MapInfo.SLOT_MIN;
+                            mCollectedMapInfo[mCollectedMapInfoCurrentIndex].idUser.indexNum = MapInfo.ID_USER_INDEX_MIN;
+                            mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.slotNum = MapInfo.SLOT_MIN;
+                            mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.mapNum = MapInfo.MAP_DATA_MAP_MIN;
+                            mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.indexNum = MapInfo.MAP_DATA_INDEX_MIN;
+
+                            mCollectedMapInfo[mCollectedMapInfoCurrentIndex].dataType = MapInfo.DATA_TYPE_ID_USER;
+                        }
+
+                        mActivity.mBluetoothDevice = mBtDevice;
+                        mActivity.mBluetoothGatt = mBtDevice.connectGatt(mActivity, false, mActivity.mGattCallback);
+
+                        if (mActivity.mBluetoothGatt == null)
+                        {
+                            Log.d(TAG, "맵 수집 화면에서 BLE 연결 시도가 실패했습니다.");
+
+                            Toast.makeText(requireContext(), "연결을 실패했습니다. 다시 연결을 시도해주세요.", Toast.LENGTH_LONG).show();
+                            mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTED;
+                            setOkButtonVisibility(true);
+                        }
+                        else
+                        {
+                            setOkButtonVisibility(false);
+                        }
+                    }, HANDLER_START_DELAY_FOR_COLLECT_MAP_IN_MS);
+                } // End if (아이템이 선택됐고 BLE 스캔이 완료된 상황)
+            } // End for (맵 수집 어댑터의 아이템 개수만큼 체크하는 부분)
+        } // End if-else (맵 데이터 수집 완료 여부)
     }
 
     //
@@ -581,69 +628,68 @@ public class ShareFragment extends Fragment
     //
     public void okButtonShareMapScreen()
     {
-        if (mShareMapAdapter.getSharedCount() == mShareMapAdapter.getItemCount())
+        if (mShareMapAdapter.getSharedMapCount() == mShareMapAdapter.getItemCount())
         {
-            Log.d(TAG, "모든 외부기로 공유가 완료된 상태입니다.");
+            Log.d(TAG, "검색된 모든 외부기로 매핑 데이터 공유를 완료했습니다.");
+            return;
         }
-        else
+
+        // 맵 공유 어댑터에 추가된 모든 아이템에 대하여 현재 사용자에 의하여 공유되기 위해 선택된 상태인지,
+        // 선택된 상태라면 공유가 이미 된 상태인지를 검사하고
+        // 모든 조건에 부합되면 선택한 장치와 연결 후 맵 데이터 공유를 진행한다.
+        // 맵 공유 어댑터에 추가되는 아이템은 BLE 스캔을 통해 추가되어진다.
+        for (int i = 0; i < mShareMapAdapter.getItemCount(); i++)
         {
-            for (int i = 0; i < mShareMapAdapter.getItemCount(); i++)
+            if (mShareMapAdapter.isItemSelected(i) && !mShareMapAdapter.isMapShared(i))
             {
-                if (mShareMapAdapter.isSelected(i) && !mShareMapAdapter.isShared(i))
+                if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED)
                 {
-                    if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
-                    {
-                        Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
-                        mActivity.mBluetoothGatt.disconnect();
-                    }
-
-                    if (mShareMapInfo == null)
-                    {
-                        mShareMapInfo = new MapInfo();
-                    }
-
-                    mActivity.scanLe(false);
-
-                    Status.instance().connectedUser = mShareMapAdapter.getEntityUser(i);
-                    Status.instance().connectedDevice = mShareMapAdapter.getEntityDevice(i);
-                    mConnBtDevice = mShareMapAdapter.getBtDevice(i);
-
-                    new Handler(Looper.getMainLooper()).postDelayed(() ->
-                    {
-                        Status.instance().connectionState = Status.CONNECTION_STATE_CONNECTING;
-                        if (mShareFsm != SHARE_FSM_USER_CHECK && mShareFsm != SHARE_FSM_SHARING)
-                        {
-                            mShareFsm = SHARE_FSM_CONNECTING;
-
-                            mShareDataType = SHARE_DATA_TYPE_READ_ID_AND_USER;
-
-                            mShareMapInfo.idUser.slotNum = MapInfo.SLOT_MIN;
-                            mShareMapInfo.idUser.indexNum = MapInfo.ID_USER_INDEX_MIN;
-                            mShareMapInfo.dataType = MapInfo.DATA_TYPE_ID_USER;
-                        }
-
-
-                        mActivity.mBluetoothDevice = mConnBtDevice;
-                        mActivity.mBluetoothGatt = mConnBtDevice.connectGatt(requireContext().getApplicationContext(), false, mActivity.mGattCallback);
-
-                        if (mActivity.mBluetoothGatt == null)
-                        {
-                            Log.d(TAG, "공유 화면에서 BLE 연결 시도가 실패했습니다.");
-
-                            setOkButtonVisibility(true);
-                            Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTED;
-                            Toast.makeText(requireContext(), "연결 실패입니다. 다시 연결 해주세요.", Toast.LENGTH_LONG).show();
-                        }
-                        else
-                        {
-                            setOkButtonVisibility(false);
-                        }
-                    }, 100);
-
-                    break;
+                    mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+                    mActivity.mBluetoothGatt.disconnect();
                 }
-            }
-        }
+
+                mActivity.scanLeWithDelay(false, 0);
+
+                mStatus.connectedUser = mShareMapAdapter.getEntityUser(i);
+                mStatus.connectedDevice = mShareMapAdapter.getEntityDevice(i);
+
+                mBtDevice = mShareMapAdapter.getBtDevice(i);
+
+                new Handler(Looper.getMainLooper()).postDelayed(() ->
+                {
+                    mStatus.connectionState = Status.CONNECTION_STATE_CONNECTING;
+
+                    if (mShareFsm != SHARE_FSM_USER_CHECK && mShareFsm != SHARE_FSM_SHARING)
+                    {
+                        mShareFsm = SHARE_FSM_CONNECTING;
+
+                        mShareDataType = SHARE_DATA_TYPE_READ_ID_AND_USER;
+
+                        mShareMapInfo.idUser.slotNum = MapInfo.SLOT_MIN;
+                        mShareMapInfo.idUser.indexNum = MapInfo.ID_USER_INDEX_MIN;
+                        mShareMapInfo.dataType = MapInfo.DATA_TYPE_ID_USER;
+                    }
+
+                    mActivity.mBluetoothDevice = mBtDevice;
+                    mActivity.mBluetoothGatt = mBtDevice.connectGatt(mActivity, false, mActivity.mGattCallback);
+
+                    if (mActivity.mBluetoothGatt == null)
+                    {
+                        Log.d(TAG, "맵 공유 화면에서 BLE 연결 시도가 실패했습니다.");
+
+                        Toast.makeText(requireContext(), "연결을 실패했습니다. 다시 연결을 시도해주세요.", Toast.LENGTH_LONG).show();
+                        mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTED;
+                        setOkButtonVisibility(true);
+                    }
+                    else
+                    {
+                        setOkButtonVisibility(false);
+                    }
+                }, HANDLER_START_DELAY_FOR_SHARE_MAP_IN_MS);
+
+                break;
+            } // End if
+        } // End for (mShareMapAdatper.getItemCount())
     }
 
     //
@@ -662,95 +708,101 @@ public class ShareFragment extends Fragment
     {
         if (mMapResetAdapter.getItemCount() == mMapResetAdapter.getResetDoneCount())
         {
-            Log.d(TAG, "모든 외부기가 최초 매핑 시점으로 복귀된 상태입니다.");
+            Log.d(TAG, "검색된 모든 외부기가 최초 매핑 시점으로 복귀된 상태입니다.");
             return;
         }
 
-        Status status = Status.instance();
-
+        // 맵 초기화 어댑터에 추가된 모든 아이템에 대하여 현재 사용자에 의하여 초기화 되기 위해 선택된 상태인지,
+        // 선택된 상태라면 초기화가 이미 된 상태인지를 검사하고
+        // 모든 조건에 부합되면 선택한 장치와 연결 후 맵 데이터 초기화를 진행한다.
+        // 맵 데이터 초기화 어댑터에 추가되는 아이템은 BLE 스캔을 통해 추가되어진다.
         for (int i = 0; i < mMapResetAdapter.getItemCount(); i++)
         {
-            if (mMapResetAdapter.isSelected(i) && !mMapResetAdapter.isResetDone(i))
+            if (mMapResetAdapter.isItemSelected(i) && !mMapResetAdapter.isMapResetDone(i))
             {
-                if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
+                if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED)
                 {
-                    Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+                    mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
                     mActivity.mBluetoothGatt.disconnect();
                 }
 
-                mActivity.scanLe(false);
+                mActivity.scanLeWithDelay(false, 0);
 
-                status.connectedUser = mMapResetAdapter.getEntityUser(i);
-                status.connectedDevice = mMapResetAdapter.getEntityDevice(i);
-                mConnBtDevice = mMapResetAdapter.getBtDevice(i);
+                mStatus.connectedUser = mMapResetAdapter.getEntityUser(i);
+                mStatus.connectedDevice = mMapResetAdapter.getEntityDevice(i);
+
+                mBtDevice = mMapResetAdapter.getBtDevice(i);
 
                 new Handler(Looper.getMainLooper()).postDelayed(() ->
                 {
-                    status.connectionState = Status.CONNECTION_STATE_CONNECTING;
-                    mResetFsm = RESET_FSM_CONNECTING;
+                    mStatus.connectionState = Status.CONNECTION_STATE_CONNECTING;
 
-                    mActivity.mBluetoothDevice = mConnBtDevice;
-                    mActivity.mBluetoothGatt = mConnBtDevice.connectGatt(mActivity, false, mActivity.mGattCallback);
+                    if (mResetFsm != RESET_FSM_RESETTING)
+                    {
+                        mResetFsm = RESET_FSM_CONNECTING;
+                    }
+
+                    mActivity.mBluetoothDevice = mBtDevice;
+                    mActivity.mBluetoothGatt = mBtDevice.connectGatt(mActivity, false, mActivity.mGattCallback);
 
                     if (mActivity.mBluetoothGatt == null)
                     {
                         Log.d(TAG, "맵 초기화 화면에서 BLE 연결 시도가 실패했습니다.");
 
+                        Toast.makeText(requireContext(), "연결을 실패입니다. 다시 연결을 시도해주세요.", Toast.LENGTH_LONG).show();
+                        mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTED;
                         setOkButtonVisibility(true);
-                        status.connectionState = Status.CONNECTION_STATE_DISCONNECTED;
-                        Toast.makeText(requireContext(), "연결 실패입니다. 다시 연결 해주세요.", Toast.LENGTH_LONG).show();
                     }
                     else
                     {
                         setOkButtonVisibility(false);
                     }
-                }, 100);
+                }, HANDLER_START_DELAY_FOR_RESET_MAP_IN_MS);
 
                 break;
-            }
-        }
+            } // End if
+        } // End for (mMapResetAdapter.getItemCount())
     }
 
     //
-    // 주 확인 버튼 초기화 함수
+    // OK 버튼 클릭 리스너
     //
-    public void initOkButton()
+    View.OnClickListener mOkButtonClickListener = view ->
     {
-        mShareBinding.shareOkButton.setOnClickListener(view ->
+        mActivity.longTimeIdleHandlerUpdate(true);
+
+        switch (mFsm)
         {
-            switch (mFsm)
-            {
-                case FSM_FIRST_SCREEN:
-                    okButtonFirstScreen();
-                    break;
+            case FSM_FIRST_SCREEN:
+                okButtonFirstScreen();
+                break;
 
-                case FSM_SELECT_USER_SCREEN:
-                    okButtonSelectUserScreen();
-                    break;
+            case FSM_SELECT_USER_SCREEN:
+                okButtonSelectUserScreen();
+                break;
 
-                case FSM_COLLECT_MAP_SCREEN:
-                    okButtonCollectMapScreen();
-                    break;
+            case FSM_COLLECT_MAP_SCREEN:
+                okButtonCollectMapScreen();
+                break;
 
-                case FSM_SHARE_MAP_SCREEN:
-                    okButtonShareMapScreen();
-                    break;
+            case FSM_SHARE_MAP_SCREEN:
+                okButtonShareMapScreen();
+                break;
 
-                case FSM_EXIST_MAP_SCREEN:
-                    okButtonExistMapScreen();
-                    break;
+            case FSM_EXIST_MAP_SCREEN:
+                okButtonExistMapScreen();
+                break;
 
-                case FSM_MAP_RESET_DEFAULT_SCREEN:
-                    okButtonMapReset();
-                    break;
-            }
-        });
-    }
+            case FSM_MAP_RESET_DEFAULT_SCREEN:
+                okButtonMapReset();
+                break;
+        }
+    };
 
     //
     // 주 취소 버튼의 맨 처음 진행순서 설명화면 클릭 핸들러
     //
-    public void deleteButtonFirstScreen()
+    public void cancelButtonFirstScreen()
     {
         mFsm = FSM_MAP_RESET_DEFAULT_SCREEN;
         updateScreen();
@@ -759,7 +811,7 @@ public class ShareFragment extends Fragment
     //
     // 주 취소 버튼의 이미 등록된 맵 정보 화면 핸들러
     //
-    public void deleteButtonMapScreen()
+    public void cancelButtonExistMapScreen()
     {
         // 바로 공유하는 화면으로 어떻게 넘어갈까?
         Log.d(TAG, "이미 등록된 매핑 데이터를 공유하도록 합니다.");
@@ -777,7 +829,7 @@ public class ShareFragment extends Fragment
         for (int i = 0; i < mExistMapAdapter.getItemCount(); i++)
         {
             mCollectMapAdapter.addItem(mExistMapAdapter.getUser(i));
-            mCollectMapAdapter.setCollect(i);
+            mCollectMapAdapter.setMapCollectState(i);
         }
 
         // 최신 맵 구성하기
@@ -808,15 +860,12 @@ public class ShareFragment extends Fragment
 
         for (int print_i = 0; print_i < 4; print_i++)
         {
-            Log.d(TAG, "mMostRecentMapInfo -> slot " + print_i
-                    + " : name = " + mMostRecentMapInfo.metadata.names[print_i]
-                    + ", ear = " + mMostRecentMapInfo.metadata.ears[print_i]
-                    + ", version = " + mMostRecentMapInfo.metadata.stamps[print_i]);
+            Log.d(TAG, "mMostRecentMapInfo -> slot " + print_i + " : name = " + mMostRecentMapInfo.metadata.names[print_i] + ", ear = " + mMostRecentMapInfo.metadata.ears[print_i] + ", version = " + mMostRecentMapInfo.metadata.stamps[print_i]);
         }
 
-        if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED)
+        if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED)
         {
-            Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+            mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
             mActivity.mBluetoothGatt.disconnect();
         }
 
@@ -825,35 +874,52 @@ public class ShareFragment extends Fragment
     }
 
     //
-    // 맵 데이터 초기화 버튼 함수
+    // CANCEL 버튼 클릭 리스너
     //
-    public void initDeleteButton()
+    View.OnClickListener mCancelButtonClickListener = (view ->
     {
-        mShareBinding.shareMapDeleteButton.setOnClickListener(view ->
-        {
-            switch (mFsm)
-            {
-                case FSM_FIRST_SCREEN:
-                    deleteButtonFirstScreen();
-                    break;
+        mActivity.longTimeIdleHandlerUpdate(true);
 
-                case FSM_EXIST_MAP_SCREEN:
-                    deleteButtonMapScreen();
-                    break;
-            }
-        });
-    }
+        switch (mFsm)
+        {
+            case FSM_FIRST_SCREEN:
+                cancelButtonFirstScreen();
+                break;
+
+            case FSM_EXIST_MAP_SCREEN:
+                cancelButtonExistMapScreen();
+                break;
+        }
+    });
 
     //
     // 리사이클러뷰 클릭 이벤트 - 2. 매핑 데이터 수집 화면
     //
     public void listClickListenerCollectMap(int position)
     {
-        setCollectInfoText(position);
-        setCollectInfoVisibility(mCollectMapAdapter.isSelected(position));
-        setOkButtonVisibility(mCollectMapAdapter.isScanned(position) && mCollectMapAdapter.isSelected(position) && !mCollectMapAdapter.isCollected(position));
+        mActivity.longTimeIdleHandlerUpdate(true);
 
-        if (mCollectMapAdapter.isCollected(position))
+        Log.d(TAG, "맵 수집 어댑터의 " + position + "번 아이템이 클릭되었습니다.");
+
+        // 맵 수집 상태가, 맵 수집 중이거나 외부기에 연결 시도 중인 상태라면 그냥 종료한다.
+        if (mCollectFsm == COLLECT_FSM_COLLECTING || mCollectFsm == COLLECT_FSM_CONNECTING)
+        {
+            Log.d(TAG, "맵 수집 상태가 맵 수집 중 또는 외부기로 연결 시도 중이므로 리스트 클릭 이벤트를 무시합니다.");
+            return;
+        }
+
+        boolean isMapCollected = mCollectMapAdapter.isMapCollected(position);
+        boolean isItemSelected = mCollectMapAdapter.isItemSelected(position);
+        boolean newItemSelectedState = !isItemSelected;
+
+        mCollectMapAdapter.setItemSelectedStateForAll(false);
+        mCollectMapAdapter.setItemSelectState(position, newItemSelectedState);
+
+        setCollectInfoText(position);
+        setCollectInfoVisibility(newItemSelectedState);
+        setOkButtonVisibility(newItemSelectedState && !isMapCollected && mCollectMapAdapter.isBleScanned(position));
+
+        if (isMapCollected)
         {
             setCollectPercent(true, 100);
         }
@@ -862,7 +928,7 @@ public class ShareFragment extends Fragment
             setCollectPercent(false, 0);
         }
 
-        if (mCollectMapAdapter.getCollectedCount() == mCollectMapAdapter.getItemCount())
+        if (mCollectMapAdapter.getCollectedMapCount() == mCollectMapAdapter.getItemCount())
         {
             setOkButtonVisibility(true);
             setOkButtonText("다음 절차 진행");
@@ -873,13 +939,31 @@ public class ShareFragment extends Fragment
     //
     // 리사이클러뷰 클릭 이벤트 - 3. 매핑 데이터 공유 화면
     //
-    public void listClickListenerShareMap(int position, EntityUser entityUser, EntityDevice entityDevice, BluetoothDevice btDevice)
+    public void listClickListenerShareMap(int position)
     {
-        setShareInfoText(position);
-        setShareInfoVisibility(mShareMapAdapter.isSelected(position));
-        setOkButtonVisibility(mShareMapAdapter.isSelected(position) && !mShareMapAdapter.isShared(position));
+        mActivity.longTimeIdleHandlerUpdate(true);
 
-        if (mShareMapAdapter.isShared(position))
+        Log.d(TAG, "맵 공유 어댑터의 " + position + "번 아이템이 클릭되었습니다.");
+
+        // 맵 공유 상태가, 사용자 정보 확인 중이거나 맵 공유 중이거나 외부기에 연결 시도 중인 상태라면 그냥 종료한다.
+        if (mShareFsm == SHARE_FSM_USER_CHECK || mShareFsm == SHARE_FSM_SHARING || mShareFsm == SHARE_FSM_CONNECTING)
+        {
+            Log.d(TAG, "맵 공유 상태가 사용자 정보 확인, 맵 공유 중 또는 외부기로 연결 시도 중이므로 리스트 클릭 이벤트를 무시합니다.");
+            return;
+        }
+
+        boolean isMapShared = mShareMapAdapter.isMapShared(position);
+        boolean isItemSelected = mShareMapAdapter.isItemSelected(position);
+        boolean newItemSelectedState = !isItemSelected;
+
+        mShareMapAdapter.setItemSelectedStateForAll(false);
+        mShareMapAdapter.setItemSelectState(position, newItemSelectedState);
+
+        setShareInfoText(position);
+        setShareInfoVisibility(newItemSelectedState);
+        setOkButtonVisibility(newItemSelectedState && !isMapShared);
+
+        if (isMapShared)
         {
             setSharePercent(true, 100);
         }
@@ -892,11 +976,29 @@ public class ShareFragment extends Fragment
     //
     // 리사이클러뷰 클릭 이벤트 - 최초 매핑 시점 복귀 화면
     //
-    public void listClickListenerMapReset(int position, EntityUser entityUser, EntityDevice entityDevice, BluetoothDevice btDevice)
+    public void listClickListenerMapReset(int position)
     {
+        mActivity.longTimeIdleHandlerUpdate(true);
+
+        Log.d(TAG, "맵 초기화 어댑터의 " + position + "번 아이템이 클릭되었습니다.");
+
+        // 맵 초기화 상태가, 맵 초기화 중이거나 외부기에 연결 시도 중인 상태라면 그냥 종료한다.
+        if (mResetFsm == RESET_FSM_RESETTING || mResetFsm == RESET_FSM_CONNECTING)
+        {
+            Log.d(TAG, "맵 초기화 상태가 맵 초기화 중 또는 외부기로 연결 시도 중이므로 리스트 클릭 이벤트를 무시합니다.");
+            return;
+        }
+
+        boolean isMapResetDone = mMapResetAdapter.isMapResetDone(position);
+        boolean isItemSelected = mMapResetAdapter.isItemSelected(position);
+        boolean newItemSelectedState = !isItemSelected;
+
+        mMapResetAdapter.setItemSelectedStateForAll(false);
+        mMapResetAdapter.setItemSelectState(position, newItemSelectedState);
+
         setMapResetInfoText(position);
-        setMapResetInfoVisibility(mMapResetAdapter.isSelected(position));
-        setOkButtonVisibility(mMapResetAdapter.isSelected(position) && !mMapResetAdapter.isResetDone(position));
+        setMapResetInfoVisibility(newItemSelectedState);
+        setOkButtonVisibility(newItemSelectedState && !isMapResetDone);
     }
 
     //
@@ -904,11 +1006,9 @@ public class ShareFragment extends Fragment
     //
     public void scanListUpdateMapReset()
     {
-        Status status = Status.instance();
-
         for (int i = 0; i < mMapResetAdapter.getItemCount(); i++)
         {
-            if (mMapResetAdapter.isSelected(i))
+            if (mMapResetAdapter.isItemSelected(i))
             {
                 int position = i;
 
@@ -925,75 +1025,83 @@ public class ShareFragment extends Fragment
     //
     // 레이아웃 Visibility 설정 간편 함수들
     //
-    public void setLayoutFirstScreen(boolean visible)
+
+    public int getVisibleValue(boolean visible)
     {
         if (visible)
         {
-            mShareBinding.shareFirstScreenLayout.setVisibility(View.VISIBLE);
+            return View.VISIBLE;
         }
         else
         {
-            mShareBinding.shareFirstScreenLayout.setVisibility(View.GONE);
+            return View.GONE;
         }
+    }
+
+    public void setLayoutFirstScreen(boolean visible)
+    {
+        mShareBinding.shareFirstScreenLayout.setVisibility(getVisibleValue(visible));
     }
 
     public void setLayoutSelectUser(boolean visible)
     {
-        if (visible)
-        {
-            mShareBinding.shareSelectIsdLayout.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            mShareBinding.shareSelectIsdLayout.setVisibility(View.GONE);
-        }
+        mShareBinding.shareSelectIsdLayout.setVisibility(getVisibleValue(visible));
     }
 
     public void setLayoutCollectMap(boolean visible)
     {
-        if (visible)
-        {
-            mShareBinding.shareCollectMapDataLayout.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            mShareBinding.shareCollectMapDataLayout.setVisibility(View.GONE);
-        }
+        mShareBinding.shareCollectMapDataLayout.setVisibility(getVisibleValue(visible));
     }
 
     public void setLayoutDistributeMap(boolean visible)
     {
-        if (visible)
-        {
-            mShareBinding.shareDistributeMapDataLayout.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            mShareBinding.shareDistributeMapDataLayout.setVisibility(View.GONE);
-        }
+        mShareBinding.shareDistributeMapDataLayout.setVisibility(getVisibleValue(visible));
     }
 
     public void setLayoutExistMap(boolean visible)
     {
-        if (visible)
-        {
-            mShareBinding.shareExistMapLayout.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            mShareBinding.shareExistMapLayout.setVisibility(View.GONE);
-        }
+        mShareBinding.shareExistMapLayout.setVisibility(getVisibleValue(visible));
     }
 
     public void setLayoutMapResetDefault(boolean visible)
     {
-        if (visible)
+        mShareBinding.shareMapResetDefaultLayout.setVisibility(getVisibleValue(visible));
+    }
+
+    public void updateLayoutsWithFsm()
+    {
+        setLayoutFirstScreen(false);
+        setLayoutSelectUser(false);
+        setLayoutCollectMap(false);
+        setLayoutDistributeMap(false);
+        setLayoutExistMap(false);
+        setLayoutMapResetDefault(false);
+
+        switch (mFsm)
         {
-            mShareBinding.shareMapResetDefaultLayout.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            mShareBinding.shareMapResetDefaultLayout.setVisibility(View.GONE);
+            case FSM_FIRST_SCREEN:
+                setLayoutFirstScreen(true);
+                break;
+
+            case FSM_SELECT_USER_SCREEN:
+                setLayoutSelectUser(true);
+                break;
+
+            case FSM_COLLECT_MAP_SCREEN:
+                setLayoutCollectMap(true);
+                break;
+
+            case FSM_SHARE_MAP_SCREEN:
+                setLayoutDistributeMap(true);
+                break;
+
+            case FSM_EXIST_MAP_SCREEN:
+                setLayoutExistMap(true);
+                break;
+
+            case FSM_MAP_RESET_DEFAULT_SCREEN:
+                setLayoutMapResetDefault(true);
+                break;
         }
     }
 
@@ -1002,54 +1110,38 @@ public class ShareFragment extends Fragment
     //
     public void setCollectInfoVisibility(boolean visible)
     {
-        if (visible)
-        {
-            mShareBinding.shareCollectMapDataInfoLayout.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            mShareBinding.shareCollectMapDataInfoLayout.setVisibility(View.GONE);
-        }
+        mShareBinding.shareCollectMapDataInfoLayout.setVisibility(getVisibleValue(visible));
     }
 
     public void setCollectInfoText(int position)
     {
-        String user = mCollectMapAdapter.getName(position);
-        String ear = mCollectMapAdapter.getEar(position);
-        String serial = mCollectMapAdapter.getSerial(position);
+        String name = UtilUser.getNameOnly(mCollectMapAdapter.getName(position));
+        String ear = UtilUser.getEarKorean(mCollectMapAdapter.getEar(position));
         String info;
 
-        if (ear.equals(EntityUser.EAR_LEFT))
+        if (mCollectMapAdapter.isMapCollected(position))
         {
-            ear = "왼쪽";
-        }
-        else
-        {
-            ear = "오른쪽";
-        }
-
-        if (mCollectMapAdapter.isCollected(position))
-        {
-            if (mCollectMapAdapter.getItemCount() == mCollectMapAdapter.getCollectedCount())
+            if (mCollectMapAdapter.getItemCount() == mCollectMapAdapter.getCollectedMapCount())
             {
                 info = "모든 매핑 데이터 수집이 완료되었습니다.";
             }
             else
             {
-                info = user + "님 " + ear + " 내부기의 매핑 데이터는 수집 완료되었습니다.";
+                info = name + "님 " + ear + " 내부기의 매핑 데이터 수집이 완료되었습니다.";
             }
         }
         else
         {
-            if (mCollectMapAdapter.isScanned(position))
+            if (mCollectMapAdapter.isBleScanned(position))
             {
-                info = user + "님 " + ear + " 내부기의 매핑 데이터 수신을 진행합니다.";
+                info = name + "님 " + ear + " 내부기의 매핑 데이터 수집을 진행합니다.";
             }
             else
             {
-                info = user + "님 " + ear + " 내부기와 연결된 외부기가 검색되지 않았습니다.";
+                info = name + "님 " + ear + " 내부기와 연결된 외부기가 검색되지 않았습니다.";
             }
         }
+
         mShareBinding.shareCollectMapDataProgressTv.setText(info);
     }
 
@@ -1067,7 +1159,7 @@ public class ShareFragment extends Fragment
             mShareBinding.shareCollectMapDataPercentTv.setVisibility(View.INVISIBLE);
         }
 
-        Log.d(TAG, "수집 화면 프로그래스 출력 상태 = " + visible + ", 퍼센트 = " + percent);
+        Log.v(TAG, "수집 화면 프로그래스 출력 상태 = " + visible + ", 퍼센트 = " + percent);
     }
 
     //
@@ -1075,24 +1167,17 @@ public class ShareFragment extends Fragment
     //
     public void setShareInfoVisibility(boolean visible)
     {
-        if (visible)
-        {
-            mShareBinding.shareDistributeTransferLayout.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            mShareBinding.shareDistributeTransferLayout.setVisibility(View.GONE);
-        }
+        mShareBinding.shareDistributeTransferLayout.setVisibility(getVisibleValue(visible));
     }
 
     public void setShareInfoText(int position)
     {
-        String serial = mShareMapAdapter.getSerial(position);
+        String serial = mShareMapAdapter.getOteSerial(position);
         String info;
 
-        if (mShareMapAdapter.isShared(position))
+        if (mShareMapAdapter.isMapShared(position))
         {
-            if (mShareMapAdapter.getItemCount() == mShareMapAdapter.getSharedCount())
+            if (mShareMapAdapter.getItemCount() == mShareMapAdapter.getSharedMapCount())
             {
                 info = "모든 외부기에 매핑 데이터 전송을 완료했습니다.";
             }
@@ -1123,7 +1208,7 @@ public class ShareFragment extends Fragment
             mShareBinding.shareDistributePercentTv.setVisibility(View.INVISIBLE);
         }
 
-        Log.d(TAG, "공유 화면 프로그래스 출력 상태 = " + visible + ", 퍼센트 = " + percent);
+        Log.v(TAG, "공유 화면 프로그래스 출력 상태 = " + visible + ", 퍼센트 = " + percent);
     }
 
     //
@@ -1131,22 +1216,15 @@ public class ShareFragment extends Fragment
     //
     public void setMapResetInfoVisibility(boolean visible)
     {
-        if (visible)
-        {
-            mShareBinding.shareMapResetDefaultInfoLayout.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            mShareBinding.shareMapResetDefaultInfoLayout.setVisibility(View.GONE);
-        }
+        mShareBinding.shareMapResetDefaultInfoLayout.setVisibility(getVisibleValue(visible));
     }
 
     public void setMapResetInfoText(int position)
     {
-        String serial = mMapResetAdapter.getSerial(position);
+        String serial = mMapResetAdapter.getOteSerial(position);
         String info;
 
-        if (mMapResetAdapter.isResetDone(position))
+        if (mMapResetAdapter.isMapResetDone(position))
         {
             if (mMapResetAdapter.getItemCount() == mMapResetAdapter.getResetDoneCount())
             {
@@ -1170,14 +1248,7 @@ public class ShareFragment extends Fragment
     //
     public void setOkButtonVisibility(boolean visible)
     {
-        if (visible)
-        {
-            mShareBinding.shareOkButton.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            mShareBinding.shareOkButton.setVisibility(View.GONE);
-        }
+        mShareBinding.shareOkButton.setVisibility(getVisibleValue(visible));
     }
 
     public void setOkButtonBackgroundColor(int color)
@@ -1193,26 +1264,131 @@ public class ShareFragment extends Fragment
     //
     // 맵 데이터 삭제 버튼 간편 함수들
     //
-    public void setDeleteButtonVisibility(boolean visible)
+    public void setCancelButtonVisibility(boolean visible)
     {
-        if (visible)
-        {
-            mShareBinding.shareMapDeleteButton.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            mShareBinding.shareMapDeleteButton.setVisibility(View.GONE);
-        }
+        mShareBinding.shareCancelButton.setVisibility(getVisibleValue(visible));
     }
 
-    public void setDeleteButtonBackgroundColor(int color)
+    public void setCancelButtonBackgroundColor(int color)
     {
-        mShareBinding.shareMapDeleteButton.setBackgroundColor(color);
+        mShareBinding.shareCancelButton.setBackgroundColor(color);
     }
 
-    public void setDeleteButtonText(String text)
+    public void setCancelButtonText(String text)
     {
-        mShareBinding.shareMapDeleteButton.setText(text);
+        mShareBinding.shareCancelButton.setText(text);
+    }
+
+    //
+    // 블루투스 LE 연결 해제 처리 관련
+    //
+    public void disconnectedEventProcessor()
+    {
+        new Handler(Looper.getMainLooper()).post(() ->
+        {
+            mDataIndexHandler.removeCallbacks(mDataIndexRunner);
+            mCountForConnectionFail++;
+
+            switch (mFsm)
+            {
+                case FSM_COLLECT_MAP_SCREEN:
+                {
+                    if (mCollectFsm == COLLECT_FSM_COLLECTING || mCollectFsm == COLLECT_FSM_CONNECTING)
+                    {
+                        if (MAX_COUNT_CONNECTION_FAIL < mCountForConnectionFail)
+                        {
+                            boolean isAllItemScanned = true;
+
+                            mCollectFsm = COLLECT_FSM_IDLE;
+
+                            for (int i = 0; i < mCollectMapAdapter.getItemCount(); i++)
+                            {
+                                if (mCollectMapAdapter.isItemSelected(i))
+                                {
+                                    listClickListenerCollectMap(i);
+                                }
+
+                                if (!mCollectMapAdapter.isBleScanned(i))
+                                {
+                                    isAllItemScanned = false;
+                                }
+                            }
+
+                            if (!isAllItemScanned)
+                            {
+                                Log.d(TAG, "모든 사용자가 스캔된 상태가 아니므로 BLE 스캔을 시작합니다.");
+                                mActivity.scanLe(true);
+                            }
+                        }
+                        else
+                        {
+                            okButtonCollectMapScreen();
+                        }
+                    }
+                }
+                break;
+
+                case FSM_SHARE_MAP_SCREEN:
+                {
+                    if (mShareFsm == SHARE_FSM_CONNECTING || mShareFsm == SHARE_FSM_USER_CHECK || mShareFsm == SHARE_FSM_SHARING)
+                    {
+                        if (MAX_COUNT_CONNECTION_FAIL < mCountForConnectionFail)
+                        {
+                            mShareFsm = SHARE_FSM_IDLE;
+
+                            for (int i = 0; i < mShareMapAdapter.getItemCount(); i++)
+                            {
+                                if (mShareMapAdapter.isItemSelected(i))
+                                {
+                                    listClickListenerShareMap(i);
+                                }
+                            }
+
+                            Log.d(TAG, "공유할 외부기를 더 찾기 위하여 BLE 스캔을 시작합니다.");
+                            mActivity.scanLe(true);
+                        }
+                        else
+                        {
+                            okButtonShareMapScreen();
+                        }
+                    }
+                }
+                break;
+
+                case FSM_MAP_RESET_DEFAULT_SCREEN:
+                {
+                    if (mResetFsm == RESET_FSM_CONNECTING || mResetFsm == RESET_FSM_RESETTING)
+                    {
+                        if (MAX_COUNT_CONNECTION_FAIL < mCountForConnectionFail)
+                        {
+                            mResetFsm = RESET_FSM_IDLE;
+
+                            for (int i = 0; i < mMapResetAdapter.getItemCount(); i++)
+                            {
+                                if (mMapResetAdapter.isItemSelected(i))
+                                {
+                                    listClickListenerMapReset(i);
+                                }
+                            }
+
+                            Log.d(TAG, "초기화할 외부기를 더 찾기 위하여 BLE 스캔을 시작합니다.");
+                            mActivity.scanLe(true);
+                        }
+                        else
+                        {
+                            okButtonMapReset();
+                        }
+                    }
+                }
+                break;
+            } //  End of switch
+
+            if (MAX_COUNT_CONNECTION_FAIL < mCountForConnectionFail)
+            {
+                Toast.makeText(mActivity, "외부기와 연결할 수 없습니다. 외부기가 내부기에 부착되어 있는지 확인해주세요.", Toast.LENGTH_LONG).show();
+                mCountForConnectionFail = 0;
+            }
+        });
     }
 
     //
@@ -1220,149 +1396,220 @@ public class ShareFragment extends Fragment
     //
     public void whichPacketShouldBeTransferred()
     {
-        if (mFsm == FSM_COLLECT_MAP_SCREEN)
+        new Handler(Looper.getMainLooper()).post(() ->
         {
-            mCollectFsm = COLLECT_FSM_COLLECTING;
+            mActivity.longTimeIdleHandlerUpdate(true);
 
-            new Handler(Looper.getMainLooper()).post(() ->
+            switch (mFsm)
             {
-                boolean connError = false;
-
-                if (mCollectDataType == COLLECT_DATA_TYPE_ID_AND_USER)
+                case FSM_COLLECT_MAP_SCREEN:
                 {
-                    if (mMapInfo[mMapInfoIndex].idUser.slotNum != MapInfo.SLOT_MIN
-                            || mMapInfo[mMapInfoIndex].idUser.indexNum != MapInfo.ID_USER_INDEX_MIN)
+                    mCollectFsm = COLLECT_FSM_COLLECTING;
+
+                    boolean connError = false;
+
+                    if (mCollectDataType == COLLECT_DATA_TYPE_ID_AND_USER
+                            && (mCollectedMapInfo[mCollectedMapInfoCurrentIndex].idUser.slotNum != MapInfo.SLOT_MIN
+                            || mCollectedMapInfo[mCollectedMapInfoCurrentIndex].idUser.indexNum != MapInfo.ID_USER_INDEX_MIN))
                     {
                         connError = true;
                     }
-                }
-                else if (mCollectDataType == COLLECT_DATA_TYPE_MAP_DATA)
-                {
-                    if (mMapInfo[mMapInfoIndex].mapData.slotNum != MapInfo.SLOT_MIN
-                            || mMapInfo[mMapInfoIndex].mapData.mapNum != MapInfo.MAP_DATA_MAP_MIN
-                            || mMapInfo[mMapInfoIndex].mapData.indexNum != MapInfo.MAP_DATA_INDEX_MIN)
+                    else if (mCollectDataType == COLLECT_DATA_TYPE_MAP_DATA
+                            && (mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.slotNum != MapInfo.SLOT_MIN
+                            || mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.mapNum != MapInfo.MAP_DATA_MAP_MIN
+                            || mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.indexNum != MapInfo.MAP_DATA_INDEX_MIN))
                     {
                         connError = true;
                     }
-                }
 
-                if (connError)
-                {
-                    Log.d("MapCollecting", "데이터 수집 중 통신 에러 발생 후 연결된 상태!");
-                    Toast.makeText(requireContext(), "데이터 수집 중 통신 에러가 발생하여, 재연결 후 이어서 데이터를 수집합니다.", Toast.LENGTH_LONG).show();
-                }
-                else
-                {
-                    setCollectPercent(true, 0);
-                }
+                    if (connError)
+                    {
+                        Log.d(TAG, "데이터 수집 중 통신 에러가 발생되어 다시 연결되었습니다.");
+                        Toast.makeText(requireContext(), "데이터 수집 중 통신 에러가 발생하여, 재연결 후 이어서 데이터를 수집합니다.", Toast.LENGTH_LONG).show();
+                    }
+                    else
+                    {
+                        setCollectPercent(true, 0);
+                    }
 
-                if (mCollectDataType == COLLECT_DATA_TYPE_ID_AND_USER)
-                {
-                    mMapInfo[mMapInfoIndex].idUser.indexNum = MapInfo.ID_USER_INDEX_MIN;
-                    mActivity.sendPacket(
-                            mActivity.packetMaker(
-                                    PacketInfo.HEADER_READ_ISD_ID_AND_USER,
-                                    new byte[]{(byte) mMapInfo[mMapInfoIndex].idUser.slotNum},
-                                    2
-                            )
-                    );
+                    if (mCollectDataType == COLLECT_DATA_TYPE_ID_AND_USER)
+                    {
+                        mDataIndexHandler.postDelayed(mDataIndexRunner, HANDLER_TIMEOUT_IN_MS);
+
+                        mCollectedMapInfo[mCollectedMapInfoCurrentIndex].idUser.indexNum = MapInfo.ID_USER_INDEX_MIN;
+                        mActivity.sendPacket(
+                                mActivity.packetMaker(PacketInfo.HEADER_READ_ISD_ID_AND_USER,
+                                        new byte[]{(byte) mCollectedMapInfo[mCollectedMapInfoCurrentIndex].idUser.slotNum}, 2));
+                    }
+                    else if (mCollectDataType == COLLECT_DATA_TYPE_MAP_DATA)
+                    {
+                        mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.indexNum = MapInfo.MAP_DATA_INDEX_MIN;
+                        mActivity.sendPacket(
+                                mActivity.packetMaker(PacketInfo.HEADER_READ_MAP_DATA,
+                                        new byte[]{(byte) mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.slotNum,
+                                                (byte) mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.indexNum}, 3));
+                    }
                 }
-                else if (mCollectDataType == COLLECT_DATA_TYPE_MAP_DATA)
+                break;
+
+                case FSM_SHARE_MAP_SCREEN:
                 {
-                    mMapInfo[mMapInfoIndex].mapData.indexNum = MapInfo.MAP_DATA_INDEX_MIN;
-                    mActivity.sendPacket(
-                            mActivity.packetMaker(
-                                    PacketInfo.HEADER_READ_MAP_DATA,
-                                    new byte[]{(byte) mMapInfo[mMapInfoIndex].mapData.slotNum, (byte) mMapInfo[mMapInfoIndex].mapData.indexNum},
-                                    3
-                            )
-                    );
-                }
-            });
-        } // 끝, mFsm == FSM_COLLECT_MAP_SCREEN
-        else if (mFsm == FSM_SHARE_MAP_SCREEN)
-        {
-            new Handler(Looper.getMainLooper()).post(() ->
-            {
-                if (mShareFsm != SHARE_FSM_CONNECTING)
-                {
+                    if (mShareFsm != SHARE_FSM_CONNECTING)
+                    {
+                        mShareDataType = SHARE_DATA_TYPE_READ_ID_AND_USER;
+
+                        Log.d("MapSharing", "데이터 공유 중 통신 에러가 발생되어 다시 연결되었습니다.");
+                        Toast.makeText(mActivity, "데이터 공유 중 통신 에러가 발생하여, 재연결 후 처음부터 데이터를 공유합니다.", Toast.LENGTH_LONG).show();
+                    }
+
+                    setSharePercent(true, 0);
+
+                    mShareFsm = SHARE_FSM_USER_CHECK;
+
                     mShareDataType = SHARE_DATA_TYPE_READ_ID_AND_USER;
 
-                    Log.d("MapSharing", "데이터 공유 중 통신 에러 발생 후 다시 연결된 상태!");
-                    Toast.makeText(requireContext(), "데이터 공유 중 통신 에러가 발생하여, 재연결 후 처음부터 다시 데이터를 공유합니다.", Toast.LENGTH_LONG).show();
+                    mShareMapInfo.idUser.slotNum = MapInfo.SLOT_MIN;
+                    mShareMapInfo.idUser.indexNum = MapInfo.ID_USER_INDEX_MIN;
+                    mShareMapInfo.dataType = MapInfo.DATA_TYPE_ID_USER;
+
+                    mDataIndexHandler.postDelayed(mDataIndexRunner, HANDLER_TIMEOUT_IN_MS);
+
+                    mActivity.sendPacket(mActivity.packetMaker(PacketInfo.HEADER_READ_ISD_ID_AND_USER, new byte[]{(byte) 1}, 2));
                 }
+                break;
 
-                setSharePercent(true, 0);
+                case FSM_MAP_RESET_DEFAULT_SCREEN:
+                {
+                    if (mResetFsm != RESET_FSM_CONNECTING)
+                    {
+                        Log.d(TAG, "맵 초기화 중 통신 에러 발생 후 다시 연결된 상태입니다.");
+                        Toast.makeText(mActivity, "매핑 데이터 초기화 중 통신 에러가 발생하여, 재연결 후 매핑 데이터 초기화를 계속 진행합니다.", Toast.LENGTH_LONG).show();
+                    }
 
-                mShareFsm = SHARE_FSM_USER_CHECK;
+                    mResetFsm = RESET_FSM_RESETTING;
+                    mDataIndexHandler.postDelayed(mDataIndexRunner, HANDLER_TIMEOUT_IN_MS);
+                    mActivity.sendPacket(mActivity.packetMaker(PacketInfo.HEADER_MAP_RESET_DEFAULT, null, 1));
+                }
+                break;
+            } // End of switch (mFsm)
+        }); // End of Handler
+    }
 
-                mActivity.sendPacket(
-                        mActivity.packetMaker(
-                                PacketInfo.HEADER_READ_ISD_ID_AND_USER,
-                                new byte[]{(byte) 1},
-                                2
-                        )
-                );
-            });
+    public void responsePacketProcessor(byte[] packet)
+    {
+        byte header = packet[0];
+
+        switch (mFsm)
+        {
+            case FSM_COLLECT_MAP_SCREEN:
+            {
+                if (header == PacketInfo.HEADER_READ_ISD_ID_AND_USER)
+                {
+                    packetProcessCollectReadIdUser(packet);
+                }
+                else if (header == PacketInfo.HEADER_READ_MAP_DATA)
+                {
+                    packetProcessCollectReadMapData(packet);
+                }
+            }
+            break;
+
+            case FSM_SHARE_MAP_SCREEN:
+            {
+                if (header == PacketInfo.HEADER_READ_ISD_ID_AND_USER)
+                {
+                    packetProcessShareReadIdUser(packet);
+                }
+                else if (header == PacketInfo.HEADER_WRITE_ISD_ID_AND_USER)
+                {
+                    packetProcessShareWriteIdUser(packet);
+                }
+                else if (header == PacketInfo.HEADER_WRITE_MAP_DATA)
+                {
+                    packetProcessShareWriteMapData(packet);
+                }
+            }
+            break;
+
+            case FSM_MAP_RESET_DEFAULT_SCREEN:
+            {
+                if (header == PacketInfo.HEADER_MAP_RESET_DEFAULT)
+                {
+                    packetProcessResetMapData(packet);
+                }
+            }
+            break;
         }
     }
 
-    public void packetProcessIdUser(byte[] packet)
+    public void packetProcessCollectReadIdUser(byte[] packet)
     {
-        int slotNum = mMapInfo[mMapInfoIndex].idUser.slotNum;
-        int indexNum = mMapInfo[mMapInfoIndex].idUser.indexNum;
-
-        Log.d("MapCollecting", "IdUser 패킷 : " + mActivity.printLogBytesToString(packet));
-
-        if (indexNum != packet[1])
+        new Handler(Looper.getMainLooper()).post(() ->
         {
-            Log.d("MapCollecting", "IdUSer 데이터 인덱스가 일치하지 않습니다. 슬롯 = " + slotNum + ", 앱 인덱스 = " + indexNum + ", 수신패킷 인덱스 = " + packet[1]);
-            Log.d(TAG, "IdUSer 데이터 인덱스가 일치하지 않습니다. 슬롯 = " + slotNum + ", 앱 인덱스 = " + indexNum + ", 수신패킷 인덱스 = " + packet[1]);
-            return;
-        }
+            mActivity.longTimeIdleHandlerUpdate(true);
 
-        byte[] data = mMapInfo[mMapInfoIndex].idUser.data[slotNum - 1][indexNum - 1]; // MIN 값이 1부터인데, 인덱스는 0부터니까 1씩 빼고 계산한다.
+            int slotNum = mCollectedMapInfo[mCollectedMapInfoCurrentIndex].idUser.slotNum;
+            int indexNum = mCollectedMapInfo[mCollectedMapInfoCurrentIndex].idUser.indexNum;
 
-        System.arraycopy(packet, 0, data, 0, packet.length); // src, src_idx, dst, dst_idx, length
+            Log.v(TAG, "packetProcessCollectReadIdUser() : " + mActivity.printLogBytesToString(packet));
 
-        if (packet[1] == MapInfo.ID_USER_INDEX_MAX)
-        {
-            mMapInfo[mMapInfoIndex].idUser.slotNum = slotNum + 1;
-            mMapInfo[mMapInfoIndex].idUser.indexNum = MapInfo.ID_USER_INDEX_MIN;
-
-            if (MapInfo.SLOT_MAX < mMapInfo[mMapInfoIndex].idUser.slotNum)
+            if (packet[1] == MapInfo.ID_USER_INDEX_MAX)
             {
-                Log.d(TAG, "IdUser 데이터 수집 완료!");
+                mDataIndexHandler.removeCallbacks(mDataIndexRunner);
+            }
 
-                mCollectDataType = COLLECT_DATA_TYPE_MAP_DATA;
+            if (indexNum != packet[1])
+            {
+                Log.d(TAG, "packetProcessCollectReadIdUser() : 데이터 인덱스가 일치하지 않습니다. 슬롯 = " + slotNum + ", 앱 인덱스 = " + indexNum + ", 수신패킷 인덱스 = " + packet[1]);
 
-                // MapData 수집을 시작해야 한다.
-                mActivity.sendPacket(
-                        mActivity.packetMaker(
-                                PacketInfo.HEADER_READ_MAP_DATA,
-                                new byte[]{(byte) mMapInfo[mMapInfoIndex].mapData.slotNum, (byte) mMapInfo[mMapInfoIndex].mapData.mapNum},
-                                3
-                        )
-                );
+                mDataIndexHandler.removeCallbacks(mDataIndexRunner);
+
+                if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED && mActivity.mBluetoothGatt != null)
+                {
+                    Log.d(TAG, "packetProcessCollectReadIdUser() : 강제로 연결을 해제하여 외부기와 재연결 한 뒤 다시 매핑 데이터 수집을 시작하겠습니다.");
+                    mActivity.mBluetoothGatt.disconnect();
+                }
+
+                return;
+            }
+
+            byte[] data = mCollectedMapInfo[mCollectedMapInfoCurrentIndex].idUser.data[slotNum - 1][indexNum - 1]; // MIN 값이 1부터인데, 인덱스는 0부터니까 1씩 빼고 계산한다.
+
+            System.arraycopy(packet, 0, data, 0, packet.length); // src, src_idx, dst, dst_idx, length
+
+            if (packet[1] == MapInfo.ID_USER_INDEX_MAX)
+            {
+                mCollectedMapInfo[mCollectedMapInfoCurrentIndex].idUser.slotNum = slotNum + 1;
+                mCollectedMapInfo[mCollectedMapInfoCurrentIndex].idUser.indexNum = MapInfo.ID_USER_INDEX_MIN;
+
+                if (MapInfo.SLOT_MAX < mCollectedMapInfo[mCollectedMapInfoCurrentIndex].idUser.slotNum)
+                {
+                    Log.d(TAG, "packetProcessCollectReadIdUser() : 데이터 수집 완료.");
+
+                    mCollectDataType = COLLECT_DATA_TYPE_MAP_DATA;
+
+                    mDataIndexHandler.postDelayed(mDataIndexRunner, HANDLER_TIMEOUT_IN_MS);
+
+                    // MapData 수집을 시작해야 한다.
+                    mActivity.sendPacket(
+                            mActivity.packetMaker(PacketInfo.HEADER_READ_MAP_DATA,
+                                    new byte[]{(byte) mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.slotNum,
+                                            (byte) mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.mapNum}, 3));
+                }
+                else
+                {
+                    mDataIndexHandler.postDelayed(mDataIndexRunner, HANDLER_TIMEOUT_IN_MS);
+
+                    mActivity.sendPacket(
+                            mActivity.packetMaker(PacketInfo.HEADER_READ_ISD_ID_AND_USER,
+                                    new byte[]{(byte) mCollectedMapInfo[mCollectedMapInfoCurrentIndex].idUser.slotNum}, 2));
+                }
             }
             else
             {
-                mActivity.sendPacket(
-                        mActivity.packetMaker(
-                                PacketInfo.HEADER_READ_ISD_ID_AND_USER,
-                                new byte[]{(byte) mMapInfo[mMapInfoIndex].idUser.slotNum},
-                                2
-                        )
-                );
+                mCollectedMapInfo[mCollectedMapInfoCurrentIndex].idUser.indexNum = indexNum + 1;
             }
-        }
-        else
-        {
-            mMapInfo[mMapInfoIndex].idUser.indexNum = indexNum + 1;
-        }
 
-        new Handler(Looper.getMainLooper()).post(() ->
-        {
             int progress = ((slotNum - MapInfo.SLOT_MIN) * MapInfo.ID_USER_INDEX_MAX) + indexNum;
             int percent = (int) ((((double) progress) / 252) * 100); // 252 : IdUser -> 4 * 3, MapData -> 4 * 4 * 15
 
@@ -1370,199 +1617,201 @@ public class ShareFragment extends Fragment
         });
     }
 
-    public void packetProcessMapData(byte[] packet)
+    public void packetProcessCollectReadMapData(byte[] packet)
     {
-        int slotNum = mMapInfo[mMapInfoIndex].mapData.slotNum;
-        int mapNum = mMapInfo[mMapInfoIndex].mapData.mapNum;
-        int indexNum = mMapInfo[mMapInfoIndex].mapData.indexNum;
-
-        Log.d("MapCollecting", "MapData 패킷 : " + mActivity.printLogBytesToString(packet));
-
-        if (indexNum != packet[1])
+        new Handler(Looper.getMainLooper()).post(() ->
         {
-            Log.d("MapCollecting", "MapData 데이터 인덱스가 일치하지 않습니다. 슬롯 = " + slotNum + ", 맵 = " + mapNum + ", 앱 인덱스 = " + indexNum + ", 수신패킷 인덱스 = " + packet[1]);
-            Log.d(TAG, "MapData 데이터 인덱스가 일치하지 않습니다. 슬롯 = " + slotNum + ", 맵 = " + mapNum + ", 앱 인덱스 = " + indexNum + ", 수신패킷 인덱스 = " + packet[1]);
-            return;
-        }
+            mActivity.longTimeIdleHandlerUpdate(true);
 
-        byte[] data = mMapInfo[mMapInfoIndex].mapData.data[slotNum - 1][mapNum - 1][indexNum - 1];
+            int slotNum = mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.slotNum;
+            int mapNum = mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.mapNum;
+            int indexNum = mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.indexNum;
 
-        System.arraycopy(packet, 0, data, 0, packet.length); // src, src_idx, dst, dst_idx, length
+            Log.v(TAG, "packetProcessCollectReadMapData() : " + mActivity.printLogBytesToString(packet));
 
-        if (packet[1] == MapInfo.MAP_DATA_INDEX_MAX)
-        {
-            mMapInfo[mMapInfoIndex].mapData.mapNum = mapNum + 1;
-            mMapInfo[mMapInfoIndex].mapData.indexNum = MapInfo.MAP_DATA_INDEX_MIN;
-
-            if (MapInfo.MAP_DATA_MAP_MAX < mMapInfo[mMapInfoIndex].mapData.mapNum)
+            if (packet[1] == MapInfo.MAP_DATA_INDEX_MAX)
             {
-                mMapInfo[mMapInfoIndex].mapData.slotNum = slotNum + 1;
-                mMapInfo[mMapInfoIndex].mapData.mapNum = MapInfo.MAP_DATA_MAP_MIN;
+                mDataIndexHandler.removeCallbacks(mDataIndexRunner);
+            }
 
-                if (MapInfo.SLOT_MAX < mMapInfo[mMapInfoIndex].mapData.slotNum)
+            if (indexNum != packet[1])
+            {
+                Log.d(TAG, "packetProcessCollectReadMapData() : 데이터 인덱스가 일치하지 않습니다. 슬롯 = " + slotNum + ", 맵 = " + mapNum + ", 앱 인덱스 = " + indexNum + ", 수신패킷 인덱스 = " + packet[1]);
+
+                mDataIndexHandler.removeCallbacks(mDataIndexRunner);
+
+                if (mActivity.mBluetoothGatt != null)
                 {
-                    Log.d(TAG, "MapData 데이터 수집 완료!");
+                    Log.d(TAG, "packetProcessCollectReadIdUser() : 강제로 연결을 해제하여 외부기와 재연결 한 뒤 다시 매핑 데이터 수집을 시작하겠습니다.");
+                    mActivity.mBluetoothGatt.disconnect();
+                }
 
-                    mCollectFsm = COLLECT_FSM_COLLECTED;
+                return;
+            }
 
-                    mMapInfo[mMapInfoIndex].metadata.isFilled = true;
-                    mMapInfo[mMapInfoIndex].updateMetadata();
+            byte[] data = mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.data[slotNum - 1][mapNum - 1][indexNum - 1];
 
-                    for (int i = 0; i < mCollectMapAdapter.getItemCount(); i++)
+            System.arraycopy(packet, 0, data, 0, packet.length); // src, src_idx, dst, dst_idx, length
+
+            if (packet[1] == MapInfo.MAP_DATA_INDEX_MAX)
+            {
+                mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.mapNum = mapNum + 1;
+                mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.indexNum = MapInfo.MAP_DATA_INDEX_MIN;
+
+                if (MapInfo.MAP_DATA_MAP_MAX < mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.mapNum)
+                {
+                    mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.slotNum = slotNum + 1;
+                    mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.mapNum = MapInfo.MAP_DATA_MAP_MIN;
+
+                    if (MapInfo.SLOT_MAX < mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.slotNum)
                     {
-                        if (mCollectMapAdapter.isSelected(i))
+                        Log.d(TAG, "packetProcessCollectReadIdUser() : 데이터 수집 완료.");
+
+                        mCollectFsm = COLLECT_FSM_COLLECTED;
+
+                        mCollectedMapInfo[mCollectedMapInfoCurrentIndex].metadata.isFilled = true;
+                        mCollectedMapInfo[mCollectedMapInfoCurrentIndex].updateMetadata();
+
+                        for (int i = 0; i < mCollectMapAdapter.getItemCount(); i++)
                         {
-                            mCollectMapAdapter.setCollect(i);
-                            setCollectInfoText(i);
-
-                            if (mCollectMapAdapter.getCollectedCount() != mCollectMapAdapter.getItemCount())
+                            if (mCollectMapAdapter.isItemSelected(i))
                             {
-                                setOkButtonVisibility(false);
+                                mCollectMapAdapter.setMapCollectState(i);
+                                setCollectInfoText(i);
 
-                                if (Status.instance().scanState == Status.SCAN_STATE_STOPPED)
+                                if (mCollectMapAdapter.getCollectedMapCount() != mCollectMapAdapter.getItemCount())
                                 {
+                                    setOkButtonVisibility(false);
                                     mActivity.scanLeWithDelay(true, 100);
                                 }
-                            }
-                            else
-                            {
-                                setOkButtonVisibility(true);
-                                setOkButtonText("다음 절차 진행");
-                                setOkButtonBackgroundColor(BUTTON_COLOR_ACCENT);
-
-                                Log.d("MapCollecting", "\r\n\r\n\n수신한 모든 맵 데이터 확인");
-                                Log.d("MapCollecting", "mMapInfo[] 사이즈 = " + mMapInfo.length);
-                                for (int k = 0; k < mMapInfo.length; k++)
+                                else
                                 {
-                                    Log.d("MapCollecting", "mMapInfo[" + k + "].idUser.data[0][0] => " + mActivity.printLogBytesToString(mMapInfo[k].idUser.data[0][0]));
-                                    Log.d("MapCollecting", "mMapInfo[" + k + "].idUser.data[0][1] => " + mActivity.printLogBytesToString(mMapInfo[k].idUser.data[0][1]));
-                                }
+                                    setOkButtonVisibility(true);
+                                    setOkButtonText("다음 절차 진행");
+                                    setOkButtonBackgroundColor(BUTTON_COLOR_ACCENT);
 
-                                for (int k = 0; k < mMapInfo.length; k++)
-                                {
-                                    if (mMapInfo[k].metadata.isFilled)
+                                    Log.d(TAG, "\r\n\n\n\n수집한 모든 매핑 데이터 정보 출력.");
+                                    Log.d(TAG, "매핑 데이터 총 개수 -> MapInfo[" + mCollectedMapInfo.length + "]");
+
+                                    for (int map_i = 0; map_i < mCollectedMapInfo.length; map_i++)
                                     {
-                                        for (int n = 0; n < 4; n++)
+                                        if (mCollectedMapInfo[map_i].metadata.isFilled)
                                         {
-                                            Log.d("MapCollecting", "mMapInfo[" + k + "]의 슬롯 " + n
-                                                    + " : name = " + mMapInfo[k].metadata.names[n]
-                                                    + ", ear = " + mMapInfo[k].metadata.ears[n]
-                                                    + ", version = " + mMapInfo[k].metadata.stamps[n]);
+                                            for (int slot_i = 0; slot_i < 4; slot_i++)
+                                            {
+                                                Log.d(TAG, "MapInfo[" + map_i + "]의 슬롯 " + slot_i
+                                                        + " : 이름 = " + mCollectedMapInfo[map_i].metadata.names[slot_i]
+                                                        + ", 수술위치 = " + mCollectedMapInfo[map_i].metadata.ears[slot_i]
+                                                        + ", 맵 버전 = " + mCollectedMapInfo[map_i].metadata.stamps[slot_i]);
+                                            }
                                         }
                                     }
-                                }
 
-                                makeMostRecentMapInfo();
+                                    Log.d(TAG, "\r\n\n수집된 모든 매핑 데이터에서 가장 최신의 맵 정보만 얻어옵니다.");
+                                    makeMostRecentMapInfo();
 
-                                // 기존에 데이터베이스 저장되어 있던 맵 정보 삭제
-                                List<EntityMap> entityMapList = UtilMap.instance.getAll();
+                                    Log.d(TAG, "\r\n\n데이터베이스에 저장된 기존 매핑 데이터를 제거하고 현재 수집된 가장 최신의 맵 정보들을 저장합니다.");
 
-                                if (entityMapList != null)
-                                {
-                                    for (EntityMap map : entityMapList)
+                                    // 기존에 데이터베이스 저장되어 있던 맵 정보 삭제
+                                    List<EntityMap> entityMapList = UtilMap.instance.getAll();
+
+                                    if (entityMapList != null)
                                     {
-                                        UtilMap.instance.delete(map);
+                                        for (EntityMap map : entityMapList)
+                                        {
+                                            UtilMap.instance.delete(map);
+                                        }
                                     }
-                                }
 
-                                // 새로 데이터베이스에 저장할 맵 정보 준비
-                                EntityMap[] entityMaps = new EntityMap[4];
+                                    // 새로 데이터베이스에 저장할 맵 정보 준비
+                                    EntityMap[] entityMaps = new EntityMap[4];
 
-                                String[] stringMapDataSlots = new String[4];
+                                    String[] stringMapDataSlots = new String[4];
 
-                                for (int slot_i = 0; slot_i < 4; slot_i++)
-                                {
-                                    Log.d("MapCollecting", "최신 맵 정보의 슬롯 " + slot_i
-                                            + " : name = " + mMostRecentMapInfo.metadata.names[slot_i]
-                                            + ", ear = " + mMostRecentMapInfo.metadata.ears[slot_i]
-                                            + ", version = " + mMostRecentMapInfo.metadata.stamps[slot_i]);
-
-                                    stringMapDataSlots[slot_i] = MapInfo.getStringFromMapInfo(mMostRecentMapInfo, slot_i);
-
-                                    entityMaps[slot_i] = new EntityMap();
-                                    entityMaps[slot_i].name_ear = EntityMap.makePrimaryKey(mMostRecentMapInfo.metadata.names[slot_i], mMostRecentMapInfo.metadata.ears[slot_i]);
-                                    entityMaps[slot_i].name = mMostRecentMapInfo.metadata.names[slot_i];
-                                    entityMaps[slot_i].ear = mMostRecentMapInfo.metadata.ears[slot_i];
-                                    entityMaps[slot_i].stamp = mMostRecentMapInfo.metadata.stamps[slot_i];
-                                    entityMaps[slot_i].serialize_map_data = stringMapDataSlots[slot_i];
-
-                                    if (!entityMaps[slot_i].name.equals(MapInfo.EMPTY_MAP_NAME))
+                                    for (int slot_i = 0; slot_i < 4; slot_i++)
                                     {
-                                        UtilMap.instance.insert(entityMaps[slot_i]);
+                                        stringMapDataSlots[slot_i] = MapInfo.getStringFromMapInfo(mMostRecentMapInfo, slot_i);
+
+                                        entityMaps[slot_i] = new EntityMap();
+                                        entityMaps[slot_i].name_ear = EntityMap.makePrimaryKey(mMostRecentMapInfo.metadata.names[slot_i], mMostRecentMapInfo.metadata.ears[slot_i]);
+                                        entityMaps[slot_i].name = mMostRecentMapInfo.metadata.names[slot_i];
+                                        entityMaps[slot_i].ear = mMostRecentMapInfo.metadata.ears[slot_i];
+                                        entityMaps[slot_i].stamp = mMostRecentMapInfo.metadata.stamps[slot_i];
+                                        entityMaps[slot_i].serialize_map_data = stringMapDataSlots[slot_i];
+
+                                        if (!entityMaps[slot_i].name.equals(MapInfo.EMPTY_MAP_NAME))
+                                        {
+                                            UtilMap.instance.insert(entityMaps[slot_i]);
+                                        }
+
+                                        Log.d(TAG, "RecentMapInfo의 슬롯 " + slot_i
+                                                + " : 이름 = " + mMostRecentMapInfo.metadata.names[slot_i]
+                                                + ", 수술위치 = " + mMostRecentMapInfo.metadata.ears[slot_i]
+                                                + ", 맵 버전 = " + mMostRecentMapInfo.metadata.stamps[slot_i]);
+
+                                        Log.d(TAG, "직렬화된 매핑 데이터 = " + stringMapDataSlots[slot_i]);
                                     }
-                                }
 
-                                Log.d("MapCollecting", "* * * * * *");
-                                Log.d("MapCollecting", "문자열로 직렬화한 맵 데이터 (최신 맵) :");
-                                Log.d("MapCollecting", stringMapDataSlots[0]);
-                                Log.d("MapCollecting", stringMapDataSlots[1]);
-                                Log.d("MapCollecting", stringMapDataSlots[2]);
-                                Log.d("MapCollecting", stringMapDataSlots[3]);
-                                Log.d("MapCollecting", "* * * * * *");
+                                    //
+                                    // 데이터 직렬화 테스트
+                                    //
+                                    MapInfo tempMapInfo = new MapInfo();
 
-                                MapInfo tempMapInfo = new MapInfo();
+                                    if (MapInfo.setMapInfoFromString(stringMapDataSlots[0], tempMapInfo, 0)
+                                            && MapInfo.setMapInfoFromString(stringMapDataSlots[1], tempMapInfo, 1)
+                                            && MapInfo.setMapInfoFromString(stringMapDataSlots[2], tempMapInfo, 2)
+                                            && MapInfo.setMapInfoFromString(stringMapDataSlots[3], tempMapInfo, 3))
+                                    {
+                                        String cmpMapDataSlot0 = MapInfo.getStringFromMapInfo(mMostRecentMapInfo, 0);
+                                        String cmpMapDataSlot1 = MapInfo.getStringFromMapInfo(mMostRecentMapInfo, 1);
+                                        String cmpMapDataSlot2 = MapInfo.getStringFromMapInfo(mMostRecentMapInfo, 2);
+                                        String cmpMapDataSlot3 = MapInfo.getStringFromMapInfo(mMostRecentMapInfo, 3);
 
-                                if (MapInfo.setMapInfoFromString(stringMapDataSlots[0], tempMapInfo, 0)
-                                        && MapInfo.setMapInfoFromString(stringMapDataSlots[1], tempMapInfo, 1)
-                                        && MapInfo.setMapInfoFromString(stringMapDataSlots[2], tempMapInfo, 2)
-                                        && MapInfo.setMapInfoFromString(stringMapDataSlots[3], tempMapInfo, 3))
-                                {
-                                    String cmpMapDataSlot0 = MapInfo.getStringFromMapInfo(mMostRecentMapInfo, 0);
-                                    String cmpMapDataSlot1 = MapInfo.getStringFromMapInfo(mMostRecentMapInfo, 1);
-                                    String cmpMapDataSlot2 = MapInfo.getStringFromMapInfo(mMostRecentMapInfo, 2);
-                                    String cmpMapDataSlot3 = MapInfo.getStringFromMapInfo(mMostRecentMapInfo, 3);
+                                        Log.d("MapSerialize", "\r\n\n매핑 데이터 직렬화 테스트 :");
+                                        Log.d("MapSerialize", cmpMapDataSlot0);
+                                        Log.d("MapSerialize", cmpMapDataSlot1);
+                                        Log.d("MapSerialize", cmpMapDataSlot2);
+                                        Log.d("MapSerialize", cmpMapDataSlot3);
 
-                                    Log.d("MapCollecting", "* * * * * *");
-                                    Log.d("MapCollecting", "문자열로 직렬화한 맵 데이터 (테스트 맵) :");
-                                    Log.d("MapCollecting", cmpMapDataSlot0);
-                                    Log.d("MapCollecting", cmpMapDataSlot1);
-                                    Log.d("MapCollecting", cmpMapDataSlot2);
-                                    Log.d("MapCollecting", cmpMapDataSlot3);
-                                    Log.d("MapCollecting", "* * * * * *");
+                                        boolean cmpResult0 = stringMapDataSlots[0].equals(cmpMapDataSlot0);
+                                        boolean cmpResult1 = stringMapDataSlots[1].equals(cmpMapDataSlot1);
+                                        boolean cmpResult2 = stringMapDataSlots[2].equals(cmpMapDataSlot2);
+                                        boolean cmpResult3 = stringMapDataSlots[3].equals(cmpMapDataSlot3);
 
-                                    boolean cmpResult0 = stringMapDataSlots[0].equals(cmpMapDataSlot0);
-                                    boolean cmpResult1 = stringMapDataSlots[1].equals(cmpMapDataSlot1);
-                                    boolean cmpResult2 = stringMapDataSlots[2].equals(cmpMapDataSlot2);
-                                    boolean cmpResult3 = stringMapDataSlots[3].equals(cmpMapDataSlot3);
+                                        Log.d("MapSerialize", "결과 : cmpResult0 = " + cmpResult0 + ", cmpResult1 = " + cmpResult1
+                                                + ", cmpResult2 = " + cmpResult2 + ", cmpResult3 = " + cmpResult3);
+                                    }
+                                } // end else (모든 데이터 수집 완료)
+                            } // end if
+                        }// end for
+                    }
+                    else
+                    {
+                        mDataIndexHandler.postDelayed(mDataIndexRunner, HANDLER_TIMEOUT_IN_MS);
 
-                                    Log.d("MapCollecting", "넣고 뺀 결과 문자열 비교 : cmpResult0 = "
-                                            + cmpResult0 + ", cmpResult1 = " + cmpResult1 + ", cmpResult2 = " + cmpResult2 + ", cmpResult3 = " + cmpResult3);
-                                }
-                            } // end else (모든 데이터 수집 완료)
-                        } // end if
-                    }// end for
+                        // 슬롯 번호 값을 증가하고 전송 시작
+                        mActivity.sendPacket(
+                                mActivity.packetMaker(PacketInfo.HEADER_READ_MAP_DATA,
+                                        new byte[]{(byte) mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.slotNum,
+                                                (byte) mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.mapNum}, 3));
+                    }
                 }
                 else
                 {
-                    // 슬롯 번호 값을 증가하고 전송 시작
+                    mDataIndexHandler.postDelayed(mDataIndexRunner, HANDLER_TIMEOUT_IN_MS);
+
+                    // 맵 번호 값을 올리고 전송 시작
                     mActivity.sendPacket(
-                            mActivity.packetMaker(
-                                    PacketInfo.HEADER_READ_MAP_DATA,
-                                    new byte[]{(byte) mMapInfo[mMapInfoIndex].mapData.slotNum, (byte) mMapInfo[mMapInfoIndex].mapData.mapNum},
-                                    3
-                            )
-                    );
+                            mActivity.packetMaker(PacketInfo.HEADER_READ_MAP_DATA,
+                                    new byte[]{(byte) mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.slotNum,
+                                            (byte) mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.mapNum}, 3));
                 }
             }
             else
             {
-                // 맵 번호 값을 올리고 전송 시작
-                mActivity.sendPacket(
-                        mActivity.packetMaker(
-                                PacketInfo.HEADER_READ_MAP_DATA,
-                                new byte[]{(byte) mMapInfo[mMapInfoIndex].mapData.slotNum, (byte) mMapInfo[mMapInfoIndex].mapData.mapNum},
-                                3
-                        )
-                );
+                mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.indexNum = indexNum + 1;
             }
-        }
-        else
-        {
-            mMapInfo[mMapInfoIndex].mapData.indexNum = indexNum + 1;
-        }
 
-        new Handler(Looper.getMainLooper()).post(() ->
-        {
             int top = ((slotNum - MapInfo.SLOT_MIN) * MapInfo.MAP_DATA_MAP_MAX) * MapInfo.MAP_DATA_INDEX_MAX;
             int middle = (mapNum - MapInfo.MAP_DATA_INDEX_MIN) * MapInfo.MAP_DATA_INDEX_MAX;
             int low = indexNum;
@@ -1576,108 +1825,123 @@ public class ShareFragment extends Fragment
     //
     // 맵 데이터 공유를 위한 패킷을 어떻게 전송할지 판단하고, 해당 패킷을 전송하는 함수
     //
-    public void packetCheckIdUser(byte[] packet)
+    public void packetProcessShareReadIdUser(byte[] packet)
     {
-        int slotNum = mShareMapInfo.idUser.slotNum;
-        int indexNum = mShareMapInfo.idUser.indexNum;
-
-        Log.d("MapSharing", "IdUser 패킷 : " + mActivity.printLogBytesToString(packet));
-
-        if (indexNum != packet[1])
+        new Handler(Looper.getMainLooper()).post(() ->
         {
-            Log.d("MapSharing", "IdUser 데이터 인덱스가 일치하지 않습니다. 슬롯 = " + slotNum + ", 앱 인덱스 = " + indexNum + ", 수신패킷 인덱스 = " + packet[1]);
-            Log.d(TAG, "IdUSer 데이터 인덱스가 일치하지 않습니다. 슬롯 = " + slotNum + ", 앱 인덱스 = " + indexNum + ", 수신패킷 인덱스 = " + packet[1]);
-            return;
-        }
+            mActivity.longTimeIdleHandlerUpdate(true);
 
-        byte[] data = mShareMapInfo.idUser.data[slotNum - 1][indexNum - 1]; // Min 값이 1부터라서, 1을 빼고 인덱스 0부터 시작하게 한다.
+            int slotNum = mShareMapInfo.idUser.slotNum;
+            int indexNum = mShareMapInfo.idUser.indexNum;
 
-        System.arraycopy(packet, 0, data, 0, packet.length);
+            Log.v(TAG, "packetProcessShareReadIdUser() : " + mActivity.printLogBytesToString(packet));
 
-        if (packet[1] == MapInfo.ID_USER_INDEX_MAX)
-        {
-            mShareMapInfo.metadata.isFilled = true;
-            mShareMapInfo.updateMetadata();
-
-            String oteUser = mShareMapInfo.metadata.names[0];
-            String oteEar = mShareMapInfo.metadata.ears[0];
-            int mainUserIndex = -1;
-
-            // OTE 메인 사용자 정보 인덱스 찾기
-            for (int i = 0; i < 4; i++)
+            if (packet[1] == MapInfo.ID_USER_INDEX_MAX)
             {
-                if (mMostRecentMapInfo.metadata.names[i].equals(oteUser)
-                        && mMostRecentMapInfo.metadata.ears[i].equals(oteEar))
-                {
-                    mainUserIndex = i;
-                }
+                mDataIndexHandler.removeCallbacks(mDataIndexRunner);
             }
 
-            if (mainUserIndex < 0)
+            if (indexNum != packet[1])
             {
-                Log.d("MapSharing", "최신 맵 정보에서 사용자 " + oteUser + ", 수술 부위 " + oteEar + "를 찾을 수 없습니다.");
-            }
-            else
-            {
-                switch (mainUserIndex)
+                Log.d(TAG, "packetProcessShareReadIdUser() : 데이터 인덱스가 일치하지 않습니다. 슬롯 = " + slotNum + ", 앱 인덱스 = " + indexNum + ", 수신패킷 인덱스 = " + packet[1]);
+
+                mDataIndexHandler.removeCallbacks(mDataIndexRunner);
+
+                if (mActivity.mBluetoothGatt != null)
                 {
-                    case 0:
-                        mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 0, 0);
-                        mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 1, 1);
-                        mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 2, 2);
-                        mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 3, 3);
-                        break;
-
-                    case 1:
-                        mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 1, 0);
-                        mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 0, 1);
-                        mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 2, 2);
-                        mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 3, 3);
-                        break;
-
-                    case 2:
-                        mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 2, 0);
-                        mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 0, 1);
-                        mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 1, 2);
-                        mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 3, 3);
-                        break;
-
-                    case 3:
-                        mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 3, 0);
-                        mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 0, 1);
-                        mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 1, 2);
-                        mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 2, 3);
-                        break;
+                    Log.d(TAG, "packetProcessShareReadIdUser() : 강제로 연결을 해제하여 외부기와 재연결 한 뒤 다시 매핑 데이터 공유를 시작하겠습니다.");
+                    mActivity.mBluetoothGatt.disconnect();
                 }
 
+                return;
+            }
+
+            byte[] data = mShareMapInfo.idUser.data[slotNum - 1][indexNum - 1]; // Min 값이 1부터라서, 1을 빼고 인덱스 0부터 시작하게 한다.
+
+            System.arraycopy(packet, 0, data, 0, packet.length);
+
+            if (packet[1] == MapInfo.ID_USER_INDEX_MAX)
+            {
                 mShareMapInfo.metadata.isFilled = true;
                 mShareMapInfo.updateMetadata();
 
-                Log.d("MapSharing", "공유할 데이터 생성 완료!");
+                String oteUser = mShareMapInfo.metadata.names[0];
+                String oteEar = mShareMapInfo.metadata.ears[0];
+                int mainUserIndex = -1;
 
-                for (int print_i = 0; print_i < 4; print_i++)
+                // OTE 메인 사용자 정보 인덱스 찾기
+                for (int i = 0; i < 4; i++)
                 {
-                    Log.d("MapSharing", "새로 생성한 공유 맵 정보의 슬롯 " + print_i
-                            + " : name = " + mShareMapInfo.metadata.names[print_i]
-                            + ", ear = " + mShareMapInfo.metadata.ears[print_i]
-                            + ", version = " + mShareMapInfo.metadata.stamps[print_i]);
+                    if (mMostRecentMapInfo.metadata.names[i].equals(oteUser) && mMostRecentMapInfo.metadata.ears[i].equals(oteEar))
+                    {
+                        mainUserIndex = i;
+                    }
                 }
 
-                mShareDataType = SHARE_DATA_TYPE_WRITE_ID_AND_USER;
+                if (mainUserIndex < 0)
+                {
+                    Log.d(TAG, "최신 맵 정보에서 사용자 " + oteUser + ", 수술 부위 " + oteEar + "를 찾을 수 없습니다.");
+                }
+                else
+                {
+                    switch (mainUserIndex)
+                    {
+                        case 0:
+                            mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 0, 0);
+                            mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 1, 1);
+                            mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 2, 2);
+                            mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 3, 3);
+                            break;
 
-                mShareMapInfo.prepareWriting();
+                        case 1:
+                            mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 1, 0);
+                            mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 0, 1);
+                            mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 2, 2);
+                            mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 3, 3);
+                            break;
 
-                // IdUser 정보부터 쓰기 시작해야 한다.
-                mActivity.sendPacket(mShareMapInfo.idUser.writing[0][0]);
+                        case 2:
+                            mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 2, 0);
+                            mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 0, 1);
+                            mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 1, 2);
+                            mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 3, 3);
+                            break;
+
+                        case 3:
+                            mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 3, 0);
+                            mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 0, 1);
+                            mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 1, 2);
+                            mapInfoSlotCopy(mMostRecentMapInfo, mShareMapInfo, 2, 3);
+                            break;
+                    }
+
+                    mShareMapInfo.metadata.isFilled = true;
+                    mShareMapInfo.updateMetadata();
+
+                    Log.d(TAG, "공유할 매핑 데이터 생성을 완료했습니다.");
+
+                    for (int print_i = 0; print_i < 4; print_i++)
+                    {
+                        Log.d(TAG, "새로 생성한 공유할 매핑 데이터의 슬롯 " + print_i
+                                + " : 이름 = " + mShareMapInfo.metadata.names[print_i]
+                                + ", 수술위치 = " + mShareMapInfo.metadata.ears[print_i]
+                                + ", 맵 버전 = " + mShareMapInfo.metadata.stamps[print_i]);
+                    }
+
+                    mShareDataType = SHARE_DATA_TYPE_WRITE_ID_AND_USER;
+
+                    mShareMapInfo.prepareWriting();
+
+                    // IdUser 정보부터 쓰기 시작해야 한다.
+                    mDataIndexHandler.postDelayed(mDataIndexRunner, HANDLER_TIMEOUT_IN_MS);
+                    mActivity.sendPacket(mShareMapInfo.idUser.writing[0][0]);
+                }
             }
-        }
-        else
-        {
-            mShareMapInfo.idUser.indexNum = indexNum + 1;
-        }
+            else
+            {
+                mShareMapInfo.idUser.indexNum = indexNum + 1;
+            }
 
-        new Handler(Looper.getMainLooper()).post(() ->
-        {
             int progress = ((slotNum - MapInfo.SLOT_MIN) * MapInfo.ID_USER_INDEX_MAX) + indexNum;
             // 264 : IdUser read -> 4 * 3, IdUser write -> 4 *3, MapData write -> 4 * 4 * 15
             int percent = (int) ((((double) progress) / 264) * 100);
@@ -1686,19 +1950,32 @@ public class ShareFragment extends Fragment
         });
     }
 
-    public void packetWrittenIdUser(byte[] packet)
+    public void packetProcessShareWriteIdUser(byte[] packet)
     {
+        mActivity.longTimeIdleHandlerUpdate(true);
+
         boolean isDone = false;
         int slotNum = mShareMapInfo.idUser.slotNum;
         int indexNum = mShareMapInfo.idUser.indexNum;
 
-        Log.d("MapSharing", "IdUser 패킷 : " + mActivity.printLogBytesToString(packet));
+        Log.v(TAG, "packetProcessShareWriteIdUser() : " + mActivity.printLogBytesToString(packet));
 
         if (indexNum != packet[1])
         {
-            Log.d("MapSharing", "IdUser 데이터 인덱스가 일치하지 않습니다. 슬롯 = " + slotNum + ", 앱 인덱스 = " + indexNum + ", 수신패킷 인덱스 = " + packet[1]);
+            Log.d(TAG, "packetProcessShareWriteIdUser() : 데이터 인덱스가 일치하지 않습니다. 슬롯 = " + slotNum + ", 앱 인덱스 = " + indexNum + ", 수신패킷 인덱스 = " + packet[1]);
+
+            mDataIndexHandler.removeCallbacks(mDataIndexRunner);
+
+            if (mActivity.mBluetoothGatt != null)
+            {
+                Log.d(TAG, "packetProcessShareWriteIdUser() : 강제로 연결을 해제하여 외부기와 재연결 한 뒤 다시 매핑 데이터 공유를 시작하겠습니다.");
+                mActivity.mBluetoothGatt.disconnect();
+            }
+
             return;
         }
+
+        mDataIndexHandler.removeCallbacks(mDataIndexRunner);
 
         mShareMapInfo.idUser.indexNum = indexNum + 1;
 
@@ -1709,7 +1986,7 @@ public class ShareFragment extends Fragment
 
             if (MapInfo.SLOT_MAX < mShareMapInfo.idUser.slotNum)
             {
-                Log.d("MapSharing", "IdUser 데이터 공유 완료!");
+                Log.d(TAG, "packetProcessShareWriteIdUser() : 매핑 데이터 공유 완료.");
                 isDone = true;
             }
         }
@@ -1719,12 +1996,13 @@ public class ShareFragment extends Fragment
             // MapData 공유 시작
             mShareDataType = SHARE_DATA_TYPE_WRITE_MAP_DATA;
 
-            mActivity.sendPacket(mShareMapInfo.mapData.writing
-                    [mShareMapInfo.mapData.slotNum - 1][mShareMapInfo.mapData.mapNum - 1][mShareMapInfo.mapData.indexNum - 1]);
+            mDataIndexHandler.postDelayed(mDataIndexRunner, HANDLER_TIMEOUT_IN_MS);
+            mActivity.sendPacket(mShareMapInfo.mapData.writing[mShareMapInfo.mapData.slotNum - 1][mShareMapInfo.mapData.mapNum - 1][mShareMapInfo.mapData.indexNum - 1]);
         }
         else
         {
             // 다음 데이터 전송
+            mDataIndexHandler.postDelayed(mDataIndexRunner, HANDLER_TIMEOUT_IN_MS);
             mActivity.sendPacket(mShareMapInfo.idUser.writing[mShareMapInfo.idUser.slotNum - 1][mShareMapInfo.idUser.indexNum - 1]);
         }
 
@@ -1738,65 +2016,82 @@ public class ShareFragment extends Fragment
         });
     }
 
-    public void packetWrittenMapData(byte[] packet)
+    public void packetProcessShareWriteMapData(byte[] packet)
     {
-        boolean isDone = false;
-        int slotNum = mShareMapInfo.mapData.slotNum;
-        int mapNum = mShareMapInfo.mapData.mapNum;
-        int indexNum = mShareMapInfo.mapData.indexNum;
-
-        Log.d("MapSharing", "MapData 패킷 : " + mActivity.printLogBytesToString(packet));
-
-        if (indexNum != packet[1])
+        new Handler(Looper.getMainLooper()).post(() ->
         {
-            Log.d("MapSharing", "MapData 데이터 인덱스가 일치하지 않습니다. 슬롯 = " + slotNum + ", 맵 = " + mapNum + ", 앱 인덱스 = " + indexNum + ", 수신패킷 인덱스 = " + packet[1]);
-            return;
-        }
+            mActivity.longTimeIdleHandlerUpdate(true);
 
-        mShareMapInfo.mapData.indexNum = indexNum + 1;
+            boolean isDone = false;
 
-        if (MapInfo.MAP_DATA_INDEX_MAX < mShareMapInfo.mapData.indexNum)
-        {
-            mShareMapInfo.mapData.mapNum = mapNum + 1;
-            mShareMapInfo.mapData.indexNum = MapInfo.MAP_DATA_INDEX_MIN;
+            int slotNum = mShareMapInfo.mapData.slotNum;
+            int mapNum = mShareMapInfo.mapData.mapNum;
+            int indexNum = mShareMapInfo.mapData.indexNum;
 
-            if (MapInfo.MAP_DATA_MAP_MAX < mShareMapInfo.mapData.mapNum)
+            Log.v(TAG, "packetProcessShareWriteMapData() : " + mActivity.printLogBytesToString(packet));
+
+            if (indexNum != packet[1])
             {
-                mShareMapInfo.mapData.slotNum = slotNum + 1;
-                mShareMapInfo.mapData.mapNum = MapInfo.MAP_DATA_MAP_MIN;
+                Log.d(TAG, "packetProcessShareWriteMapData() : 데이터 인덱스가 일치하지 않습니다. 슬롯 = " + slotNum + ", 맵 = " + mapNum + ", 앱 인덱스 = " + indexNum + ", 수신패킷 인덱스 = " + packet[1]);
 
-                if (MapInfo.SLOT_MAX < mShareMapInfo.mapData.slotNum)
+                mDataIndexHandler.removeCallbacks(mDataIndexRunner);
+
+                if (mActivity.mBluetoothGatt != null)
                 {
-                    Log.d("MapSharing", "MapData 공유 완료!");
+                    Log.d(TAG, "packetProcessShareWriteMapData() : 강제로 연결을 해제하여 외부기와 재연결 한 뒤 다시 매핑 데이터 공유를 시작하겠습니다.");
+                    mActivity.mBluetoothGatt.disconnect();
+                }
 
-                    mShareFsm = SHARE_FSM_SHARED;
+                return;
+            }
 
-                    isDone = true;
+            mDataIndexHandler.removeCallbacks(mDataIndexRunner);
 
-                    for (int i = 0; i < mShareMapAdapter.getItemCount(); i++)
+            mShareMapInfo.mapData.indexNum = indexNum + 1;
+
+            if (MapInfo.MAP_DATA_INDEX_MAX < mShareMapInfo.mapData.indexNum)
+            {
+                mShareMapInfo.mapData.mapNum = mapNum + 1;
+                mShareMapInfo.mapData.indexNum = MapInfo.MAP_DATA_INDEX_MIN;
+
+                if (MapInfo.MAP_DATA_MAP_MAX < mShareMapInfo.mapData.mapNum)
+                {
+                    mShareMapInfo.mapData.slotNum = slotNum + 1;
+                    mShareMapInfo.mapData.mapNum = MapInfo.MAP_DATA_MAP_MIN;
+
+                    if (MapInfo.SLOT_MAX < mShareMapInfo.mapData.slotNum)
                     {
-                        if (mShareMapAdapter.isSelected(i))
-                        {
-                            mShareMapAdapter.setShare(i, true);
-                            setShareInfoText(i);
+                        Log.d(TAG, "packetProcessShareWriteMapData() : 매핑 데이터 공유 완료.");
 
-                            Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
-                            mActivity.mBluetoothGatt.disconnect();
-                            break;
+                        mShareFsm = SHARE_FSM_SHARED;
+
+                        isDone = true;
+
+                        for (int i = 0; i < mShareMapAdapter.getItemCount(); i++)
+                        {
+                            if (mShareMapAdapter.isItemSelected(i))
+                            {
+                                mShareMapAdapter.setMapShareState(i, true);
+                                setShareInfoText(i);
+
+                                mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+                                mActivity.mBluetoothGatt.disconnect();
+                                break;
+                            }
                         }
+
+                        Log.d(TAG, "공유할 더 많은 외부기를 찾기위해 BLE 스캔을 시작합니다.");
+                        mActivity.scanLe(true);
                     }
                 }
             }
-        }
 
-        if (!isDone)
-        {
-            mActivity.sendPacket(mShareMapInfo.mapData.writing
-                    [mShareMapInfo.mapData.slotNum - 1][mShareMapInfo.mapData.mapNum - 1][mShareMapInfo.mapData.indexNum - 1]);
-        }
+            if (!isDone)
+            {
+                mDataIndexHandler.postDelayed(mDataIndexRunner, HANDLER_TIMEOUT_IN_MS);
+                mActivity.sendPacket(mShareMapInfo.mapData.writing[mShareMapInfo.mapData.slotNum - 1][mShareMapInfo.mapData.mapNum - 1][mShareMapInfo.mapData.indexNum - 1]);
+            }
 
-        new Handler(Looper.getMainLooper()).post(() ->
-        {
             int top = ((slotNum - MapInfo.SLOT_MIN) * MapInfo.MAP_DATA_MAP_MAX) * MapInfo.MAP_DATA_INDEX_MAX;
             int middle = (mapNum - MapInfo.MAP_DATA_INDEX_MIN) * MapInfo.MAP_DATA_INDEX_MAX;
             int low = indexNum;
@@ -1811,60 +2106,58 @@ public class ShareFragment extends Fragment
     //
     // 맵 데이터 초기화를 위한 패킷에 대한 함수
     //
-    public void packetResetMapData(byte[] packet)
+    public void packetProcessResetMapData(byte[] packet)
     {
-        Status status = Status.instance();
-
-        if (packet.length != 2)
+        new Handler(Looper.getMainLooper()).post(() ->
         {
-            Log.d(TAG, "맵 초기화에 대한 응답 패킷의 길이가 이상합니다!");
+            mActivity.longTimeIdleHandlerUpdate(true);
 
-            if (status.connectionState == Status.CONNECTION_STATE_CONNECTED)
+            mDataIndexHandler.removeCallbacks(mDataIndexRunner);
+
+            boolean isDone = false;
+
+            if (packet.length != 2)
             {
-                mActivity.mBluetoothGatt.disconnect();
+                isDone = false;
+                Log.d(TAG, "매핑 데이터 초기화에 대한 응답 패킷 사이즈가 올바르지 않습니다. 사이즈 = " + packet.length);
             }
-
-            return;
-        }
-
-        if (packet[0] != PacketInfo.HEADER_MAP_RESET_DEFAULT || packet[1] != PacketInfo.MAP_RESET_DEFAULT_OK)
-        {
-            Log.d(TAG, "맵 초기화에 대한 응답 패킷 정보가 이상합니다. Header = " + packet[0] + ", Data = " + packet[1]);
-
-            if (status.connectionState == Status.CONNECTION_STATE_CONNECTED)
+            else if (packet[0] != PacketInfo.HEADER_MAP_RESET_DEFAULT || packet[1] != PacketInfo.MAP_RESET_DEFAULT_OK)
             {
-                mActivity.mBluetoothGatt.disconnect();
+                isDone = false;
+                Log.d(TAG, "매핑 데이터 초기화에 대한 응답 패킷 정보가 올바르지 않습니다. 헤더 = " + packet[0] + ", 데이터 = " + packet[1]);
             }
-
-            return;
-        }
-
-        Log.d(TAG, "맵 초기화 완료!");
-        mResetFsm = RESET_FSM_DONE;
-
-        for (int i = 0; i < mMapResetAdapter.getItemCount(); i++)
-        {
-            if (mMapResetAdapter.isSelected(i))
+            else
             {
-                int position = i;
+                Log.d(TAG, "매핑 데이터 초기화 완료.");
 
-                new Handler(Looper.getMainLooper()).post(() ->
+                mResetFsm = RESET_FSM_DONE;
+
+                for (int itemIndex = 0; itemIndex < mMapResetAdapter.getItemCount(); itemIndex++)
                 {
-                    mMapResetAdapter.setResetDone(position, true);
-                    setMapResetInfoText(position);
-
-                    status.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
-                    mActivity.mBluetoothGatt.disconnect();
-
-                    if (mMapResetAdapter.getItemCount() == mMapResetAdapter.getResetDoneCount())
+                    if (mMapResetAdapter.isItemSelected(itemIndex))
                     {
-                        mActivity.scanLe(true);
+                        mMapResetAdapter.setResetDone(itemIndex, true);
+                        setMapResetInfoText(itemIndex);
+                        break;
                     }
-                });
-
-                break;
+                }
             }
-        }
+
+            if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED)
+            {
+                if (isDone)
+                {
+                    mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+                }
+
+                mActivity.mBluetoothGatt.disconnect();
+            }
+
+            if (mMapResetAdapter.getItemCount() == mMapResetAdapter.getResetDoneCount())
+            {
+                mActivity.scanLe(true);
+            }
+        });
     }
 
     //
@@ -1881,11 +2174,11 @@ public class ShareFragment extends Fragment
             mMostRecentMapInfo = new MapInfo();
         }
 
-        mapInfoCopyAll(mMapInfo[0], mMostRecentMapInfo);
+        mapInfoCopyAll(mCollectedMapInfo[0], mMostRecentMapInfo);
 
-        if (1 < mMapInfo.length) // 저장된 맵 데이터가 1개 보다 많을 때
+        if (1 < mCollectedMapInfo.length) // 저장된 맵 데이터가 1개 보다 많을 때
         {
-            for (int len = 1; len < mMapInfo.length; len++) // 저장된 맵들 모두 비교할 것이다.
+            for (int len = 1; len < mCollectedMapInfo.length; len++) // 저장된 맵들 모두 비교할 것이다.
             {
                 for (int slot_i = 0; slot_i < 4; slot_i++) // 슬롯 4개를 비교하기 위함.
                 {
@@ -1893,15 +2186,14 @@ public class ShareFragment extends Fragment
 
                     for (int find_i = 0; find_i < 4; find_i++) // 현 맵 정보의 각 슬롯이 가장 최신 맵 정보의 슬롯 4개중에 일치하는게 있는지 찾기 위함
                     {
-                        if (mMapInfo[len].metadata.names[slot_i].equals(mMostRecentMapInfo.metadata.names[find_i])
-                                && mMapInfo[len].metadata.ears[slot_i].equals(mMostRecentMapInfo.metadata.ears[find_i]))
+                        if (mCollectedMapInfo[len].metadata.names[slot_i].equals(mMostRecentMapInfo.metadata.names[find_i]) && mCollectedMapInfo[len].metadata.ears[slot_i].equals(mMostRecentMapInfo.metadata.ears[find_i]))
                         {
                             isExist = true;
 
                             // 가장 최신 맵 정보보다 더 최신인 데이터라면 복사한다.
-                            if (mMostRecentMapInfo.metadata.stamps[find_i] < mMapInfo[len].metadata.stamps[slot_i])
+                            if (mMostRecentMapInfo.metadata.stamps[find_i] < mCollectedMapInfo[len].metadata.stamps[slot_i])
                             {
-                                mapInfoSlotCopy(mMapInfo[len], mMostRecentMapInfo, slot_i, find_i);
+                                mapInfoSlotCopy(mCollectedMapInfo[len], mMostRecentMapInfo, slot_i, find_i);
                             }
 
                             break;
@@ -1916,7 +2208,7 @@ public class ShareFragment extends Fragment
                             // 가장 최신 맵 정보에서 TD_OTE 인 곳에다가 현재 맵 정보의 슬롯을 넣어준다.
                             if (mMostRecentMapInfo.metadata.names[empty_i].equals(MapInfo.EMPTY_MAP_NAME))
                             {
-                                mapInfoSlotCopy(mMapInfo[len], mMostRecentMapInfo, slot_i, empty_i);
+                                mapInfoSlotCopy(mCollectedMapInfo[len], mMostRecentMapInfo, slot_i, empty_i);
                                 break;
                             }
                         }

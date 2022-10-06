@@ -93,7 +93,6 @@ public class UtilMap
     {
         if (mDatabase != null)
         {
-            Log.d(TAG, "맵 데이터베이스가 열려 있군!");
             return mDatabase.daoMap().getAll();
         }
 

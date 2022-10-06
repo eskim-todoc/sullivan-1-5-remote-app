@@ -19,17 +19,17 @@ import todoc.cochlear.remoteapp.database.users.EntityUser;
 import todoc.cochlear.remoteapp.database.users.UtilUser;
 import todoc.cochlear.remoteapp.fragment.ShareFragment;
 
-public class ShareDistributeMapAdapter extends RecyclerView.Adapter<ShareDistributeMapAdapter.ViewHolder>
+public class ShareShareMapAdapter extends RecyclerView.Adapter<ShareShareMapAdapter.ViewHolder>
 {
-    static private final String TAG = "TODOC_" + ShareDistributeMapAdapter.class.getSimpleName();
+    static private final String TAG = "TODOC_" + ShareShareMapAdapter.class.getSimpleName();
 
-    private final ArrayList<ShareMapItem> mShareMapItems;
+    private final ArrayList<ShareMapItem> mItems;
 
     public ShareFragment mShareFragment;
 
-    public ShareDistributeMapAdapter(ShareFragment fragment)
+    public ShareShareMapAdapter(ShareFragment fragment)
     {
-        mShareMapItems = new ArrayList<>();
+        mItems = new ArrayList<>();
 
         if (mShareFragment == null)
         {
@@ -48,27 +48,27 @@ public class ShareDistributeMapAdapter extends RecyclerView.Adapter<ShareDistrib
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position)
     {
-        holder.onBind(mShareMapItems.get(position), position);
+        holder.onBind(mItems.get(position), position);
     }
 
     @Override
     public int getItemCount()
     {
-        return mShareMapItems.size();
+        return mItems.size();
     }
 
-    public int getSharedCount()
+    public int getSharedMapCount()
     {
-        if (mShareMapItems.size() == 0)
+        if (mItems.size() == 0)
         {
             return 0;
         }
 
         int count = 0;
 
-        for (ShareMapItem item : mShareMapItems)
+        for (ShareMapItem item : mItems)
         {
-            if (item.isShared)
+            if (item.isMapShared)
             {
                 count++;
             }
@@ -77,53 +77,58 @@ public class ShareDistributeMapAdapter extends RecyclerView.Adapter<ShareDistrib
         return count;
     }
 
-    public boolean isShared(int position)
+    public boolean isMapShared(int position)
     {
-        return mShareMapItems.get(position).isShared;
+        return mItems.get(position).isMapShared;
     }
 
-    public void setShare(int position, boolean share)
+    public void setMapShareState(int position, boolean share)
     {
-        mShareMapItems.get(position).isShared = share;
+        mItems.get(position).isMapShared = share;
         this.notifyDataSetChanged();
     }
 
-    public boolean isSelected(int position)
+    public boolean isItemSelected(int position)
     {
-        return mShareMapItems.get(position).isSelected;
+        return mItems.get(position).isItemSelected;
     }
 
-    public void setSelect(int position, boolean select)
+    public void setItemSelectState(int position, boolean select)
     {
-        mShareMapItems.get(position).isSelected = select;
+        mItems.get(position).isItemSelected = select;
         this.notifyDataSetChanged();
     }
 
-    public String getSerial(int position)
+    public String getOteSerial(int position)
     {
-        return mShareMapItems.get(position).entityDevice.serialNumber;
+        return mItems.get(position).entityDevice.serialNumber;
     }
 
     public EntityUser getEntityUser(int position)
     {
-        return mShareMapItems.get(position).entityUser;
+        return mItems.get(position).entityUser;
     }
 
     public BluetoothDevice getBtDevice(int position)
     {
-        return mShareMapItems.get(position).btDevice;
+        return mItems.get(position).btDevice;
     }
 
     public EntityDevice getEntityDevice(int position)
     {
-        return mShareMapItems.get(position).entityDevice;
+        return mItems.get(position).entityDevice;
     }
 
-    public void allItemsNoSelect()
+    public void setItemSelectedStateForAll(boolean state)
     {
-        for (ShareMapItem item : mShareMapItems)
+        if (mItems == null)
         {
-            item.isSelected = false;
+            return;
+        }
+
+        for (int i = 0; i < mItems.size(); i++)
+        {
+            mItems.get(i).isItemSelected = state;
         }
 
         this.notifyDataSetChanged();
@@ -131,24 +136,24 @@ public class ShareDistributeMapAdapter extends RecyclerView.Adapter<ShareDistrib
 
     public void clearItems()
     {
-        mShareMapItems.clear();
+        mItems.clear();
         this.notifyDataSetChanged();
     }
 
-    public void addItem(String name, String ear, String serial, BluetoothDevice btDevice)
+    public void addItem(String nameWithEar, String serial, BluetoothDevice btDevice)
     {
-        EntityUser entityUser = UtilUser.instance.getUserByName(name + "_" + ear);
+        EntityUser entityUser = UtilUser.instance.getUserByName(nameWithEar);
         EntityDevice entityDevice = UtilDevice.instance.getDeviceBySerialNumber(serial);
 
         if (entityUser == null)
         {
-            Log.d(TAG, "사용자 데이터베이스에 " + name + "_" + ear + " 정보가 등록되지 않았습니다.");
+            Log.d(TAG, "사용자 데이터베이스에 " + nameWithEar + " 정보가 없습니다.");
             return;
         }
 
         if (entityDevice == null)
         {
-            Log.d(TAG, "외부기 데이터베이스에 " + serial + " 정보가 등록되지 않았습니다.");
+            Log.d(TAG, "외부기 데이터베이스에 " + serial + " 정보가 없습니다.");
             return;
         }
 
@@ -157,20 +162,23 @@ public class ShareDistributeMapAdapter extends RecyclerView.Adapter<ShareDistrib
         item.entityUser = entityUser;
         item.entityDevice = entityDevice;
         item.btDevice = btDevice;
-        item.isSelected = false;
-        item.isShared = false;
+        item.isItemSelected = false;
+        item.isMapShared = false;
 
-        for (int i = 0; i < mShareMapItems.size(); i++)
+        for (int i = 0; i < mItems.size(); i++)
         {
-            if (btDevice.getAddress().equals(mShareMapItems.get(i).btDevice.getAddress()))
+            if (btDevice.getAddress().equals(mItems.get(i).btDevice.getAddress())
+                    && entityUser.name.equals(mItems.get(i).entityUser.name)
+                    && entityDevice.serialNumber.equals(mItems.get(i).entityDevice.serialNumber))
             {
-                Log.d(TAG, "이미 추가된 정보입니다.");
+                Log.v(TAG, "이미 맵 공유 어댑터에 추가된 정보입니다.");
                 item = null;
                 return;
             }
         }
 
-        mShareMapItems.add(item);
+        Log.d(TAG, "맵 공유 어댑터에 아이템 " + entityUser.name + ", " + entityDevice.serialNumber + ", " + btDevice.getAddress() + " 를 추가합니다.");
+        mItems.add(item);
         this.notifyDataSetChanged();
     }
 
@@ -193,14 +201,7 @@ public class ShareDistributeMapAdapter extends RecyclerView.Adapter<ShareDistrib
 
             itemView.setOnClickListener(view ->
             {
-                int position = getAdapterPosition();
-                ShareMapItem item = mShareMapItems.get(position);
-                boolean newSelected = !item.isSelected;
-                allItemsNoSelect();
-                setSelect(position, newSelected);
-
-                Log.d(TAG, "공유 목록의 아이템 클릭 : 번호 = " + position + ", 선택 = " + (!newSelected) + "->" + newSelected);
-                mShareFragment.listClickListenerShareMap(position, item.entityUser, item.entityDevice, item.btDevice);
+                mShareFragment.listClickListenerShareMap(getAdapterPosition());
             });
         }
 
@@ -208,24 +209,11 @@ public class ShareDistributeMapAdapter extends RecyclerView.Adapter<ShareDistrib
         {
             this.position = position;
 
-            String user = item.entityUser.name.substring(0, item.entityUser.name.length() - 2);
-            String ear = item.entityUser.ear;
-            String serial = item.entityDevice.serialNumber;
+            nameTv.setText(UtilUser.getNameOnly(item.entityUser.name));
+            earTv.setText(UtilUser.getEarKorean(item.entityUser.ear));
+            serialTv.setText(item.entityDevice.serialNumber);
 
-            nameTv.setText(user);
-
-            if (ear.equals(EntityUser.EAR_LEFT))
-            {
-                earTv.setText("왼쪽");
-            }
-            else
-            {
-                earTv.setText("오른쪽");
-            }
-
-            serialTv.setText(serial);
-
-            if (item.isShared)
+            if (item.isMapShared)
             {
                 stateTv.setText("완료");
             }
@@ -234,7 +222,7 @@ public class ShareDistributeMapAdapter extends RecyclerView.Adapter<ShareDistrib
                 stateTv.setText("미완료");
             }
 
-            if (item.isSelected)
+            if (item.isItemSelected)
             {
                 nameTv.setBackgroundColor(mShareFragment.requireActivity().getColor(R.color.field_70));
                 earTv.setBackgroundColor(mShareFragment.requireActivity().getColor(R.color.field_70));
@@ -256,7 +244,7 @@ public class ShareDistributeMapAdapter extends RecyclerView.Adapter<ShareDistrib
         EntityUser entityUser;
         EntityDevice entityDevice;
         BluetoothDevice btDevice;
-        boolean isSelected;
-        boolean isShared;
+        boolean isItemSelected;
+        boolean isMapShared;
     }
 }

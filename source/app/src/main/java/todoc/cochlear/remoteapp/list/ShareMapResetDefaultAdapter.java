@@ -23,13 +23,13 @@ public class ShareMapResetDefaultAdapter extends RecyclerView.Adapter<ShareMapRe
 {
     static private final String TAG = "TODOC_" + ShareMapResetDefaultAdapter.class.getSimpleName();
 
-    private final ArrayList<MapResetDefaultItem> mMapResetDefaultItems;
+    private final ArrayList<MapResetDefaultItem> mItems;
 
     public ShareFragment mShareFragment;
 
     public ShareMapResetDefaultAdapter(ShareFragment fragment)
     {
-        mMapResetDefaultItems = new ArrayList<>();
+        mItems = new ArrayList<>();
 
         if (mShareFragment == null)
         {
@@ -48,27 +48,27 @@ public class ShareMapResetDefaultAdapter extends RecyclerView.Adapter<ShareMapRe
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position)
     {
-        holder.onBind(mMapResetDefaultItems.get(position), position);
+        holder.onBind(mItems.get(position), position);
     }
 
     @Override
     public int getItemCount()
     {
-        return mMapResetDefaultItems.size();
+        return mItems.size();
     }
 
     public int getResetDoneCount()
     {
-        if (mMapResetDefaultItems.size() == 0)
+        if (mItems.size() == 0)
         {
             return 0;
         }
 
         int count = 0;
 
-        for (MapResetDefaultItem item : mMapResetDefaultItems)
+        for (MapResetDefaultItem item : mItems)
         {
-            if (item.isResetDone)
+            if (item.isMapResetDone)
             {
                 count++;
             }
@@ -77,65 +77,68 @@ public class ShareMapResetDefaultAdapter extends RecyclerView.Adapter<ShareMapRe
         return count;
     }
 
-    public boolean isResetDone(int position)
+    public boolean isMapResetDone(int position)
     {
-        return mMapResetDefaultItems.get(position).isResetDone;
+        return mItems.get(position).isMapResetDone;
     }
 
     public void setResetDone(int position, boolean share)
     {
-        mMapResetDefaultItems.get(position).isResetDone = share;
+        mItems.get(position).isMapResetDone = share;
         this.notifyDataSetChanged();
     }
 
-    public boolean isSelected(int position)
+    public boolean isItemSelected(int position)
     {
-        return mMapResetDefaultItems.get(position).isSelected;
+        return mItems.get(position).isItemSelected;
     }
 
-    public void setSelect(int position, boolean select)
+    public void setItemSelectState(int position, boolean select)
     {
-        mMapResetDefaultItems.get(position).isSelected = select;
+        mItems.get(position).isItemSelected = select;
         this.notifyDataSetChanged();
     }
 
-    public String getSerial(int position)
+    public String getOteSerial(int position)
     {
-        return mMapResetDefaultItems.get(position).entityDevice.serialNumber;
+        return mItems.get(position).entityDevice.serialNumber;
     }
 
-    public String getSimpleName(int position)
+    public String getNameWithEar(int position)
     {
-        String name = mMapResetDefaultItems.get(position).entityUser.name;
-
-        return name.substring(0, name.length() - 2);
+        return mItems.get(position).entityUser.name;
     }
 
     public String getEar(int position)
     {
-        return mMapResetDefaultItems.get(position).entityUser.ear;
+        return mItems.get(position).entityUser.ear;
     }
 
     public EntityUser getEntityUser(int position)
     {
-        return mMapResetDefaultItems.get(position).entityUser;
+        return mItems.get(position).entityUser;
     }
 
     public BluetoothDevice getBtDevice(int position)
     {
-        return mMapResetDefaultItems.get(position).btDevice;
+        return mItems.get(position).btDevice;
     }
 
     public EntityDevice getEntityDevice(int position)
     {
-        return mMapResetDefaultItems.get(position).entityDevice;
+        return mItems.get(position).entityDevice;
     }
 
-    public void allItemsNoSelect()
+    public void setItemSelectedStateForAll(boolean state)
     {
-        for (MapResetDefaultItem item : mMapResetDefaultItems)
+        if (mItems == null)
         {
-            item.isSelected = false;
+            return;
+        }
+
+        for (int i = 0; i < mItems.size(); i++)
+        {
+            mItems.get(i).isItemSelected = state;
         }
 
         this.notifyDataSetChanged();
@@ -143,24 +146,24 @@ public class ShareMapResetDefaultAdapter extends RecyclerView.Adapter<ShareMapRe
 
     public void clearItems()
     {
-        mMapResetDefaultItems.clear();
+        mItems.clear();
         this.notifyDataSetChanged();
     }
 
-    public void addItem(String name, String ear, String serial, BluetoothDevice btDevice)
+    public void addItem(String nameWithEar, String serial, BluetoothDevice btDevice)
     {
-        EntityUser entityUser = UtilUser.instance.getUserByName(name + "_" + ear);
+        EntityUser entityUser = UtilUser.instance.getUserByName(nameWithEar);
         EntityDevice entityDevice = UtilDevice.instance.getDeviceBySerialNumber(serial);
 
         if (entityUser == null)
         {
-            Log.d(TAG, "사용자 데이터베이스에 " + name + "_" + ear + " 정보가 등록되지 않았습니다.");
+            Log.d(TAG, "사용자 데이터베이스에 " + nameWithEar + " 정보가 없습니다.");
             return;
         }
 
         if (entityDevice == null)
         {
-            Log.d(TAG, "외부기 데이터베이스에 " + serial + " 정보가 등록되지 않았습니다.");
+            Log.d(TAG, "외부기 데이터베이스에 " + serial + " 정보가 없습니다.");
             return;
         }
 
@@ -169,28 +172,23 @@ public class ShareMapResetDefaultAdapter extends RecyclerView.Adapter<ShareMapRe
         item.entityUser = entityUser;
         item.entityDevice = entityDevice;
         item.btDevice = btDevice;
-        item.isSelected = false;
-        item.isResetDone = false;
+        item.isItemSelected = false;
+        item.isMapResetDone = false;
 
-        for (int i = 0; i < mMapResetDefaultItems.size(); i++)
+        for (int i = 0; i < mItems.size(); i++)
         {
-            if (btDevice.getAddress().equals(mMapResetDefaultItems.get(i).btDevice.getAddress()))
+            if (btDevice.getAddress().equals(mItems.get(i).btDevice.getAddress())
+                    && entityUser.name.equals(mItems.get(i).entityUser.name)
+                    && entityDevice.serialNumber.equals(mItems.get(i).entityDevice.serialNumber))
             {
-                Log.d(TAG, "이미 추가된 정보입니다.");
+                Log.v(TAG, "이미 맵 초기화 어댑터에 추가된 정보입니다.");
                 item = null;
                 return;
             }
         }
 
-        if (mMapResetDefaultItems.size() == getResetDoneCount())
-        {
-            mMapResetDefaultItems.add(item);
-            mShareFragment.scanListUpdateMapReset();
-        }
-        else
-        {
-            mMapResetDefaultItems.add(item);
-        }
+        mItems.add(item);
+        mShareFragment.scanListUpdateMapReset();
 
         this.notifyDataSetChanged();
     }
@@ -214,14 +212,7 @@ public class ShareMapResetDefaultAdapter extends RecyclerView.Adapter<ShareMapRe
 
             itemView.setOnClickListener(view ->
             {
-                int position = getAdapterPosition();
-                MapResetDefaultItem item = mMapResetDefaultItems.get(position);
-                boolean newSelected = !item.isSelected;
-                allItemsNoSelect();
-                setSelect(position, newSelected);
-
-                Log.d(TAG, "맵 초기화 목록의 아이템 클릭 : 번호 = " + position + ", 선택 = " + (!newSelected) + "->" + newSelected);
-                mShareFragment.listClickListenerMapReset(position, item.entityUser, item.entityDevice, item.btDevice);
+                mShareFragment.listClickListenerMapReset(getAdapterPosition());
             });
         }
 
@@ -229,24 +220,11 @@ public class ShareMapResetDefaultAdapter extends RecyclerView.Adapter<ShareMapRe
         {
             this.position = position;
 
-            String user = item.entityUser.name.substring(0, item.entityUser.name.length() - 2);
-            String ear = item.entityUser.ear;
-            String serial = item.entityDevice.serialNumber;
+            nameTv.setText(UtilUser.getNameOnly(item.entityUser.name));
+            earTv.setText(UtilUser.getEarKorean(item.entityUser.ear));
+            serialTv.setText(item.entityDevice.serialNumber);
 
-            nameTv.setText(user);
-
-            if (ear.equals(EntityUser.EAR_LEFT))
-            {
-                earTv.setText("왼쪽");
-            }
-            else
-            {
-                earTv.setText("오른쪽");
-            }
-
-            serialTv.setText(serial);
-
-            if (item.isResetDone)
+            if (item.isMapResetDone)
             {
                 stateTv.setText("완료");
             }
@@ -255,7 +233,7 @@ public class ShareMapResetDefaultAdapter extends RecyclerView.Adapter<ShareMapRe
                 stateTv.setText("미완료");
             }
 
-            if (item.isSelected)
+            if (item.isItemSelected)
             {
                 nameTv.setBackgroundColor(mShareFragment.requireActivity().getColor(R.color.field_70));
                 earTv.setBackgroundColor(mShareFragment.requireActivity().getColor(R.color.field_70));
@@ -277,7 +255,7 @@ public class ShareMapResetDefaultAdapter extends RecyclerView.Adapter<ShareMapRe
         EntityUser entityUser;
         EntityDevice entityDevice;
         BluetoothDevice btDevice;
-        boolean isSelected;
-        boolean isResetDone;
+        boolean isItemSelected;
+        boolean isMapResetDone;
     }
 }

@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:visibility="visible"
-                tools:visibility="gone">
+                tools:visibility="visible">
 
                 <!-- 주 설명 -->
                 <TextView
@@ -361,7 +361,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:visibility="gone"
-                tools:visibility="visible">
+                tools:visibility="gone">
 
                 <!-- 주 설명 -->
                 <TextView
@@ -1234,7 +1234,7 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- 주 확인 버튼 -->
+            <!-- OK 버튼 -->
             <Button
                 android:id="@+id/share_ok_button"
                 style="@style/Widget.MaterialComponents.Button.Icon"
@@ -1249,9 +1249,9 @@
                 tools:text="진행"
                 tools:visibility="visible" />
 
-            <!-- 맵 데이터 초기화 버튼 -->
+            <!-- CANCEL 버튼 -->
             <Button
-                android:id="@+id/share_map_delete_button"
+                android:id="@+id/share_cancel_button"
                 style="@style/Widget.MaterialComponents.Button.Icon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -1262,6 +1262,7 @@
                 android:visibility="visible"
                 tools:text="외부기 맵 데이터 초기화"
                 tools:visibility="visible" />
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </layout>

@@ -14,22 +14,19 @@ import java.util.List;
 
 import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.database.users.EntityUser;
+import todoc.cochlear.remoteapp.database.users.UtilUser;
 import todoc.cochlear.remoteapp.fragment.ShareFragment;
 
 public class ShareCollectMapAdapter extends RecyclerView.Adapter<ShareCollectMapAdapter.ViewHolder>
 {
-    private final ArrayList<CollectedMapItem> mCollectedMapItems;
+    private final ArrayList<CollectedMapItem> mItems;
+    public ShareFragment mShareFragment;
 
     public ShareCollectMapAdapter(ShareFragment fragment)
     {
-        mCollectedMapItems = new ArrayList<>();
-        if (mShareFragment == null)
-        {
-            mShareFragment = fragment;
-        }
+        mItems = new ArrayList<>();
+        mShareFragment = fragment;
     }
-
-    public ShareFragment mShareFragment;
 
     @NonNull
     @Override
@@ -42,104 +39,107 @@ public class ShareCollectMapAdapter extends RecyclerView.Adapter<ShareCollectMap
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position)
     {
-        holder.onBind(mCollectedMapItems.get(position), position);
+        holder.onBind(mItems.get(position), position);
     }
 
     @Override
     public int getItemCount()
     {
-        return mCollectedMapItems.size();
+        return mItems.size();
     }
 
-    public int getCollectedCount()
+    public int getCollectedMapCount()
     {
-        if (mCollectedMapItems.size() == 0)
-        {
-            return 0;
-        }
-
         int count = 0;
 
-        for (CollectedMapItem item : mCollectedMapItems)
+        if (0 < mItems.size())
         {
-            if (item.isCollected)
+            for (int i = 0; i < mItems.size(); i++)
             {
-                count++;
+                if (mItems.get(i).isMapCollected)
+                {
+                    count++;
+                }
             }
         }
-
         return count;
     }
 
-    public boolean isCollected(int position)
+    public boolean isMapCollected(int position)
     {
-        return mCollectedMapItems.get(position).isCollected;
+        return mItems.get(position).isMapCollected;
     }
 
-    public void setCollect(int position)
+    public void setMapCollectState(int position)
     {
-        mCollectedMapItems.get(position).isCollected = true;
+        mItems.get(position).isMapCollected = true;
         this.notifyDataSetChanged();
     }
 
-    public void setSerial(int position, String serial)
+    public void setOteSerial(int position, String serial)
     {
-        mCollectedMapItems.get(position).isScanned = true;
-        mCollectedMapItems.get(position).serial = serial;
+        mItems.get(position).isBleScanned = true;
+        mItems.get(position).oteSerial = serial;
+
         this.notifyDataSetChanged();
     }
 
-    public String getSerial(int position)
+    public String getOteSerial(int position)
     {
-        return mCollectedMapItems.get(position).serial;
+        return mItems.get(position).oteSerial;
     }
 
     public String getName(int position)
     {
-        return mCollectedMapItems.get(position).name.substring(0, mCollectedMapItems.get(position).name.length() - 2);
+        return mItems.get(position).name;
     }
 
     public String getEar(int position)
     {
-        return mCollectedMapItems.get(position).ear;
+        return mItems.get(position).ear;
     }
 
-    public boolean isScanned(int position)
+    public boolean isBleScanned(int position)
     {
-        return mCollectedMapItems.get(position).isScanned;
+        return mItems.get(position).isBleScanned;
     }
 
-    public void setScanned(int position, boolean state)
+    public void setBleScannedState(int position, boolean state)
     {
-        mCollectedMapItems.get(position).isScanned = state;
+        mItems.get(position).isBleScanned = state;
     }
 
-    public boolean isSelected(int position)
+    public boolean isItemSelected(int position)
     {
-        return mCollectedMapItems.get(position).isSelected;
+        return mItems.get(position).isItemSelected;
     }
 
-    public void setSelect(int position, boolean select)
+    public void setItemSelectState(int position, boolean select)
     {
-        mCollectedMapItems.get(position).isSelected = select;
+        mItems.get(position).isItemSelected = select;
         this.notifyDataSetChanged();
     }
 
     public void setBtDevice(int position, BluetoothDevice btDevice)
     {
-        mCollectedMapItems.get(position).btDevice = btDevice;
+        mItems.get(position).btDevice = btDevice;
     }
 
     public BluetoothDevice getBtDevice(int position)
     {
-        return mCollectedMapItems.get(position).btDevice;
+        return mItems.get(position).btDevice;
     }
 
-    public void allItemNoSelect()
+    public void setItemSelectedStateForAll(boolean state)
     {
-        for (CollectedMapItem item : mCollectedMapItems)
+        if (mItems == null)
         {
-            item.isSelected = false;
+            return;
+        }
+
+        for (int i = 0; i < mItems.size(); i++)
+        {
+            mItems.get(i).isItemSelected = state;
         }
 
         this.notifyDataSetChanged();
@@ -147,27 +147,12 @@ public class ShareCollectMapAdapter extends RecyclerView.Adapter<ShareCollectMap
 
     public EntityUser getItem(int position)
     {
-        return (EntityUser) mCollectedMapItems.get(position);
-    }
-
-    public List<EntityUser> getCollectedItems()
-    {
-        List<EntityUser> users = new ArrayList<>();
-
-        for (CollectedMapItem item : mCollectedMapItems)
-        {
-            if (item.isCollected)
-            {
-                users.add((EntityUser) item);
-            }
-        }
-
-        return users;
+        return mItems.get(position);
     }
 
     public void clearItems()
     {
-        mCollectedMapItems.clear();
+        mItems.clear();
         this.notifyDataSetChanged();
     }
 
@@ -181,22 +166,22 @@ public class ShareCollectMapAdapter extends RecyclerView.Adapter<ShareCollectMap
 
     public void addItem(EntityUser user)
     {
-        if (user != null)
+        if (user == null)
         {
-            CollectedMapItem item = new CollectedMapItem();
-            item.name = user.name;
-            item.ear = user.ear;
-            item.passKey = user.passKey;
-            item.nickname = user.nickname;
-            item.defaultUser = user.defaultUser;
-            item.isCollected = false;
-            item.isScanned = false;
-            item.isSelected = false;
-            item.btDevice = null;
-
-            mCollectedMapItems.add(item);
-            this.notifyDataSetChanged();
+            return;
         }
+
+        CollectedMapItem item = new CollectedMapItem();
+
+        UtilUser.copyData(item, user);
+
+        item.isMapCollected = false;
+        item.isBleScanned = false;
+        item.isItemSelected = false;
+        item.btDevice = null;
+
+        mItems.add(item);
+        this.notifyDataSetChanged();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder
@@ -218,12 +203,7 @@ public class ShareCollectMapAdapter extends RecyclerView.Adapter<ShareCollectMap
 
             itemView.setOnClickListener(view ->
             {
-                int position = getAdapterPosition();
-                boolean selected = mCollectedMapItems.get(position).isSelected;
-
-                allItemNoSelect();
-                setSelect(position, !selected);
-                mShareFragment.listClickListenerCollectMap(position);
+                mShareFragment.listClickListenerCollectMap(getAdapterPosition());
             });
         }
 
@@ -231,27 +211,19 @@ public class ShareCollectMapAdapter extends RecyclerView.Adapter<ShareCollectMap
         {
             this.position = position;
 
-            nameTv.setText(item.name.substring(0, item.name.length() - 2));
+            nameTv.setText(UtilUser.getNameOnly(item.name));
+            earTv.setText(UtilUser.getEarKorean(item.ear));
 
-            if (item.ear.equals(EntityUser.EAR_LEFT))
+            if (item.isBleScanned)
             {
-                earTv.setText("왼쪽");
-            }
-            else
-            {
-                earTv.setText("오른쪽");
-            }
-
-            if (item.isScanned)
-            {
-                serialTv.setText(item.serial);
+                serialTv.setText(item.oteSerial);
             }
             else
             {
                 serialTv.setText("-");
             }
 
-            if (item.isCollected)
+            if (item.isMapCollected)
             {
                 resultTv.setText("완료");
             }
@@ -260,7 +232,7 @@ public class ShareCollectMapAdapter extends RecyclerView.Adapter<ShareCollectMap
                 resultTv.setText("-");
             }
 
-            if (item.isSelected)
+            if (item.isItemSelected)
             {
                 nameTv.setBackgroundColor(mShareFragment.requireActivity().getColor(R.color.field_70));
                 earTv.setBackgroundColor(mShareFragment.requireActivity().getColor(R.color.field_70));
@@ -279,10 +251,10 @@ public class ShareCollectMapAdapter extends RecyclerView.Adapter<ShareCollectMap
 
     static class CollectedMapItem extends EntityUser
     {
-        boolean isSelected;
-        boolean isScanned;
-        boolean isCollected;
-        String serial;
+        boolean isItemSelected;
+        boolean isBleScanned;
+        boolean isMapCollected;
+        String oteSerial;
         BluetoothDevice btDevice;
     }
 }

@@ -8,8 +8,11 @@ import androidx.room.PrimaryKey;
 @Entity
 public class EntityUser
 {
+    static public final String DELIMITER = "_";
     static public final String EAR_LEFT = "L";
     static public final String EAR_RIGHT = "R";
+    static public final String EAR_LEFT_KR = "왼쪽";
+    static public final String EAR_RIGHT_KR = "오른쪽";
     static public final String USER_DEFAULT = "Y";
     static public final String USER_NOT_DEFAULT = "N";
 
@@ -21,7 +24,6 @@ public class EntityUser
     public String ear;
     @ColumnInfo(name = "defaultUser")
     public String defaultUser;
-
 
     @NonNull
     @Override

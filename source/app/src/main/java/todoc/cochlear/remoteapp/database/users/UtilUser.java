@@ -119,4 +119,35 @@ public class UtilUser
 
         return null;
     }
+
+    // 착용위치를 제외한 이름 정보만 얻어오기
+    static public String getNameOnly(String nameWithEar)
+    {
+        return nameWithEar.substring(0, nameWithEar.length() - (EntityUser.EAR_LEFT.length() + EntityUser.DELIMITER.length()));
+    }
+
+    // 착용 위치에 대한 한극 문자열 얻어오기
+    static public String getEarKorean(String ear)
+    {
+        if (ear.equals(EntityUser.EAR_LEFT))
+        {
+            return EntityUser.EAR_LEFT_KR;
+        }
+        else
+        {
+            return EntityUser.EAR_RIGHT_KR;
+        }
+    }
+
+    static public void copyData(EntityUser dst, EntityUser src)
+    {
+        if (src != null && dst != null)
+        {
+            dst.name = src.name;
+            dst.ear = src.ear;
+            dst.nickname = src.nickname;
+            dst.passKey = src.passKey;
+            dst.defaultUser = src.defaultUser;
+        }
+    }
 }

@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.database.maps.EntityMap;
@@ -54,8 +55,11 @@ public class ShareExistMapAdapter extends RecyclerView.Adapter<ShareExistMapAdap
 
     public EntityUser getUser(int position)
     {
-        return UtilUser.instance.getUserByName(
-                EntityMap.makePrimaryKey(mItems.get(position).name, mItems.get(position).ear));
+        String name = mItems.get(position).name;
+        String ear = mItems.get(position).ear;
+        String primaryKey = EntityMap.makePrimaryKey(name, ear);
+
+        return UtilUser.instance.getUserByName(primaryKey);
     }
 
     public void addMaps(List<EntityMap> maps)
@@ -74,14 +78,14 @@ public class ShareExistMapAdapter extends RecyclerView.Adapter<ShareExistMapAdap
 
             int year, month, day, hour, minute, second;
 
-            second = (int) (map.stamp & 0xffL);
-            minute = (int) ((map.stamp >> 8) & 0xffL);
-            hour = (int) ((map.stamp >> 16) & 0xffL);
-            day = (int) ((map.stamp >> 24) & 0xffL);
-            month = (int) ((map.stamp >> 32) & 0xffL);
-            year = (int) ((map.stamp >> 40) & 0xffL);
+            second = (int) (map.stamp & 0xffL);         // long to int
+            minute = (int) ((map.stamp >> 8) & 0xffL);  // long to int
+            hour = (int) ((map.stamp >> 16) & 0xffL);   // long to int
+            day = (int) ((map.stamp >> 24) & 0xffL);    // long to int
+            month = (int) ((map.stamp >> 32) & 0xffL);  // long to int
+            year = (int) ((map.stamp >> 40) & 0xffL);   // long to int
 
-            item.date = String.format("%4d-%02d-%02d\n%02d:%02d:%02d", 2000 + year, month, day, hour, minute, second);
+            item.date = String.format(Locale.ENGLISH, "%4d-%02d-%02d\n%02d:%02d:%02d", 2000 + year, month, day, hour, minute, second);
             item.name = map.name;
             item.ear = map.ear;
 
@@ -110,15 +114,7 @@ public class ShareExistMapAdapter extends RecyclerView.Adapter<ShareExistMapAdap
         {
             this.position = position;
 
-            if (item.ear.equals(EntityUser.EAR_LEFT))
-            {
-                earTv.setText("왼쪽");
-            }
-            else
-            {
-                earTv.setText("오른쪽");
-            }
-
+            earTv.setText(UtilUser.getEarKorean(item.ear));
             nameTv.setText(item.name);
             dateTv.setText(item.date);
         }

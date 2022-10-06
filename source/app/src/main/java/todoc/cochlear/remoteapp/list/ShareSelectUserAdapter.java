@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,15 +14,16 @@ import java.util.List;
 
 import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.database.users.EntityUser;
+import todoc.cochlear.remoteapp.database.users.UtilUser;
 import todoc.cochlear.remoteapp.params.Status;
 
 public class ShareSelectUserAdapter extends RecyclerView.Adapter<ShareSelectUserAdapter.ViewHolder>
 {
-    private final ArrayList<SelectUserItem> mSelectUserItems;
+    private final ArrayList<SelectUserItem> mItems;
 
     public ShareSelectUserAdapter()
     {
-        mSelectUserItems = new ArrayList<>();
+        mItems = new ArrayList<>();
     }
 
     @NonNull
@@ -37,49 +37,42 @@ public class ShareSelectUserAdapter extends RecyclerView.Adapter<ShareSelectUser
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position)
     {
-        holder.onBind(mSelectUserItems.get(position), position);
+        holder.onBind(mItems.get(position), position);
     }
 
     @Override
     public int getItemCount()
     {
-        return mSelectUserItems.size();
+        return mItems.size();
     }
 
-    public int getSelectedCount()
+    public int getSelectedUserCount()
     {
-        if (mSelectUserItems.size() == 0)
-        {
-            return 0;
-        }
-
         int count = 0;
 
-        for (SelectUserItem item : mSelectUserItems)
+        if (0 < mItems.size())
         {
-            if (item.selected)
+            for (int i = 0; i < mItems.size(); i++)
             {
-                count++;
+                if (mItems.get(i).isSelected)
+                {
+                    count++;
+                }
             }
         }
 
         return count;
     }
 
-    public EntityUser getItem(int position)
-    {
-        return (EntityUser) mSelectUserItems.get(position);
-    }
-
-    public List<EntityUser> getSelectedItems()
+    public List<EntityUser> getSelectedUsers()
     {
         List<EntityUser> users = new ArrayList<>();
 
-        for (SelectUserItem item : mSelectUserItems)
+        for (SelectUserItem item : mItems)
         {
-            if (item.selected)
+            if (item.isSelected)
             {
-                users.add((EntityUser) item);
+                users.add(item);
             }
         }
 
@@ -88,7 +81,7 @@ public class ShareSelectUserAdapter extends RecyclerView.Adapter<ShareSelectUser
 
     public void clearItems()
     {
-        mSelectUserItems.clear();
+        mItems.clear();
         this.notifyDataSetChanged();
     }
 
@@ -102,26 +95,24 @@ public class ShareSelectUserAdapter extends RecyclerView.Adapter<ShareSelectUser
 
     public void addItem(EntityUser user)
     {
-        if (user != null)
+        if (user == null)
         {
-            SelectUserItem item = new SelectUserItem();
-            item.name = user.name;
-            item.ear = user.ear;
-            item.nickname = user.nickname;
-            item.passKey = user.passKey;
-            item.defaultUser = user.defaultUser;
-
-            if (Status.instance().connectionState != Status.CONNECTION_STATE_DISCONNECTED)
-            {
-                if (item.defaultUser.equals(EntityUser.USER_DEFAULT))
-                {
-                    item.selected = true;
-                }
-            }
-
-            mSelectUserItems.add(item);
-            this.notifyDataSetChanged();
+            return;
         }
+
+        SelectUserItem item = new SelectUserItem();
+        item.isSelected = false;
+        UtilUser.copyData(item, user);
+
+        if (Status.instance().connectionState != Status.CONNECTION_STATE_DISCONNECTED
+                && Status.instance().connectedUser != null
+                && Status.instance().connectedUser.name.equals(user.name))
+        {
+            item.isSelected = true;
+        }
+
+        mItems.add(item);
+        this.notifyDataSetChanged();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder
@@ -142,7 +133,7 @@ public class ShareSelectUserAdapter extends RecyclerView.Adapter<ShareSelectUser
             selectCb.setOnCheckedChangeListener((compoundButton, b) ->
             {
                 int position = getAdapterPosition();
-                mSelectUserItems.get(position).selected = b;
+                mItems.get(position).isSelected = b;
             });
         }
 
@@ -150,23 +141,10 @@ public class ShareSelectUserAdapter extends RecyclerView.Adapter<ShareSelectUser
         {
             this.position = position;
 
-            nameTv.setText(item.name.substring(0, item.name.length() - 2));
+            nameTv.setText(UtilUser.getNameOnly(item.name));
+            earTv.setText(UtilUser.getEarKorean(item.ear));
 
-            if (item.ear.equals(EntityUser.EAR_LEFT))
-            {
-                earTv.setText("왼쪽");
-            }
-            else
-            {
-                earTv.setText("오른쪽");
-            }
-
-            if (item.selected)
-            {
-                selectCb.setChecked(true);
-            }
-
-            if (item.selected)
+            if (item.isSelected)
             {
                 selectCb.setChecked(true);
             }
@@ -175,6 +153,6 @@ public class ShareSelectUserAdapter extends RecyclerView.Adapter<ShareSelectUser
 
     static class SelectUserItem extends EntityUser
     {
-        boolean selected;
+        boolean isSelected;
     }
 }
