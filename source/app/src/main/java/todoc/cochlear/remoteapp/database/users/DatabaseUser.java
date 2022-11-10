@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase;
 public abstract class DatabaseUser extends RoomDatabase
 {
     public static final String DATABASE_NAME = "user_info";
-    public static final String DATABASE_ENCODING = "PRAGMA encoding='UTF-8';";
+    public static final String DATABASE_ENCODING = "PRAGMA encoding='UTF-8'";
 
     public abstract DaoUser daoUser();
 }

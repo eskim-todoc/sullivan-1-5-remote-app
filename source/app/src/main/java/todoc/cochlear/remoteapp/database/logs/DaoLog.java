@@ -10,7 +10,7 @@ import androidx.room.Update;
 import java.util.List;
 
 @Dao
-public interface DaoLogs
+public interface DaoLog
 {
     @Query("SELECT * FROM EntityLog")
     List<EntityLog> findAll();

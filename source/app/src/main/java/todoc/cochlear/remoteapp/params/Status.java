@@ -38,8 +38,12 @@ public class Status
     static public final int LOCK_SCREEN_STATE_LOCK = 0;
     static public final int LOCK_SCREEN_STATE_TEMPORARY_UNLOCK = 1;
 
+    /*
     static public final int LONG_TIME_IDLE_STATE_NOT_TRIGGERED = 0;
     static public final int LONG_TIME_IDLE_STATE_TRIGGERED = 1;
+    */
+
+    public int typeOfFragment;
 
     public int connectionState;         // BLE 기기 연결 상태
     public int scanState;               // BLE 스캔 상태
@@ -47,9 +51,13 @@ public class Status
     public int exitCaptureState;        // 강제 종료 포착 서비스 상태
     public int activityRunningState;    // 액티비티 동작 상태
     public int lockScreenState;         // 일시적으로 잠금화면 기능을 해제한 상태
+    /*
     public int longTimeIdleState;       // 장시간 미사용 상태
+    */
     public AlertDialog lastDialog;      // 앱에서 마지막에 출력된 다이얼로그 정보
+    /*
     public AlertDialog longTimeIdleDialog; // 장시간 미사용시 출력된 다이얼로그 정보
+    */
     public EntityDevice connectedDevice;// 현재 연결을 시도하거나 연결중이거나 혹은 연결된 상태의 기기 정보
     public EntityUser connectedUser;    // 현재 연결을 시도하거나 연결중이거나 혹은 연결된 상태의 사용자 정보
 
@@ -71,15 +79,16 @@ public class Status
         isEnabledInternalErrorToast = false;
     }
 
-    @NonNull
     @Override
     public String toString()
     {
         return "Status{" +
-                "connectionState=" + connectionState +
+                "typeOfFragment=" + typeOfFragment +
+                ", connectionState=" + connectionState +
                 ", scanState=" + scanState +
                 ", transferState=" + transferState +
                 ", exitCaptureState=" + exitCaptureState +
+                ", activityRunningState=" + activityRunningState +
                 ", lockScreenState=" + lockScreenState +
                 ", lastDialog=" + lastDialog +
                 ", connectedDevice=" + connectedDevice +
@@ -90,5 +99,21 @@ public class Status
                 ", isEnabledUnlockedToast=" + isEnabledUnlockedToast +
                 ", isEnabledInternalErrorToast=" + isEnabledInternalErrorToast +
                 '}';
+    }
+
+    static public class TypeOfFragment
+    {
+        static public final int NONE = 0;
+        static public final int REMOTE_CONTROL = 1;
+        static public final int MENU = 2;
+        static public final int USER_LIST = 3;
+        static public final int USER_ADD = 4;
+        static public final int USER_EDIT = 5;
+        static public final int DEVICE_LIST = 6;
+        static public final int DEVICE_ADD = 7;
+        static public final int DEVICE_EDIT = 8;
+        static public final int MANUAL = 9;
+        static public final int HIDDEN_LOG = 10;
+        static public final int SHARE_MAP = 11;
     }
 }

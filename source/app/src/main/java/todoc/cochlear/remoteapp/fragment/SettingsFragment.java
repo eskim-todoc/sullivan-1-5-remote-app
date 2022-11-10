@@ -92,7 +92,8 @@ public class SettingsFragment extends Fragment
                     // 장시간 미사용 핸들러 업데이트
                     ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
-                    ((MainActivity) requireActivity()).mLockScreen.setEnable(requireContext(), b);
+                    //((MainActivity) requireActivity()).mLockScreen.setEnable(requireContext(), b);
+                    ((MainActivity) requireActivity()).mLockScreen.setEnable(b);
                 }
         );
     }
@@ -115,7 +116,10 @@ public class SettingsFragment extends Fragment
 
             if (view.getId() == mSettingBinding.buttonManual.getId())
             {
+                /*
                 ((MainActivity) requireActivity()).getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new ManualFragment()).commitAllowingStateLoss();
+                */
+                ((MainActivity) requireActivity()).replaceFragment(Status.TypeOfFragment.MANUAL);
             }
         }
     };
@@ -139,11 +143,17 @@ public class SettingsFragment extends Fragment
 
             if (view.getId() == mSettingBinding.buttonUser.getId())
             {
+                /*
                 ((MainActivity) requireActivity()).getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new UserFragment()).commitAllowingStateLoss();
+                */
+                ((MainActivity) requireActivity()).replaceFragment(Status.TypeOfFragment.USER_LIST);
             }
             else if (view.getId() == mSettingBinding.buttonDevice.getId())
             {
+                /*
                 ((MainActivity) requireActivity()).getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new DeviceFragment()).commitAllowingStateLoss();
+                */
+                ((MainActivity) requireActivity()).replaceFragment(Status.TypeOfFragment.DEVICE_LIST);
             }
         }
     };
@@ -227,7 +237,10 @@ public class SettingsFragment extends Fragment
             // 장시간 미사용 핸들러 업데이트
             ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
+            /*
             ((MainActivity) requireActivity()).getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new ShareFragment()).commitAllowingStateLoss();
+            */
+            ((MainActivity) requireActivity()).replaceFragment(Status.TypeOfFragment.SHARE_MAP);
         });
     }
 }

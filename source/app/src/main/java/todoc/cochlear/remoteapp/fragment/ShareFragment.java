@@ -599,7 +599,7 @@ public class ShareFragment extends Fragment
                             mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.mapNum = MapInfo.MAP_DATA_MAP_MIN;
                             mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.indexNum = MapInfo.MAP_DATA_INDEX_MIN;
 
-                            mCollectedMapInfo[mCollectedMapInfoCurrentIndex].dataType = MapInfo.DATA_TYPE_ID_USER;
+                            //mCollectedMapInfo[mCollectedMapInfoCurrentIndex].dataType = MapInfo.DATA_TYPE_ID_USER;
                         }
 
                         mActivity.mBluetoothDevice = mBtDevice;
@@ -667,7 +667,7 @@ public class ShareFragment extends Fragment
 
                         mShareMapInfo.idUser.slotNum = MapInfo.SLOT_MIN;
                         mShareMapInfo.idUser.indexNum = MapInfo.ID_USER_INDEX_MIN;
-                        mShareMapInfo.dataType = MapInfo.DATA_TYPE_ID_USER;
+                        //mShareMapInfo.dataType = MapInfo.DATA_TYPE_ID_USER;
                     }
 
                     mActivity.mBluetoothDevice = mBtDevice;
@@ -1470,7 +1470,7 @@ public class ShareFragment extends Fragment
 
                     mShareMapInfo.idUser.slotNum = MapInfo.SLOT_MIN;
                     mShareMapInfo.idUser.indexNum = MapInfo.ID_USER_INDEX_MIN;
-                    mShareMapInfo.dataType = MapInfo.DATA_TYPE_ID_USER;
+                    //mShareMapInfo.dataType = MapInfo.DATA_TYPE_ID_USER;
 
                     mDataIndexHandler.postDelayed(mDataIndexRunner, HANDLER_TIMEOUT_IN_MS);
 
@@ -1665,12 +1665,18 @@ public class ShareFragment extends Fragment
 
                     if (MapInfo.SLOT_MAX < mCollectedMapInfo[mCollectedMapInfoCurrentIndex].mapData.slotNum)
                     {
-                        Log.d(TAG, "packetProcessCollectReadIdUser() : 데이터 수집 완료.");
+                        Log.d(TAG, "packetProcessCollectReadMapData() : 데이터 수집 완료.");
 
                         mCollectFsm = COLLECT_FSM_COLLECTED;
 
                         mCollectedMapInfo[mCollectedMapInfoCurrentIndex].metadata.isFilled = true;
                         mCollectedMapInfo[mCollectedMapInfoCurrentIndex].updateMetadata();
+
+                        if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED && mActivity.mBluetoothGatt != null)
+                        {
+                            mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+                            mActivity.mBluetoothGatt.disconnect();
+                        }
 
                         for (int i = 0; i < mCollectMapAdapter.getItemCount(); i++)
                         {
@@ -2225,7 +2231,7 @@ public class ShareFragment extends Fragment
             return;
         }
 
-        dst.dataType = src.dataType;
+        //dst.dataType = src.dataType;
 
         dst.metadata.isFilled = src.metadata.isFilled;
 

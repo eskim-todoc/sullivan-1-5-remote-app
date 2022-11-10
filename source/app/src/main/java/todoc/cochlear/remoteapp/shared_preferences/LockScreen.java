@@ -106,9 +106,11 @@ public class LockScreen
         return mContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(KEY_FOR_ENABLE, true);
     }
 
-    public void setEnable(Context context, boolean enable)
+    //public void setEnable(Context context, boolean enable)
+    public void setEnable(boolean enable)
     {
-        context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit().putBoolean(KEY_FOR_ENABLE, enable).apply();
+        //context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit().putBoolean(KEY_FOR_ENABLE, enable).apply();
+        mContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit().putBoolean(KEY_FOR_ENABLE, enable).apply();
         Log.d(TAG, "Lock Screen Enable state = " + enable + ".");
     }
 
@@ -146,29 +148,16 @@ public class LockScreen
         if (mState == STATE_REGISTER)
         {
             mBinding.lockScreenTitle.setText("암호 등록");
-            mBinding.lockScreenInfo.setText(mContext.getString(R.string.lock_screen_register_password));
-            mBinding.lockScreenInfo.setVisibility(View.GONE);
             mBinding.forgotPassword.setVisibility(View.GONE);
         }
         else if (mState == STATE_COMPARE)
         {
             mBinding.lockScreenTitle.setText("암호 확인");
-            mBinding.lockScreenInfo.setText(mContext.getString(R.string.lock_screen_compare_password));
-            mBinding.lockScreenInfo.setVisibility(View.GONE);
             mBinding.forgotPassword.setVisibility(View.GONE);
-        }
-        else if (mState == STATE_DECODE)
-        {
-            mBinding.lockScreenTitle.setText("암호 입력");
-            mBinding.lockScreenInfo.setText(mContext.getString(R.string.lock_screen_decode_password));
-            mBinding.lockScreenInfo.setVisibility(View.GONE);
-            mBinding.forgotPassword.setVisibility(View.VISIBLE);
         }
         else
         {
             mBinding.lockScreenTitle.setText("암호 입력");
-            mBinding.lockScreenInfo.setText(mContext.getString(R.string.lock_screen_invalid_state));
-            mBinding.lockScreenInfo.setVisibility(View.GONE);
             mBinding.forgotPassword.setVisibility(View.VISIBLE);
         }
     }
@@ -202,10 +191,12 @@ public class LockScreen
         }
         else
         {
+            /*
             if (Status.instance().longTimeIdleState == Status.LONG_TIME_IDLE_STATE_TRIGGERED)
             {
                 //return;
             }
+            */
 
             mBinding.lockScreen.setVisibility(View.GONE);
 

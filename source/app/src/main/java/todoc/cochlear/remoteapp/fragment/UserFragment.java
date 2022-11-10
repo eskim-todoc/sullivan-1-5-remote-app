@@ -20,6 +20,7 @@ import todoc.cochlear.remoteapp.activity.databinding.FragmentUserBinding;
 import todoc.cochlear.remoteapp.database.users.EntityUser;
 import todoc.cochlear.remoteapp.database.users.UtilUser;
 import todoc.cochlear.remoteapp.list.UserAdapter;
+import todoc.cochlear.remoteapp.params.Status;
 
 public class UserFragment extends Fragment
 {
@@ -94,10 +95,12 @@ public class UserFragment extends Fragment
         bundle.putString(EditUserFragment.ARG_EAR, item.ear);
         bundle.putString(EditUserFragment.ARG_DEFAULT, item.defaultUser);
 
+        /*
         EditUserFragment editUserFragment = new EditUserFragment();
         editUserFragment.setArguments(bundle);
-
         requireActivity().getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), editUserFragment).commitAllowingStateLoss();
+        */
+        ((MainActivity) requireActivity()).replaceFragment(Status.TypeOfFragment.USER_EDIT, bundle);
     }
 
     public void mItemClickListener(int position)
@@ -116,10 +119,12 @@ public class UserFragment extends Fragment
         bundle.putString(EditUserFragment.ARG_EAR, item.ear);
         bundle.putString(EditUserFragment.ARG_DEFAULT, item.defaultUser);
 
+        /*
         EditUserFragment editUserFragment = new EditUserFragment();
         editUserFragment.setArguments(bundle);
-
         requireActivity().getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), editUserFragment).commitAllowingStateLoss();
+        */
+        ((MainActivity) requireActivity()).replaceFragment(Status.TypeOfFragment.USER_EDIT, bundle);
     }
 
     private void initAddButton()
@@ -129,7 +134,10 @@ public class UserFragment extends Fragment
             // 장시간 미사용 핸들러 업데이트
             ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
+            /*
             requireActivity().getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new AddUserFragment()).commitAllowingStateLoss();
+            */
+            ((MainActivity) requireActivity()).replaceFragment(Status.TypeOfFragment.USER_ADD);
         });
     }
 

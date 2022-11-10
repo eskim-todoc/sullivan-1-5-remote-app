@@ -34,7 +34,8 @@
                     app:menu="@menu/toolbar"
                     app:navigationIcon="@drawable/toolbar_ic_back_arrow_24dp"
                     app:titleCentered="true"
-                    app:titleTextColor="@color/white_90" />
+                    app:titleTextColor="@color/white_90"
+                    tools:title="화면" />
 
             </com.google.android.material.appbar.AppBarLayout>
 
@@ -66,7 +67,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Pairing Key screen -->
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/pairing_key_layout"
             android:layout_width="0dp"
@@ -78,7 +78,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="visible">
+            tools:visibility="gone">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -127,7 +127,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="gone">
+            tools:visibility="visible">
 
             <ImageView
                 android:layout_width="0dp"
@@ -153,42 +153,28 @@
                 android:id="@+id/lock_screen_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:text="암호 입력"
                 android:textColor="@color/white_90"
                 android:textSize="24dp"
-                app:layout_constraintBottom_toTopOf="@id/lock_screen_info"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.6"
-                app:layout_constraintVertical_chainStyle="packed" />
-
-            <TextView
-                android:id="@+id/lock_screen_info"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="리모컨 앱 암호를 입력해주세요."
-                android:textColor="@color/white_70"
-                android:textSize="14dp"
                 app:layout_constraintBottom_toTopOf="@id/circle_layout"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/lock_screen_title"
-                tools:visibility="gone" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="packed" />
 
             <LinearLayout
                 android:id="@+id/circle_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="38dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="8dp"
                 android:gravity="center"
                 android:orientation="horizontal"
                 app:layout_constraintBottom_toBottomOf="@id/lock_screen_guide"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/lock_screen_info">
+                app:layout_constraintTop_toBottomOf="@id/lock_screen_title">
 
                 <ImageView
                     android:id="@+id/lock_screen_circle_0"

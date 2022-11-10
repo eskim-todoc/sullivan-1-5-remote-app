@@ -21,6 +21,7 @@ import todoc.cochlear.remoteapp.activity.databinding.FragmentDeviceBinding;
 import todoc.cochlear.remoteapp.database.devices.EntityDevice;
 import todoc.cochlear.remoteapp.database.devices.UtilDevice;
 import todoc.cochlear.remoteapp.list.DeviceAdapter;
+import todoc.cochlear.remoteapp.params.Status;
 
 public class DeviceFragment extends Fragment
 {
@@ -88,10 +89,12 @@ public class DeviceFragment extends Fragment
         bundle.putString(EditDeviceFragment.ARG_PAIRING_KEY, item.pairingKey);
         bundle.putString(EditDeviceFragment.ARG_OPTION, item.additionalInformation);
 
+        /*
         EditDeviceFragment editDeviceFragment = new EditDeviceFragment();
         editDeviceFragment.setArguments(bundle);
-
         ((MainActivity) requireActivity()).getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), editDeviceFragment).commitAllowingStateLoss();
+        */
+        ((MainActivity) requireActivity()).replaceFragment(Status.TypeOfFragment.DEVICE_EDIT, bundle);
     }
 
     private void initAddButton()
@@ -101,7 +104,10 @@ public class DeviceFragment extends Fragment
             // 장시간 미사용 핸들러 업데이트
             ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
+            /*
             ((MainActivity) requireActivity()).getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new AddDeviceFragment()).commitAllowingStateLoss();
+            */
+            ((MainActivity) requireActivity()).replaceFragment(Status.TypeOfFragment.DEVICE_ADD);
         });
     }
 

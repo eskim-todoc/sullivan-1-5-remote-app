@@ -1,6 +1,8 @@
 package todoc.cochlear.remoteapp.database.devices;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -26,7 +28,15 @@ public class UtilDevice
             mDatabase.close();
             mDatabase = null;
 
+            // TD2-SW-RC-UNIT-Test-ID-10 [DB 기기 정보 닫기 유닛] 순서[1] 시작.
             Log.d(TAG, "기기 데이터베이스 '" + DatabaseDevice.DATABASE_NAME + "'를 닫았습니다.");
+            // TD2-SW-RC-UNIT-Test-ID-10 [DB 기기 정보 닫기 유닛] 순서[1] 끝.
+
+            // TD2-SW-RC-UNIT-Test-ID-10 [DB 기기 정보 닫기 유닛] 순서[2] 시작.
+            /*
+            close();
+            */
+            // TD2-SW-RC-UNIT-Test-ID-10 [DB 기기 정보 닫기 유닛] 순서[2] 끝.
         }
         else
         {
@@ -37,8 +47,19 @@ public class UtilDevice
     // 데이터베이스 열기
     public void open(Context context)
     {
+        Log.d(TAG, "DB 기기 정보 열기 유닛 시작.");
+        
         if (mDatabase == null)
         {
+            // TD2-SW-RC-UNIT-Test-ID-9 [DB 기기 정보 열기 유닛] 순서[2] 시작.
+            /*
+            new Handler(Looper.getMainLooper()).postDelayed(() ->
+            {
+                open(context);
+            }, 100);
+            */
+            // TD2-SW-RC-UNIT-Test-ID-9 [DB 기기 정보 열기 유닛] 순서[2] 끝.
+
             mDatabase = Room.databaseBuilder(context, DatabaseDevice.class, DatabaseDevice.DATABASE_NAME)
                     .addCallback(new RoomDatabase.Callback()
                     {
@@ -47,7 +68,16 @@ public class UtilDevice
                         {
                             super.onCreate(db);
                             db.execSQL(DatabaseDevice.DATABASE_ENCODING);
+                            Log.d(TAG, "기기 데이터베이스 '" + DatabaseDevice.DATABASE_NAME + "'을 생성했습니다.");
+                        }
+
+                        @Override
+                        public void onOpen(@NonNull SupportSQLiteDatabase db)
+                        {
+                            super.onOpen(db);
+                            // TD-SW-RC-UNIT-Test-ID-9 [DB 기기 정보 열기 유닛] 순서[1] 시작.
                             Log.d(TAG, "기기 데이터베이스 '" + DatabaseDevice.DATABASE_NAME + "'을 열었습니다.");
+                            // TD-SW-RC-UNIT-Test-ID-9 [DB 기기 정보 열기 유닛] 순서[1] 끝.
                         }
                     })
                     .fallbackToDestructiveMigration()

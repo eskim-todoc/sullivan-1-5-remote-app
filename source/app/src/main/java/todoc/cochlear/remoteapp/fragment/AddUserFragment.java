@@ -98,7 +98,10 @@ public class AddUserFragment extends Fragment
 
         if (nameMatched && passKeyMatched && nicknameMatched)
         {
+            /*
             requireActivity().getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new LogFragment()).commitAllowingStateLoss();
+            */
+            ((MainActivity) requireActivity()).replaceFragment(Status.TypeOfFragment.HIDDEN_LOG);
             return true;
         }
 

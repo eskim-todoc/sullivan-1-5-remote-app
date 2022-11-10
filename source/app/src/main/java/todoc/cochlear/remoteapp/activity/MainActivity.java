@@ -53,6 +53,8 @@ import java.util.UUID;
 import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
 import todoc.cochlear.remoteapp.database.devices.EntityDevice;
 import todoc.cochlear.remoteapp.database.devices.UtilDevice;
+import todoc.cochlear.remoteapp.database.logs.EntityLog;
+import todoc.cochlear.remoteapp.database.maps.EntityMap;
 import todoc.cochlear.remoteapp.database.maps.UtilMap;
 import todoc.cochlear.remoteapp.database.users.EntityUser;
 import todoc.cochlear.remoteapp.database.users.UtilUser;
@@ -68,6 +70,8 @@ import todoc.cochlear.remoteapp.fragment.SettingsFragment;
 import todoc.cochlear.remoteapp.fragment.ShareFragment;
 import todoc.cochlear.remoteapp.fragment.UserFragment;
 import todoc.cochlear.remoteapp.database.logs.UtilLog;
+import todoc.cochlear.remoteapp.list.DeviceAdapter;
+import todoc.cochlear.remoteapp.params.MapInfo;
 import todoc.cochlear.remoteapp.params.Status;
 import todoc.cochlear.remoteapp.params.PacketInfo;
 import todoc.cochlear.remoteapp.service.ExitCaptureService;
@@ -81,17 +85,16 @@ public class MainActivity extends AppCompatActivity
 
     static private final int REQUEST_PERMISSION_CODE_NUMBER = 100;
 
-    static private final String BT_NAME_REGEX_FILTER = "^TD_.*$";
     static public final UUID BLE_UUID_SERVICE = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
     static public final UUID BLE_UUID_CHARACTERISTIC_CLIENT_TO_SERVER = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
     static public final UUID BLE_UUID_CHARACTERISTIC_SERVER_TO_CLIENT = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
     static public final UUID BLE_UUID_DESCRIPTION_CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
     static private final ParcelUuid SERVICE_DATA_UUID = new ParcelUuid(UUID.fromString("00004944-0000-1000-8000-00805F9B34FB"));
+    static private final String BT_NAME_REGEX_FILTER = "^TD_.*$";
 
     static private final int DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT = 500;
 
     static private final int LONG_TIME_IDLE_TIMEOUT_IN_MS = 600000;
-    //static private final int LONG_TIME_IDLE_TIMEOUT_IN_MS = 10000;
     static public final int CHECK_BATTERY_DELAY_IN_MS = 30000;
     static public final int DISCOVER_SERVICES_TIMEOUT_IN_MS = 2000;
     static public final int CCCD_TIMEOUT_IN_MS = 2000;
@@ -141,6 +144,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
+
         if (fragment instanceof AddDeviceFragment)
         {
             ((AddDeviceFragment) fragment).mAddDeviceBinding.addDevieSerialEdittext.setError(null);
@@ -180,6 +184,77 @@ public class MainActivity extends AppCompatActivity
     protected void onResume()
     {
         super.onResume();
+
+
+        // TD2-SW-RC-UNIT-Test-ID-26 [잠금 화면 활성화 유닛] 순서[1] 시작.
+        /*
+        {
+            // onCreate -> onResume 순서로 호출 되므로 onCreate에서 생성한 mLockScreen을 사용해서 테스트한다.
+            mLockScreen.setEnable(true);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-26 [잠금 화면 활성화 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-26 [잠금 화면 활성화 유닛] 순서[2] 시작.
+        /*
+        {
+            // onCreate -> onResume 순서로 호출 되므로 onCreate에서 생성한 mLockScreen을 사용해서 테스트한다.
+            mLockScreen.setEnable(false);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-26 [잠금 화면 활성화 유닛] 순서[2] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-27 [잠금 화면 체크 유닛] 순서[1] 시작.
+        /*
+        {
+            // onCreate -> onResume 순서로 호출 되므로 onCreate에서 생성한 mLockScreen을 사용해서 테스트한다.
+            Log.d(TAG, "Lock screen setting = " + mLockScreen.isEnabled());
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-27 [잠금 화면 체크 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-29 [암호 쓰기 유닛] 순서[1] 시작.
+        /*
+        {
+            // onCreate -> onResume 순서로 호출 되므로 onCreate에서 생성한 mLockScreen을 사용해서 테스트한다.
+            mLockScreen.writePassword("1111");
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-29 [암호 쓰기 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-29 [암호 쓰기 유닛] 순서[2] 시작.
+        /*
+        {
+            // onCreate -> onResume 순서로 호출 되므로 onCreate에서 생성한 mLockScreen을 사용해서 테스트한다.
+            mLockScreen.writePassword("2222");
+        }
+        //*/
+        // TD2-SW-RC-UNIT-Test-ID-29 [암호 쓰기 유닛] 순서[2] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-28 [암호 삭제 유닛] 순서[1] 시작.
+        /*
+        {
+            // onCreate -> onResume 순서로 호출 되므로 onCreate에서 생성한 mLockScreen을 사용해서 테스트한다.
+            mLockScreen.erasePassword();
+        }
+        //*/
+        // TD2-SW-RC-UNIT-Test-ID-29 [암호 삭제 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-30 [암호 읽기 유닛] 순서[1] 시작.
+        /*
+        {
+            // onCreate -> onResume 순서로 호출 되므로 onCreate에서 생성한 mLockScreen을 사용해서 테스트한다.
+            Log.d(TAG, "Lock screen password = " + mLockScreen.readPassword());
+        }
+        //*/
+        // TD2-SW-RC-UNIT-Test-ID-30 [암호 읽기 유닛] 순서[1] 끝.
+
 
         mStatus.activityRunningState = Status.ACTIVITY_RUNNING_STATE_FOREGROUND;
 
@@ -261,6 +336,7 @@ public class MainActivity extends AppCompatActivity
         lastDialogDismiss();
 
         // 장시간 미사용 다이얼로그 제거
+        /*
         if (mStatus.longTimeIdleDialog != null)
         {
             if (mStatus.longTimeIdleDialog.isShowing())
@@ -270,6 +346,7 @@ public class MainActivity extends AppCompatActivity
 
             mStatus.longTimeIdleDialog = null;
         }
+        */
 
         // 리모컨 화면 다이얼로그 제거
         Fragment fragment = getSupportFragmentManager().findFragmentById(mBinding.frame.getId());
@@ -304,6 +381,8 @@ public class MainActivity extends AppCompatActivity
         {
             mStatus = Status.instance();
         }
+
+        mStatus.typeOfFragment = Status.TypeOfFragment.NONE;
 
         mLockScreen = new LockScreen(getApplicationContext(), MainActivity.this, mBinding); // 잠금화면 객체 생성
 
@@ -342,14 +421,495 @@ public class MainActivity extends AppCompatActivity
         // 1) 로그
         UtilLog.instance.open(getApplicationContext());
 
+
+        // TD2-SW-RC-UNIT-Test-ID-19 [DB 시스템 로그 쓰기 유닛] 순서[1] 시작.
+        /*
+        {
+            UtilLog.instance.writeLog("테스트 메시지 1");
+            UtilLog.instance.writeLog("테스트 메시지 2");
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-19 [DB 시스템 로그 쓰기 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-18 [DB 모든 시스템 로그 읽기 유닛] 순서[1] 시작.
+        /*
+        {
+            List<EntityLog> logs = UtilLog.instance.readAllLogs();
+
+            for (EntityLog log : logs)
+            {
+                Log.d(TAG, "index = " + log.number + ", data = " + log.date + ", message = " + log.message);
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-18 [DB 모든 시스템 로그 읽기 유닛] 순서[1] 끝.
+
+
         // 2) 사용자
         UtilUser.instance.open(getApplicationContext());
+
+
+        // TD2-SW-RC-UNIT-Test-ID-6 [DB 사용자 정보 추가 유닛] 순서[1] 시작.
+        /*
+        {
+            EntityUser testUserInfo1 = new EntityUser();
+            testUserInfo1.name = "TEST-A_R";
+            testUserInfo1.passKey = "1111";
+            testUserInfo1.nickname = "테스트 A";
+            testUserInfo1.ear = "R";
+            testUserInfo1.defaultUser = "Y";
+
+            EntityUser testUserInfo2 = new EntityUser();
+            testUserInfo2.name = "TEST-B_L";
+            testUserInfo2.passKey = "2222";
+            testUserInfo2.nickname = "테스트 B";
+            testUserInfo2.ear = "L";
+            testUserInfo2.defaultUser = "N";
+
+            UtilUser.instance.insert(testUserInfo1);
+            UtilUser.instance.insert(testUserInfo2);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-6 [DB 사용자 정보 추가 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-3 [DB 모든 사용자 정보 읽기 유닛] 순서[1] 시작.
+        /*
+        {
+            List<EntityUser> testUserInfos = UtilUser.instance.getUsers();
+
+            for (EntityUser user : testUserInfos)
+            {
+                Log.d(TAG, "name = " + user.name + ", passKey = " + user.passKey + ", nickname = " + user.nickname + ", ear = " + user.ear + ", defaultUser = " + user.defaultUser);
+            }
+
+            UtilUser.instance.delete(testUserInfo1);
+            UtilUser.instance.delete(testUserInfo2);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-3 [DB 모든 사용자 정보 읽기 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-4 [DB 기본 사용자 정보 읽기 유닛] 순서[1] 시작.
+        /*
+        {
+            EntityUser testUserInfo1 = new EntityUser();
+            testUserInfo1.name = "TEST-A_R";
+            testUserInfo1.passKey = "1111";
+            testUserInfo1.nickname = "테스트 A";
+            testUserInfo1.ear = "R";
+            testUserInfo1.defaultUser = "Y";
+
+            EntityUser testUserInfo2 = new EntityUser();
+            testUserInfo2.name = "TEST-B_L";
+            testUserInfo2.passKey = "2222";
+            testUserInfo2.nickname = "테스트 B";
+            testUserInfo2.ear = "L";
+            testUserInfo2.defaultUser = "N";
+
+            UtilUser.instance.insert(testUserInfo1);
+            UtilUser.instance.insert(testUserInfo2);
+
+            EntityUser testDefaultUser = UtilUser.instance.getDefaultUser();
+
+            Log.d(TAG, "name = " + testDefaultUser.name + ", passKey = " + testDefaultUser.passKey + ", nickname = " + testDefaultUser.nickname
+                    + ", ear = " + testDefaultUser.ear + ", defaultUser = " + testDefaultUser.defaultUser);
+
+            UtilUser.instance.delete(testUserInfo1);
+            UtilUser.instance.delete(testUserInfo2);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-4 [DB 기본 사용자 정보 읽기 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-5 [DB 이름 기반 사용자 정보 읽기 유닛] 순서[1] 시작.
+        /*
+        {
+            EntityUser testUserInfo = new EntityUser();
+            testUserInfo.name = "TEST-A_R";
+            testUserInfo.passKey = "1111";
+            testUserInfo.nickname = "테스트 A";
+            testUserInfo.ear = "R";
+            testUserInfo.defaultUser = "Y";
+
+            UtilUser.instance.insert(testUserInfo);
+
+            EntityUser testUser = UtilUser.instance.getUserByName("TEST-A_R");
+
+            if (testUser != null)
+            {
+                Log.d(TAG, "name = " + testUser.name + ", passKey = " + testUser.passKey + ", nickname = " + testUser.nickname
+                        + ", ear = " + testUser.ear + ", defaultUser = " + testUser.defaultUser);
+            }
+            else
+            {
+                Log.d(TAG, "null");
+            }
+
+            UtilUser.instance.delete(testUserInfo);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-5 [DB 이름 기반 사용자 정보 읽기 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-5 [DB 이름 기반 사용자 정보 읽기 유닛] 순서[2] 시작.
+        /*
+        {
+            EntityUser testUser = UtilUser.instance.getUserByName("TEST-B_L");
+            if (testUser != null)
+            {
+                Log.d(TAG, "name = " + testUser.name + ", passKey = " + testUser.passKey + ", nickname = " + testUser.nickname
+                        + ", ear = " + testUser.ear + ", defaultUser = " + testUser.defaultUser);
+            }
+            else
+            {
+                Log.d(TAG, "null");
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-5 [DB 이름 기반 사용자 정보 읽기 유닛] 순서[2] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-7 [DB 사용자 정보 업데이트 유닛] 순서[1] 시작.
+        /*
+        {
+            List<EntityUser> users = UtilUser.instance.getUsers();
+
+            for (EntityUser user : users)
+            {
+                if (user.name.equals("TEST-A_R"))
+                {
+                    user.nickname = "사용자 A";
+                    UtilUser.instance.update(user);
+                }
+                else if (user.name.equals("TEST-B_L"))
+                {
+                    user.nickname = "사용자 B";
+                    UtilUser.instance.update(user);
+                }
+            }
+
+            users = UtilUser.instance.getUsers();
+
+            for (EntityUser user : users)
+            {
+                Log.d(TAG, "name = " + user.name + ", passKey = " + user.passKey + ", nickname = " + user.nickname + ", ear = " + user.ear + ", defaultUser = " + user.defaultUser);
+
+                if (user.name.equals("TEST-A_R"))
+                {
+                    UtilUser.instance.delete(user);
+                }
+                else if (user.name.equals("TEST-B_L"))
+                {
+                    UtilUser.instance.delete(user);
+                }
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-7 [DB 사용자 정보 업데이트 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-8 [DB 사용자 정보 삭제 유닛] 순서[1] 시작.
+        /*
+        {
+            List<EntityUser> users = UtilUser.instance.getUsers();
+
+            for (EntityUser user : users)
+            {
+                if (user.name.equals("TEST-B_L"))
+                {
+                    user.nickname = "사용자 B";
+                    UtilUser.instance.delete(user);
+                }
+            }
+
+            users = UtilUser.instance.getUsers();
+
+            for (EntityUser user : users)
+            {
+                Log.d(TAG, "name = " + user.name + ", passKey = " + user.passKey + ", nickname = " + user.nickname + ", ear = " + user.ear + ", defaultUser = " + user.defaultUser);
+
+                if (user.name.equals("TEST-A_R"))
+                {
+                    UtilUser.instance.delete(user);
+                }
+                else if (user.name.equals("TEST-B_L"))
+                {
+                    UtilUser.instance.delete(user);
+                }
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-8 [DB 사용자 정보 삭제 유닛] 순서[1] 끝.
+
 
         // 3) 사운드처리기
         UtilDevice.instance.open(getApplicationContext());
 
+
+        // TD2-SW-RC-UNIT-Test-ID-13 [DB 기기 정보 추가 유닛] 순서[1] 시작.
+        /*
+        {
+            EntityDevice testDeviceInfo1 = new EntityDevice();
+            testDeviceInfo1.serialNumber = "A1B2";
+            testDeviceInfo1.pairingKey = "123456";
+            testDeviceInfo1.additionalInformation = "기기 A";
+
+            EntityDevice testDeviceInfo2 = new EntityDevice();
+            testDeviceInfo2.serialNumber = "A8B9";
+            testDeviceInfo2.pairingKey = "654321";
+            testDeviceInfo2.additionalInformation = "기기 B";
+
+            UtilDevice.instance.insert(testDeviceInfo1);
+            UtilDevice.instance.insert(testDeviceInfo2);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-13 [DB 기기 정보 추가 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-11 [DB 모든 기기 정보 읽기 유닛] 순서[1] 시작.
+        /*
+        {
+            List<EntityDevice> testDeviceInfos = UtilDevice.instance.getDevices();
+
+            for (EntityDevice device : testDeviceInfos)
+            {
+                Log.d(TAG, "serialNumber = " + device.serialNumber + ", pairingKey = " + device.pairingKey + ", additionalInformation = " + device.additionalInformation);
+
+                if (device.serialNumber.equals("A1B2"))
+                {
+                    UtilDevice.instance.delete(device);
+                }
+                else if (device.serialNumber.equals("A8B9"))
+                {
+                    UtilDevice.instance.delete(device);
+                }
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-11 [DB 모든 기기 정보 읽기 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-12 [DB 제품번호 기반 기기 정보 읽기 유닛] 순서[1] 시작.
+        /*
+        {
+            EntityDevice testDeviceInfo = new EntityDevice();
+            testDeviceInfo.serialNumber = "A1B2";
+            testDeviceInfo.pairingKey = "123456";
+            testDeviceInfo.additionalInformation = "기기 A";
+
+            UtilDevice.instance.insert(testDeviceInfo);
+
+            EntityDevice testDevice = UtilDevice.instance.getDeviceBySerialNumber("A1B2");
+
+            if (testDevice != null)
+            {
+                Log.d(TAG, "serialNumber = " + testDevice.serialNumber + ", pairingKey = " + testDevice.pairingKey + ", additionalInformation = " + testDevice.additionalInformation);
+            }
+            else
+            {
+                Log.d(TAG, "null");
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-12 [DB 제품번호 기반 기기 정보 읽기 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-12 [DB 제품번호 기반 기기 정보 읽기 유닛] 순서[2] 시작.
+        /*
+        {
+            EntityDevice testDevice = UtilDevice.instance.getDeviceBySerialNumber("A2B3");
+
+            if (testDevice != null)
+            {
+                Log.d(TAG, "serialNumber = " + testDevice.serialNumber + ", pairingKey = " + testDevice.pairingKey + ", additionalInformation = " + testDevice.additionalInformation);
+            }
+            else
+            {
+                Log.d(TAG, "null");
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-12 [DB 제품번호 기반 기기 정보 읽기 유닛] 순서[2] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-14 [DB 기기 정보 업데이트 유닛] 순서[1] 시작.
+        /*
+        {
+            List<EntityDevice> testDeviceInfos = UtilDevice.instance.getDevices();
+
+            for (EntityDevice device : testDeviceInfos)
+            {
+                if (device.serialNumber.equals("A1B2"))
+                {
+                    device.additionalInformation = "외부기 A";
+                    UtilDevice.instance.update(device);
+                }
+                else if (device.serialNumber.equals("A8B9"))
+                {
+                    device.additionalInformation = "외부기 B";
+                    UtilDevice.instance.update(device);
+                }
+            }
+
+            testDeviceInfos = UtilDevice.instance.getDevices();
+
+            for (EntityDevice device : testDeviceInfos)
+            {
+                Log.d(TAG, "serialNumber = " + device.serialNumber + ", pairingKey = " + device.pairingKey + ", additionalInformation = " + device.additionalInformation);
+
+                if (device.serialNumber.equals("A1B2"))
+                {
+                    UtilDevice.instance.delete(device);
+                }
+                else if (device.serialNumber.equals("A8B9"))
+                {
+                    UtilDevice.instance.delete(device);
+                }
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-14 [DB 기기 정보 업데이트 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-15 [DB 기기 정보 삭제 유닛] 순서[1] 시작.
+        /*
+        {
+
+            List<EntityDevice> testDeviceInfos = UtilDevice.instance.getDevices();
+
+            for (EntityDevice device : testDeviceInfos)
+            {
+                if (device.serialNumber.equals("A1B2"))
+                {
+                    UtilDevice.instance.delete(device);
+                }
+            }
+
+            testDeviceInfos = UtilDevice.instance.getDevices();
+
+            for (EntityDevice device : testDeviceInfos)
+            {
+                Log.d(TAG, "serialNumber = " + device.serialNumber + ", pairingKey = " + device.pairingKey + ", additionalInformation = " + device.additionalInformation);
+
+                if (device.serialNumber.equals("A1B2"))
+                {
+                    UtilDevice.instance.delete(device);
+                }
+                else if (device.serialNumber.equals("A8B9"))
+                {
+                    UtilDevice.instance.delete(device);
+                }
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-15 [DB 기기 정보 삭제 유닛] 순서[1] 끝.
+
+
         // 4) 맵 정보
         UtilMap.instance.open(getApplicationContext());
+
+
+        // TD2-SW-RC-UNIT-Test-ID-23 [DB 맵 정보 추가 유닛] 순서[1] 시작.
+        /*
+        {
+            for (EntityMap map : UtilMap.instance.getAll())
+            {
+                UtilMap.instance.delete(map);
+            }
+
+            EntityMap testMapInfo1 = new EntityMap();
+            testMapInfo1.name_ear = "AAAAA_R";
+            testMapInfo1.stamp = 0;
+            testMapInfo1.name = "AAAAA";
+            testMapInfo1.ear = "R";
+            testMapInfo1.serialize_map_data = "test";
+
+            EntityMap testMapInfo2 = new EntityMap();
+            testMapInfo2.name_ear = "BBBBB_L";
+            testMapInfo2.stamp = 1;
+            testMapInfo2.name = "BBBBB";
+            testMapInfo2.ear = "L";
+            testMapInfo2.serialize_map_data = "test";
+
+
+            UtilMap.instance.insert(testMapInfo1);
+            UtilMap.instance.insert(testMapInfo2);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-23 [DB 맵 정보 추가 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-22 [DB 모든 맵 정보 읽기 유닛] 순서[1] 시작.
+        /*
+        {
+            for (EntityMap map : UtilMap.instance.getAll())
+            {
+                if (map.name_ear.equals("AAAAA_R") || map.name_ear.equals("BBBBB_L"))
+                {
+                    Log.d(TAG, "name_ear = " + map.name_ear + ", stamp = " + map.stamp
+                            + ", name = " + map.name + ", ear = " + map.ear + ", serialize_map_data = " + map.serialize_map_data);
+                }
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-22 [DB 모든 맵 정보 읽기 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-24 [DB 맵 정보 업데이트 유닛] 순서[1] 시작.
+        /*
+        {
+            for (EntityMap map : UtilMap.instance.getAll())
+            {
+                if (map.name_ear.equals("AAAAA_R"))
+                {
+                    map.stamp = 2;
+                    UtilMap.instance.update(map);
+                }
+                else if (map.name_ear.equals("BBBBB_L"))
+                {
+                    map.stamp = 3;
+                    UtilMap.instance.update(map);
+                }
+            }
+
+            for (EntityMap map : UtilMap.instance.getAll())
+            {
+                if (map.name_ear.equals("AAAAA_R") || map.name_ear.equals("BBBBB_L"))
+                {
+                    Log.d(TAG, "name_ear = " + map.name_ear + ", stamp = " + map.stamp
+                            + ", name = " + map.name + ", ear = " + map.ear + ", serialize_map_data = " + map.serialize_map_data);
+                }
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-24 [DB 맵 정보 업데이트 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-25 [DB 맵 정보 삭제 유닛] 순서[1] 시작.
+        /*
+        {
+            for (EntityMap map : UtilMap.instance.getAll())
+            {
+                if (map.name_ear.equals("BBBBB_L"))
+                {
+                    UtilMap.instance.delete(map);
+                }
+            }
+
+            for (EntityMap map : UtilMap.instance.getAll())
+            {
+                if (map.name_ear.equals("AAAAA_R") || map.name_ear.equals("BBBBB_L"))
+                {
+                    Log.d(TAG, "name_ear = " + map.name_ear + ", stamp = " + map.stamp
+                            + ", name = " + map.name + ", ear = " + map.ear + ", serialize_map_data = " + map.serialize_map_data);
+                }
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-25 [DB 맵 정보 삭제 유닛] 순서[1] 끝.
+
 
         // 상태 값 뷰 모델
         Log.d(TAG, "사운드처리기 상태 값 뷰모델 클래스를 불러옵니다.");
@@ -381,20 +941,233 @@ public class MainActivity extends AppCompatActivity
             mManualScreen = new ManualScreen(this);
         }
 
+
+        // TD2-SW-RC-UNIT-Test-ID-32 [사용설명서 상태 설정 유닛] 순서[1] 시작.
+        /*
+        {
+            // onCreate에서 생성한 mManualScreen을 사용해서 테스트한다.
+            mManualScreen.setEnable(true);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-32 [사용설명서 상태 설정 유닛] 순서[1] 끝.
+
+        Log.d(TAG, "Manual screen enabled = " + mManualScreen.isEnabled());
+
+        // TD2-SW-RC-UNIT-Test-ID-32 [사용설명서 상태 설정 유닛] 순서[2] 시작.
+        /*
+        {
+            // onCreate에서 생성한 mManualScreen을 사용해서 테스트한다.
+            mManualScreen.setEnable(false);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-32 [사용설명서 상태 설정 유닛] 순서[2] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-31 [사용설명서 화면 활성화 체크 유닛] 순서[1] 시작.
+        /*
+        {
+            // onCreate에서 생성한 mManualScreen을 사용해서 테스트한다.
+            Log.d(TAG, "Manual screen enabled = " + mManualScreen.isEnabled());
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-31 [사용설명서 화면 활성화 체크 유닛] 순서[1] 끝.
+
+
         if (mManualScreen.isEnabled())
         {
             Log.d(TAG, "사용설명서 표시가 활성화 되어 있습니다.");
             Bundle bundle = new Bundle();
             bundle.putBoolean(ManualFragment.ARG_FIRST_SCREEN, true);
+            /*
             ManualFragment manualFragment = new ManualFragment();
             manualFragment.setArguments(bundle);
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, manualFragment).commitAllowingStateLoss();
+            */
+            replaceFragment(Status.TypeOfFragment.MANUAL, bundle);
         }
         else // If the user manual screen is disabled, the first screen must be the remote control screen.
         {
             Log.d(TAG, "사용설명서 표시가 비활성화 되어 있습니다. 리모컨 화면을 출력합니다.");
+            /*
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new RemoteControlFragment()).commitAllowingStateLoss();
+            */
+            replaceFragment(Status.TypeOfFragment.REMOTE_CONTROL);
         }
+
+
+        // [맵 정보 모듈]의 유닛 테스트에서 공통으로 사용되는 인스턴스.
+        /*
+        MapInfo _testMapInfo;
+        */
+
+        // TD2-SW-RC-UNIT-Test-ID-35 [맵 정보 인스턴스 생성 및 초기화 유닛] 순서[1] 시작.
+        /*
+        {
+            // [맵 정보 모듈]의 유닛 테스트에서 공통으로 사용되는 인스턴스 MapInfo _testMapInfo 사용.
+            MapInfo testMapInfo = new MapInfo();
+
+            Log.d(TAG, "testMapInfo = " + testMapInfo
+                    + ", metadata = " + testMapInfo.metadata
+                    + ", idUser = " + testMapInfo.idUser
+                    + ", mapData = " + testMapInfo.mapData);
+
+            Log.d(TAG, "metadata.isFilled = " + testMapInfo.metadata.isFilled
+                    + ", metadata.names.length = " + testMapInfo.metadata.names.length
+                    + ", metadata.ears.length = " + testMapInfo.metadata.ears.length
+                    + ", metadata.stamps.length = " + testMapInfo.metadata.stamps.length);
+
+            Log.d(TAG, "idUser.slotNum = " + testMapInfo.idUser.slotNum
+                    + ", idUser.indexNum = " + testMapInfo.idUser.indexNum
+                    + ", idUser.data.length = " + testMapInfo.idUser.data.length
+                    + ", idUser.writing.length = " + testMapInfo.idUser.writing.length);
+
+            for (int slot_i = 0; slot_i < 4; slot_i++)
+            {
+                Log.d(TAG, "idUser.data[" + slot_i + "].length = " + testMapInfo.idUser.data[slot_i].length
+                        + ", idUser.writing[" + slot_i + "].length = " + testMapInfo.idUser.writing[slot_i].length);
+
+                for (int index_i = 0; index_i < 3; index_i++)
+                {
+                    Log.d(TAG, "idUser.data[" + slot_i + "][" + index_i + "].length = " + testMapInfo.idUser.data[slot_i][index_i].length
+                            + ", idUser.writing[" + slot_i + "][" + index_i + "].length = " + testMapInfo.idUser.writing[slot_i][index_i].length);
+                }
+            }
+
+            Log.d(TAG, "mapData.slotNum = " + testMapInfo.mapData.slotNum
+                    + ", mapData.mapNum = " + testMapInfo.mapData.mapNum
+                    + ", mapData.indexNum = " + testMapInfo.mapData.indexNum
+                    + ", mapData.data.length = " + testMapInfo.mapData.data.length
+                    + ", mapData.writing.length = " + testMapInfo.mapData.writing.length);
+
+            for (int slot_i = 0; slot_i < 4; slot_i++)
+            {
+                Log.d(TAG, "mapData.data[" + slot_i + "].length = " + testMapInfo.mapData.data[slot_i].length
+                        + ", mapData.writing[" + slot_i + "].length = " + testMapInfo.mapData.writing[slot_i].length);
+
+                for (int map_i = 0; map_i < 4; map_i++)
+                {
+                    Log.d(TAG, "mapData.data[" + slot_i + "][" + map_i + "].length = " + testMapInfo.mapData.data[slot_i][map_i].length
+                            + ", mapData.writing[" + slot_i + "][" + map_i + "].length = " + testMapInfo.mapData.writing[slot_i][map_i].length);
+
+                    for (int index_i = 0; index_i < 15; index_i++)
+                    {
+                        Log.d(TAG, "mapData.data[" + slot_i + "][" + map_i + "][" + index_i + "].length = " + testMapInfo.mapData.data[slot_i][map_i][index_i].length
+                                + ", mapData.writing[" + slot_i + "][" + map_i + "][" + index_i + "].length = " + testMapInfo.mapData.writing[slot_i][map_i][index_i].length);
+                    }
+                }
+            }
+
+            _testMapInfo = testMapInfo;
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-35 [맵 정보 인스턴스 생성 및 초기화 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-38 [DB 맵 데이터를 맵 정보로 입력 유닛] 순서[1] 시작.
+        /*
+        {
+            // [맵 정보 모듈]의 유닛 테스트에서 공통으로 사용되는 인스턴스 MapInfo _testMapInfo 사용.
+            MapInfo testMapInfo = _testMapInfo;//new MapInfo();
+            testMapInfo.metadata.isFilled = true;
+
+            for (int slot_i = 0; slot_i < 4; slot_i++)
+            {
+                MapInfo.setMapInfoFromString(MapInfo.EMPTY_MAP_DATA, testMapInfo, slot_i);
+            }
+
+            for (int slot_i = 0; slot_i < 4; slot_i++)
+            {
+                for (int index_i = 0; index_i < 3; index_i++)
+                {
+                    Log.d(TAG, "idUser.data[" + slot_i + "][" + index_i + "] = " + MapInfo.bytesToString(testMapInfo.idUser.data[slot_i][index_i]));
+                }
+            }
+
+            for (int slot_i = 0; slot_i < 4; slot_i++)
+            {
+                for (int map_i = 0; map_i < 4; map_i++)
+                {
+                    for (int index_i = 0; index_i < 15; index_i++)
+                    {
+                        Log.d(TAG, "mapData.data[" + slot_i + "][" + map_i + "][" + index_i + "] = " + MapInfo.bytesToString(testMapInfo.mapData.data[slot_i][map_i][index_i]));
+                    }
+                }
+            }
+
+            _testMapInfo = testMapInfo;
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-38 [DB 맵 데이터를 맵 정보로 입력 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-36 [맵 정보 메타데이터 업데이트 유닛] 순서[1] 시작.
+        /*
+        {
+            // [맵 정보 모듈]의 유닛 테스트에서 공통으로 사용되는 인스턴스 MapInfo _testMapInfo 사용.
+            MapInfo testMapInfo = _testMapInfo;//new MapInfo();
+            testMapInfo.metadata.isFilled = true;
+            testMapInfo.updateMetadata();
+
+            for (int slot_i = 0; slot_i < 4; slot_i++)
+            {
+                Log.d(TAG, "name = " + testMapInfo.metadata.names[slot_i]
+                        + ", ear = " + testMapInfo.metadata.ears[slot_i]
+                        + ", stamp = " + testMapInfo.metadata.stamps[slot_i]);
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-36 [맵 정보 메타데이터 업데이트 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-39 [맵 정보를 DB 맵 데이터로 출력 유닛] 순서[1] 시작.
+        /*
+        {
+            // [맵 정보 모듈]의 유닛 테스트에서 공통으로 사용되는 인스턴스 MapInfo _testMapInfo 사용.
+            MapInfo testMapInfo = _testMapInfo;//new MapInfo();
+            String[] dbMapData = new String[4];
+
+            for (int slot_i = 0; slot_i < 4; slot_i++)
+            {
+                dbMapData[slot_i] = MapInfo.getStringFromMapInfo(testMapInfo, slot_i);
+
+                Log.d(TAG, "Slot[" + slot_i + "] = " + dbMapData[slot_i]);
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-39 [맵 정보를 DB 맵 데이터로 출력 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-39 [맵 정보를 DB 맵 데이터로 출력 유닛] 순서[1] 시작.
+        /*
+        {
+            // [맵 정보 모듈]의 유닛 테스트에서 공통으로 사용되는 인스턴스 MapInfo _testMapInfo 사용.
+            MapInfo testMapInfo = _testMapInfo;
+            testMapInfo.metadata.isFilled = true;
+            testMapInfo.prepareWriting();
+
+            for (int slot_i = 0; slot_i < 4; slot_i++)
+            {
+                for (int index_i = 0; index_i < 3; index_i++)
+                {
+                    Log.d(TAG, "idUser.writing[" + slot_i + "][" + index_i + "] = " + MapInfo.bytesToString(testMapInfo.idUser.writing[slot_i][index_i]));
+                }
+            }
+
+            for (int slot_i = 0; slot_i < 4; slot_i++)
+            {
+                for (int map_i = 0; map_i < 4; map_i++)
+                {
+                    for (int index_i = 0; index_i < 15; index_i++)
+                    {
+                        Log.d(TAG, "mapData.writing[" + slot_i + "][" + map_i + "][" + index_i + "] = " + MapInfo.bytesToString(testMapInfo.mapData.writing[slot_i][map_i][index_i]));
+                    }
+                }
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-39 [맵 정보를 DB 맵 데이터로 출력 유닛] 순서[1] 끝.
+
+
     } // initMainActivity
 
     //
@@ -404,12 +1177,16 @@ public class MainActivity extends AppCompatActivity
     {
         if (enable)
         {
+            /*
             if (mStatus.longTimeIdleState == Status.LONG_TIME_IDLE_STATE_NOT_TRIGGERED)
             {
-                mLongTimeIdleHandler.removeCallbacks(mLongTimeIdleRunner);
-                mLongTimeIdleHandler.postDelayed(mLongTimeIdleRunner, LONG_TIME_IDLE_TIMEOUT_IN_MS); // 10분
-                Log.v(TAG, "장시간 미사용 핸들러 업데이트 완료.");
+            */
+            mLongTimeIdleHandler.removeCallbacks(mLongTimeIdleRunner);
+            mLongTimeIdleHandler.postDelayed(mLongTimeIdleRunner, LONG_TIME_IDLE_TIMEOUT_IN_MS); // 10분
+            Log.v(TAG, "장시간 미사용 핸들러 업데이트 완료.");
+            /*
             }
+            */
         }
         else
         {
@@ -461,6 +1238,7 @@ public class MainActivity extends AppCompatActivity
 
         // 잠금화면 상태의 다이얼로그는 항상 최상위에 출력되어야 한다. 그래서 다이얼로그 객체를 따로 저장하지 않고,
         // 오직 확인 버튼을 눌러서만 제거가 가능하도록 구현한다.
+        /*
         mStatus.longTimeIdleDialog = new MaterialAlertDialogBuilder(MainActivity.this).setMessage("전력소모를 줄이기 위해 절전모드로 진입하였습니다.").setPositiveButton("해제", (dialogInterface, i) ->
         {
             Log.d(TAG, "절전모드에서 빠져나옵니다.");
@@ -484,8 +1262,8 @@ public class MainActivity extends AppCompatActivity
             // 다시 장시간 미사용 핸들러를 시작한다.
             longTimeIdleHandlerUpdate(true);
         }).setCancelable(false).create();
-
-        //mStatus.longTimeIdleDialog.show();
+        mStatus.longTimeIdleDialog.show();
+        */
     };
 
     //
@@ -743,25 +1521,30 @@ public class MainActivity extends AppCompatActivity
 
                             lastDialogDismiss();
 
-                            mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("안내").setMessage("페어링을 실패했습니다.").setNegativeButton("재연결", (dialogInterface, i) ->
-                            {
-                                longTimeIdleHandlerUpdate(true);
-
-                                if (mStatus.activityRunningState == Status.ACTIVITY_RUNNING_STATE_FOREGROUND)
-                                {
-                                    if (getSupportFragmentManager().findFragmentById(R.id.frame) instanceof RemoteControlFragment)
+                            mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this)
+                                    .setTitle("안내")
+                                    .setMessage("페어링을 실패했습니다.")
+                                    .setNegativeButton("재연결", (dialogInterface, i) ->
                                     {
-                                        scanLe(true);
-                                    }
-                                }
-                            }).setPositiveButton("확인", (dialogInterface, i) ->
-                            {
-                                longTimeIdleHandlerUpdate(true);
-                            }).setCancelable(false).create();
+                                        longTimeIdleHandlerUpdate(true);
+
+                                        if (mStatus.activityRunningState == Status.ACTIVITY_RUNNING_STATE_FOREGROUND)
+                                        {
+                                            if (getSupportFragmentManager().findFragmentById(R.id.frame) instanceof RemoteControlFragment)
+                                            {
+                                                scanLe(true);
+                                            }
+                                        }
+                                    })
+                                    .setPositiveButton("확인", (dialogInterface, i) ->
+                                    {
+                                        longTimeIdleHandlerUpdate(true);
+                                    })
+                                    .setCancelable(false)
+                                    .create();
 
                             mStatus.lastDialog.show();
                         }, 1000);
-
                     }
                     break;
             }
@@ -792,37 +1575,58 @@ public class MainActivity extends AppCompatActivity
         // 설정 화면
         else if (fragment instanceof SettingsFragment)
         {
+            /*
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new RemoteControlFragment()).commitAllowingStateLoss();
+             */
+            replaceFragment(Status.TypeOfFragment.REMOTE_CONTROL);
         }
         // 사용자 화면
         else if (fragment instanceof UserFragment)
         {
+            /*
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new SettingsFragment()).commitAllowingStateLoss();
+             */
+            replaceFragment(Status.TypeOfFragment.MENU);
         }
         // 사용자 추가 화면
         else if (fragment instanceof AddUserFragment)
         {
+            /*
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new UserFragment()).commitAllowingStateLoss();
+            */
+            replaceFragment(Status.TypeOfFragment.USER_LIST);
         }
         // 사용자 수정 화면
         else if (fragment instanceof EditUserFragment)
         {
+            /*
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new UserFragment()).commitAllowingStateLoss();
+            */
+            replaceFragment(Status.TypeOfFragment.USER_LIST);
         }
         // 사운드처리기 화면
         else if (fragment instanceof DeviceFragment)
         {
+            /*
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new SettingsFragment()).commitAllowingStateLoss();
+            */
+            replaceFragment(Status.TypeOfFragment.MENU);
         }
         // 사운드처리기 추가 화면
         else if (fragment instanceof AddDeviceFragment)
         {
+            /*
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new DeviceFragment()).commitAllowingStateLoss();
+            */
+            replaceFragment(Status.TypeOfFragment.DEVICE_LIST);
         }
         // 사운드처리기 수정 화면
         else if (fragment instanceof EditDeviceFragment)
         {
+            /*
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new DeviceFragment()).commitAllowingStateLoss();
+            */
+            replaceFragment(Status.TypeOfFragment.DEVICE_LIST);
         }
         // 사용설명서 화면
         else if (fragment instanceof ManualFragment)
@@ -830,22 +1634,34 @@ public class MainActivity extends AppCompatActivity
             Bundle bundle = ((ManualFragment) fragment).getArguments();
             if (bundle != null && bundle.getBoolean(ManualFragment.ARG_FIRST_SCREEN))
             {
+                /*
                 getSupportFragmentManager().beginTransaction().replace(R.id.frame, new RemoteControlFragment()).commitAllowingStateLoss();
+                */
+                replaceFragment(Status.TypeOfFragment.REMOTE_CONTROL);
             }
             else
             {
+                /*
                 getSupportFragmentManager().beginTransaction().replace(R.id.frame, new SettingsFragment()).commitAllowingStateLoss();
+                */
+                replaceFragment(Status.TypeOfFragment.MENU);
             }
         }
         // 시스템로그 화면
         else if (fragment instanceof LogFragment)
         {
+            /*
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new AddUserFragment()).commitAllowingStateLoss();
+            */
+            replaceFragment(Status.TypeOfFragment.USER_ADD);
         }
         else if (fragment instanceof ShareFragment)
         {
             ((ShareFragment) fragment).exitFragment(); // 프래그먼트의 세부 동작 사항들을 종료시킨다.
+            /*
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new SettingsFragment()).commitAllowingStateLoss();
+            */
+            replaceFragment(Status.TypeOfFragment.MENU);
         }
     }
 
@@ -1554,9 +2370,12 @@ public class MainActivity extends AppCompatActivity
                                             bundle.putString(EditUserFragment.ARG_NICKNAME, user.nickname);
                                             bundle.putString(EditUserFragment.ARG_EAR, user.ear);
                                             bundle.putString(EditUserFragment.ARG_DEFAULT, user.defaultUser);
+                                            /*
                                             EditUserFragment editUserFragment = new EditUserFragment();
                                             editUserFragment.setArguments(bundle);
                                             getSupportFragmentManager().beginTransaction().replace(mBinding.frame.getId(), editUserFragment).commitNowAllowingStateLoss();
+                                            */
+                                            replaceFragment(Status.TypeOfFragment.USER_EDIT, bundle);
                                         })
                                         .setNegativeButton("취소", (dialogInterface, i) ->
                                         {
@@ -2088,7 +2907,10 @@ public class MainActivity extends AppCompatActivity
 
         if (item.getItemId() == R.id.toolbar_settings)
         {
+            /*
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new SettingsFragment()).commitAllowingStateLoss();
+            */
+            replaceFragment(Status.TypeOfFragment.MENU);
 
             if (mStatus.scanState == Status.SCAN_STATE_STARTED)
             {
@@ -2103,64 +2925,6 @@ public class MainActivity extends AppCompatActivity
         }
         else if (item.getItemId() == R.id.toolbar_user)
         {
-            /*
-            if (mStatus.connectionState != Status.CONNECTION_STATE_DISCONNECTED)
-            {
-                if (mStatus.lastDialog != null)
-                {
-                    if (mStatus.lastDialog.isShowing())
-                    {
-                        mStatus.lastDialog.dismiss();
-                    }
-                }
-
-                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(MainActivity.this)
-                        .setTitle("주의")
-                        .setMessage("현재 연결을 해제하고 새 사용자를 선택하시겠습니까?")
-                        .setPositiveButton("네", (dialogInterface, i) ->
-                        {
-                            // 장시간 미사용 핸들러 업데이트
-                            longTimeIdleHandlerUpdate(true);
-
-                            if (mStatus.scanState == Status.SCAN_STATE_STARTED)
-                            {
-                                scanLe(false);
-                            }
-
-                            if (mStatus.connectionState != Status.CONNECTION_STATE_DISCONNECTED)
-                            {
-                                mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
-
-                                if (mBluetoothGatt != null)
-                                {
-                                    mBluetoothGatt.disconnect();
-                                }
-                            }
-
-                            Fragment fragment = MainActivity.this.getSupportFragmentManager().findFragmentById(R.id.frame);
-
-                            if (fragment instanceof RemoteControlFragment)
-                            {
-                                ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText("선택된 사용자 없음");
-                            }
-
-                            makeDialogSelectUser();
-                        })
-                        .setNegativeButton("아니오", (dialogInterface, i) ->
-                        {
-                            // 장시간 미사용 핸들러 업데이트
-                            longTimeIdleHandlerUpdate(true);
-                        })
-                        .setCancelable(false);
-                mStatus.lastDialog = builder.create();
-                mStatus.lastDialog.show();
-            }
-            else // 현재 연결된 장치가 없을 때 수행.
-            {
-                makeDialogSelectUser();
-            }
-            */
-
             lastDialogDismiss();
 
             if (mStatus.scanState == Status.SCAN_STATE_STARTED)
@@ -2191,16 +2955,8 @@ public class MainActivity extends AppCompatActivity
 
                 for (int i = 0; i < users.size(); i++)
                 {
-                    if (users.get(i).nickname != null && users.get(i).nickname.length() > 0)
-                    {
-                        nicknameList[i] = users.get(i).nickname;
-                    }
-                    else
-                    {
-                        nicknameList[i] = UtilUser.getNameOnly(users.get(i).name) + " (" + UtilUser.getEarKorean(users.get(i).ear) + ")";
-                    }
-
                     mUserList[i] = users.get(i).name;
+                    nicknameList[i] = getUserNicknameIfExist(users.get(i));
 
                     if (users.get(i).defaultUser.equals(EntityUser.USER_DEFAULT))
                     {
@@ -2314,16 +3070,8 @@ public class MainActivity extends AppCompatActivity
 
             for (int i = 0; i < users.size(); i++)
             {
-                if (users.get(i).nickname != null && users.get(i).nickname.length() > 0)
-                {
-                    nicknameList[i] = users.get(i).nickname;
-                }
-                else
-                {
-                    nicknameList[i] = UtilUser.getNameOnly(users.get(i).name) + " (" + UtilUser.getEarKorean(users.get(i).ear) + ")";
-                }
-
                 mUserList[i] = users.get(i).name;
+                nicknameList[i] = getUserNicknameIfExist(users.get(i));
 
                 if (users.get(i).defaultUser.equals(EntityUser.USER_DEFAULT))
                 {
@@ -2428,6 +3176,7 @@ public class MainActivity extends AppCompatActivity
 
                     List<EntityUser> users = UtilUser.instance.getUsers();
                     List<EntityDevice> devices = UtilDevice.instance.getDevices();
+                    List<EntityMap> maps = UtilMap.instance.getAll();
 
                     for (EntityUser user : users)
                     {
@@ -2441,16 +3190,26 @@ public class MainActivity extends AppCompatActivity
                         Log.d(TAG, "사운드처리기 " + device.serialNumber + "  삭제됨.");
                     }
 
+                    for (EntityMap map : maps)
+                    {
+                        UtilMap.instance.delete(map);
+                        Log.d(TAG, "맵 데이터 " + map.name_ear + " " + map.stamp + " 삭제됨.");
+                    }
+
                     mLockScreen.erasePassword();
-                    mLockScreen.setEnable(this, true);
+                    //mLockScreen.setEnable(this, true);
+                    mLockScreen.setEnable(true);
                     mLockScreen.resume();
                     mManualScreen.setEnable(true);
 
                     Bundle bundle = new Bundle();
                     bundle.putBoolean(ManualFragment.ARG_FIRST_SCREEN, true);
+                    /*
                     ManualFragment manualFragment = new ManualFragment();
                     manualFragment.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().replace(R.id.frame, manualFragment).commitAllowingStateLoss();
+                    */
+                    replaceFragment(Status.TypeOfFragment.MANUAL, bundle);
                 })
                 .setNegativeButton(getString(R.string.lock_screen_dialog_negative), (dialogInterface, i) ->
                 {
@@ -2490,5 +3249,111 @@ public class MainActivity extends AppCompatActivity
 
             mStatus.lastDialog = null;
         }
+    }
+
+    //
+    // 사용자 별칭 가져오기
+    //
+    public String getUserNicknameIfExist(EntityUser user)
+    {
+        String retString = "";
+
+        if (user != null)
+        {
+            if (user.nickname != null && 0 < user.nickname.length())
+            {
+                retString = user.nickname;
+            }
+            else
+            {
+                retString = UtilUser.getNameOnly(user.name) + " (" + UtilUser.getEarKorean(user.ear) + ")";
+            }
+        }
+
+        return retString;
+    }
+
+    //
+    // 프래그먼트 전환기
+    //
+    public void replaceFragment(int typeOfFragment)
+    {
+        replaceFragment(typeOfFragment, null);
+    }
+
+    public void replaceFragment(int typeOfFragment, Bundle bundle)
+    {
+        if (typeOfFragment == Status.TypeOfFragment.REMOTE_CONTROL)
+        {
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame, new RemoteControlFragment()).commitAllowingStateLoss();
+        }
+        else if (typeOfFragment == Status.TypeOfFragment.MENU)
+        {
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame, new SettingsFragment()).commitAllowingStateLoss();
+        }
+        else if (typeOfFragment == Status.TypeOfFragment.USER_LIST)
+        {
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame, new UserFragment()).commitAllowingStateLoss();
+        }
+        else if (typeOfFragment == Status.TypeOfFragment.USER_ADD)
+        {
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame, new AddUserFragment()).commitAllowingStateLoss();
+        }
+        else if (typeOfFragment == Status.TypeOfFragment.USER_EDIT)
+        {
+            EditUserFragment editUserFragment = new EditUserFragment();
+
+            if (bundle != null)
+            {
+                editUserFragment.setArguments(bundle);
+            }
+
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame, editUserFragment).commitAllowingStateLoss();
+        }
+        else if (typeOfFragment == Status.TypeOfFragment.DEVICE_LIST)
+        {
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame, new DeviceFragment()).commitAllowingStateLoss();
+        }
+        else if (typeOfFragment == Status.TypeOfFragment.DEVICE_ADD)
+        {
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame, new AddDeviceFragment()).commitAllowingStateLoss();
+        }
+        else if (typeOfFragment == Status.TypeOfFragment.DEVICE_EDIT)
+        {
+            EditDeviceFragment editDeviceFragment = new EditDeviceFragment();
+
+            if (bundle != null)
+            {
+                editDeviceFragment.setArguments(bundle);
+            }
+
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame, editDeviceFragment).commitAllowingStateLoss();
+        }
+        else if (typeOfFragment == Status.TypeOfFragment.MANUAL)
+        {
+            ManualFragment manualFragment = new ManualFragment();
+
+            if (bundle != null)
+            {
+                manualFragment.setArguments(bundle);
+            }
+
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame, manualFragment).commitAllowingStateLoss();
+        }
+        else if (typeOfFragment == Status.TypeOfFragment.HIDDEN_LOG)
+        {
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame, new LogFragment()).commitAllowingStateLoss();
+        }
+        else if (typeOfFragment == Status.TypeOfFragment.SHARE_MAP)
+        {
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame, new ShareFragment()).commitAllowingStateLoss();
+        }
+        else
+        {
+            Log.d(TAG, "알 수 없는 프래그먼트 번호입니다. (" + typeOfFragment + ")");
+            return;
+        }
+
+        mStatus.typeOfFragment = typeOfFragment;
     }
 }

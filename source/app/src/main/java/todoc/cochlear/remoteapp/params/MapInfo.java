@@ -25,10 +25,10 @@ public class MapInfo
     static public final int MAP_DATA_INDEX_MIN = 1;
     static public final int MAP_DATA_INDEX_MAX = 15;
 
-    static public final int DATA_TYPE_ID_USER = 0;
-    static public final int DATA_TYPE_MAP_DATA = 1;
+    //static public final int DATA_TYPE_ID_USER = 0;
+    //static public final int DATA_TYPE_MAP_DATA = 1;
 
-    public int dataType;
+    //public int dataType;
 
     public Metadata metadata;
     public IdUser idUser;

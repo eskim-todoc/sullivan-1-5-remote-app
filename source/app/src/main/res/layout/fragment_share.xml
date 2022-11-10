@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:visibility="visible"
-                tools:visibility="visible">
+                tools:visibility="gone">
 
                 <!-- 주 설명 -->
                 <TextView
@@ -251,7 +251,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:visibility="gone"
-                tools:visibility="gone">
+                tools:visibility="visible">
                 <!-- 주 설명 -->
                 <TextView
                     android:layout_width="match_parent"
@@ -351,7 +351,7 @@
                     android:overScrollMode="never"
                     android:scrollbars="none"
                     tools:itemCount="4"
-                    tools:listitem="@layout/item_share_select_user" />
+                    tools:listitem="@layout/item_share_exist_map" />
             </LinearLayout>
 
             <!-- 최초 매핑 시점 복귀 화면 -->

@@ -487,7 +487,10 @@ public class RemoteControlFragment extends Fragment
 
                         mDialog.dismiss();
                         mDialog = null;
+                        /*
                         requireActivity().getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new AddUserFragment()).commitAllowingStateLoss();
+                        */
+                        ((MainActivity) requireActivity()).replaceFragment(Status.TypeOfFragment.USER_ADD);
                     })
                     .setCancelable(false)
                     .create();
@@ -511,7 +514,10 @@ public class RemoteControlFragment extends Fragment
 
                         mDialog.dismiss();
                         mDialog = null;
+                        /*
                         requireActivity().getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new AddDeviceFragment()).commitAllowingStateLoss();
+                        */
+                        ((MainActivity) requireActivity()).replaceFragment(Status.TypeOfFragment.DEVICE_ADD);
                     })
                     .setCancelable(false)
                     .create();

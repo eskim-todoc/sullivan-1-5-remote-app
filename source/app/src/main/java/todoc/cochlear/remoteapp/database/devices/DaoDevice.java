@@ -12,7 +12,7 @@ import java.util.List;
 @Dao
 public interface DaoDevice
 {
-    @Query("SELECT * FROM entitydevice")
+    @Query("SELECT * FROM EntityDevice")
     List<EntityDevice> findAll();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

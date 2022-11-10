@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import todoc.cochlear.remoteapp.activity.MainActivity;
@@ -31,6 +32,7 @@ public class LogFragment extends Fragment
     static private final String TAG = "TODOC_" + LogFragment.class.getSimpleName();
 
     public FragmentLogBinding mLogBinding;
+    private List<EntityLog> mLogs;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -55,22 +57,24 @@ public class LogFragment extends Fragment
         ((MainActivity) requireActivity()).mBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
         ((MainActivity) requireActivity()).mBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
         ((MainActivity) requireActivity()).mBinding.toolbar.setTitle("시스템 로그");
+        ((MainActivity) requireActivity()).mBinding.toolbarNavigationMessage.setText("사용자\n등록");
+        ((MainActivity) requireActivity()).mBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
 
         printHiddenLogs();
 
         mLogBinding.logExitButton.setOnClickListener(view1 -> requireActivity().onBackPressed());
     }
 
-    private void printHiddenLogs()
+    private void prepareLogs()
     {
-        UtilLog.instance.printAllLogs();
+        if (mLogs == null)
+        {
+            mLogs = new ArrayList<>();
+        }
 
         List<EntityLog> logs = UtilLog.instance.readAllLogs();
-        LogAdapter adapter = new LogAdapter();
-        mLogBinding.logRecyclerview.setAdapter(adapter);
-        mLogBinding.logRecyclerview.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        if (logs != null) // No log data.
+        if (logs != null)
         {
             int size = logs.size();
 
@@ -78,20 +82,13 @@ public class LogFragment extends Fragment
             {
                 case 0:
                 case 1:
-                {
                     Log.d(TAG, "[히든로그] 저장된 로그가 없습니다.");
-                }
-                break;
+                    break;
 
                 case 2:
-                {
                     Log.d(TAG, "[히든로그] 오직 1개의 로그만 있습니다.");
-
-                    adapter.addItem(logs.get(1));
-
-                    Log.d(TAG, "[히든로그] {인덱스 = 1}, {일시 = " + logs.get(1).date + "}, {메시지 = " + logs.get(1).message + "}");
-                }
-                break;
+                    mLogs.add(logs.get(1));
+                    break;
 
                 default:
                 {
@@ -107,9 +104,77 @@ public class LogFragment extends Fragment
                         String front = logs.get(i).date;
                         String back = logs.get(i + 1).date;
 
+                        String[] front_space_splits = front.split(" ");
+                        String[] back_space_splits = front.split(" ");
+
+                        String[] front_date_splits = front_space_splits[0].split("-");
+                        String[] back_date_splits = back_space_splits[0].split("-");
+
+                        String[] front_time_splits = front_space_splits[1].split(":");
+                        String[] back_time_splits = back_space_splits[1].split(":");
+
+                        String[] front_second_splits = front_time_splits[2].split("\\.");
+                        String[] back_second_splits = back_time_splits[2].split("\\.");
+
+                        int frontYear = Integer.parseInt(front_date_splits[0]);
+                        int frontMonth = Integer.parseInt(front_date_splits[1]);
+                        int frontDay = Integer.parseInt(front_date_splits[2]);
+                        int frontHour = Integer.parseInt(front_time_splits[0]);
+                        int frontMin = Integer.parseInt(front_time_splits[1]);
+                        int frontSecond = Integer.parseInt(front_second_splits[0]);
+                        int frontMs = Integer.parseInt(front_time_splits[1]);
+
+                        int backYear = Integer.parseInt(back_date_splits[0]);
+                        int backMonth = Integer.parseInt(back_date_splits[1]);
+                        int backDay = Integer.parseInt(back_date_splits[2]);
+                        int backHour = Integer.parseInt(back_time_splits[0]);
+                        int backMin = Integer.parseInt(back_time_splits[1]);
+                        int backSecond = Integer.parseInt(back_second_splits[0]);
+                        int backMs = Integer.parseInt(back_time_splits[1]);
+
                         //Log.d(TAG, "Log(" + i + "){" + front + "} vs Log(" + (i + 1) + "){" + back + "}");
 
-                        if (0 < front.compareTo(back))
+                        Log.d(TAG, "i = " + i
+                                + " -> Front=" + frontYear + "-" + frontMonth + "-" + frontDay + " " + frontHour + ":" + frontMin + ":" + frontSecond + "." + frontMs
+                                + ", Back=" + backYear + "-" + backMonth + "-" + backDay + " " + backHour + ":" + backMin + ":" + backSecond + "." + backMs);
+
+                        if (backYear < frontYear)
+                        {
+                            oldestNumber = i + 1;
+                            break;
+                        }
+
+                        if (backMonth < frontMonth)
+                        {
+                            oldestNumber = i + 1;
+                            break;
+                        }
+
+                        if (backDay < frontDay)
+                        {
+                            oldestNumber = i + 1;
+                            break;
+                        }
+
+                        if (backHour < frontHour)
+                        {
+                            oldestNumber = i + 1;
+                            break;
+                        }
+
+                        if (backDay < frontDay)
+                        {
+                            oldestNumber = i + 1;
+                            break;
+                        }
+
+                        if (backSecond < frontSecond)
+                        {
+                            oldestNumber = i + 1;
+                            break;
+                        }
+
+                        if (backMs < frontMs)
                         {
                             oldestNumber = i + 1;
                             break;
@@ -121,20 +186,39 @@ public class LogFragment extends Fragment
                     // print from oldest log data to last log data on database.
                     for (int i = oldestNumber; i < size; i++)
                     {
-                        adapter.addItem(logs.get(i));
+                        mLogs.add(logs.get(i));
                         Log.d(TAG, "[히든로그] {인덱스 = " + i + "}, {일시 = " + logs.get(i).date + "}, {메시지 = " + logs.get(i).message + "}");
                     }
 
                     // print from first log data to before oldest log data.
                     for (int i = 1; i < oldestNumber; i++)
                     {
-                        adapter.addItem(logs.get(i));
+                        mLogs.add(logs.get(i));
                         Log.d(TAG, "[히든로그] {인덱스 = " + i + "}, {일시 = " + logs.get(i).date + "}, {메시지 = " + logs.get(i).message + "}");
                     }
                 }
                 break;
-            } // end, switch
-        } //end, if
+            }
+        }
+    }
+
+    private void printHiddenLogs()
+    {
+        UtilLog.instance.printAllLogs();
+
+        prepareLogs();
+
+        LogAdapter adapter = new LogAdapter();
+        mLogBinding.logRecyclerview.setAdapter(adapter);
+        mLogBinding.logRecyclerview.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        if (mLogs != null)
+        {
+            for (int i = 0; i < mLogs.size(); i++)
+            {
+                adapter.addItem(mLogs.get(i));
+            }
+        }
 
         mLogBinding.logRecyclerview.scrollToPosition(adapter.getItemCount() - 1);
     }
