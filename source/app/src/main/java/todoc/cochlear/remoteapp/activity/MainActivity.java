@@ -2058,6 +2058,7 @@ public class MainActivity extends AppCompatActivity
                 // Connected state.
                 if (newState == BluetoothProfile.STATE_CONNECTED)
                 {
+                    mStatus.receivedPackets.clear();
                     mStatus.connectionState = Status.CONNECTION_STATE_CONNECTING;
 
                     Log.d(TAG, "BLE 연결 이벤트 발생 -> NAME = " + name + ", ADDRESS = " + address);
@@ -2283,11 +2284,20 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)
         {
-            // run
+            mStatus.receivedPackets.offer(characteristic.getValue());
+
             new Handler(Looper.getMainLooper()).post(() ->
             {
                 // 수신 패킷 정보 획득
-                byte[] responsePacket = characteristic.getValue(); // Extract data from packet.
+                //byte[] responsePacket = characteristic.getValue(); // Extract data from packet.
+                byte[] responsePacket = mStatus.receivedPackets.poll();
+
+                if (responsePacket == null)
+                {
+                    Log.d(TAG, "Status의 receivedPackets이 null입니다.");
+                    return;
+                }
+
                 int packetSize = responsePacket.length; // Get size of packet data.
 
                 Log.v(TAG, "BLE 특성 변화 감지 : " + printLogBytesToString(responsePacket));
