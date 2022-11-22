@@ -63,6 +63,7 @@ public class Status
 
     // BLE 패킷 전송에 사용되는 바이트 배열
     public byte[] sendingPacket;
+    public Queue<byte[]> receivedPackets1 = new LinkedList<>();
 
     // BLE 에러 상황에서 출력하려는 각 토스트 메시지를 위한 플래그이다.
     // 연속적으로 에러 발생시 토스트 메시지가 계속 겹쳐서 생성되기 때문에 이를 방지하기 위함이다.
