@@ -504,6 +504,19 @@ public class ShareFragment extends Fragment
         // 최소 사용자 선택 수 이상으로 사용자를 선택해야 다음 화면으로 진행할 수 있다.
         if (mSelectedUserCount < AT_LEAST_SELECTED_USER_COUNT)
         {
+
+
+            // TD2-SW-RC-UNIT-Test-ID-87 [맵 정보 수집 내부기 선택 유닛] 순서[2] +
+            // TD2-SW-RC-UNIT-Test-ID-87 [맵 정보 수집 내부기 선택 유닛] 순서[3] 시작.
+            /*
+            {
+                Log.d(TAG, "Selected internal device = " + mSelectedUserCount);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-87 [맵 정보 수집 내부기 선택 유닛] 순서[2] +
+            // TD2-SW-RC-UNIT-Test-ID-87 [맵 정보 수집 내부기 선택 유닛] 순서[3] 끝.
+
+
             String message = "사용자(내부기)를 최소 " + AT_LEAST_SELECTED_USER_COUNT + " 이상 선택해주세요.";
             Toast.makeText(mActivity, message, Toast.LENGTH_LONG).show();
             return;
@@ -515,6 +528,16 @@ public class ShareFragment extends Fragment
             mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
             mActivity.mBluetoothGatt.disconnect();
         }
+
+
+        // TD2-SW-RC-UNIT-Test-ID-87 [맵 정보 수집 내부기 선택 유닛] 순서[4] 시작.
+        /*
+        {
+            Log.d(TAG, "Selected internal device = " + mSelectedUserCount);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-87 [맵 정보 수집 내부기 선택 유닛] 순서[4] +
+
 
         mFsm = FSM_COLLECT_MAP_SCREEN;  // 맵 수집 상태로 변경하고
         updateScreen();                 // 화면을 업데이트 시킨다.
@@ -2222,6 +2245,23 @@ public class ShareFragment extends Fragment
                 } // 슬롯 i
             } // 맵 정보 전체 len
         } // end 1 < mMapInfo.length
+
+
+        // TD2-SW-RC-UNIT-Test-ID-38 [DB 맵 데이터를 맵 정보로 입력 유닛] 순서[1] 시작.
+        /*
+        {
+            Log.d(TAG, "Recent map metadata information.");
+
+            for (int slot_i = 0; slot_i < 4; slot_i++)
+            {
+                Log.d(TAG, "slot " + slot_i + ", name = " + mMostRecentMapInfo.metadata.names[slot_i]
+                        + ", ear = " + mMostRecentMapInfo.metadata.ears[slot_i] + ", stamp = " + mMostRecentMapInfo.metadata.stamps[slot_i]);
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-35 [맵 정보 인스턴스 생성 및 초기화 유닛] 순서[1] 끝.
+
+
     } // end 함수
 
     public void mapInfoCopyAll(MapInfo src, MapInfo dst)

@@ -60,6 +60,76 @@ public class LogFragment extends Fragment
         ((MainActivity) requireActivity()).mBinding.toolbarNavigationMessage.setText("사용자\n등록");
         ((MainActivity) requireActivity()).mBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
 
+
+        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[1] 입력 시작.
+        /*
+        {
+            for (EntityLog log : UtilLog.instance.readAllLogs())
+            {
+                UtilLog.instance.delete(log);
+            }
+
+            prepareLogs();
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[1] 입력 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[2] 입력 시작.
+        /*
+        {
+            EntityLog logData = new EntityLog();
+            logData.number = 1;
+            logData.date = "2022-10-01 00:00:00.000";
+            logData.message = "2022-10-01";
+
+            EntityLog logIndex = new EntityLog();
+            logIndex.number = 0;
+            logIndex.date = "2022-01-01 00:00:00.000";
+            logIndex.message = "2";
+
+            UtilLog.instance.insert(logData);
+            UtilLog.instance.insert(logIndex);
+
+            prepareLogs();
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[2] 입력 끝.
+
+        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[3] 입력 시작.
+        /*
+        {
+            EntityLog logExtra1 = new EntityLog();
+            logExtra1.number = 2;
+            logExtra1.date = "2022-11-01 00:00:00.000";
+            logExtra1.message = "2022-11-01";
+
+            EntityLog logExtra2 = new EntityLog();
+            logExtra2.number = 3;
+            logExtra2.date = "2022-01-01 00:00:00.000";
+            logExtra2.message = "2022-01-01";
+
+            EntityLog logExtra3 = new EntityLog();
+            logExtra3.number = 4;
+            logExtra3.date = "2022-02-01 00:00:00.000";
+            logExtra3.message = "2022-02-01";
+
+            EntityLog logIndex = new EntityLog();
+            logIndex.number = 0;
+            logIndex.date = "2022-01-01 00:00:00.000";
+            logIndex.message = "5";
+
+            UtilLog.instance.insert(logExtra1);
+            UtilLog.instance.insert(logExtra2);
+            UtilLog.instance.insert(logExtra3);
+            UtilLog.instance.insert(logIndex);
+
+            prepareLogs();
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[3] 입력 끝.
+
+
         printHiddenLogs();
 
         mLogBinding.logExitButton.setOnClickListener(view1 -> requireActivity().onBackPressed());
@@ -72,6 +142,8 @@ public class LogFragment extends Fragment
             mLogs = new ArrayList<>();
         }
 
+        mLogs.clear();
+
         List<EntityLog> logs = UtilLog.instance.readAllLogs();
 
         if (logs != null)
@@ -83,10 +155,29 @@ public class LogFragment extends Fragment
                 case 0:
                 case 1:
                     Log.d(TAG, "[히든로그] 저장된 로그가 없습니다.");
+
+
+                    // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[1] 시작.
+                    /*
+                    Log.d(TAG, "there is no log written.");
+                    */
+                    // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[1] 끝.
+
+
                     break;
 
                 case 2:
                     Log.d(TAG, "[히든로그] 오직 1개의 로그만 있습니다.");
+
+
+                    // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[2] 시작.
+                    /*
+                    Log.d(TAG, "there is only 1 log written.");
+                    Log.d(TAG, "number = " + logs.get(1).number + ", date = " + logs.get(1).date + ", message = " + logs.get(1).message);
+                    */
+                    // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[2] 끝.
+
+
                     mLogs.add(logs.get(1));
                     break;
 
@@ -105,7 +196,7 @@ public class LogFragment extends Fragment
                         String back = logs.get(i + 1).date;
 
                         String[] front_space_splits = front.split(" ");
-                        String[] back_space_splits = front.split(" ");
+                        String[] back_space_splits = back.split(" ");
 
                         String[] front_date_splits = front_space_splits[0].split("-");
                         String[] back_date_splits = back_space_splits[0].split("-");
@@ -183,18 +274,50 @@ public class LogFragment extends Fragment
 
                     Log.d(TAG, "[히든로그] 가장 오래된 로그의 번호는 " + oldestNumber + "입니다.");
 
+
+                    // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[3-1] 시작.
+                    /*
+                    Log.d(TAG, "total system log count = " + (size - 1) + ", the oldest log number = " + oldestNumber);
+                    */
+                    // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[3-1] 끝.
+
+                    int mLogIndex = 0;
+
                     // print from oldest log data to last log data on database.
                     for (int i = oldestNumber; i < size; i++)
                     {
-                        mLogs.add(logs.get(i));
+                        mLogs.add(mLogIndex, logs.get(i));
+                        mLogIndex++;
+
                         Log.d(TAG, "[히든로그] {인덱스 = " + i + "}, {일시 = " + logs.get(i).date + "}, {메시지 = " + logs.get(i).message + "}");
+
+
+                        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[3-2] 시작.
+                        /*
+                        Log.d(TAG, "number = " + logs.get(i).number + ", date = " + logs.get(i).date + ", message = " + logs.get(i).message);
+                        */
+                        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[3-2] 끝.
+
+
                     }
 
                     // print from first log data to before oldest log data.
                     for (int i = 1; i < oldestNumber; i++)
                     {
-                        mLogs.add(logs.get(i));
+                        //mLogs.add(logs.get(i));
+                        mLogs.add(mLogIndex, logs.get(i));
+                        mLogIndex++;
+
                         Log.d(TAG, "[히든로그] {인덱스 = " + i + "}, {일시 = " + logs.get(i).date + "}, {메시지 = " + logs.get(i).message + "}");
+
+
+                        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[3-3] 시작.
+                        /*
+                        Log.d(TAG, "number = " + logs.get(i).number + ", date = " + logs.get(i).date + ", message = " + logs.get(i).message);
+                        */
+                        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[3-3] 끝.
+
+
                     }
                 }
                 break;

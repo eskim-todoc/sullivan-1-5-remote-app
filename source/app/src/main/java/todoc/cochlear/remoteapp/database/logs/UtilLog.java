@@ -202,4 +202,22 @@ public class UtilLog
             }
         }
     }
+
+    // 데이터베이스 삭제 (임시 테스트 용)
+    public void delete(EntityLog log)
+    {
+        if (mDatabase != null)
+        {
+            mDatabase.daoLog().delete(log);
+        }
+    }
+
+    // 로그 쓰기 (임시 테스트 용)
+    public void insert(EntityLog log)
+    {
+        if (mDatabase != null)
+        {
+            mDatabase.daoLog().insert(log);
+        }
+    }
 }

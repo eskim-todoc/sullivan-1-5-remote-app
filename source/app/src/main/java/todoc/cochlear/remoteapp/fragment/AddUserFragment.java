@@ -2,6 +2,7 @@ package todoc.cochlear.remoteapp.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -98,6 +99,18 @@ public class AddUserFragment extends Fragment
 
         if (nameMatched && passKeyMatched && nicknameMatched)
         {
+
+
+            // TD2-SW-RC-UNIT-Test-ID-72 [사용자 목록 표시 유닛] 순서[1] 시작.
+            /*
+            {
+                Log.d(TAG, "name = " + easterEggName + ", passKey = " + easterEggPassKey + ", nickname = " + easterEggNickname);
+                Log.d(TAG, "Log screen will be displayed.");
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-72 [사용자 목록 표시 유닛] 순서[1] 끝.
+
+
             /*
             requireActivity().getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new LogFragment()).commitAllowingStateLoss();
             */
@@ -160,6 +173,17 @@ public class AddUserFragment extends Fragment
                     }
                 }
 
+
+                // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[1] 시작.
+                /*
+                {
+                    Log.d(TAG, "name length = " + user.name.length());
+                    Log.d(TAG, "name length must be greater than 1");
+                }
+                */
+                // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[1] 끝.
+
+
                 Status.instance().lastDialog =
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
@@ -184,6 +208,17 @@ public class AddUserFragment extends Fragment
                     }
                 }
 
+
+                // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[2] 시작.
+                /*
+                {
+                    Log.d(TAG, "passKey length = " + user.passKey.length());
+                    Log.d(TAG, "passKey length must be equals to 4");
+                }
+                */
+                // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[2] 끝.
+
+
                 Status.instance().lastDialog =
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
@@ -206,6 +241,16 @@ public class AddUserFragment extends Fragment
                         Status.instance().lastDialog.dismiss();
                     }
                 }
+
+
+                // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[3] 시작.
+                /*
+                {
+                    Log.d(TAG, "ear must be selected. (left or right)");
+                }
+                */
+                // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[3] 끝.
+
 
                 Status.instance().lastDialog =
                         new MaterialAlertDialogBuilder(requireContext())
@@ -236,6 +281,17 @@ public class AddUserFragment extends Fragment
                         }
                     }
 
+
+                    // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[4] 시작.
+                    /*
+                    {
+                        Log.d(TAG, "name = " + user.name + ", passKey = " + user.passKey + ", nickname = " + user.nickname + ", ear = " + user.ear);
+                        Log.d(TAG, "already registered user information.");
+                    }
+                    */
+                    // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[4] 끝.
+
+
                     Status.instance().lastDialog =
                             new MaterialAlertDialogBuilder(requireContext())
                                     .setTitle("주의")
@@ -263,6 +319,18 @@ public class AddUserFragment extends Fragment
 
                     if (user.defaultUser.equals(EntityUser.USER_DEFAULT)) // 새로 등록하려는 정보가 기본사용자일 떄
                     {
+
+
+                        // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[6] 시작.
+                        /*
+                        {
+                            Log.d(TAG, "name = " + user.name + ", passKey = " + user.passKey + ", nickname = " + user.nickname + ", ear = " + user.ear);
+                            Log.d(TAG, "register default user information.");
+                        }
+                        */
+                        // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[6] 끝.
+
+
                         EntityUser defaultUser = UtilUser.instance.getDefaultUser();
 
                         // 등록하려는데, 이미 기본사용자가 등록되어 있다면
@@ -347,6 +415,18 @@ public class AddUserFragment extends Fragment
                     }
                     else // 그냥 일반 사용자로 등록할 때
                     {
+
+
+                        // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[5] 시작.
+                        /*
+                        {
+                            Log.d(TAG, "name = " + user.name + ", passKey = " + user.passKey + ", nickname = " + user.nickname + ", ear = " + user.ear);
+                            Log.d(TAG, "register user information.");
+                        }
+                        */
+                        // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[5] 끝.
+
+
                         UtilUser.instance.insert(user);
                         UtilLog.instance.writeLog(
                                 "사용자 추가 : 이름=" + user.name + ", 패스키=" + user.passKey +

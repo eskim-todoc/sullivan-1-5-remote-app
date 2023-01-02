@@ -159,13 +159,29 @@ public class UtilUser
     // 착용 위치에 대한 한극 문자열 얻어오기
     static public String getEarKorean(String ear)
     {
-        if (ear.equals(EntityUser.EAR_LEFT))
+        String[] splits = ear.split("_");
+
+        if (splits.length == 1)
         {
-            return EntityUser.EAR_LEFT_KR;
+            if (ear.equals(EntityUser.EAR_LEFT))
+            {
+                return EntityUser.EAR_LEFT_KR;
+            }
+            else
+            {
+                return EntityUser.EAR_RIGHT_KR;
+            }
         }
         else
         {
-            return EntityUser.EAR_RIGHT_KR;
+            if (splits[splits.length - 1].equals(EntityUser.EAR_LEFT))
+            {
+                return EntityUser.EAR_LEFT_KR;
+            }
+            else
+            {
+                return EntityUser.EAR_RIGHT_KR;
+            }
         }
     }
 

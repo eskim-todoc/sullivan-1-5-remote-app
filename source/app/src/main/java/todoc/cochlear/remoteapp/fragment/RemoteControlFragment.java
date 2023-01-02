@@ -2,6 +2,8 @@ package todoc.cochlear.remoteapp.fragment;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,10 +18,13 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.util.List;
+
 import todoc.cochlear.remoteapp.activity.MainActivity;
 import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
 import todoc.cochlear.remoteapp.activity.databinding.FragmentRemoteControlBinding;
+import todoc.cochlear.remoteapp.database.devices.EntityDevice;
 import todoc.cochlear.remoteapp.database.devices.UtilDevice;
 import todoc.cochlear.remoteapp.database.users.EntityUser;
 import todoc.cochlear.remoteapp.database.users.UtilUser;
@@ -132,6 +137,133 @@ public class RemoteControlFragment extends Fragment
             }
         }
         */
+
+
+        // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[1] 시작.
+        /*
+        {
+            new Handler(Looper.getMainLooper()).postDelayed(() ->
+                    {
+                        Log.d(TAG, "Init the Status View Model.");
+                        mStatusViewModel.setConnectionState(StatusViewModel.CONNECTION_STATE_DISCONNECTED);
+                        mStatusViewModel.setValueBatteryLevel(75);
+                        mStatusViewModel.setValueNotification(PacketInfo.NOTIFICATION_OFF);
+                        mStatusViewModel.setValueLed(PacketInfo.LED_OFF);
+                        mStatusViewModel.setValueTelecoil(PacketInfo.TELECOIL_OFF);
+                        mStatusViewModel.setValueMaxOutput(PacketInfo.INIT_VALUE_MAX_OUTPUT);
+                        mStatusViewModel.setValueVolume(PacketInfo.INIT_VALUE_VOLUME);
+                        mStatusViewModel.setValueProgram(PacketInfo.INIT_VALUE_PROGRAM);
+                    },
+                    5000);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[2] 입력 시작.
+        /*
+        {
+            new Handler(Looper.getMainLooper()).postDelayed(() ->
+                    {
+                        mStatusViewModel.setConnectionState(StatusViewModel.CONNECTION_STATE_CONNECTED);
+                    },
+                    7000);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[2] 입력 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[3] 입력 시작.
+        /*
+        {
+            new Handler(Looper.getMainLooper()).postDelayed(() ->
+                    {
+                        mStatusViewModel.setValueBatteryLevel(40);
+                    },
+                    7000);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[3] 입력 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[4] 입력 시작.
+        /*
+        {
+            new Handler(Looper.getMainLooper()).postDelayed(() ->
+                    {
+                        mStatusViewModel.setValueNotification(PacketInfo.NOTIFICATION_ON);
+                    },
+                    7000);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[4] 입력 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[5] 입력 시작.
+        /*
+        {
+            new Handler(Looper.getMainLooper()).postDelayed(() ->
+                    {
+                        mStatusViewModel.setValueLed(PacketInfo.LED_ON);
+                    },
+                    7000);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[5] 입력 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[6] 입력 시작.
+        /*
+        {
+            new Handler(Looper.getMainLooper()).postDelayed(() ->
+                    {
+                        mStatusViewModel.setValueTelecoil(PacketInfo.TELECOIL_ON);
+                    },
+                    7000);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[6] 입력 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[7] 입력 시작.
+        /*
+        {
+            new Handler(Looper.getMainLooper()).postDelayed(() ->
+                    {
+                        mStatusViewModel.setValueMaxOutput(3);
+                    },
+                    7000);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[7] 입력 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[8] 입력 시작.
+        /*
+        {
+            new Handler(Looper.getMainLooper()).postDelayed(() ->
+                    {
+                        mStatusViewModel.setValueVolume(7);
+                    },
+                    7000);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[8] 입력 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[9] 입력 시작.
+        /*
+        {
+            new Handler(Looper.getMainLooper()).postDelayed(() ->
+                    {
+                        mStatusViewModel.setValueProgram(3);
+                    },
+                    7000);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[9] 입력 끝.
+
+
     }
 
     // LiveData - Connection
@@ -139,6 +271,17 @@ public class RemoteControlFragment extends Fragment
     {
         mStatusViewModel.getObjectConnectionState().observe(getViewLifecycleOwner(), integer ->
         {
+
+
+            // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[2] 시작.
+            /*
+            {
+                Log.d(TAG, "observe --> connection state = " + integer);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[2] 끝.
+
+
             Log.v(TAG, "옵저버 : 연결상태 -> " + integer);
 
             if (integer == StatusViewModel.CONNECTION_STATE_DISCONNECTED)
@@ -183,6 +326,17 @@ public class RemoteControlFragment extends Fragment
             Log.v(TAG, "옵저버 : 배터리 -> " + textValue + "%");
             mRemoteControlBinding.remoteControlBatteryPercentTextview.setText(textValue);
             mRemoteControlBinding.remoteControlBatteryProgressbar.setProgress(value);
+
+
+            // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[3] 시작.
+            /*
+            {
+                Log.d(TAG, "observe --> battery = " + value);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[3] 끝.
+
+
         });
     }
 
@@ -195,6 +349,7 @@ public class RemoteControlFragment extends Fragment
 
             Log.v(TAG, "옵저버 : 자극알림 -> " + value);
 
+
             if (value == PacketInfo.NOTIFICATION_ON)
             {
                 mRemoteControlBinding.remoteControlNotificationImageButton.setBackground(AppCompatResources.getDrawable(requireContext(), R.drawable.remote_control_ic_ripple_circle_background_on));
@@ -203,6 +358,17 @@ public class RemoteControlFragment extends Fragment
             {
                 mRemoteControlBinding.remoteControlNotificationImageButton.setBackground(AppCompatResources.getDrawable(requireContext(), R.drawable.remote_control_ic_ripple_circle_background));
             }
+
+
+            // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[4] 시작.
+            /*
+            {
+                Log.d(TAG, "observe --> stim alarm = " + value);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[4] 끝.
+
+
         });
     }
 
@@ -223,6 +389,17 @@ public class RemoteControlFragment extends Fragment
             {
                 mRemoteControlBinding.remoteControlLedImageButton.setBackground(AppCompatResources.getDrawable(requireContext(), R.drawable.remote_control_ic_ripple_circle_background));
             }
+
+
+            // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[5] 시작.
+            /*
+            {
+                Log.d(TAG, "observe --> LED alarm = " + value);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[5] 끝.
+
+
         });
     }
 
@@ -243,6 +420,17 @@ public class RemoteControlFragment extends Fragment
             {
                 mRemoteControlBinding.remoteControlTelecoilImageButton.setBackground(AppCompatResources.getDrawable(requireContext(), R.drawable.remote_control_ic_ripple_circle_background));
             }
+
+
+            // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[6] 시작.
+            /*
+            {
+                Log.d(TAG, "observe --> telecoil setting = " + value);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[6] 끝.
+
+
         });
     }
 
@@ -258,6 +446,17 @@ public class RemoteControlFragment extends Fragment
             Log.v(TAG, "옵저버 : 최대출력 -> " + text);
             mRemoteControlBinding.remoteControlMaxOutputValueTextview.setText(text);
             mRemoteControlBinding.remoteControlMaxOutputProgressbar.setProgress(value);
+
+
+            // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[7] 시작.
+            /*
+            {
+                Log.d(TAG, "observe --> max output = " + value);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[7] 끝.
+
+
         });
     }
 
@@ -271,6 +470,17 @@ public class RemoteControlFragment extends Fragment
             Log.v(TAG, "옵저버 : 볼륨 -> " + text);
             mRemoteControlBinding.remoteControlVolumeValueTextview.setText(text);
             mRemoteControlBinding.remoteControlVolumeProgressbar.setProgress(value);
+
+
+            // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[8] 시작.
+            /*
+            {
+                Log.d(TAG, "observe --> volume = " + value);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[8] 끝.
+
+
         });
     }
 
@@ -283,6 +493,17 @@ public class RemoteControlFragment extends Fragment
             String text = value + "";
             Log.v(TAG, "옵저버 : 프로그램 -> " + text);
             mRemoteControlBinding.remoteControlProgramValueTextview.setText(text);
+
+
+            // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[9] 시작.
+            /*
+            {
+                Log.d(TAG, "observe --> program = " + value);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-70 [리모컨 화면 라이브데이터 처리 유닛] 순서[9] 끝.
+
+
         });
     }
 
@@ -295,6 +516,23 @@ public class RemoteControlFragment extends Fragment
             ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
             int value = mStatusViewModel.getValueNotification();
+
+
+            // TD2-SW-RC-UNIT-Test-ID-69 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[2] 시작.
+            /*
+            {
+                if (value == PacketInfo.NOTIFICATION_ON)
+                {
+                    Log.d(TAG, "Click event --> stim alarm = " + PacketInfo.NOTIFICATION_OFF);
+                }
+                else if (value == PacketInfo.NOTIFICATION_OFF)
+                {
+                    Log.d(TAG, "Click event --> stim alarm = " + PacketInfo.NOTIFICATION_ON);
+                }
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-69 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[2] 끝.
+
 
             if (value == PacketInfo.NOTIFICATION_ON)
             {
@@ -321,6 +559,23 @@ public class RemoteControlFragment extends Fragment
 
             int value = mStatusViewModel.getValueLed();
 
+
+            // TD2-SW-RC-UNIT-Test-ID-69 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[3] 시작.
+            /*
+            {
+                if (value == PacketInfo.LED_ON)
+                {
+                    Log.d(TAG, "Click event --> led alarm = " + PacketInfo.LED_OFF);
+                }
+                else if (value == PacketInfo.LED_OFF)
+                {
+                    Log.d(TAG, "Click event --> led alarm = " + PacketInfo.LED_ON);
+                }
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-69 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[3] 끝.
+
+
             if (value == PacketInfo.LED_ON)
             {
                 ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_LED, new byte[]{PacketInfo.LED_OFF}, 2));
@@ -342,6 +597,23 @@ public class RemoteControlFragment extends Fragment
 
             int value = mStatusViewModel.getValueTelecoil();
 
+
+            // TD2-SW-RC-UNIT-Test-ID-69 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[4] 시작.
+            /*
+            {
+                if (value == PacketInfo.TELECOIL_ON)
+                {
+                    Log.d(TAG, "Click event --> telecoil setting = " + PacketInfo.TELECOIL_OFF);
+                }
+                else if (value == PacketInfo.TELECOIL_OFF)
+                {
+                    Log.d(TAG, "Click event --> telecoil setting = " + PacketInfo.TELECOIL_ON);
+                }
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-69 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[4] 끝.
+
+
             if (value == PacketInfo.TELECOIL_ON)
             {
                 ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_TELECOIL, new byte[]{PacketInfo.TELECOIL_OFF}, 2));
@@ -358,6 +630,17 @@ public class RemoteControlFragment extends Fragment
     {
         mRemoteControlBinding.remoteControlMaxOutputUpImageButton.setOnClickListener(view ->
         {
+
+
+            // TD2-SW-RC-UNIT-Test-ID-69 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[7] 시작.
+            /*
+            {
+                Log.d(TAG, "Click event --> max output = " + PacketInfo.MAX_OUTPUT_UP);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-69 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[7] 끝.
+
+
             // 장시간 미사용 핸들러 업데이트
             ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
@@ -366,6 +649,17 @@ public class RemoteControlFragment extends Fragment
 
         mRemoteControlBinding.remoteControlMaxOutputDownImageButton.setOnClickListener(view ->
         {
+
+
+            // TD2-SW-RC-UNIT-Test-ID-69 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[8] 시작.
+            /*
+            {
+                Log.d(TAG, "Click event --> max output = " + PacketInfo.MAX_OUTPUT_DOWN);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-69 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[8] 끝.
+
+
             // 장시간 미사용 핸들러 업데이트
             ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
@@ -378,6 +672,17 @@ public class RemoteControlFragment extends Fragment
     {
         mRemoteControlBinding.remoteControlVolumeUpImageButton.setOnClickListener(view ->
         {
+
+
+            // TD2-SW-RC-UNIT-Test-ID-69 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[9] 시작.
+            /*
+            {
+                Log.d(TAG, "Click event --> volume = " + PacketInfo.VOLUME_UP);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-69 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[9] 끝.
+
+
             // 장시간 미사용 핸들러 업데이트
             ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
@@ -386,6 +691,17 @@ public class RemoteControlFragment extends Fragment
 
         mRemoteControlBinding.remoteControlVolumeDownImageButton.setOnClickListener(view ->
         {
+
+
+            // TD2-SW-RC-UNIT-Test-ID-69 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[10] 시작.
+            /*
+            {
+                Log.d(TAG, "Click event --> volume = " + PacketInfo.VOLUME_DOWN);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-69 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[10] 끝.
+
+
             // 장시간 미사용 핸들러 업데이트
             ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
@@ -398,6 +714,17 @@ public class RemoteControlFragment extends Fragment
     {
         mRemoteControlBinding.remoteControlProgramUpImageButton.setOnClickListener(view ->
         {
+
+
+            // TD2-SW-RC-UNIT-Test-ID-69 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[5] 시작.
+            /*
+            {
+                Log.d(TAG, "Click event --> program = " + PacketInfo.PROGRAM_UP);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-69 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[5] 끝.
+
+
             // 장시간 미사용 핸들러 업데이트
             ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
@@ -406,6 +733,17 @@ public class RemoteControlFragment extends Fragment
 
         mRemoteControlBinding.remoteControlProgramDownImageButton.setOnClickListener(view ->
         {
+
+
+            // TD2-SW-RC-UNIT-Test-ID-69 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[6] 시작.
+            /*
+            {
+                Log.d(TAG, "Click event --> program = " + PacketInfo.PROGRAM_DOWN);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-69 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[6] 끝.
+
+
             // 장시간 미사용 핸들러 업데이트
             ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
@@ -417,6 +755,129 @@ public class RemoteControlFragment extends Fragment
     {
         if (mMainBinding.lockScreen.getVisibility() != View.VISIBLE)
         {
+
+
+            // TD2-SW-RC-UNIT-Test-ID-71 [리모컨 화면 사용자/기기 목록 체크 유닛] 공통 사용 항목1 시작.
+            /*
+            List<EntityUser> users = UtilUser.instance.getUsers();
+            List<EntityDevice> devices = UtilDevice.instance.getDevices();
+            */
+            // TD2-SW-RC-UNIT-Test-ID-71 [리모컨 화면 사용자/기기 목록 체크 유닛] 공통 사용 항목1 끝.
+
+
+            // TD2-SW-RC-UNIT-Test-ID-71 [리모컨 화면 사용자/기기 목록 체크 유닛] 순서[1] 시작.
+            /*
+            {
+                // 공통 사용 항목 1과 2를 활용한다.
+                for (EntityUser user : UtilUser.instance.getUsers())
+                {
+                    UtilUser.instance.delete(user);
+                }
+
+                for (EntityDevice device : UtilDevice.instance.getDevices())
+                {
+                    UtilDevice.instance.delete(device);
+                }
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-71 [리모컨 화면 사용자/기기 목록 체크 유닛] 순서[1] 끝.
+
+
+            // TD2-SW-RC-UNIT-Test-ID-71 [리모컨 화면 사용자/기기 목록 체크 유닛] 순서[2] 시작.
+            /*
+            {
+                // 공통 사용 항목 1과 2를 활용한다.
+                for (EntityUser user : UtilUser.instance.getUsers())
+                {
+                    UtilUser.instance.delete(user);
+                }
+
+                for (EntityDevice device : UtilDevice.instance.getDevices())
+                {
+                    UtilDevice.instance.delete(device);
+                }
+
+                EntityUser user = new EntityUser();
+                user.name = "AAAAA_R";
+                user.nickname = "사용자 A";
+                user.ear = EntityUser.EAR_RIGHT;
+                user.passKey = "0481";
+                user.defaultUser = EntityUser.USER_NOT_DEFAULT;
+
+                UtilUser.instance.insert(user);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-71 [리모컨 화면 사용자/기기 목록 체크 유닛] 순서[2] 끝.
+
+
+            // TD2-SW-RC-UNIT-Test-ID-71 [리모컨 화면 사용자/기기 목록 체크 유닛] 순서[3] 시작.
+            /*
+            {
+                // 공통 사용 항목 1과 2를 활용한다.
+                for (EntityUser user : UtilUser.instance.getUsers())
+                {
+                    UtilUser.instance.delete(user);
+                }
+
+                for (EntityDevice device : UtilDevice.instance.getDevices())
+                {
+                    UtilDevice.instance.delete(device);
+                }
+
+                EntityUser user = new EntityUser();
+                user.name = "AAAAA_R";
+                user.nickname = "사용자 A";
+                user.ear = EntityUser.EAR_RIGHT;
+                user.passKey = "0481";
+                user.defaultUser = EntityUser.USER_NOT_DEFAULT;
+
+                UtilUser.instance.insert(user);
+
+                EntityDevice device = new EntityDevice();
+                device.serialNumber = "A1B2";
+                device.additionalInformation = "외부기 1";
+                device.pairingKey = "123456";
+
+                UtilDevice.instance.insert(device);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-71 [리모컨 화면 사용자/기기 목록 체크 유닛] 순서[3] 끝.
+
+
+            // TD2-SW-RC-UNIT-Test-ID-71 [리모컨 화면 사용자/기기 목록 체크 유닛] 순서[4] 시작.
+            /*
+            {
+                // 공통 사용 항목 1과 2를 활용한다.
+                for (EntityUser user : UtilUser.instance.getUsers())
+                {
+                    UtilUser.instance.delete(user);
+                }
+
+                for (EntityDevice device : UtilDevice.instance.getDevices())
+                {
+                    UtilDevice.instance.delete(device);
+                }
+
+                EntityUser user = new EntityUser();
+                user.name = "AAAAA_R";
+                user.nickname = "사용자 A";
+                user.ear = EntityUser.EAR_RIGHT;
+                user.passKey = "0481";
+                user.defaultUser = EntityUser.USER_DEFAULT;
+
+                UtilUser.instance.insert(user);
+
+                EntityDevice device = new EntityDevice();
+                device.serialNumber = "A1B2";
+                device.additionalInformation = "외부기 1";
+                device.pairingKey = "123456";
+
+                UtilDevice.instance.insert(device);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-71 [리모컨 화면 사용자/기기 목록 체크 유닛] 순서[4] 끝.
+
+
             if (UtilUser.instance.getUsers().size() == 0)
             {
                 makeNoUserDialog();
@@ -469,6 +930,32 @@ public class RemoteControlFragment extends Fragment
                     ((MainActivity) requireActivity()).makeDialogSelectUser();
                 }
             }
+
+            // TD2-SW-RC-UNIT-Test-ID-71 [리모컨 화면 사용자/기기 목록 체크 유닛] 공통 사용 항목2 시작.
+            /*
+            for (EntityUser user : UtilUser.instance.getUsers())
+            {
+                UtilUser.instance.delete(user);
+            }
+
+            for (EntityUser user : users)
+            {
+                UtilUser.instance.insert(user);
+            }
+
+            for (EntityDevice device : UtilDevice.instance.getDevices())
+            {
+                UtilDevice.instance.delete(device);
+            }
+
+            for (EntityDevice device : devices)
+            {
+                UtilDevice.instance.insert(device);
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-71 [리모컨 화면 사용자/기기 목록 체크 유닛] 공통 사용 항목2 끝.
+
+
         }
     }
 

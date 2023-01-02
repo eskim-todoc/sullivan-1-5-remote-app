@@ -20,6 +20,8 @@ import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
 import todoc.cochlear.remoteapp.activity.databinding.FragmentDeviceBinding;
 import todoc.cochlear.remoteapp.database.devices.EntityDevice;
 import todoc.cochlear.remoteapp.database.devices.UtilDevice;
+import todoc.cochlear.remoteapp.database.users.EntityUser;
+import todoc.cochlear.remoteapp.database.users.UtilUser;
 import todoc.cochlear.remoteapp.list.DeviceAdapter;
 import todoc.cochlear.remoteapp.params.Status;
 
@@ -113,6 +115,22 @@ public class DeviceFragment extends Fragment
 
     private void updateRecyclerView()
     {
+
+
+        // TD2-SW-RC-UNIT-Test-ID-79 [기기 목록 표시 유닛] 순서[1] 시작.
+        /*
+        {
+            List<EntityDevice> testDevices = UtilDevice.instance.getDevices();
+
+            for (EntityDevice device : testDevices)
+            {
+                Log.d(TAG, "serialNumber = " + device.serialNumber + ", additionalInformation = " + device.additionalInformation + ", pairingKey = " + device.pairingKey);
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-79 [기기 목록 표시 유닛] 순서[1] 끝.
+
+
         mDeviceBinding.deviceTitle.setVisibility(View.GONE);
 
         List<EntityDevice> entityDevices = UtilDevice.instance.getDevices();

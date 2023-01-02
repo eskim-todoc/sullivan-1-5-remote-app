@@ -1,0 +1,58 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "dbaaf324e68966732bc298dad454949f",
+    "entities": [
+      {
+        "tableName": "EntityMap",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name_ear` TEXT NOT NULL, `stamp` INTEGER NOT NULL, `name` TEXT, `ear` TEXT, `serialize_map_data` TEXT, PRIMARY KEY(`name_ear`))",
+        "fields": [
+          {
+            "fieldPath": "name_ear",
+            "columnName": "name_ear",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stamp",
+            "columnName": "stamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ear",
+            "columnName": "ear",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "serialize_map_data",
+            "columnName": "serialize_map_data",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "name_ear"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dbaaf324e68966732bc298dad454949f')"
+    ]
+  }
+}

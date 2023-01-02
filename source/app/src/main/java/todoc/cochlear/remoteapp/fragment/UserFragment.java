@@ -143,12 +143,28 @@ public class UserFragment extends Fragment
 
     private void updateRecyclerView()
     {
+
+
+        // TD2-SW-RC-UNIT-Test-ID-72 [사용자 목록 표시 유닛] 순서[1] 시작.
+        /*
+        {
+            List<EntityUser> testUsers = UtilUser.instance.getUsers();
+
+            for (EntityUser user : testUsers)
+            {
+                Log.d(TAG, "name = " + user.name + ", ear = " + user.ear + ", nickname = " + user.nickname
+                        + ", passKey = " + user.passKey + ", defaultUser = " + user.defaultUser);
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-72 [사용자 목록 표시 유닛] 순서[1] 끝.
+
+
         mUserBinding.defaultUserTitle.setVisibility(View.GONE);
         mUserBinding.defaultUserRecyclerview.setVisibility(View.GONE);
 
         mUserBinding.userTitle.setVisibility(View.GONE);
         mUserBinding.userRecyclerview.setVisibility(View.GONE);
-
 
         EntityUser defaultUser = UtilUser.instance.getDefaultUser();
 

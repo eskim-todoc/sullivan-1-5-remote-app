@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,8 @@ import todoc.cochlear.remoteapp.params.Status;
 
 public class EditDeviceFragment extends Fragment
 {
+    static private final String TAG = "TODOC_" + EditDeviceFragment.class.getSimpleName();
+
     static public final String ARG_SERIAL = "serial";
     static public final String ARG_PAIRING_KEY = "pairing_key";
     static public final String ARG_OPTION = "option";
@@ -157,6 +160,18 @@ public class EditDeviceFragment extends Fragment
                                 .setMessage("외부기 정보를 삭제하시겠습니까?")
                                 .setPositiveButton("삭제", (dialogInterface, i) ->
                                 {
+
+
+                                    // TD2-SW-RC-UNIT-Test-ID-82 [기기 삭제 유닛] 순서[2] 시작.
+                                    /*
+                                    {
+                                        Log.d(TAG, "serialNumber = " + mItem.serialNumber + ", pairingKey = " + mItem.pairingKey + ", additionalInformation = " + mItem.additionalInformation);
+                                        Log.d(TAG, "delete device information.");
+                                    }
+                                    */
+                                    // TD2-SW-RC-UNIT-Test-ID-82 [기기 삭제 유닛] 순서[2] 끝.
+
+
                                     // 장시간 미사용 핸들러 업데이트
                                     ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
@@ -197,6 +212,17 @@ public class EditDeviceFragment extends Fragment
                     }
                 }
 
+
+                // TD2-SW-RC-UNIT-Test-ID-81 [기기 수정 유닛] 순서[2] 시작.
+                /*
+                {
+                    Log.d(TAG, "pairingKey length = " + mItem.pairingKey.length());
+                    Log.d(TAG, "pairingKey length must be equals to 6");
+                }
+                */
+                // TD2-SW-RC-UNIT-Test-ID-81 [기기 수정 유닛] 순서[2] 끝.
+
+
                 Status.instance().lastDialog =
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
@@ -212,6 +238,18 @@ public class EditDeviceFragment extends Fragment
             }
             else
             {
+
+
+                // TD2-SW-RC-UNIT-Test-ID-81 [기기 수정 유닛] 순서[3] 시작.
+                /*
+                {
+                    Log.d(TAG, "serialNumber = " + mItem.serialNumber + ", pairingKey = " + mItem.pairingKey + ", additionalInformation = " + mItem.additionalInformation);
+                    Log.d(TAG, "edit device information.");
+                }
+                */
+                // TD2-SW-RC-UNIT-Test-ID-81 [기기 수정 유닛] 순서[3] 끝.
+
+
                 UtilDevice.instance.update(mItem);
 
                 UtilLog.instance.writeLog(

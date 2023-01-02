@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.util.List;
 import java.util.Objects;
 
 import todoc.cochlear.remoteapp.activity.MainActivity;
@@ -27,6 +29,8 @@ import todoc.cochlear.remoteapp.params.Status;
 
 public class AddDeviceFragment extends Fragment
 {
+    static private final String TAG = "TODOC_" + AddDeviceFragment.class.getSimpleName();
+
     public FragmentAddDeviceBinding mAddDeviceBinding;
 
     public AddDeviceFragment()
@@ -102,6 +106,17 @@ public class AddDeviceFragment extends Fragment
                     }
                 }
 
+
+                // TD2-SW-RC-UNIT-Test-ID-80 [기기 등록 유닛] 순서[1] 시작.
+                /*
+                {
+                    Log.d(TAG, "serialNumber length = " + device.serialNumber.length());
+                    Log.d(TAG, "serialnumber must be greater than 1");
+                }
+                */
+                // TD2-SW-RC-UNIT-Test-ID-80 [기기 등록 유닛] 순서[1] 끝.
+
+
                 Status.instance().lastDialog =
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
@@ -126,6 +141,17 @@ public class AddDeviceFragment extends Fragment
                         Status.instance().lastDialog.dismiss();
                     }
                 }
+
+
+                // TD2-SW-RC-UNIT-Test-ID-80 [기기 등록 유닛] 순서[2] 시작.
+                /*
+                {
+                    Log.d(TAG, "pairingKey length = " + device.pairingKey.length());
+                    Log.d(TAG, "pairingKey must be equals to 6");
+                }
+                */
+                // TD2-SW-RC-UNIT-Test-ID-80 [기기 등록 유닛] 순서[2] 끝.
+
 
                 Status.instance().lastDialog =
                         new MaterialAlertDialogBuilder(requireContext())
@@ -155,6 +181,17 @@ public class AddDeviceFragment extends Fragment
                         }
                     }
 
+
+                    // TD2-SW-RC-UNIT-Test-ID-80 [기기 등록 유닛] 순서[3] 시작.
+                    /*
+                    {
+                        Log.d(TAG, "serialNumber = " + device.serialNumber + ", pairingKey = " + device.pairingKey + ", additionalInformation = " + device.additionalInformation);
+                        Log.d(TAG, "already registered device information.");
+                    }
+                    */
+                    // TD2-SW-RC-UNIT-Test-ID-80 [기기 등록 유닛] 순서[3] 끝.
+
+
                     Status.instance().lastDialog =
                             new MaterialAlertDialogBuilder(requireContext())
                                     .setTitle("주의")
@@ -170,6 +207,18 @@ public class AddDeviceFragment extends Fragment
                 }
                 else
                 {
+
+
+                    // TD2-SW-RC-UNIT-Test-ID-80 [기기 등록 유닛] 순서[4] 시작.
+                    /*
+                    {
+                        Log.d(TAG, "serialNumber = " + device.serialNumber + ", pairingKey = " + device.pairingKey + ", additionalInformation = " + device.additionalInformation);
+                        Log.d(TAG, "register device information.");
+                    }
+                    */
+                    // TD2-SW-RC-UNIT-Test-ID-80 [기기 등록 유닛] 순서[4] 끝.
+
+
                     UtilDevice.instance.insert(device);
 
                     UtilLog.instance.writeLog(

@@ -266,7 +266,311 @@ public class MainActivity extends AppCompatActivity
 
         // Check lock screen password whether registered or not.
         mLockScreen.resume();
-    }
+
+
+        // TD2-SW-RC-UNIT-Test-ID-54 [잠금 화면 메시지 업데이트 유닛] 순서[1] 시작.
+        /*
+        {
+            if (mLockScreen != null)
+            {
+                mLockScreen.mState = LockScreen.STATE_REGISTER;
+                mLockScreen.updateMessage();
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-54 [잠금 화면 메시지 업데이트 유닛] 순서[1] 끝.
+
+        // TD2-SW-RC-UNIT-Test-ID-54 [잠금 화면 메시지 업데이트 유닛] 순서[2] 시작.
+        /*
+        {
+            if (mLockScreen != null)
+            {
+                mLockScreen.mState = LockScreen.STATE_COMPARE;
+                mLockScreen.updateMessage();
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-54 [잠금 화면 메시지 업데이트 유닛] 순서[2] 끝.
+
+        // TD2-SW-RC-UNIT-Test-ID-54 [잠금 화면 메시지 업데이트 유닛] 순서[3] 시작.
+        /*
+        {
+            if (mLockScreen != null)
+            {
+                mLockScreen.mState = LockScreen.STATE_DECODE;
+                mLockScreen.updateMessage();
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-54 [잠금 화면 메시지 업데이트 유닛] 순서[3] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-55 [잠금 화면 표시 유닛] 공통 사용 항목1 시작.
+        /*
+        final List<EntityUser> unitTest_users = UtilUser.instance.getUsers();
+        final List<EntityDevice> unitTest_devices = UtilDevice.instance.getDevices();
+
+        for (EntityUser user : unitTest_users)
+        {
+            UtilUser.instance.delete(user);
+        }
+
+        for (EntityDevice device : unitTest_devices)
+        {
+            UtilDevice.instance.insert(device);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-55 [잠금 화면 표시 유닛] 공통 사용 항목1 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-55 [잠금 화면 표시 유닛] 순서[1] 시작.
+        /*
+        {
+            // 공통 사용 항목 1과 2를 활용한다.
+            if (mLockScreen != null)
+            {
+                replaceFragment(Status.TypeOfFragment.REMOTE_CONTROL);
+                Status.instance().lockScreenState = Status.LOCK_SCREEN_STATE_TEMPORARY_UNLOCK;
+                mLockScreen.enableScreen(false);
+
+                new Handler(Looper.getMainLooper()).postDelayed(() ->
+                {
+                    mLockScreen.enableScreen(true);
+                }, 1000);
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-55 [잠금 화면 표시 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-55 [잠금 화면 표시 유닛] 순서[2] 시작.
+        /*
+        {
+            // 공통 사용 항목 1과 2를 활용한다.
+            if (mLockScreen != null)
+            {
+                replaceFragment(Status.TypeOfFragment.REMOTE_CONTROL);
+                Status.instance().lockScreenState = Status.LOCK_SCREEN_STATE_LOCK;
+                mLockScreen.enableScreen(false);
+
+                new Handler(Looper.getMainLooper()).postDelayed(() ->
+                {
+                    mLockScreen.enableScreen(true);
+                }, 1000);
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-55 [잠금 화면 표시 유닛] 순서[2] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-55 [잠금 화면 표시 유닛] 순서[3] 시작.
+        /*
+        {
+            // 공통 사용 항목 1과 2를 활용한다.
+            replaceFragment(Status.TypeOfFragment.REMOTE_CONTROL);
+            Status.instance().lockScreenState = Status.LOCK_SCREEN_STATE_LOCK;
+            mLockScreen.enableScreen(true);
+
+            new Handler(Looper.getMainLooper()).postDelayed(() ->
+            {
+                if (mLockScreen != null)
+                {
+                    mLockScreen.enableScreen(false);
+                }
+            }, 1000);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-55 [잠금 화면 표시 유닛] 순서[3] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-55 [잠금 화면 표시 유닛] 순서[4] 시작.
+        /*
+        {
+            // 공통 사용 항목 1과 2를 활용한다.
+            replaceFragment(Status.TypeOfFragment.MENU);
+            Status.instance().lockScreenState = Status.LOCK_SCREEN_STATE_LOCK;
+            mLockScreen.enableScreen(true);
+
+            new Handler(Looper.getMainLooper()).postDelayed(() ->
+            {
+                if (mLockScreen != null)
+                {
+                    mLockScreen.enableScreen(false);
+                }
+            }, 1000);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-55 [잠금 화면 표시 유닛] 순서[4] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-55 [잠금 화면 표시 유닛] 공통 사용 항목2 시작.
+        /*
+        new Handler(Looper.getMainLooper()).postDelayed(() ->
+        {
+            for (EntityUser user : unitTest_users)
+            {
+                UtilUser.instance.insert(user);
+            }
+
+            for (EntityDevice device : unitTest_devices)
+            {
+                UtilDevice.instance.insert(device);
+            }
+        }, 2000);
+        */
+        // TD2-SW-RC-UNIT-Test-ID-55 [잠금 화면 표시 유닛] 공통 사용 항목2 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-56 [잠금 화면 암호 입력 처리 유닛] 공통 사용 항목 시작.
+        /*
+        View unitTest_delId = findViewById(R.id.lock_screen_number_del);
+        View unitTest_1Id = findViewById(R.id.lock_screen_number_1);
+        View unitTest_2Id = findViewById(R.id.lock_screen_number_2);
+        View unitTest_3Id = findViewById(R.id.lock_screen_number_3);
+        View unitTest_4Id = findViewById(R.id.lock_screen_number_4);
+        */
+        // TD2-SW-RC-UNIT-Test-ID-56 [잠금 화면 암호 입력 처리 유닛] 공통 사용 항목 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-56 [잠금 화면 암호 입력 처리 유닛] 순서[1] 시작.
+        /*
+        {
+            if (mLockScreen != null)
+            {
+                mLockScreen.erasePassword();
+                mLockScreen.bufferInit();
+                mLockScreen.stateInit();
+
+                Log.d(TAG, "mLockScreen.mPassword = "
+                        + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
+                        + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
+                Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
+
+                mLockScreen.numberClickListener(unitTest_1Id);
+                mLockScreen.numberClickListener(unitTest_2Id);
+                mLockScreen.numberClickListener(unitTest_delId);
+                mLockScreen.numberClickListener(unitTest_3Id);
+                mLockScreen.numberClickListener(unitTest_4Id);
+                mLockScreen.numberClickListener(unitTest_4Id);
+
+                Log.d(TAG, "mLockScreen.mPassword = "
+                        + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
+                        + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
+                Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
+
+                mLockScreen.numberClickListener(unitTest_1Id);
+                mLockScreen.numberClickListener(unitTest_2Id);
+                mLockScreen.numberClickListener(unitTest_3Id);
+                mLockScreen.numberClickListener(unitTest_4Id);
+
+                mLockScreen.stateInit();
+
+                Log.d(TAG, "mLockScreen.mPassword = "
+                        + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
+                        + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
+                Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-56 [잠금 화면 암호 입력 처리 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-56 [잠금 화면 암호 입력 처리 유닛] 순서[2] 시작.
+        /*
+        {
+            if (mLockScreen != null)
+            {
+                mLockScreen.erasePassword();
+                mLockScreen.bufferInit();
+                mLockScreen.stateInit();
+
+                Log.d(TAG, "mLockScreen.mPassword = "
+                        + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
+                        + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
+                Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
+
+                mLockScreen.numberClickListener(unitTest_1Id);
+                mLockScreen.numberClickListener(unitTest_2Id);
+                mLockScreen.numberClickListener(unitTest_3Id);
+                mLockScreen.numberClickListener(unitTest_4Id);
+
+                Log.d(TAG, "mLockScreen.mPassword = "
+                        + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
+                        + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
+                Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
+
+                mLockScreen.numberClickListener(unitTest_1Id);
+                mLockScreen.numberClickListener(unitTest_2Id);
+                mLockScreen.numberClickListener(unitTest_3Id);
+                mLockScreen.numberClickListener(unitTest_4Id);
+
+                mLockScreen.stateInit();
+
+                Log.d(TAG, "mLockScreen.mPassword = "
+                        + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
+                        + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
+                Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-56 [잠금 화면 암호 입력 처리 유닛] 순서[2] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-56 [잠금 화면 암호 입력 처리 유닛] 순서[3] 시작.
+        /*
+        {
+            Log.d(TAG, "TD2-SW-RC-UNIT-Test-ID-56 [잠금 화면 암호 입력 처리 유닛] 순서[3]");
+
+            mLockScreen.bufferInit();
+            mLockScreen.stateInit();
+
+            Log.d(TAG, "mLockScreen.mPassword = "
+                    + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
+                    + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
+            Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
+
+            mLockScreen.numberClickListener(unitTest_1Id);
+            mLockScreen.numberClickListener(unitTest_1Id);
+            mLockScreen.numberClickListener(unitTest_1Id);
+            mLockScreen.numberClickListener(unitTest_1Id);
+
+            Log.d(TAG, "mLockScreen.mPassword = "
+                    + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
+                    + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
+            Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-56 [잠금 화면 암호 입력 처리 유닛] 순서[3] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-56 [잠금 화면 암호 입력 처리 유닛] 순서[4] 시작.
+        /*
+        {
+            Log.d(TAG, "TD2-SW-RC-UNIT-Test-ID-56 [잠금 화면 암호 입력 처리 유닛] 순서[4]");
+
+            mLockScreen.bufferInit();
+            mLockScreen.stateInit();
+
+            Log.d(TAG, "mLockScreen.mPassword = "
+                    + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
+                    + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
+            Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
+
+            mLockScreen.numberClickListener(unitTest_1Id);
+            mLockScreen.numberClickListener(unitTest_2Id);
+            mLockScreen.numberClickListener(unitTest_3Id);
+            mLockScreen.numberClickListener(unitTest_4Id);
+
+            Log.d(TAG, "mLockScreen.mPassword = "
+                    + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
+                    + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
+            Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-56 [잠금 화면 암호 입력 처리 유닛] 순서[4] 끝.
+
+
+    } // End, onResume();
 
     @Override
     protected void onDestroy()
@@ -385,6 +689,102 @@ public class MainActivity extends AppCompatActivity
         mStatus.typeOfFragment = Status.TypeOfFragment.NONE;
 
         mLockScreen = new LockScreen(getApplicationContext(), MainActivity.this, mBinding); // 잠금화면 객체 생성
+
+
+        // TD2-SW-RC-UNIT-Test-ID-52 [잠금 화면 암호 입력 버퍼 초기화 유닛] 순서[1] 시작.
+        /*
+        {
+            // 임의로 암호 입력 버퍼의 값들을 설정하고,
+            // [잠금 화면 암호 입력 버퍼 초기화 유닛]을 수행한 뒤에 암호 입력 버퍼의 값들이 초기화 되었는지 로그 메시지로 출력한다.
+            if (mLockScreen != null)
+            {
+                mLockScreen.bufferInit();
+
+                for (int i = 0; i < mLockScreen.mPassword.length; i++)
+                {
+                    mLockScreen.mPassword[i] = i + 1;
+                }
+
+                mLockScreen.mPasswordCounter = 4;
+
+                for (int i = 0; i < mLockScreen.mPasswordCompare.length; i++)
+                {
+                    mLockScreen.mPasswordCompare[i] = mLockScreen.mPasswordCompare.length - i;
+                }
+
+                mLockScreen.mPasswordCompareCounter = 4;
+
+                Log.d(TAG, "mPassword[0] = " + mLockScreen.mPassword[0]
+                        + ", mPassword[1] = " + mLockScreen.mPassword[1]
+                        + ", mPassword[2] = " + mLockScreen.mPassword[2]
+                        + ", mPassword[3] = " + mLockScreen.mPassword[3]);
+                Log.d(TAG, "mPasswordCounter = " + mLockScreen.mPasswordCounter);
+                Log.d(TAG, "mPasswordCompare[0] = " + mLockScreen.mPasswordCompare[0]
+                        + ", mPasswordCompare[1] = " + mLockScreen.mPasswordCompare[1]
+                        + ", mPasswordCompare[2] = " + mLockScreen.mPasswordCompare[2]
+                        + ", mPasswordCompare[3] = " + mLockScreen.mPasswordCompare[3]);
+                Log.d(TAG, "mPasswordCompareCounter = " + mLockScreen.mPasswordCompareCounter);
+
+                mLockScreen.bufferInit();
+
+                Log.d(TAG, "mPassword[0] = " + mLockScreen.mPassword[0]
+                        + ", mPassword[1] = " + mLockScreen.mPassword[1]
+                        + ", mPassword[2] = " + mLockScreen.mPassword[2]
+                        + ", mPassword[3] = " + mLockScreen.mPassword[3]);
+                Log.d(TAG, "mPasswordCounter = " + mLockScreen.mPasswordCounter);
+                Log.d(TAG, "mPasswordCompare[0] = " + mLockScreen.mPasswordCompare[0]
+                        + ", mPasswordCompare[1] = " + mLockScreen.mPasswordCompare[1]
+                        + ", mPasswordCompare[2] = " + mLockScreen.mPasswordCompare[2]
+                        + ", mPasswordCompare[3] = " + mLockScreen.mPasswordCompare[3]);
+                Log.d(TAG, "mPasswordCompareCounter = " + mLockScreen.mPasswordCompareCounter);
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-52 [잠금 화면 암호 입력 버퍼 초기화 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-53 [잠금 화면 동작 상태 체크 유닛] 순서[1] 시작.
+        /*
+        {
+            if (mLockScreen != null)
+            {
+                for (int test_i = 0; test_i < 3; test_i++)
+                {
+                    switch (test_i)
+                    {
+                        case 0:
+                            mLockScreen.writePassword("1111");
+                            break;
+                        case 1:
+                            mLockScreen.erasePassword();
+                            break;
+                        case 2:
+                            mLockScreen.writePassword("1111");
+                            break;
+                    }
+
+                    mLockScreen.stateInit();
+
+                    switch (mLockScreen.mState)
+                    {
+                        case LockScreen.STATE_REGISTER:
+                            Log.d(TAG, "mLockScreen.mState = STATE_REGISTER (" + LockScreen.STATE_REGISTER + ").");
+                            break;
+
+                        case LockScreen.STATE_DECODE:
+                            Log.d(TAG, "mLockScreen.mState = STATE_DECODE (" + LockScreen.STATE_DECODE + ").");
+                            break;
+
+                        default:
+                            Log.d(TAG, "Not handled.");
+                            break;
+                    }
+                }
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-53 [잠금 화면 동작 상태 체크 유닛] 순서[1] 끝.
+
 
         initStatusNavigationToolBar(); // 상태바, 네비게이션바, 툴바 초기화
 
@@ -1168,6 +1568,123 @@ public class MainActivity extends AppCompatActivity
         // TD2-SW-RC-UNIT-Test-ID-39 [맵 정보를 DB 맵 데이터로 출력 유닛] 순서[1] 끝.
 
 
+        // TD2-SW-RC-UNIT-Test-ID-67 [블루투스 패킷 전송 유닛] 순서[1] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-67 [블루투스 패킷 전송 유닛] 순서[2] 입력 시작.
+        /*
+        {
+            byte[] testPacket = new byte[]{0x40, '0', '4', '8', '1'};
+            sendPacket(testPacket);
+            sendPacket(testPacket);
+            sendPacket(testPacket);
+        }
+        /*/
+        // TD2-SW-RC-UNIT-Test-ID-67 [블루투스 패킷 전송 유닛] 순서[1] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-67 [블루투스 패킷 전송 유닛] 순서[2] 입력 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[1] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[2] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[3] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[4] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[5] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[6] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[7] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[8] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[9] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[10] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[11] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[12] 입력 시작.
+        /*
+        {
+            new Handler(Looper.getMainLooper()).postDelayed(() ->
+            {
+                characteristicChanged(null, new byte[]{PacketInfo.HEADER_PASSWORD, PacketInfo.PASSWORD_PASS}); // password pass
+                characteristicChanged(null, new byte[]{PacketInfo.HEADER_PASSWORD, PacketInfo.PASSWORD_FAIL}); // password fail
+                characteristicChanged(null, new byte[]{PacketInfo.HEADER_SOUND_PROCESSOR_INFO, 0x00, 'A', '1', 'B', '2', 0x00, 0x00, 0x00});// device & map info
+                characteristicChanged(null, new byte[]{PacketInfo.HEADER_SOUND_PROCESSOR_STATUS, 75, 1, 1, 1, 1, 1, 1});// device status
+                characteristicChanged(null, new byte[]{PacketInfo.HEADER_VALUE_NOTIFICATION, PacketInfo.INIT_VALUE_NOTIFICATION});// stim alarm
+                characteristicChanged(null, new byte[]{PacketInfo.HEADER_VALUE_LED, PacketInfo.INIT_VALUE_LED});// led alarm
+                characteristicChanged(null, new byte[]{PacketInfo.HEADER_VALUE_TELECOIL, PacketInfo.INIT_VALUE_TELECOIL});// telecoil setting
+                characteristicChanged(null, new byte[]{PacketInfo.HEADER_VALUE_PROMGRAM, PacketInfo.INIT_VALUE_PROGRAM});// map number
+                characteristicChanged(null, new byte[]{PacketInfo.HEADER_VALUE_MAX_OUTPUT, PacketInfo.INIT_VALUE_MAX_OUTPUT});// output max
+                characteristicChanged(null, new byte[]{PacketInfo.HEADER_VALUE_VOLUME, PacketInfo.INIT_VALUE_VOLUME});// volume
+                characteristicChanged(null, new byte[]{PacketInfo.HEADER_READ_ISD_ID_AND_USER, 1, 0, 0, 0, 0, 2, 'A', 'A', 'A', 'A', 'A'});// map share
+                characteristicChanged(null, new byte[]{PacketInfo.HEADER_ERROR, PacketInfo.HEADER_VALUE_LED, 2});// error
+            }, 1000);
+        }
+        /*/
+        // TD2-SW-RC-UNIT-Test-ID-67 [블루투스 패킷 전송 유닛] 순서[1] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[2] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[3] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[4] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[5] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[6] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[7] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[8] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[9] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[10] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[11] 입력 +
+        // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[12] 입력 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-76 [사용자 착용부위를 제외한 이름 정보 획득 유닛] 순서[1] 시작.
+        /*
+        {
+            String[] infos = new String[]{"AAAAA_R", "BBBBB_L", "CCCCC_L", "DDDDD_R"};
+
+            for (String str : infos)
+            {
+                Log.d(TAG, "input : " + str + ", output : " + UtilUser.getNameOnly(str));
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-76 [사용자 착용부위를 제외한 이름 정보 획득 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-77 [사용자 착용부위 한글 정보 획득 유닛] 순서[1] 시작.
+        /*
+        {
+            String[] infos = new String[]{"AAAAA_R", "BBBBB_L", "CCCCC_L", "DDDDD_R"};
+
+            for (String str : infos)
+            {
+                Log.d(TAG, "input : " + str + ", output : " + UtilUser.getEarKorean(str));
+            }
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-77 [사용자 착용부위 한글 정보 획득 유닛] 순서[1] 끝.
+
+
+        // TD2-SW-RC-UNIT-Test-ID-78 [사용자 정보 복사 유닛] 순서[1] 시작.
+        /*
+        {
+            EntityUser userSrc = new EntityUser();
+            EntityUser userDst = new EntityUser();
+
+            userSrc.name = "AAAAA_R";
+            userSrc.passKey = "0481";
+            userSrc.nickname = "사용자 A";
+            userSrc.ear = "R";
+            userSrc.defaultUser = "Y";
+
+            userDst.name = "";
+            userDst.passKey = "";
+            userDst.nickname = "";
+            userDst.ear = "";
+            userDst.defaultUser = "";
+
+            Log.d(TAG, "Before copy");
+            Log.d(TAG, "src : name = " + userSrc.name + ", passKey = " + userSrc.passKey + ", nickname = " + userSrc.nickname + ", ear = " + userSrc.ear + ", defaultUser = " + userSrc.defaultUser);
+            Log.d(TAG, "dst : name = " + userDst.name + ", passKey = " + userDst.passKey + ", nickname = " + userDst.nickname + ", ear = " + userDst.ear + ", defaultUser = " + userDst.defaultUser);
+            UtilUser.copyData(userDst, userSrc);
+            Log.d(TAG, "After copy");
+            Log.d(TAG, "src : name = " + userSrc.name + ", passKey = " + userSrc.passKey + ", nickname = " + userSrc.nickname + ", ear = " + userSrc.ear + ", defaultUser = " + userSrc.defaultUser);
+            Log.d(TAG, "dst : name = " + userDst.name + ", passKey = " + userDst.passKey + ", nickname = " + userDst.nickname + ", ear = " + userDst.ear + ", defaultUser = " + userDst.defaultUser);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-78 [사용자 정보 복사 유닛] 순서[1] 끝.
+
+
     } // initMainActivity
 
     //
@@ -1181,6 +1698,17 @@ public class MainActivity extends AppCompatActivity
             if (mStatus.longTimeIdleState == Status.LONG_TIME_IDLE_STATE_NOT_TRIGGERED)
             {
             */
+
+
+            // TD2-SW-RC-UNIT-Test-ID-61 [절전모드 타이머 초기화 유닛] 순서[1] 시작.
+            /*
+            {
+                Log.d(TAG, "Long Time Idle Handler (registered) updated.");
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-61 [절전모드 타이머 초기화 유닛] 순서[1] 끝.
+
+
             mLongTimeIdleHandler.removeCallbacks(mLongTimeIdleRunner);
             mLongTimeIdleHandler.postDelayed(mLongTimeIdleRunner, LONG_TIME_IDLE_TIMEOUT_IN_MS); // 10분
             Log.v(TAG, "장시간 미사용 핸들러 업데이트 완료.");
@@ -1190,6 +1718,17 @@ public class MainActivity extends AppCompatActivity
         }
         else
         {
+
+
+            // TD2-SW-RC-UNIT-Test-ID-61 [절전모드 타이머 초기화 유닛] 순서[2] 시작.
+            /*
+            {
+                Log.d(TAG, "Long Time Idle Handler removed.");
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-61 [절전모드 타이머 초기화 유닛] 순서[2] 끝.
+
+
             mLongTimeIdleHandler.removeCallbacks(mLongTimeIdleRunner);
             Log.v(TAG, "장시간 미사용 핸들러 제거 완료.");
         }
@@ -1200,10 +1739,40 @@ public class MainActivity extends AppCompatActivity
     {
         //mStatus.longTimeIdleState = Status.LONG_TIME_IDLE_STATE_TRIGGERED;
 
+
+        // TD2-SW-RC-UNIT-Test-ID-61 & TD2-SW-RC-UNIT-Test-ID-62 병행 사용 시작.
+        /*
+        {
+            Log.d(TAG, "Long Time Idle Handler started.");
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-61 & TD2-SW-RC-UNIT-Test-ID-62 병행 사용 끝.
+
+        // TD2-SW-RC-UNIT-Test-ID-62 [절전모드 처리 유닛] 테스트 초기 조건 시작.
+        /*
+        {
+            mStatus.connectionState = Status.CONNECTION_STATE_CONNECTED;
+            mStatus.scanState = Status.SCAN_STATE_STARTED;
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-62 [절전모드 처리 유닛] 테스트 초기 조건 끝.
+
+
         Log.d(TAG, "장시간 미사용으로 인해 자동 절전모드로 진입합니다.");
 
         if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED || mStatus.connectionState == Status.CONNECTION_STATE_CONNECTING)
         {
+
+
+            // TD2-SW-RC-UNIT-Test-ID-62 [절전모드 처리 유닛] 순서[1] 시작.
+            /*
+            {
+                Log.d(TAG, "Disconnection process will be performed.");
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-62 [절전모드 처리 유닛] 순서[1] 끝.
+
+
             if (mBluetoothGatt != null)
             {
                 Log.d(TAG, "현재 연결중인 사운드처리기와 연결을 해제합니다.");
@@ -1214,6 +1783,17 @@ public class MainActivity extends AppCompatActivity
 
         if (mStatus.scanState == Status.SCAN_STATE_STARTED)
         {
+
+
+            // TD2-SW-RC-UNIT-Test-ID-62 [절전모드 처리 유닛] 순서[2] 시작.
+            /*
+            {
+                Log.d(TAG, "Stop scanning process will be performed.");
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-62 [절전모드 처리 유닛] 순서[2] 끝.
+
+
             Log.d(TAG, "스캔을 정지합니다.");
             scanLe(false);
         }
@@ -1224,13 +1804,43 @@ public class MainActivity extends AppCompatActivity
         {
             if (((RemoteControlFragment) fragment).mDialog != null && ((RemoteControlFragment) fragment).mDialog.isShowing())
             {
+
+                // TD2-SW-RC-UNIT-Test-ID-62 [절전모드 처리 유닛] 순서[3] 시작.
+                /*
+                {
+                    Log.d(TAG, "Clearing remote control screen dialog process will be performed.");
+                }
+                */
+                // TD2-SW-RC-UNIT-Test-ID-62 [절전모드 처리 유닛] 순서[3] 끝.
+
+
                 Log.d(TAG, "리모컨 화면의 등록 유도 다이얼로그를 제거합니다.");
                 ((RemoteControlFragment) fragment).mDialog.dismiss();
             }
         }
 
+
+        // TD2-SW-RC-UNIT-Test-ID-62 [절전모드 처리 유닛] 순서[4] 시작.
+        /*
+        {
+            Log.d(TAG, "clearing activity dialog process will be performed.");
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-62 [절전모드 처리 유닛] 순서[4] 끝.
+
+
         // 현재 화면에 출력되어 있는 다이얼로그가 있다면 제거한다.
         lastDialogDismiss();
+
+
+        // TD2-SW-RC-UNIT-Test-ID-62 [절전모드 처리 유닛] 순서[5] 시작.
+        /*
+        {
+            Log.d(TAG, "Lockscreen enable process will be performed.");
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-62 [절전모드 처리 유닛] 순서[5] 끝.
+
 
         // 잠금화면 기능이 활성화되어 있다면 화면을 잠금화면으로 설정한다.
         // 만약 활성화되어 있다면 이 부분에서 다이얼로그들을 전부 제거하겠지만, 비활성화 상태를 생각하여 위에서 다이얼로그를 미리 제거했다.
@@ -1468,6 +2078,17 @@ public class MainActivity extends AppCompatActivity
 
                     if (bondState == BluetoothDevice.BOND_BONDED)
                     {
+
+
+                        // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[1-3] 시작.
+                        /*
+                        {
+                            Log.d(TAG, "Success to create bond, try to connect again.");
+                        }
+                        */
+                        // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[1-3] 끝.
+
+
                         Log.d(TAG, "본딩되었습니다. -> {" + device.getAddress() + "}");
 
                         mBinding.pairingKeyLayout.setVisibility(View.GONE);
@@ -1717,6 +2338,17 @@ public class MainActivity extends AppCompatActivity
     Handler mScanHandler = new Handler();
     Runnable mScanRunner = () ->
     {
+
+
+        // TD2-SW-RC-UNIT-Test-ID-65 [블루투스 검색 유닛] 순서[2] 시작.
+        /*
+        {
+            Log.d(TAG, "Bluetooth scan unit timeout occurred.");
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-65 [블루투스 검색 유닛] 순서[2] 끝.
+
+
         Log.v(TAG, "BLE 스캔 시간이 초과되었습니다.");
         scanLe(false); // 스캔 정지
 
@@ -1734,6 +2366,17 @@ public class MainActivity extends AppCompatActivity
     //
     public void scanLeWithDelay(boolean enable, int delay)
     {
+
+
+        // TD2-SW-RC-UNIT-Test-ID-65 [블루투스 검색 유닛] 공통 시작.
+        /*
+        {
+            Log.d(TAG, "Bluetooth scan unit input : " + enable);
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-65 [블루투스 검색 유닛] 공통 끝.
+
+
         if (enable) // 스캔 시작
         {
             if (mStatus.scanState == Status.SCAN_STATE_STOPPED)
@@ -1931,6 +2574,18 @@ public class MainActivity extends AppCompatActivity
 
                 if (isFound)
                 {
+
+
+                    // TD2-SW-RC-UNIT-Test-ID-65 [블루투스 검색 유닛] 순서[1] 시작.
+                    /*
+                    {
+                        Log.d(TAG, "Bluetooth scan success. Device full name = " + result.getDevice().getName());
+                        Log.d(TAG, "Bluetooth connection will be performed.");
+                    }
+                    */
+                    // TD2-SW-RC-UNIT-Test-ID-65 [블루투스 검색 유닛] 순서[1] 끝.
+
+
                     // 모든 조건에 부합하므로, 검색된 장치와 연결한다. 단, 현재 BLE 연결 상태가 연결해제 상태여야 한다.
                     if (mStatus.connectionState == Status.CONNECTION_STATE_DISCONNECTED)
                     {
@@ -2061,6 +2716,18 @@ public class MainActivity extends AppCompatActivity
                     mStatus.receivedPackets.clear();
                     mStatus.connectionState = Status.CONNECTION_STATE_CONNECTING;
 
+
+                    // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[1-1] +
+                    // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[2-1] 시작.
+                    /*
+                    {
+                        Log.d(TAG, "Bluetooth connection event occurred.");
+                    }
+                    */
+                    // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[1-1] +
+                    // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[2-1] 끝.
+
+
                     Log.d(TAG, "BLE 연결 이벤트 발생 -> NAME = " + name + ", ADDRESS = " + address);
 
                     if (gatt.getDevice().getBondState() == BluetoothDevice.BOND_BONDED)
@@ -2082,6 +2749,17 @@ public class MainActivity extends AppCompatActivity
                     else
                     {
                         Log.d(TAG, "본딩을 시도합니다.");
+
+
+                        // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[1-2] 시작.
+                        /*
+                        {
+                            Log.d(TAG, "Try to create bond.");
+                        }
+                        */
+                        // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[1-2] 끝.
+
+
                         gatt.getDevice().createBond();
                     }
                 }
@@ -2137,6 +2815,18 @@ public class MainActivity extends AppCompatActivity
                             {
                                 if (mStatus.activityRunningState == Status.ACTIVITY_RUNNING_STATE_FOREGROUND)
                                 {
+
+
+                                    // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[4] 시작.
+                                    /*
+                                    {
+                                        Log.d(TAG, "Unexpected disconnection event occurred.");
+                                        Log.d(TAG, "Start bluetooth scanning.");
+                                    }
+                                    */
+                                    // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[4] 끝.
+
+
                                     Log.d(TAG, "현재 리모컨 화면이며, 액티비티 화면이 포그라운드 상태이므로 자동 재연결을 위해 BLE 스캔을 시작합니다.");
                                     scanLe(true);
                                 }
@@ -2155,6 +2845,17 @@ public class MainActivity extends AppCompatActivity
                     {    // 이 후 사용자의 이벤트로 스캔을 다시 시작할 것이므로 지금은 스캔을 시작하지 않는다.
                         mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTED;
                         Log.d(TAG, "사용자에 의한 연결해제로 인식되었습니다.");
+
+
+                        // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[3] 시작.
+                        /*
+                        {
+                            Log.d(TAG, "Expected disconnection event occurred.");
+                        }
+                        */
+                        // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[3] 끝.
+
+
                     }
 
                     // 리모컨 화면 프래그먼트에서 "사운드처리기 검색 중" 화면을 출력시키기 위해 BLE 뷰모델 값을 업데이트한다.
@@ -2248,6 +2949,17 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "GATT Callback Service Discovered : Failed to write descriptor.");
                 gatt.disconnect();
             }
+
+
+            // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[1-4] +
+            // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[2-2] 시작.
+            /*
+            {
+                Log.d(TAG, "Success to discover services.");
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[1-4] +
+            // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[2-2] 끝.
         }
 
         @Override
@@ -2262,6 +2974,29 @@ public class MainActivity extends AppCompatActivity
             {
                 // Success to write descriptor for indication on remote device.
                 Log.d(TAG, "CCCD(클라이언트 특성 설정 설명자) 쓰기에 성공했습니다. 보안코드 인증 시간초과 핸들러를 생성하고, 보안코드 패킷을 전송합니다.");
+
+
+                // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[1-5] +
+                // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[2-3] 시작.
+                /*
+                {
+                    Log.d(TAG, "Success to configure descriptor.");
+                }
+                */
+                // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[1-5] +
+                // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[2-3] 끝.
+
+
+                // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[1-6] +
+                // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[2-4] 시작.
+                /*
+                {
+                    Log.d(TAG, "Try to send packet for password.");
+                }
+                */
+                // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[1-6] +
+                // TD2-SW-RC-UNIT-Test-ID-66 [블루투스 연결/해제 유닛] 순서[2-4] 끝.
+
 
                 // 보안코드 인증하기 전에 핸들러를 등록한다.
                 mPasswordHandler.postDelayed(mPasswordRunner, PASSWORD_TIMEOUT_IN_MS);
@@ -2284,442 +3019,605 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)
         {
-            mStatus.receivedPackets.offer(characteristic.getValue());
+            characteristicChanged(gatt, characteristic.getValue());
+        } // onCharacteristicChanged
+    }; // BluetoothGattCallback
 
-            new Handler(Looper.getMainLooper()).post(() ->
+    private void characteristicChanged(BluetoothGatt gatt, byte[] packet)
+    {
+        //mStatus.receivedPackets.offer(characteristic.getValue());
+        mStatus.receivedPackets.offer(packet);
+
+        new Handler(Looper.getMainLooper()).post(() ->
+        {
+            // 수신 패킷 정보 획득
+            //byte[] responsePacket = characteristic.getValue(); // Extract data from packet.
+            byte[] responsePacket = mStatus.receivedPackets.poll();
+
+            if (responsePacket == null)
             {
-                // 수신 패킷 정보 획득
-                //byte[] responsePacket = characteristic.getValue(); // Extract data from packet.
-                byte[] responsePacket = mStatus.receivedPackets.poll();
+                Log.d(TAG, "Status의 receivedPackets이 null입니다.");
+                return;
+            }
 
-                if (responsePacket == null)
+            int packetSize = responsePacket.length; // Get size of packet data.
+
+            Log.v(TAG, "BLE 특성 변화 감지 : " + printLogBytesToString(responsePacket));
+
+            if (packetSize < 1)
+            {
+                Log.d(TAG, "사이즈가 1보다 작은 패킷을 수신하였습니다. 패킷은 1보다 작을 수 없습니다.");
+                Log.d(TAG, "수신한 패킷에 문제가 있으므로, 바로 return; 하여 패킷 응답 시간초과가 발생하도록 유도합니다.");
+                return;
+            }
+
+            // 패킷 응답 시간초과 핸들러 제거
+            mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner);
+
+            // 패킷 전송 상태 초기화 -> 다시 IDLE 상태로 돌아간다.
+            mStatus.transferState = Status.TRANSFER_STATE_IDLE;
+
+            // 수신 패킷 헤더 추출
+            byte packetHeader = byteExtractor(responsePacket[0]);
+
+            // 수신한 패킷 헤더에 따라 처리를 수행한다.
+            switch (packetHeader)
+            {
+                // 보안코드
+                case PacketInfo.HEADER_PASSWORD:
                 {
-                    Log.d(TAG, "Status의 receivedPackets이 null입니다.");
-                    return;
-                }
+                    // 보안코드 응답을 받았으므로, 핸들러를 제거한다.
+                    mPasswordHandler.removeCallbacks(mPasswordRunner);
 
-                int packetSize = responsePacket.length; // Get size of packet data.
-
-                Log.v(TAG, "BLE 특성 변화 감지 : " + printLogBytesToString(responsePacket));
-
-                if (packetSize < 1)
-                {
-                    Log.d(TAG, "사이즈가 1보다 작은 패킷을 수신하였습니다. 패킷은 1보다 작을 수 없습니다.");
-                    Log.d(TAG, "수신한 패킷에 문제가 있으므로, 바로 return; 하여 패킷 응답 시간초과가 발생하도록 유도합니다.");
-                    return;
-                }
-
-                // 패킷 응답 시간초과 핸들러 제거
-                mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner);
-
-                // 패킷 전송 상태 초기화 -> 다시 IDLE 상태로 돌아간다.
-                mStatus.transferState = Status.TRANSFER_STATE_IDLE;
-
-                // 수신 패킷 헤더 추출
-                byte packetHeader = byteExtractor(responsePacket[0]);
-
-                // 수신한 패킷 헤더에 따라 처리를 수행한다.
-                switch (packetHeader)
-                {
-                    // 보안코드
-                    case PacketInfo.HEADER_PASSWORD:
+                    if (packetSize != PacketInfo.PACKET_SIZE_PASSWORD) // 보안코드 응답 패킷 사이즈 체크
                     {
-                        // 보안코드 응답을 받았으므로, 핸들러를 제거한다.
-                        mPasswordHandler.removeCallbacks(mPasswordRunner);
+                        Log.d(TAG, "BLE 특성 변경 감지 -> 보안코드 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                        UtilLog.instance.writeLog("패킷 에러 : 보안코드 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
 
-                        if (packetSize != PacketInfo.PACKET_SIZE_PASSWORD) // 보안코드 응답 패킷 사이즈 체크
+                        // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                        packetSizeErrorDialog();
+                        return;
+                    }
+                    else // 보안코드 응답 패킷 사이즈가 올바를 때
+                    {
+                        // Correct password.
+                        if (byteExtractor(responsePacket[1]) == PacketInfo.PASSWORD_PASS)
                         {
-                            Log.d(TAG, "BLE 특성 변경 감지 -> 보안코드 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
-                            UtilLog.instance.writeLog("패킷 에러 : 보안코드 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
 
-                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
-                            packetSizeErrorDialog();
-                            return;
-                        }
-                        else // 보안코드 응답 패킷 사이즈가 올바를 때
-                        {
-                            // Correct password.
-                            if (byteExtractor(responsePacket[1]) == PacketInfo.PASSWORD_PASS)
+
+                            // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[1] 시작.
+                            /*
                             {
-                                Log.d(TAG, "사용자의 내부기 키가 올바릅니다.");
-                                Log.d(TAG, "내부기 키 인증에 성공했습니다. 상태정보 획득 시간초과 핸들러를 생성하고, 상태정보 획득 패킷을 전송합니다. ");
-
-                                // 사운드처리기 기기 및 맵 정보 읽기 패킷을 보내기 전에 핸들러를 등록한다.
-                                mDeviceAndMapInfoHandler.postDelayed(mDeviceAndMapInfoRunner, DEVICE_AND_MAP_INFO_IN_MS);
-                                sendPacket(packetMaker(PacketInfo.HEADER_SOUND_PROCESSOR_INFO, null, 1));
+                                Log.d(TAG, "Response packet --> password passed");
+                                Log.d(TAG, "Try to send packet for sound processor and map information");
                             }
-                            // Not correct password.
-                            else
+                            */
+                            // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[1] 끝.
+
+
+                            Log.d(TAG, "사용자의 내부기 키가 올바릅니다.");
+                            Log.d(TAG, "내부기 키 인증에 성공했습니다. 상태정보 획득 시간초과 핸들러를 생성하고, 상태정보 획득 패킷을 전송합니다. ");
+
+                            // 사운드처리기 기기 및 맵 정보 읽기 패킷을 보내기 전에 핸들러를 등록한다.
+                            mDeviceAndMapInfoHandler.postDelayed(mDeviceAndMapInfoRunner, DEVICE_AND_MAP_INFO_IN_MS);
+                            sendPacket(packetMaker(PacketInfo.HEADER_SOUND_PROCESSOR_INFO, null, 1));
+                        }
+                        // Not correct password.
+                        else
+                        {
+
+
+                            // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[2] 시작.
+                            /*
                             {
-                                Log.d(TAG, "사용자의 내부기 키가 올바르지 않습니다.");
-                                Log.d(TAG, "스캔을 멈추고, 사운드처리기와의 연결을 해제합니다.");
+                                Log.d(TAG, "Response packet --> password failed");
+                            }
+                            */
+                            // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[2] 끝.
 
-                                UtilLog.instance.writeLog("패킷 에러 : 올바르지 않은 내부기 키");
 
-                                // 사용자에 의한 연결 종료로 처리한다.
-                                mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+                            Log.d(TAG, "사용자의 내부기 키가 올바르지 않습니다.");
+                            Log.d(TAG, "스캔을 멈추고, 사운드처리기와의 연결을 해제합니다.");
+
+                            UtilLog.instance.writeLog("패킷 에러 : 올바르지 않은 내부기 키");
+
+                            // 사용자에 의한 연결 종료로 처리한다.
+                            mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+                            if (gatt != null)
+                            {
                                 gatt.disconnect();    // 연결 종료
+                            }
 
-                                // 이미 생성된 다이얼로그가 있다면, 그 다이얼로그를 종료하고 사용자 보안코드 재설정 다이얼로그를 생성해야 한다.
-                                Log.d(TAG, "현재 생성된 다이얼로그가 있다면 종료하고, 사용자 내부기 키 재설정을 위한 다이얼로그를 새로 생성합니다.");
+                            // 이미 생성된 다이얼로그가 있다면, 그 다이얼로그를 종료하고 사용자 보안코드 재설정 다이얼로그를 생성해야 한다.
+                            Log.d(TAG, "현재 생성된 다이얼로그가 있다면 종료하고, 사용자 내부기 키 재설정을 위한 다이얼로그를 새로 생성합니다.");
 
-                                lastDialogDismiss();
+                            lastDialogDismiss();
 
-                                mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this)
-                                        .setTitle("주의")
-                                        .setMessage("내부기 키가 일치하지 않습니다. 재설정하시겠습니까?")
-                                        .setPositiveButton("재설정", (dialogInterface, i) ->
-                                        {
-                                            longTimeIdleHandlerUpdate(true);
+                            mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this)
+                                    .setTitle("주의")
+                                    .setMessage("내부기 키가 일치하지 않습니다. 재설정하시겠습니까?")
+                                    .setPositiveButton("재설정", (dialogInterface, i) ->
+                                    {
+                                        longTimeIdleHandlerUpdate(true);
 
-                                            //EntityUser user = UtilUser.instance.getDefaultUser();
-                                            EntityUser user = mStatus.connectedUser;
-                                            Bundle bundle = new Bundle();
-                                            bundle.putString(EditUserFragment.ARG_NAME, user.name);
-                                            bundle.putString(EditUserFragment.ARG_PASSKEY, user.passKey);
-                                            bundle.putString(EditUserFragment.ARG_NICKNAME, user.nickname);
-                                            bundle.putString(EditUserFragment.ARG_EAR, user.ear);
-                                            bundle.putString(EditUserFragment.ARG_DEFAULT, user.defaultUser);
+                                        //EntityUser user = UtilUser.instance.getDefaultUser();
+                                        EntityUser user = mStatus.connectedUser;
+                                        Bundle bundle = new Bundle();
+                                        bundle.putString(EditUserFragment.ARG_NAME, user.name);
+                                        bundle.putString(EditUserFragment.ARG_PASSKEY, user.passKey);
+                                        bundle.putString(EditUserFragment.ARG_NICKNAME, user.nickname);
+                                        bundle.putString(EditUserFragment.ARG_EAR, user.ear);
+                                        bundle.putString(EditUserFragment.ARG_DEFAULT, user.defaultUser);
                                             /*
                                             EditUserFragment editUserFragment = new EditUserFragment();
                                             editUserFragment.setArguments(bundle);
                                             getSupportFragmentManager().beginTransaction().replace(mBinding.frame.getId(), editUserFragment).commitNowAllowingStateLoss();
                                             */
-                                            replaceFragment(Status.TypeOfFragment.USER_EDIT, bundle);
-                                        })
-                                        .setNegativeButton("취소", (dialogInterface, i) ->
-                                        {
-                                            longTimeIdleHandlerUpdate(true);
-                                        })
-                                        .setCancelable(false)
-                                        .create();
+                                        replaceFragment(Status.TypeOfFragment.USER_EDIT, bundle);
+                                    })
+                                    .setNegativeButton("취소", (dialogInterface, i) ->
+                                    {
+                                        longTimeIdleHandlerUpdate(true);
+                                    })
+                                    .setCancelable(false)
+                                    .create();
 
-                                mStatus.lastDialog.show();
-                            }
+                            mStatus.lastDialog.show();
                         }
-                    } // PacketInfo.HEADER_PASSWORD
-                    break;
-
-                    // 사운드처리기 기기 및 맵 정보 읽기
-                    case PacketInfo.HEADER_SOUND_PROCESSOR_INFO:
-                    {
-                        // 기기 및 맵 정보 읽기 응답을 받았으므로, 핸들러를 제거한다.
-                        mDeviceAndMapInfoHandler.removeCallbacks(mDeviceAndMapInfoRunner);
-
-                        if (packetSize != PacketInfo.PACKET_SIZE_PROCESSOR_INFO)
-                        {
-                            Log.d(TAG, "BLE 특성 변경 감지 -> 사운드처리기 기기 및 맵 정보 읽기 패킷 사이즈 에러 : 사이즈 = " + packetSize);
-                            UtilLog.instance.writeLog("패킷 에러 : 사운드처리기 기기 및 맵 정보 읽기 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
-
-                            packetSizeErrorDialog();
-                            break;
-                        }
-
-                        int fwVerLower = responsePacket[7];
-                        int fwVerUpper = responsePacket[8];
-
-                        mStatusViewModel.setFwVerLower(fwVerLower);
-                        mStatusViewModel.setFwVerUpper(fwVerUpper);
-
-                        Log.d(TAG, "사운드처리기 펌웨어 버전은 '" + fwVerUpper + "." + fwVerLower + "' 입니다.");
-
-                        // 상태정보 획득 패킷을 보내기 전에 핸들러를 등록한다.
-                        mStatusHandler.postDelayed(mStatusRunner, STATUS_TIMEOUT_IN_MS);
-                        sendPacket(packetMaker(PacketInfo.HEADER_SOUND_PROCESSOR_STATUS, null, 1));
                     }
-                    break;
+                } // PacketInfo.HEADER_PASSWORD
+                break;
 
-                    // 사운드처리기 상태 정보
-                    case PacketInfo.HEADER_SOUND_PROCESSOR_STATUS:
+                // 사운드처리기 기기 및 맵 정보 읽기
+                case PacketInfo.HEADER_SOUND_PROCESSOR_INFO:
+                {
+                    // 기기 및 맵 정보 읽기 응답을 받았으므로, 핸들러를 제거한다.
+                    mDeviceAndMapInfoHandler.removeCallbacks(mDeviceAndMapInfoRunner);
+
+                    if (packetSize != PacketInfo.PACKET_SIZE_PROCESSOR_INFO)
                     {
-                        // 상태정보 획득 응답을 받았으므로, 핸들러를 제거한다.
-                        mStatusHandler.removeCallbacks(mStatusRunner);
+                        Log.d(TAG, "BLE 특성 변경 감지 -> 사운드처리기 기기 및 맵 정보 읽기 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                        UtilLog.instance.writeLog("패킷 에러 : 사운드처리기 기기 및 맵 정보 읽기 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
 
-                        if (packetSize != PacketInfo.PACKET_SIZE_PROCESSOR_STATUS)
+                        packetSizeErrorDialog();
+                        break;
+                    }
+
+                    int fwVerLower = responsePacket[7];
+                    int fwVerUpper = responsePacket[8];
+
+                    mStatusViewModel.setFwVerLower(fwVerLower);
+                    mStatusViewModel.setFwVerUpper(fwVerUpper);
+
+                    Log.d(TAG, "사운드처리기 펌웨어 버전은 '" + fwVerUpper + "." + fwVerLower + "' 입니다.");
+
+
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[3] 시작.
+                    /*
+                    {
+                        Log.d(TAG, "Response packet --> sound processor and map information, fwVer upper=" + fwVerUpper + ", lower=" + fwVerLower);
+                        Log.d(TAG, "Try to send packet for sound processor status");
+                    }
+                    */
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[3] 끝.
+
+
+                    // 상태정보 획득 패킷을 보내기 전에 핸들러를 등록한다.
+                    mStatusHandler.postDelayed(mStatusRunner, STATUS_TIMEOUT_IN_MS);
+                    sendPacket(packetMaker(PacketInfo.HEADER_SOUND_PROCESSOR_STATUS, null, 1));
+                }
+                break;
+
+                // 사운드처리기 상태 정보
+                case PacketInfo.HEADER_SOUND_PROCESSOR_STATUS:
+                {
+                    // 상태정보 획득 응답을 받았으므로, 핸들러를 제거한다.
+                    mStatusHandler.removeCallbacks(mStatusRunner);
+
+                    if (packetSize != PacketInfo.PACKET_SIZE_PROCESSOR_STATUS)
+                    {
+                        Log.d(TAG, "BLE 특성 변경 감지 -> 상태정보 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                        UtilLog.instance.writeLog("패킷 에러 : 상태정보 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                        // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                        packetSizeErrorDialog();
+                        break;
+                    }
+
+                    PacketInfo packetInfo = new PacketInfo();
+
+                    packetInfo.battery = (byte) (responsePacket[1] & 0xff);
+                    packetInfo.program = (byte) (responsePacket[2] & 0xff);
+                    packetInfo.maxOutput = (byte) (responsePacket[3] & 0xff);
+                    packetInfo.volume = (byte) (responsePacket[4] & 0xff);
+                    packetInfo.led = (byte) (responsePacket[5] & 0xff);
+                    packetInfo.telecoil = (byte) (responsePacket[6] & 0xff);
+                    packetInfo.notification = (byte) (responsePacket[7] & 0xff);
+
+                    Log.d(TAG, "사운드처리기 상태 확인 패킷 수신 : " + "배터리 = " + packetInfo.battery + ", " + "맵번호 = " + packetInfo.program + ", " + "볼륨 = " + packetInfo.volume + ", " + "최대출력 = " + packetInfo.maxOutput + ", " + "LED = " + packetInfo.led + ", " + "텔레코일 = " + packetInfo.telecoil + ", " + "자극알림 = " + packetInfo.notification);
+
+                    mStatusViewModel.setValueBatteryLevel(packetInfo.battery);
+                    mStatusViewModel.setValueNotification(packetInfo.notification);
+                    mStatusViewModel.setValueLed(packetInfo.led);
+                    mStatusViewModel.setValueTelecoil(packetInfo.telecoil);
+                    mStatusViewModel.setValueMaxOutput(packetInfo.maxOutput);
+                    mStatusViewModel.setValueVolume(packetInfo.volume);
+                    mStatusViewModel.setValueProgram(packetInfo.program);
+
+
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[4] 시작.
+                    /*
+                    {
+                        Log.d(TAG, "Response packet --> sound processor status");
+                        Log.d(TAG, "battery=" + packetInfo.battery +
+                                ", map=" + packetInfo.program +
+                                ", volume=" + packetInfo.volume +
+                                ", maxOutput=" + packetInfo.maxOutput +
+                                ", led=" + packetInfo.led +
+                                ", telecoil=" + packetInfo.telecoil +
+                                ", stimAlarm=" + packetInfo.notification);
+                    }
+                    */
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[4] 끝.
+
+
+                    Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
+
+                    // 현재 화면이 로그 화면일 때
+                    if (fragment instanceof ShareFragment)
+                    {
+                        ShareFragment shareFragment = (ShareFragment) fragment;
+
+                        shareFragment.mCountForConnectionFail = 0; // 연결 실패 카운터 초기화
+
+                        shareFragment.whichPacketShouldBeTransferred();
+
+                        if (gatt != null)
                         {
-                            Log.d(TAG, "BLE 특성 변경 감지 -> 상태정보 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
-                            UtilLog.instance.writeLog("패킷 에러 : 상태정보 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
-
-                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
-                            packetSizeErrorDialog();
-                            break;
-                        }
-
-                        PacketInfo packetInfo = new PacketInfo();
-
-                        packetInfo.battery = (byte) (responsePacket[1] & 0xff);
-                        packetInfo.program = (byte) (responsePacket[2] & 0xff);
-                        packetInfo.maxOutput = (byte) (responsePacket[3] & 0xff);
-                        packetInfo.volume = (byte) (responsePacket[4] & 0xff);
-                        packetInfo.led = (byte) (responsePacket[5] & 0xff);
-                        packetInfo.telecoil = (byte) (responsePacket[6] & 0xff);
-                        packetInfo.notification = (byte) (responsePacket[7] & 0xff);
-
-                        Log.d(TAG, "사운드처리기 상태 확인 패킷 수신 : " + "배터리 = " + packetInfo.battery + ", " + "맵번호 = " + packetInfo.program + ", " + "볼륨 = " + packetInfo.volume + ", " + "최대출력 = " + packetInfo.maxOutput + ", " + "LED = " + packetInfo.led + ", " + "텔레코일 = " + packetInfo.telecoil + ", " + "자극알림 = " + packetInfo.notification);
-
-                        mStatusViewModel.setValueBatteryLevel(packetInfo.battery);
-                        mStatusViewModel.setValueNotification(packetInfo.notification);
-                        mStatusViewModel.setValueLed(packetInfo.led);
-                        mStatusViewModel.setValueTelecoil(packetInfo.telecoil);
-                        mStatusViewModel.setValueMaxOutput(packetInfo.maxOutput);
-                        mStatusViewModel.setValueVolume(packetInfo.volume);
-                        mStatusViewModel.setValueProgram(packetInfo.program);
-
-                        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
-
-                        // 현재 화면이 로그 화면일 때
-                        if (fragment instanceof ShareFragment)
-                        {
-                            ShareFragment shareFragment = (ShareFragment) fragment;
-
-                            shareFragment.mCountForConnectionFail = 0; // 연결 실패 카운터 초기화
-
-                            shareFragment.whichPacketShouldBeTransferred();
-
                             UtilLog.instance.writeLog("연결 성공 : 장치이름=" + gatt.getDevice().getName());
+                        }
+                        else
+                        {
+                            UtilLog.instance.writeLog("연결 성공 : 장치이름=null");
+
+                        }
+                        Log.d(TAG, "사운드처리기와 BLE 통신이 온전하게 연결되었습니다.");
+                        mStatus.connectionState = Status.CONNECTION_STATE_CONNECTED;
+
+                        // 리모컨 화면의 옵저버를 위해 뷰모델 값을 업데이트한다.
+                        mStatusViewModel.setConnectionState(StatusViewModel.CONNECTION_STATE_CONNECTED);
+                    }
+                    else
+                    {
+                        // 현재 BLE 연결중(CONNECTING)인 상태라면, 주기적인 배터리 상태 핸들러를 생성한다.
+                        // 하지만 연결된(CONNECTED) 상태라면 핸들러를 생성하지 않는다.
+                        if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTING)
+                        {
+                            if (gatt != null)
+                            {
+                                UtilLog.instance.writeLog("연결 성공 : 장치이름=" + gatt.getDevice().getName());
+                            }
+                            else
+                            {
+                                UtilLog.instance.writeLog("연결 성공 : 장치이름=null");
+                            }
+
                             Log.d(TAG, "사운드처리기와 BLE 통신이 온전하게 연결되었습니다.");
                             mStatus.connectionState = Status.CONNECTION_STATE_CONNECTED;
+                            mCheckBatteryHandler.postDelayed(mCheckBatteryRunner, CHECK_BATTERY_DELAY_IN_MS);
 
                             // 리모컨 화면의 옵저버를 위해 뷰모델 값을 업데이트한다.
                             mStatusViewModel.setConnectionState(StatusViewModel.CONNECTION_STATE_CONNECTED);
                         }
-                        else
-                        {
-                            // 현재 BLE 연결중(CONNECTING)인 상태라면, 주기적인 배터리 상태 핸들러를 생성한다.
-                            // 하지만 연결된(CONNECTED) 상태라면 핸들러를 생성하지 않는다.
-                            if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTING)
+                    }
+                }
+                break;
+
+                // 자극알림
+                case PacketInfo.HEADER_VALUE_NOTIFICATION:
+                {
+                    if (packetSize != PacketInfo.PACKET_SIZE_NOTIFICATION)
+                    {
+                        Log.d(TAG, "BLE 특성 변경 감지 -> 자극알림 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                        UtilLog.instance.writeLog("패킷 에러 : 자극알림 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                        // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                        packetSizeErrorDialog();
+                        break;
+                    }
+
+                    int value = responsePacket[1];
+                    mStatusViewModel.setValueNotification(value);
+                    UtilLog.instance.writeLog("패킷 수신 : 자극알림->" + value);
+
+
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[5] 시작.
+                    /*
+                    {
+                        Log.d(TAG, "Response packet --> stimulation alarm = " + value);
+                    }
+                    */
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[5] 끝.
+
+
+                }
+                break;
+
+                // LED
+                case PacketInfo.HEADER_VALUE_LED:
+                {
+                    if (packetSize != PacketInfo.PACKET_SIZE_LED)
+                    {
+                        Log.d(TAG, "BLE 특성 변경 감지 -> LED 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                        UtilLog.instance.writeLog("패킷 에러 : LED 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                        // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                        packetSizeErrorDialog();
+                        break;
+                    }
+
+                    int value = responsePacket[1];
+                    mStatusViewModel.setValueLed(value);
+                    UtilLog.instance.writeLog("패킷 수신 : LED알림->" + value);
+
+
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[6] 시작.
+                    /*
+                    {
+                        Log.d(TAG, "Response packet --> led alarm = " + value);
+                    }
+                    */
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[6] 끝.
+
+
+                }
+                break;
+
+                // 텔레코일
+                case PacketInfo.HEADER_VALUE_TELECOIL:
+                {
+                    if (packetSize != PacketInfo.PACKET_SIZE_TELECOIL)
+                    {
+                        Log.d(TAG, "BLE 특성 변경 감지 -> 텔레코일 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                        UtilLog.instance.writeLog("패킷 에러 : 텔레코일 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                        // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                        packetSizeErrorDialog();
+                        break;
+                    }
+
+                    int value = responsePacket[1];
+                    mStatusViewModel.setValueTelecoil(value);
+                    UtilLog.instance.writeLog("패킷 수신 : 텔레코일->" + value);
+
+
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[7] 시작.
+                    /*
+                    {
+                        Log.d(TAG, "Response packet --> telecoil setting = " + value);
+                    }
+                    */
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[7] 끝.
+
+
+                }
+                break;
+
+                // 맵번호
+                case PacketInfo.HEADER_VALUE_PROMGRAM:
+                {
+                    if (packetSize != PacketInfo.PACKET_SIZE_PROGRAM)
+                    {
+                        Log.d(TAG, "BLE 특성 변경 감지 -> 맵번호 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                        UtilLog.instance.writeLog("패킷 에러 : 맵번호 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                        // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                        packetSizeErrorDialog();
+                        break;
+                    }
+
+                    int value = responsePacket[1];
+                    mStatusViewModel.setValueProgram(value);
+                    UtilLog.instance.writeLog("패킷 수신 : 프로그램->" + value);
+
+
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[8] 시작.
+                    /*
+                    {
+                        Log.d(TAG, "Response packet --> map number = " + value);
+                    }
+                    */
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[8] 끝.
+
+
+                }
+                break;
+                // 최대출력
+                case PacketInfo.HEADER_VALUE_MAX_OUTPUT:
+                {
+                    if (packetSize != PacketInfo.PACKET_SIZE_MAX_OUTPUT)
+                    {
+                        Log.d(TAG, "BLE 특성 변경 감지 -> 최대출력 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                        UtilLog.instance.writeLog("패킷 에러 : 최대출력 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                        // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                        packetSizeErrorDialog();
+                        break;
+                    }
+
+                    int value = responsePacket[1];
+                    mStatusViewModel.setValueMaxOutput(value);
+                    UtilLog.instance.writeLog("패킷 수신 : 최대출력->" + value);
+
+
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[9] 시작.
+                    /*
+                    {
+                        Log.d(TAG, "Response packet --> max output = " + value);
+                    }
+                    */
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[9] 끝.
+
+
+                }
+                break;
+                // 볼륨
+                case PacketInfo.HEADER_VALUE_VOLUME:
+                {
+                    if (packetSize != PacketInfo.PACKET_SIZE_VOLUME)
+                    {
+                        Log.d(TAG, "BLE 특성 변경 감지 -> 볼륨 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                        UtilLog.instance.writeLog("패킷 에러 : 볼륨 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                        // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                        packetSizeErrorDialog();
+                        break;
+                    }
+
+                    int value = responsePacket[1];
+                    mStatusViewModel.setValueVolume(value);
+                    UtilLog.instance.writeLog("패킷 수신 : 볼륨->" + value);
+
+
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[10] 시작.
+                    /*
+                    {
+                        Log.d(TAG, "Response packet --> volume = " + value);
+                    }
+                    */
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[10] 끝.
+
+
+                }
+                break;
+
+                // 맵 공유 관련 패킷들
+                case PacketInfo.HEADER_READ_ISD_ID_AND_USER:
+                case PacketInfo.HEADER_READ_MAP_DATA:
+                case PacketInfo.HEADER_WRITE_ISD_ID_AND_USER:
+                case PacketInfo.HEADER_WRITE_MAP_DATA:
+                case PacketInfo.HEADER_MAP_RESET_DEFAULT: // 맵 초기화 관련 패킷
+                {
+
+
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[11] 시작.
+                    /*
+                    {
+                        Log.d(TAG, "Response packet --> map share");
+                        Log.d(TAG, "Map share module will be called.");
+                    }
+                    */
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[11] 끝.
+
+
+                    if (isCurrentFragmentShare())
+                    {
+                        getCurrentFragmentShare().responsePacketProcessor(responsePacket);
+                    }
+                }
+                break;
+
+                // 에러
+                case PacketInfo.HEADER_ERROR:
+                {
+                    if (packetSize != PacketInfo.PACKET_SIZE_ERROR)
+                    {
+                        Log.d(TAG, "BLE 특성 변경 감지 -> 에러 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                        UtilLog.instance.writeLog("패킷 에러 : 에러 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                        // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                        packetSizeErrorDialog();
+                        break;
+                    }
+
+
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[12] 시작.
+                    /*
+                    {
+                        Log.d(TAG, "Response packet --> error packet = " + responsePacket[1] + ", " + responsePacket[2]);
+                    }
+                    */
+                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[12] 끝.
+
+
+                    byte errorType = byteExtractor(responsePacket[2]);
+
+                    switch (errorType)
+                    {
+                        case 1: // 없는 명령
+                        case 2: // 데이터 범위 이탈
+                            Log.d(TAG, "패킷 위반 에러를 수신했습니다.");
+
+                            if (!mStatus.isEnabledInvalidPacketToast)
                             {
-                                UtilLog.instance.writeLog("연결 성공 : 장치이름=" + gatt.getDevice().getName());
+                                Toast.makeText(getApplicationContext(), "사운드처리기가 유효하지 않은 명령어를 전송했습니다.", Toast.LENGTH_LONG).show();
 
-                                Log.d(TAG, "사운드처리기와 BLE 통신이 온전하게 연결되었습니다.");
-                                mStatus.connectionState = Status.CONNECTION_STATE_CONNECTED;
-                                mCheckBatteryHandler.postDelayed(mCheckBatteryRunner, CHECK_BATTERY_DELAY_IN_MS);
+                                mStatus.isEnabledInvalidPacketToast = true;
 
-                                // 리모컨 화면의 옵저버를 위해 뷰모델 값을 업데이트한다.
-                                mStatusViewModel.setConnectionState(StatusViewModel.CONNECTION_STATE_CONNECTED);
+                                new Handler(Looper.getMainLooper()).postDelayed(() ->
+                                {
+                                    mStatus.isEnabledInvalidPacketToast = false;
+                                    longTimeIdleHandlerUpdate(true);
+                                }, 3500);
                             }
-                        }
-                    }
-                    break;
-
-                    // 자극알림
-                    case PacketInfo.HEADER_VALUE_NOTIFICATION:
-                    {
-                        if (packetSize != PacketInfo.PACKET_SIZE_NOTIFICATION)
-                        {
-                            Log.d(TAG, "BLE 특성 변경 감지 -> 자극알림 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
-                            UtilLog.instance.writeLog("패킷 에러 : 자극알림 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
-
-                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
-                            packetSizeErrorDialog();
                             break;
-                        }
 
-                        int value = responsePacket[1];
-                        mStatusViewModel.setValueNotification(value);
-                        UtilLog.instance.writeLog("패킷 수신 : 자극알림->" + value);
-                    }
-                    break;
+                        case 3: // Busy
+                            Log.d(TAG, "Busy 에러를 수신했습니다.");
 
-                    // LED
-                    case PacketInfo.HEADER_VALUE_LED:
-                    {
-                        if (packetSize != PacketInfo.PACKET_SIZE_LED)
-                        {
-                            Log.d(TAG, "BLE 특성 변경 감지 -> LED 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
-                            UtilLog.instance.writeLog("패킷 에러 : LED 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+                            if (!mStatus.isEnabledBusyToast)
+                            {
+                                Toast.makeText(getApplicationContext(), "이전에 전송한 명령을 처리중입니다.", Toast.LENGTH_LONG).show();
 
-                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
-                            packetSizeErrorDialog();
-                            break;
-                        }
+                                mStatus.isEnabledBusyToast = true;
 
-                        int value = responsePacket[1];
-                        mStatusViewModel.setValueLed(value);
-                        UtilLog.instance.writeLog("패킷 수신 : LED알림->" + value);
-                    }
-                    break;
-
-                    // 텔레코일
-                    case PacketInfo.HEADER_VALUE_TELECOIL:
-                    {
-                        if (packetSize != PacketInfo.PACKET_SIZE_TELECOIL)
-                        {
-                            Log.d(TAG, "BLE 특성 변경 감지 -> 텔레코일 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
-                            UtilLog.instance.writeLog("패킷 에러 : 텔레코일 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
-
-                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
-                            packetSizeErrorDialog();
-                            break;
-                        }
-
-                        int value = responsePacket[1];
-                        mStatusViewModel.setValueTelecoil(value);
-                        UtilLog.instance.writeLog("패킷 수신 : 텔레코일->" + value);
-                    }
-                    break;
-
-                    // 맵번호
-                    case PacketInfo.HEADER_VALUE_PROMGRAM:
-                    {
-                        if (packetSize != PacketInfo.PACKET_SIZE_PROGRAM)
-                        {
-                            Log.d(TAG, "BLE 특성 변경 감지 -> 맵번호 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
-                            UtilLog.instance.writeLog("패킷 에러 : 맵번호 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
-
-                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
-                            packetSizeErrorDialog();
-                            break;
-                        }
-
-                        int value = responsePacket[1];
-                        mStatusViewModel.setValueProgram(value);
-                        UtilLog.instance.writeLog("패킷 수신 : 프로그램->" + value);
-                    }
-                    break;
-                    // 최대출력
-                    case PacketInfo.HEADER_VALUE_MAX_OUTPUT:
-                    {
-                        if (packetSize != PacketInfo.PACKET_SIZE_MAX_OUTPUT)
-                        {
-                            Log.d(TAG, "BLE 특성 변경 감지 -> 최대출력 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
-                            UtilLog.instance.writeLog("패킷 에러 : 최대출력 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
-
-                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
-                            packetSizeErrorDialog();
-                            break;
-                        }
-
-                        int value = responsePacket[1];
-                        mStatusViewModel.setValueMaxOutput(value);
-                        UtilLog.instance.writeLog("패킷 수신 : 최대출력->" + value);
-                    }
-                    break;
-                    // 볼륨
-                    case PacketInfo.HEADER_VALUE_VOLUME:
-                    {
-                        if (packetSize != PacketInfo.PACKET_SIZE_VOLUME)
-                        {
-                            Log.d(TAG, "BLE 특성 변경 감지 -> 볼륨 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
-                            UtilLog.instance.writeLog("패킷 에러 : 볼륨 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
-
-                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
-                            packetSizeErrorDialog();
-                            break;
-                        }
-
-                        int value = responsePacket[1];
-                        mStatusViewModel.setValueVolume(value);
-                        UtilLog.instance.writeLog("패킷 수신 : 볼륨->" + value);
-                    }
-                    break;
-
-                    // 맵 공유 관련 패킷들
-                    case PacketInfo.HEADER_READ_ISD_ID_AND_USER:
-                    case PacketInfo.HEADER_READ_MAP_DATA:
-                    case PacketInfo.HEADER_WRITE_ISD_ID_AND_USER:
-                    case PacketInfo.HEADER_WRITE_MAP_DATA:
-                    case PacketInfo.HEADER_MAP_RESET_DEFAULT: // 맵 초기화 관련 패킷
-                    {
-                        if (isCurrentFragmentShare())
-                        {
-                            getCurrentFragmentShare().responsePacketProcessor(responsePacket);
-                        }
-                    }
-                    break;
-
-                    // 에러
-                    case PacketInfo.HEADER_ERROR:
-                    {
-                        if (packetSize != PacketInfo.PACKET_SIZE_ERROR)
-                        {
-                            Log.d(TAG, "BLE 특성 변경 감지 -> 에러 패킷 사이즈 에러 : 사이즈 = " + packetSize);
-                            UtilLog.instance.writeLog("패킷 에러 : 에러 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
-
-                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
-                            packetSizeErrorDialog();
-                            break;
-                        }
-
-                        byte errorType = byteExtractor(responsePacket[2]);
-
-                        switch (errorType)
-                        {
-                            case 1: // 없는 명령
-                            case 2: // 데이터 범위 이탈
-                                Log.d(TAG, "패킷 위반 에러를 수신했습니다.");
-
-                                if (!mStatus.isEnabledInvalidPacketToast)
+                                new Handler(Looper.getMainLooper()).postDelayed(() ->
                                 {
-                                    Toast.makeText(getApplicationContext(), "사운드처리기가 유효하지 않은 명령어를 전송했습니다.", Toast.LENGTH_LONG).show();
+                                    longTimeIdleHandlerUpdate(true);
+                                    mStatus.isEnabledBusyToast = false;
+                                }, 3500);
+                            }
+                            break;
 
-                                    mStatus.isEnabledInvalidPacketToast = true;
+                        case 4: // 보안코드 미적용 에러
+                            Log.d(TAG, "보안코드 미적용 에러를 수신했습니다.");
 
-                                    new Handler(Looper.getMainLooper()).postDelayed(() ->
-                                    {
-                                        mStatus.isEnabledInvalidPacketToast = false;
-                                        longTimeIdleHandlerUpdate(true);
-                                    }, 3500);
-                                }
-                                break;
+                            if (!mStatus.isEnabledUnlockedToast)
+                            {
+                                Toast.makeText(getApplicationContext(), "사운드처리기의 암호가 풀리지 않았습니다. 보안 비밀번호를 사용해 잠금을 해제해주세요.", Toast.LENGTH_LONG).show();
+                                mStatus.isEnabledUnlockedToast = true;
 
-                            case 3: // Busy
-                                Log.d(TAG, "Busy 에러를 수신했습니다.");
-
-                                if (!mStatus.isEnabledBusyToast)
+                                new Handler(Looper.getMainLooper()).postDelayed(() ->
                                 {
-                                    Toast.makeText(getApplicationContext(), "이전에 전송한 명령을 처리중입니다.", Toast.LENGTH_LONG).show();
+                                    longTimeIdleHandlerUpdate(true);
+                                    mStatus.isEnabledUnlockedToast = false;
+                                }, 3500);
+                            }
+                            break;
 
-                                    mStatus.isEnabledBusyToast = true;
+                        case 5: // SPI 통신 에러
+                        case 6: // CFX_CM3 통신 에러
+                        case 7: // NRF_FLASH 초기화 에러
+                            Log.d(TAG, "사운드처리기에 문제가 발생했습니다.");
 
-                                    new Handler(Looper.getMainLooper()).postDelayed(() ->
-                                    {
-                                        longTimeIdleHandlerUpdate(true);
-                                        mStatus.isEnabledBusyToast = false;
-                                    }, 3500);
-                                }
-                                break;
+                            if (!mStatus.isEnabledInternalErrorToast)
+                            {
+                                Toast.makeText(getApplicationContext(), "사운드처리기 내부에서 에러가 발생했습니다. 탈착 후 다시 부착해주세요.", Toast.LENGTH_LONG).show();
+                                mStatus.isEnabledInternalErrorToast = true;
 
-                            case 4: // 보안코드 미적용 에러
-                                Log.d(TAG, "보안코드 미적용 에러를 수신했습니다.");
-
-                                if (!mStatus.isEnabledUnlockedToast)
+                                new Handler(Looper.getMainLooper()).postDelayed(() ->
                                 {
-                                    Toast.makeText(getApplicationContext(), "사운드처리기의 암호가 풀리지 않았습니다. 보안 비밀번호를 사용해 잠금을 해제해주세요.", Toast.LENGTH_LONG).show();
-                                    mStatus.isEnabledUnlockedToast = true;
-
-                                    new Handler(Looper.getMainLooper()).postDelayed(() ->
-                                    {
-                                        longTimeIdleHandlerUpdate(true);
-                                        mStatus.isEnabledUnlockedToast = false;
-                                    }, 3500);
-                                }
-                                break;
-
-                            case 5: // SPI 통신 에러
-                            case 6: // CFX_CM3 통신 에러
-                            case 7: // NRF_FLASH 초기화 에러
-                                Log.d(TAG, "사운드처리기에 문제가 발생했습니다.");
-
-                                if (!mStatus.isEnabledInternalErrorToast)
-                                {
-                                    Toast.makeText(getApplicationContext(), "사운드처리기 내부에서 에러가 발생했습니다. 탈착 후 다시 부착해주세요.", Toast.LENGTH_LONG).show();
-                                    mStatus.isEnabledInternalErrorToast = true;
-
-                                    new Handler(Looper.getMainLooper()).postDelayed(() ->
-                                    {
-                                        longTimeIdleHandlerUpdate(true);
-                                        mStatus.isEnabledInternalErrorToast = false;
-                                    }, 3500);
-                                }
-                                break;
-                        }
+                                    longTimeIdleHandlerUpdate(true);
+                                    mStatus.isEnabledInternalErrorToast = false;
+                                }, 3500);
+                            }
+                            break;
                     }
-                    break;
-                } // switch
-            }); // handler mainLooper
-        } // onCharacteristicChanged
-    }; // BluetoothGattCallback
+                }
+                break;
+            } // switch
+        }); // handler mainLooper
+    }
 
     //
     // 패킷 사이즈 에러 다이얼로그
@@ -2797,6 +3695,17 @@ public class MainActivity extends AppCompatActivity
     Handler mPacketSendHandler = new Handler();
     Runnable mPacketSendRunner = () ->
     {
+
+
+        // TD2-SW-RC-UNIT-Test-ID-67 [블루투스 패킷 전송 유닛] 순서[1-2] 시작.
+        /*
+        {
+            Log.d(TAG, "Sending packet started.");
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-67 [블루투스 패킷 전송 유닛] 순서[1-2] 끝.
+
+
         if (mBluetoothGatt == null || mStatus.sendingPacket == null)
         {
             Log.d(TAG, "패킷 전송 시도를 실패했습니다. -> GATT 객체가 null 이거나, 패킷 정보가 없습니다.");
@@ -2834,9 +3743,29 @@ public class MainActivity extends AppCompatActivity
     {
         if (mStatus.transferState == Status.TRANSFER_STATE_BUSY)
         {
+
+            // TD2-SW-RC-UNIT-Test-ID-67 [블루투스 패킷 전송 유닛] 순서[2] 시작.
+            /*
+            {
+                Log.d(TAG, "Packet transfer state is busy.");
+            }
+            */
+            // TD2-SW-RC-UNIT-Test-ID-67 [블루투스 패킷 전송 유닛] 순서[2] 끝.
+
+
             Log.d(TAG, "패킷 전송 처리 중입니다. 잠시 후 다시 시도해주세요.");
             return;
         }
+
+
+        // TD2-SW-RC-UNIT-Test-ID-67 [블루투스 패킷 전송 유닛] 순서[1-1] 시작.
+        /*
+        {
+            Log.d(TAG, "Packet transfer will be start in SEND_PACKET_DELAY_IN_MS.");
+        }
+        */
+        // TD2-SW-RC-UNIT-Test-ID-67 [블루투스 패킷 전송 유닛] 순서[1-1] 끝.
+
 
         mStatus.transferState = Status.TRANSFER_STATE_BUSY;
         mStatus.sendingPacket = packet;
