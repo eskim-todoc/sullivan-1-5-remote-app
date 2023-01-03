@@ -2,36 +2,82 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/black_70"
         android:orientation="vertical"
-        android:padding="16dp"
         tools:context="todoc.cochlear.remoteapp.fragment.ManualFragment">
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/manual_viewpager2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="56dp"
+            android:layoutDirection="ltr"
+            android:orientation="horizontal"
+            android:overScrollMode="never"
+            android:scrollbars="none"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/manual_viewpager2_indicator"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingBottom="8dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/manual_viewpager2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/manual_recyclerview"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:overScrollMode="never" />
+            android:layout_marginBottom="56dp"
+            android:orientation="vertical"
+            android:overScrollMode="never"
+            android:scrollbars="vertical"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/enable_checkbox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="56dp"
-            android:text="@string/manual_screen_checkbox"
-            android:textColor="@color/white_90"
-            android:textSize="14dp"
-            app:switchMinWidth="56dp" />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:background="@color/toolbar_background"
+            android:gravity="center_vertical|start"
+            android:orientation="vertical"
+            android:paddingStart="12dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/enable_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/manual_screen_checkbox"
+                android:textColor="@color/white_90"
+                android:textSize="14dp" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/manual_close_button"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/manual_screen_button"
-            android:visibility="gone" />
-    </LinearLayout>
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
