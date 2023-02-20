@@ -117,6 +117,5 @@ public class Status
         static public final int DEVICE_EDIT = 8;
         static public final int MANUAL = 9;
         static public final int HIDDEN_LOG = 10;
-        static public final int SHARE_MAP = 11;
     }
 }

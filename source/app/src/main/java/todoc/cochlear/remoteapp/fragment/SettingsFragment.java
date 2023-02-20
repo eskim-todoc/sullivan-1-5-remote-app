@@ -76,7 +76,6 @@ public class SettingsFragment extends Fragment
         initManagementButtons();
         initSupportButtons();
         initCheckConnOteInfoButton();
-        initShareOteInfoButton();
     }
 
     //
@@ -224,23 +223,6 @@ public class SettingsFragment extends Fragment
 
                 Status.instance().lastDialog.show();
             }
-        });
-    }
-
-    //
-    // 외부기 공유 버튼 관련
-    //
-    private void initShareOteInfoButton()
-    {
-        mSettingBinding.settingsShareOteInfoButton.setOnClickListener(view ->
-        {
-            // 장시간 미사용 핸들러 업데이트
-            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
-
-            /*
-            ((MainActivity) requireActivity()).getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new ShareFragment()).commitAllowingStateLoss();
-            */
-            ((MainActivity) requireActivity()).replaceFragment(Status.TypeOfFragment.SHARE_MAP);
         });
     }
 }

@@ -77,7 +77,6 @@ public class ManualFragment extends Fragment
 
         mTouchAvailable = true;
 
-        //printViewPager2Manual();
         printManual();
         initDoNotShowCheckBox();
         initCloseButton();
@@ -85,78 +84,11 @@ public class ManualFragment extends Fragment
         return view;
     }
 
-    private void printViewPager2Manual()
-    {
-        ManualViewPager2Adapter manualViewPager2Adapter = new ManualViewPager2Adapter(this);
-        mManualBinding.manualViewpager2.setAdapter(manualViewPager2Adapter);
-        manualViewPager2Adapter.addItem(Objects.requireNonNull(AppCompatResources.getDrawable(requireContext(), R.drawable.guide_1_body)));
-        manualViewPager2Adapter.addItem(Objects.requireNonNull(AppCompatResources.getDrawable(requireContext(), R.drawable.guide_2_body)));
-        manualViewPager2Adapter.addItem(Objects.requireNonNull(AppCompatResources.getDrawable(requireContext(), R.drawable.guide_3_body)));
-
-        mManualBinding.manualViewpager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback()
-        {
-            @Override
-            public void onPageSelected(int position)
-            {
-                super.onPageSelected(position);
-                setViewPager2Indicator(position);
-            }
-        });
-
-        setupViewPager2Indicators(manualViewPager2Adapter.getItemCount());
-    }
-
-    private void setupViewPager2Indicators(int count)
-    {
-        ImageView[] views = new ImageView[count];
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.setMargins(16, 8, 16, 8);
-
-        for (int i = 0; i < views.length; i++)
-        {
-            views[i] = new ImageView(requireContext());
-            views[i].setImageDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.manual_screen_ic_circle_normal_12dp));
-            views[i].setLayoutParams(params);
-            mManualBinding.manualViewpager2Indicator.addView(views[i]);
-        }
-
-        setViewPager2Indicator(0);
-    }
-
-    private void setViewPager2Indicator(int position)
-    {
-        int childCount = mManualBinding.manualViewpager2Indicator.getChildCount();
-
-        for (int i = 0; i < childCount; i++)
-        {
-            ImageView iv = (ImageView) mManualBinding.manualViewpager2Indicator.getChildAt(i);
-
-            if (i == position)
-            {
-                iv.setImageDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.manual_screen_ic_circle_color_12dp));
-            }
-            else
-            {
-                iv.setImageDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.manual_screen_ic_circle_normal_12dp));
-            }
-        }
-    }
-
     private void printManual()
     {
         ManualAdapter manualAdapter = new ManualAdapter(this);
         mManualBinding.manualRecyclerview.setAdapter(manualAdapter);
         mManualBinding.manualRecyclerview.setLayoutManager(new LinearLayoutManager(requireContext()));
-
-        /*
-        manualAdapter.addItem(new Drawable[]{AppCompatResources.getDrawable(requireContext(), R.drawable.guide_1_title), AppCompatResources.getDrawable(requireContext(), R.drawable.guide_1_body)});
-        manualAdapter.addItem(new Drawable[]{AppCompatResources.getDrawable(requireContext(), R.drawable.guide_2_title), AppCompatResources.getDrawable(requireContext(), R.drawable.guide_2_body)});
-        manualAdapter.addItem(new Drawable[]{AppCompatResources.getDrawable(requireContext(), R.drawable.guide_3_title), AppCompatResources.getDrawable(requireContext(), R.drawable.guide_3_body)});
-        manualAdapter.addItem(new Drawable[]{AppCompatResources.getDrawable(requireContext(), R.drawable.guide_4_title), AppCompatResources.getDrawable(requireContext(), R.drawable.guide_4_body)});
-        manualAdapter.addItem(new Drawable[]{AppCompatResources.getDrawable(requireContext(), R.drawable.guide_5_title), AppCompatResources.getDrawable(requireContext(), R.drawable.guide_5_body)});
-        manualAdapter.addItem(new Drawable[]{AppCompatResources.getDrawable(requireContext(), R.drawable.guide_6_title), AppCompatResources.getDrawable(requireContext(), R.drawable.guide_6_body)});
-        */
 
         manualAdapter.addItem(R.drawable.item_manual_image_01);
         manualAdapter.addItem(R.drawable.item_manual_image_02);

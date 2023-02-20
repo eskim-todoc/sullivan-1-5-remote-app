@@ -618,7 +618,7 @@ public class RemoteControlFragment extends Fragment
             {
                 ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_TELECOIL, new byte[]{PacketInfo.TELECOIL_OFF}, 2));
             }
-            else if (value == PacketInfo.TELECOIL_OFF)
+            else //if (value == PacketInfo.TELECOIL_OFF)
             {
                 ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_TELECOIL, new byte[]{PacketInfo.TELECOIL_ON}, 2));
             }

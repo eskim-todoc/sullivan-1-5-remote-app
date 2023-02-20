@@ -104,18 +104,6 @@
                 app:iconGravity="end"
                 app:iconTint="@color/black_90" />
 
-            <Button
-                android:id="@+id/settings_share_ote_info_button"
-                style="@style/Widget.MaterialComponents.Button.Icon"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="56dp"
-                android:text="외부기 공유"
-                android:textAlignment="textStart"
-                android:textColor="@color/black_90"
-                app:icon="@drawable/settings_ic_arrow_24dp"
-                app:iconGravity="end"
-                app:iconTint="@color/black_90" />
         </LinearLayout>
     </ScrollView>
 </layout>

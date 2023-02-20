@@ -46,16 +46,12 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
 import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
 import todoc.cochlear.remoteapp.database.devices.EntityDevice;
 import todoc.cochlear.remoteapp.database.devices.UtilDevice;
-import todoc.cochlear.remoteapp.database.logs.EntityLog;
-import todoc.cochlear.remoteapp.database.maps.EntityMap;
-import todoc.cochlear.remoteapp.database.maps.UtilMap;
 import todoc.cochlear.remoteapp.database.users.EntityUser;
 import todoc.cochlear.remoteapp.database.users.UtilUser;
 import todoc.cochlear.remoteapp.fragment.AddDeviceFragment;
@@ -67,11 +63,8 @@ import todoc.cochlear.remoteapp.fragment.LogFragment;
 import todoc.cochlear.remoteapp.fragment.ManualFragment;
 import todoc.cochlear.remoteapp.fragment.RemoteControlFragment;
 import todoc.cochlear.remoteapp.fragment.SettingsFragment;
-import todoc.cochlear.remoteapp.fragment.ShareFragment;
 import todoc.cochlear.remoteapp.fragment.UserFragment;
 import todoc.cochlear.remoteapp.database.logs.UtilLog;
-import todoc.cochlear.remoteapp.list.DeviceAdapter;
-import todoc.cochlear.remoteapp.params.MapInfo;
 import todoc.cochlear.remoteapp.params.Status;
 import todoc.cochlear.remoteapp.params.PacketInfo;
 import todoc.cochlear.remoteapp.service.ExitCaptureService;
@@ -618,7 +611,6 @@ public class MainActivity extends AppCompatActivity
         UtilLog.instance.close(); // 히든 로그 데이터베이스 닫기.
         UtilUser.instance.close(); // 사용자 데이터베이스 닫기.
         UtilDevice.instance.close(); // 기기 데이터베이스 닫기.
-        UtilMap.instance.close(); // 맵 데이터베이스 닫기.
 
         // 모든 핸들러 제거하기
         mLongTimeIdleHandler.removeCallbacks(mLongTimeIdleRunner); // 장시간 미사용 감지 핸들러 제거
@@ -663,10 +655,6 @@ public class MainActivity extends AppCompatActivity
                     ((RemoteControlFragment) fragment).mDialog.dismiss();
                 }
             }
-        }
-        else if (fragment instanceof ShareFragment)
-        {
-            ((ShareFragment) fragment).exitFragment(); // 프래그먼트의 세부 동작 사항들을 종료시킨다.
         }
     }
 
@@ -1205,10 +1193,6 @@ public class MainActivity extends AppCompatActivity
         }
         */
         // TD2-SW-RC-UNIT-Test-ID-15 [DB 기기 정보 삭제 유닛] 순서[1] 끝.
-
-
-        // 4) 맵 정보
-        UtilMap.instance.open(getApplicationContext());
 
 
         // TD2-SW-RC-UNIT-Test-ID-23 [DB 맵 정보 추가 유닛] 순서[1] 시작.
@@ -2276,14 +2260,6 @@ public class MainActivity extends AppCompatActivity
             */
             replaceFragment(Status.TypeOfFragment.USER_ADD);
         }
-        else if (fragment instanceof ShareFragment)
-        {
-            ((ShareFragment) fragment).exitFragment(); // 프래그먼트의 세부 동작 사항들을 종료시킨다.
-            /*
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame, new SettingsFragment()).commitAllowingStateLoss();
-            */
-            replaceFragment(Status.TypeOfFragment.MENU);
-        }
     }
 
     //
@@ -2351,14 +2327,6 @@ public class MainActivity extends AppCompatActivity
 
         Log.v(TAG, "BLE 스캔 시간이 초과되었습니다.");
         scanLe(false); // 스캔 정지
-
-        if (getSupportFragmentManager().findFragmentById(R.id.frame) instanceof ShareFragment)
-        {
-            if (mStatus.connectionState == Status.CONNECTION_STATE_DISCONNECTED)
-            {
-                scanLeWithDelay(true, 10);
-            }
-        }
     }; // scanRunner
 
     //
@@ -2449,15 +2417,6 @@ public class MainActivity extends AppCompatActivity
             List<EntityDevice> devices = UtilDevice.instance.getDevices();
             EntityDevice targetDevice = null;
 
-            if (!(getSupportFragmentManager().findFragmentById(R.id.frame) instanceof ShareFragment))
-            {
-                if (defaultUser == null || devices == null)
-                {
-                    // If no user or device available, return.
-                    return;
-                }
-            }
-
             String name = result.getDevice().getName();
 
             if (name == null || !name.matches(BT_NAME_REGEX_FILTER))
@@ -2488,74 +2447,7 @@ public class MainActivity extends AppCompatActivity
 
             Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
 
-            if (fragment instanceof ShareFragment)
-            {
-                ShareFragment shareFragment = (ShareFragment) fragment;
-
-                String[] splits = serviceString.split(EntityUser.DELIMITER);
-                String serial = splits[splits.length - 1];
-                String ear = splits[0];
-                StringBuilder user = new StringBuilder(splits[1]);
-
-                for (int i = 2; i < splits.length - 1; i++)
-                {
-                    user.append(EntityUser.DELIMITER).append(splits[i]);
-                }
-
-                String nameWithEar = user + EntityUser.DELIMITER + ear;
-
-                if (shareFragment.mFsm == ShareFragment.FSM_COLLECT_MAP_SCREEN)
-                {
-                    for (int i = 0; i < shareFragment.mCollectMapAdapter.getItemCount(); i++)
-                    {
-                        if (shareFragment.mCollectMapAdapter.getName(i).equals(nameWithEar))
-                        {
-                            if (!shareFragment.mCollectMapAdapter.isBleScanned(i))
-                            {
-                                shareFragment.mCollectMapAdapter.setBleScannedState(i, true);
-                                shareFragment.mCollectMapAdapter.setOteSerial(i, serial);
-                                shareFragment.mCollectMapAdapter.setBtDevice(i, result.getDevice());
-                                break;
-                            }
-                        }
-                    }
-                } // End of FSM_COLLECT_MAP_SCREEN;
-                else if (shareFragment.mFsm == ShareFragment.FSM_SHARE_MAP_SCREEN)
-                {
-                    if (shareFragment.mShareMapAdapter != null)
-                    {
-                        for (int i = 0; i < shareFragment.mCollectMapAdapter.getItemCount(); i++)
-                        {
-                            if (shareFragment.mCollectMapAdapter.isMapCollected(i) && shareFragment.mCollectMapAdapter.getName(i).equals(nameWithEar))
-                            {
-                                shareFragment.mShareMapAdapter.addItem(nameWithEar, serial, result.getDevice());
-                            }
-                        }
-                    }
-                } // End of FSM_SHARE_MAP_SCREEN;
-                else if (shareFragment.mFsm == ShareFragment.FSM_MAP_RESET_DEFAULT_SCREEN)
-                {
-                    if (shareFragment.mMapResetAdapter != null)
-                    {
-                        boolean isAlreadyAdded = false;
-
-                        for (int i = 0; i < shareFragment.mMapResetAdapter.getItemCount(); i++)
-                        {
-                            if (shareFragment.mMapResetAdapter.getNameWithEar(i).equals(nameWithEar) && shareFragment.mMapResetAdapter.getOteSerial(i).equals(serial))
-                            {
-                                isAlreadyAdded = true;
-                                break;
-                            }
-                        }
-
-                        if (!isAlreadyAdded)
-                        {
-                            shareFragment.mMapResetAdapter.addItem(nameWithEar, serial, result.getDevice());
-                        }
-                    }
-                }
-            } // End of FSM_MAP_RESET_DEFAULT_SCREEN;
-            else if (getSupportFragmentManager().findFragmentById(R.id.frame) instanceof RemoteControlFragment)
+            if (getSupportFragmentManager().findFragmentById(R.id.frame) instanceof RemoteControlFragment)
             {
                 boolean isFound = false;
 
@@ -2834,10 +2726,6 @@ public class MainActivity extends AppCompatActivity
                                 {
                                     Log.d(TAG, "현재 리모컨 화면이지만, 액티비티 화면이 포그라운드 상태가 아니므로 BLE 스캔을 시작하지 않습니다.");
                                 }
-                            }
-                            else if (isCurrentFragmentShare())
-                            {
-                                getCurrentFragmentShare().disconnectedEventProcessor();
                             }
                         }
                     }
@@ -3263,15 +3151,10 @@ public class MainActivity extends AppCompatActivity
 
                     Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
 
-                    // 현재 화면이 로그 화면일 때
-                    if (fragment instanceof ShareFragment)
+                    // 현재 BLE 연결중(CONNECTING)인 상태라면, 주기적인 배터리 상태 핸들러를 생성한다.
+                    // 하지만 연결된(CONNECTED) 상태라면 핸들러를 생성하지 않는다.
+                    if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTING)
                     {
-                        ShareFragment shareFragment = (ShareFragment) fragment;
-
-                        shareFragment.mCountForConnectionFail = 0; // 연결 실패 카운터 초기화
-
-                        shareFragment.whichPacketShouldBeTransferred();
-
                         if (gatt != null)
                         {
                             UtilLog.instance.writeLog("연결 성공 : 장치이름=" + gatt.getDevice().getName());
@@ -3279,36 +3162,14 @@ public class MainActivity extends AppCompatActivity
                         else
                         {
                             UtilLog.instance.writeLog("연결 성공 : 장치이름=null");
-
                         }
+
                         Log.d(TAG, "사운드처리기와 BLE 통신이 온전하게 연결되었습니다.");
                         mStatus.connectionState = Status.CONNECTION_STATE_CONNECTED;
+                        mCheckBatteryHandler.postDelayed(mCheckBatteryRunner, CHECK_BATTERY_DELAY_IN_MS);
 
                         // 리모컨 화면의 옵저버를 위해 뷰모델 값을 업데이트한다.
                         mStatusViewModel.setConnectionState(StatusViewModel.CONNECTION_STATE_CONNECTED);
-                    }
-                    else
-                    {
-                        // 현재 BLE 연결중(CONNECTING)인 상태라면, 주기적인 배터리 상태 핸들러를 생성한다.
-                        // 하지만 연결된(CONNECTED) 상태라면 핸들러를 생성하지 않는다.
-                        if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTING)
-                        {
-                            if (gatt != null)
-                            {
-                                UtilLog.instance.writeLog("연결 성공 : 장치이름=" + gatt.getDevice().getName());
-                            }
-                            else
-                            {
-                                UtilLog.instance.writeLog("연결 성공 : 장치이름=null");
-                            }
-
-                            Log.d(TAG, "사운드처리기와 BLE 통신이 온전하게 연결되었습니다.");
-                            mStatus.connectionState = Status.CONNECTION_STATE_CONNECTED;
-                            mCheckBatteryHandler.postDelayed(mCheckBatteryRunner, CHECK_BATTERY_DELAY_IN_MS);
-
-                            // 리모컨 화면의 옵저버를 위해 뷰모델 값을 업데이트한다.
-                            mStatusViewModel.setConnectionState(StatusViewModel.CONNECTION_STATE_CONNECTED);
-                        }
                     }
                 }
                 break;
@@ -3488,32 +3349,6 @@ public class MainActivity extends AppCompatActivity
                     // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[10] 끝.
 
 
-                }
-                break;
-
-                // 맵 공유 관련 패킷들
-                case PacketInfo.HEADER_READ_ISD_ID_AND_USER:
-                case PacketInfo.HEADER_READ_MAP_DATA:
-                case PacketInfo.HEADER_WRITE_ISD_ID_AND_USER:
-                case PacketInfo.HEADER_WRITE_MAP_DATA:
-                case PacketInfo.HEADER_MAP_RESET_DEFAULT: // 맵 초기화 관련 패킷
-                {
-
-
-                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[11] 시작.
-                    /*
-                    {
-                        Log.d(TAG, "Response packet --> map share");
-                        Log.d(TAG, "Map share module will be called.");
-                    }
-                    */
-                    // TD2-SW-RC-UNIT-Test-ID-68 [블루투스 패킷 수신 유닛] 순서[11] 끝.
-
-
-                    if (isCurrentFragmentShare())
-                    {
-                        getCurrentFragmentShare().responsePacketProcessor(responsePacket);
-                    }
                 }
                 break;
 
@@ -4115,7 +3950,6 @@ public class MainActivity extends AppCompatActivity
 
                     List<EntityUser> users = UtilUser.instance.getUsers();
                     List<EntityDevice> devices = UtilDevice.instance.getDevices();
-                    List<EntityMap> maps = UtilMap.instance.getAll();
 
                     for (EntityUser user : users)
                     {
@@ -4127,12 +3961,6 @@ public class MainActivity extends AppCompatActivity
                     {
                         UtilDevice.instance.delete(device);
                         Log.d(TAG, "사운드처리기 " + device.serialNumber + "  삭제됨.");
-                    }
-
-                    for (EntityMap map : maps)
-                    {
-                        UtilMap.instance.delete(map);
-                        Log.d(TAG, "맵 데이터 " + map.name_ear + " " + map.stamp + " 삭제됨.");
                     }
 
                     mLockScreen.erasePassword();
@@ -4158,19 +3986,6 @@ public class MainActivity extends AppCompatActivity
                 .setCancelable(false)
                 .create();
         mStatus.lastDialog.show();
-    }
-
-    //
-    // 프래그먼트 비교기
-    //
-    public boolean isCurrentFragmentShare()
-    {
-        return getSupportFragmentManager().findFragmentById(R.id.frame) instanceof ShareFragment;
-    }
-
-    public ShareFragment getCurrentFragmentShare()
-    {
-        return (ShareFragment) getSupportFragmentManager().findFragmentById(R.id.frame);
     }
 
     //
@@ -4282,10 +4097,6 @@ public class MainActivity extends AppCompatActivity
         else if (typeOfFragment == Status.TypeOfFragment.HIDDEN_LOG)
         {
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new LogFragment()).commitAllowingStateLoss();
-        }
-        else if (typeOfFragment == Status.TypeOfFragment.SHARE_MAP)
-        {
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame, new ShareFragment()).commitAllowingStateLoss();
         }
         else
         {
