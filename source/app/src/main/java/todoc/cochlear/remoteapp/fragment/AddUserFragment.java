@@ -101,14 +101,14 @@ public class AddUserFragment extends Fragment
         {
 
 
-            // TD2-SW-RC-UNIT-Test-ID-72 [사용자 목록 표시 유닛] 순서[1] 시작.
+            // TD2-SW-RC-UNIT-Test-ID-60 [사용자 목록 표시 유닛] 순서[1] 시작.
             /*
             {
                 Log.d(TAG, "name = " + easterEggName + ", passKey = " + easterEggPassKey + ", nickname = " + easterEggNickname);
                 Log.d(TAG, "Log screen will be displayed.");
             }
             */
-            // TD2-SW-RC-UNIT-Test-ID-72 [사용자 목록 표시 유닛] 순서[1] 끝.
+            // TD2-SW-RC-UNIT-Test-ID-60 [사용자 목록 표시 유닛] 순서[1] 끝.
 
 
             /*
@@ -174,14 +174,14 @@ public class AddUserFragment extends Fragment
                 }
 
 
-                // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[1] 시작.
+                // TD2-SW-RC-UNIT-Test-ID-61 [사용자 등록 유닛] 순서[1] 시작.
                 /*
                 {
                     Log.d(TAG, "name length = " + user.name.length());
                     Log.d(TAG, "name length must be greater than 1");
                 }
                 */
-                // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[1] 끝.
+                // TD2-SW-RC-UNIT-Test-ID-61 [사용자 등록 유닛] 순서[1] 끝.
 
 
                 Status.instance().lastDialog =
@@ -209,14 +209,14 @@ public class AddUserFragment extends Fragment
                 }
 
 
-                // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[2] 시작.
+                // TD2-SW-RC-UNIT-Test-ID-61 [사용자 등록 유닛] 순서[2] 시작.
                 /*
                 {
                     Log.d(TAG, "passKey length = " + user.passKey.length());
                     Log.d(TAG, "passKey length must be equals to 4");
                 }
                 */
-                // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[2] 끝.
+                // TD2-SW-RC-UNIT-Test-ID-61 [사용자 등록 유닛] 순서[2] 끝.
 
 
                 Status.instance().lastDialog =
@@ -243,13 +243,13 @@ public class AddUserFragment extends Fragment
                 }
 
 
-                // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[3] 시작.
+                // TD2-SW-RC-UNIT-Test-ID-61 [사용자 등록 유닛] 순서[3] 시작.
                 /*
                 {
                     Log.d(TAG, "ear must be selected. (left or right)");
                 }
                 */
-                // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[3] 끝.
+                // TD2-SW-RC-UNIT-Test-ID-61 [사용자 등록 유닛] 순서[3] 끝.
 
 
                 Status.instance().lastDialog =
@@ -282,14 +282,14 @@ public class AddUserFragment extends Fragment
                     }
 
 
-                    // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[4] 시작.
+                    // TD2-SW-RC-UNIT-Test-ID-61 [사용자 등록 유닛] 순서[4] 시작.
                     /*
                     {
                         Log.d(TAG, "name = " + user.name + ", passKey = " + user.passKey + ", nickname = " + user.nickname + ", ear = " + user.ear);
                         Log.d(TAG, "already registered user information.");
                     }
                     */
-                    // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[4] 끝.
+                    // TD2-SW-RC-UNIT-Test-ID-61 [사용자 등록 유닛] 순서[4] 끝.
 
 
                     Status.instance().lastDialog =
@@ -321,14 +321,14 @@ public class AddUserFragment extends Fragment
                     {
 
 
-                        // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[6] 시작.
+                        // TD2-SW-RC-UNIT-Test-ID-61 [사용자 등록 유닛] 순서[6] 시작.
                         /*
                         {
                             Log.d(TAG, "name = " + user.name + ", passKey = " + user.passKey + ", nickname = " + user.nickname + ", ear = " + user.ear);
                             Log.d(TAG, "register default user information.");
                         }
                         */
-                        // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[6] 끝.
+                        // TD2-SW-RC-UNIT-Test-ID-61 [사용자 등록 유닛] 순서[6] 끝.
 
 
                         EntityUser defaultUser = UtilUser.instance.getDefaultUser();
@@ -417,14 +417,14 @@ public class AddUserFragment extends Fragment
                     {
 
 
-                        // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[5] 시작.
+                        // TD2-SW-RC-UNIT-Test-ID-61 [사용자 등록 유닛] 순서[5] 시작.
                         /*
                         {
                             Log.d(TAG, "name = " + user.name + ", passKey = " + user.passKey + ", nickname = " + user.nickname + ", ear = " + user.ear);
                             Log.d(TAG, "register user information.");
                         }
                         */
-                        // TD2-SW-RC-UNIT-Test-ID-73 [사용자 등록 유닛] 순서[5] 끝.
+                        // TD2-SW-RC-UNIT-Test-ID-61 [사용자 등록 유닛] 순서[5] 끝.
 
 
                         UtilUser.instance.insert(user);

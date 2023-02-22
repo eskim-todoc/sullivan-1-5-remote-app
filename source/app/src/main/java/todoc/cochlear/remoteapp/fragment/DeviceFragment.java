@@ -117,7 +117,7 @@ public class DeviceFragment extends Fragment
     {
 
 
-        // TD2-SW-RC-UNIT-Test-ID-79 [기기 목록 표시 유닛] 순서[1] 시작.
+        // TD2-SW-RC-UNIT-Test-ID-67 [기기 목록 표시 유닛] 순서[1] 시작.
         /*
         {
             List<EntityDevice> testDevices = UtilDevice.instance.getDevices();
@@ -128,7 +128,7 @@ public class DeviceFragment extends Fragment
             }
         }
         */
-        // TD2-SW-RC-UNIT-Test-ID-79 [기기 목록 표시 유닛] 순서[1] 끝.
+        // TD2-SW-RC-UNIT-Test-ID-67 [기기 목록 표시 유닛] 순서[1] 끝.
 
 
         mDeviceBinding.deviceTitle.setVisibility(View.GONE);

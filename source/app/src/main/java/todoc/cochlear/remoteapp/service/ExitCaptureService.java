@@ -48,13 +48,13 @@ public class ExitCaptureService extends Service
         //super.onTaskRemoved(rootIntent); // Do not use super method
 
 
-        // TD2-SW-RC-UNIT-Test-ID-60 [포착 서비스 감지 유닛] 순서[1] 시작.
+        // TD2-SW-RC-UNIT-Test-ID-48 [포착 서비스 감지 유닛] 순서[1] 시작.
         /*
         {
             Log.d(TAG, "Exit capture service performed.");
         }
         */
-        // TD2-SW-RC-UNIT-Test-ID-60 [포착 서비스 감지 유닛] 순서[1] 끝.
+        // TD2-SW-RC-UNIT-Test-ID-48 [포착 서비스 감지 유닛] 순서[1] 끝.
 
 
         Log.d(TAG, "강제 종료 감지 서비스에서 태스크 삭제가 감지되었습니다. -> onTaskRemoved()");

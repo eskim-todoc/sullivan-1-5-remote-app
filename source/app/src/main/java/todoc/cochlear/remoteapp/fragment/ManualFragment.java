@@ -138,14 +138,14 @@ public class ManualFragment extends Fragment
             ((MainActivity) requireContext()).mManualScreen.setEnable(!b);
 
 
-            // TD2-SW-RC-UNIT-Test-ID-58 [사용설명서 이미지 표시 유닛] 순서[1 & 2] 시작.
+            // TD2-SW-RC-UNIT-Test-ID-46 [사용설명서 이미지 표시 유닛] 순서[1 & 2] 시작.
             /*
             {
                 // onCreate에서 생성한 mManualScreen을 사용해서 테스트한다.
                 Log.d("TODOC_ManualFragment", "Manual screen enabled = " + ((MainActivity) requireContext()).mManualScreen.isEnabled());
             }
             */
-            // TD2-SW-RC-UNIT-Test-ID-58 [사용설명서 이미지 표시 유닛] 순서[1 & 2] 끝.
+            // TD2-SW-RC-UNIT-Test-ID-46 [사용설명서 이미지 표시 유닛] 순서[1 & 2] 끝.
 
 
         });

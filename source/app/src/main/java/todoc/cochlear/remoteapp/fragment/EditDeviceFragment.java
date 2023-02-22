@@ -162,14 +162,14 @@ public class EditDeviceFragment extends Fragment
                                 {
 
 
-                                    // TD2-SW-RC-UNIT-Test-ID-82 [기기 삭제 유닛] 순서[2] 시작.
+                                    // TD2-SW-RC-UNIT-Test-ID-70 [기기 삭제 유닛] 순서[2] 시작.
                                     /*
                                     {
                                         Log.d(TAG, "serialNumber = " + mItem.serialNumber + ", pairingKey = " + mItem.pairingKey + ", additionalInformation = " + mItem.additionalInformation);
                                         Log.d(TAG, "delete device information.");
                                     }
                                     */
-                                    // TD2-SW-RC-UNIT-Test-ID-82 [기기 삭제 유닛] 순서[2] 끝.
+                                    // TD2-SW-RC-UNIT-Test-ID-70 [기기 삭제 유닛] 순서[2] 끝.
 
 
                                     // 장시간 미사용 핸들러 업데이트
@@ -213,14 +213,14 @@ public class EditDeviceFragment extends Fragment
                 }
 
 
-                // TD2-SW-RC-UNIT-Test-ID-81 [기기 수정 유닛] 순서[2] 시작.
+                // TD2-SW-RC-UNIT-Test-ID-69 [기기 수정 유닛] 순서[2] 시작.
                 /*
                 {
                     Log.d(TAG, "pairingKey length = " + mItem.pairingKey.length());
                     Log.d(TAG, "pairingKey length must be equals to 6");
                 }
                 */
-                // TD2-SW-RC-UNIT-Test-ID-81 [기기 수정 유닛] 순서[2] 끝.
+                // TD2-SW-RC-UNIT-Test-ID-69 [기기 수정 유닛] 순서[2] 끝.
 
 
                 Status.instance().lastDialog =
@@ -240,14 +240,14 @@ public class EditDeviceFragment extends Fragment
             {
 
 
-                // TD2-SW-RC-UNIT-Test-ID-81 [기기 수정 유닛] 순서[3] 시작.
+                // TD2-SW-RC-UNIT-Test-ID-69 [기기 수정 유닛] 순서[3] 시작.
                 /*
                 {
                     Log.d(TAG, "serialNumber = " + mItem.serialNumber + ", pairingKey = " + mItem.pairingKey + ", additionalInformation = " + mItem.additionalInformation);
                     Log.d(TAG, "edit device information.");
                 }
                 */
-                // TD2-SW-RC-UNIT-Test-ID-81 [기기 수정 유닛] 순서[3] 끝.
+                // TD2-SW-RC-UNIT-Test-ID-69 [기기 수정 유닛] 순서[3] 끝.
 
 
                 UtilDevice.instance.update(mItem);

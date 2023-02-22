@@ -75,9 +75,9 @@ public class UtilDevice
                         public void onOpen(@NonNull SupportSQLiteDatabase db)
                         {
                             super.onOpen(db);
-                            // TD-SW-RC-UNIT-Test-ID-9 [DB 기기 정보 열기 유닛] 순서[1] 시작.
+                            // TD2-SW-RC-UNIT-Test-ID-9 [DB 기기 정보 열기 유닛] 순서[1] 시작.
                             Log.d(TAG, "기기 데이터베이스 '" + DatabaseDevice.DATABASE_NAME + "'을 열었습니다.");
-                            // TD-SW-RC-UNIT-Test-ID-9 [DB 기기 정보 열기 유닛] 순서[1] 끝.
+                            // TD2-SW-RC-UNIT-Test-ID-9 [DB 기기 정보 열기 유닛] 순서[1] 끝.
                         }
                     })
                     .fallbackToDestructiveMigration()

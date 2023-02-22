@@ -107,14 +107,14 @@ public class AddDeviceFragment extends Fragment
                 }
 
 
-                // TD2-SW-RC-UNIT-Test-ID-80 [기기 등록 유닛] 순서[1] 시작.
+                // TD2-SW-RC-UNIT-Test-ID-68 [기기 등록 유닛] 순서[1] 시작.
                 /*
                 {
                     Log.d(TAG, "serialNumber length = " + device.serialNumber.length());
                     Log.d(TAG, "serialnumber must be greater than 1");
                 }
                 */
-                // TD2-SW-RC-UNIT-Test-ID-80 [기기 등록 유닛] 순서[1] 끝.
+                // TD2-SW-RC-UNIT-Test-ID-68 [기기 등록 유닛] 순서[1] 끝.
 
 
                 Status.instance().lastDialog =
@@ -143,14 +143,14 @@ public class AddDeviceFragment extends Fragment
                 }
 
 
-                // TD2-SW-RC-UNIT-Test-ID-80 [기기 등록 유닛] 순서[2] 시작.
+                // TD2-SW-RC-UNIT-Test-ID-68 [기기 등록 유닛] 순서[2] 시작.
                 /*
                 {
                     Log.d(TAG, "pairingKey length = " + device.pairingKey.length());
                     Log.d(TAG, "pairingKey must be equals to 6");
                 }
                 */
-                // TD2-SW-RC-UNIT-Test-ID-80 [기기 등록 유닛] 순서[2] 끝.
+                // TD2-SW-RC-UNIT-Test-ID-68 [기기 등록 유닛] 순서[2] 끝.
 
 
                 Status.instance().lastDialog =
@@ -182,14 +182,14 @@ public class AddDeviceFragment extends Fragment
                     }
 
 
-                    // TD2-SW-RC-UNIT-Test-ID-80 [기기 등록 유닛] 순서[3] 시작.
+                    // TD2-SW-RC-UNIT-Test-ID-68 [기기 등록 유닛] 순서[3] 시작.
                     /*
                     {
                         Log.d(TAG, "serialNumber = " + device.serialNumber + ", pairingKey = " + device.pairingKey + ", additionalInformation = " + device.additionalInformation);
                         Log.d(TAG, "already registered device information.");
                     }
                     */
-                    // TD2-SW-RC-UNIT-Test-ID-80 [기기 등록 유닛] 순서[3] 끝.
+                    // TD2-SW-RC-UNIT-Test-ID-68 [기기 등록 유닛] 순서[3] 끝.
 
 
                     Status.instance().lastDialog =
@@ -209,14 +209,14 @@ public class AddDeviceFragment extends Fragment
                 {
 
 
-                    // TD2-SW-RC-UNIT-Test-ID-80 [기기 등록 유닛] 순서[4] 시작.
+                    // TD2-SW-RC-UNIT-Test-ID-68 [기기 등록 유닛] 순서[4] 시작.
                     /*
                     {
                         Log.d(TAG, "serialNumber = " + device.serialNumber + ", pairingKey = " + device.pairingKey + ", additionalInformation = " + device.additionalInformation);
                         Log.d(TAG, "register device information.");
                     }
                     */
-                    // TD2-SW-RC-UNIT-Test-ID-80 [기기 등록 유닛] 순서[4] 끝.
+                    // TD2-SW-RC-UNIT-Test-ID-68 [기기 등록 유닛] 순서[4] 끝.
 
 
                     UtilDevice.instance.insert(device);

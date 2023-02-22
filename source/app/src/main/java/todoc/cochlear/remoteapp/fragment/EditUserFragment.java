@@ -185,14 +185,14 @@ public class EditUserFragment extends Fragment
                                 {
 
 
-                                    // TD2-SW-RC-UNIT-Test-ID-75 [사용자 삭제 유닛] 순서[2] 시작.
+                                    // TD2-SW-RC-UNIT-Test-ID-63 [사용자 삭제 유닛] 순서[2] 시작.
                                     /*
                                     {
                                         Log.d(TAG, "name = " + mItem.name + ", passKey = " + mItem.passKey + ", nickname = " + mItem.nickname + ", ear = " + mItem.ear + ", defaultUser = " + mItem.defaultUser);
                                         Log.d(TAG, "delete user information.");
                                     }
                                     */
-                                    // TD2-SW-RC-UNIT-Test-ID-75 [사용자 삭제 유닛] 순서[2] 끝.
+                                    // TD2-SW-RC-UNIT-Test-ID-63 [사용자 삭제 유닛] 순서[2] 끝.
 
 
                                     // 장시간 미사용 핸들러 업데이트
@@ -234,14 +234,14 @@ public class EditUserFragment extends Fragment
                 }
 
 
-                // TD2-SW-RC-UNIT-Test-ID-74 [사용자 수정 유닛] 순서[2] 시작.
+                // TD2-SW-RC-UNIT-Test-ID-62 [사용자 수정 유닛] 순서[2] 시작.
                 /*
                 {
                     Log.d(TAG, "passKey length = " + passKey.length());
                     Log.d(TAG, "passKey length must be equals to 4");
                 }
                 */
-                // TD2-SW-RC-UNIT-Test-ID-74 [사용자 수정 유닛] 순서[2] 끝.
+                // TD2-SW-RC-UNIT-Test-ID-62 [사용자 수정 유닛] 순서[2] 끝.
 
 
                 Status.instance().lastDialog =
@@ -409,14 +409,14 @@ public class EditUserFragment extends Fragment
                 }
 
 
-                // TD2-SW-RC-UNIT-Test-ID-74 [사용자 수정 유닛] 순서[3] 시작.
+                // TD2-SW-RC-UNIT-Test-ID-62 [사용자 수정 유닛] 순서[3] 시작.
                 /*
                 {
                     Log.d(TAG, "name = " + mItem.name + ", passKey = " + mItem.passKey + ", nickname = " + mItem.nickname + ", ear = " + mItem.ear + ", defaultUser = " + mItem.defaultUser);
                     Log.d(TAG, "edit user information.");
                 }
                 */
-                // TD2-SW-RC-UNIT-Test-ID-73 [사용자 수정 유닛] 순서[3] 끝.
+                // TD2-SW-RC-UNIT-Test-ID-62 [사용자 수정 유닛] 순서[3] 끝.
 
 
                 UtilUser.instance.update(mItem);

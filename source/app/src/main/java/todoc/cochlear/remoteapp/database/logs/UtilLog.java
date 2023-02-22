@@ -71,14 +71,14 @@ public class UtilLog
     {
         if (mDatabase == null)
         {
-            // TD2-SW-RC-UNIT-Test-ID-17 [DB 시스템 로그 열기 유닛] 순서[2] 시작.
+            // TD2-SW-RC-UNIT-Test-ID-16 [DB 시스템 로그 열기 유닛] 순서[2] 시작.
             /*
             new Handler(Looper.getMainLooper()).postDelayed(() ->
             {
                 open(context);
             }, 100);
             */
-            // TD2-SW-RC-UNIT-Test-ID-17 [DB 시스템 로그 열기 유닛] 순서[2] 끝.
+            // TD2-SW-RC-UNIT-Test-ID-16 [DB 시스템 로그 열기 유닛] 순서[2] 끝.
 
             mDatabase = Room.databaseBuilder(context, DatabaseLog.class, DatabaseLog.DATABASE_NAME)
                     .addCallback(new RoomDatabase.Callback()
@@ -95,9 +95,9 @@ public class UtilLog
                         public void onOpen(@NonNull SupportSQLiteDatabase db)
                         {
                             super.onOpen(db);
-                            // TD2-SW-RC-UNIT-Test-ID-17 [DB 시스템 로그 열기 유닛] 순서[1] 시작.
+                            // TD2-SW-RC-UNIT-Test-ID-16 [DB 시스템 로그 열기 유닛] 순서[1] 시작.
                             Log.d(TAG, "[로그] 데이터베이스 '" + DatabaseLog.DATABASE_NAME + "'를 열었습니다.");
-                            // TD2-SW-RC-UNIT-Test-ID-17 [DB 시스템 로그 열기 유닛] 순서[1] 끝.
+                            // TD2-SW-RC-UNIT-Test-ID-16 [DB 시스템 로그 열기 유닛] 순서[1] 끝.
                         }
                     })
                     .fallbackToDestructiveMigration()

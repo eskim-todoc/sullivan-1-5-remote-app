@@ -61,7 +61,7 @@ public class LogFragment extends Fragment
         ((MainActivity) requireActivity()).mBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
 
 
-        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[1] 입력 시작.
+        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[1] 입력 시작.
         /*
         {
             for (EntityLog log : UtilLog.instance.readAllLogs())
@@ -72,10 +72,10 @@ public class LogFragment extends Fragment
             prepareLogs();
         }
         */
-        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[1] 입력 끝.
+        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[1] 입력 끝.
 
 
-        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[2] 입력 시작.
+        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[2] 입력 시작.
         /*
         {
             EntityLog logData = new EntityLog();
@@ -94,9 +94,9 @@ public class LogFragment extends Fragment
             prepareLogs();
         }
         */
-        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[2] 입력 끝.
+        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[2] 입력 끝.
 
-        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[3] 입력 시작.
+        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[3] 입력 시작.
         /*
         {
             EntityLog logExtra1 = new EntityLog();
@@ -127,7 +127,7 @@ public class LogFragment extends Fragment
             prepareLogs();
         }
         */
-        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[3] 입력 끝.
+        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[3] 입력 끝.
 
 
         printHiddenLogs();
@@ -157,11 +157,11 @@ public class LogFragment extends Fragment
                     Log.d(TAG, "[히든로그] 저장된 로그가 없습니다.");
 
 
-                    // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[1] 시작.
+                    // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[1] 시작.
                     /*
                     Log.d(TAG, "there is no log written.");
                     */
-                    // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[1] 끝.
+                    // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[1] 끝.
 
 
                     break;
@@ -170,12 +170,12 @@ public class LogFragment extends Fragment
                     Log.d(TAG, "[히든로그] 오직 1개의 로그만 있습니다.");
 
 
-                    // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[2] 시작.
+                    // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[2] 시작.
                     /*
                     Log.d(TAG, "there is only 1 log written.");
                     Log.d(TAG, "number = " + logs.get(1).number + ", date = " + logs.get(1).date + ", message = " + logs.get(1).message);
                     */
-                    // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[2] 끝.
+                    // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[2] 끝.
 
 
                     mLogs.add(logs.get(1));
@@ -275,11 +275,11 @@ public class LogFragment extends Fragment
                     Log.d(TAG, "[히든로그] 가장 오래된 로그의 번호는 " + oldestNumber + "입니다.");
 
 
-                    // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[3-1] 시작.
+                    // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[3-1] 시작.
                     /*
                     Log.d(TAG, "total system log count = " + (size - 1) + ", the oldest log number = " + oldestNumber);
                     */
-                    // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[3-1] 끝.
+                    // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[3-1] 끝.
 
                     int mLogIndex = 0;
 
@@ -292,11 +292,11 @@ public class LogFragment extends Fragment
                         Log.d(TAG, "[히든로그] {인덱스 = " + i + "}, {일시 = " + logs.get(i).date + "}, {메시지 = " + logs.get(i).message + "}");
 
 
-                        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[3-2] 시작.
+                        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[3-2] 시작.
                         /*
                         Log.d(TAG, "number = " + logs.get(i).number + ", date = " + logs.get(i).date + ", message = " + logs.get(i).message);
                         */
-                        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[3-2] 끝.
+                        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[3-2] 끝.
 
 
                     }
@@ -311,11 +311,11 @@ public class LogFragment extends Fragment
                         Log.d(TAG, "[히든로그] {인덱스 = " + i + "}, {일시 = " + logs.get(i).date + "}, {메시지 = " + logs.get(i).message + "}");
 
 
-                        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[3-3] 시작.
+                        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[3-3] 시작.
                         /*
                         Log.d(TAG, "number = " + logs.get(i).number + ", date = " + logs.get(i).date + ", message = " + logs.get(i).message);
                         */
-                        // TD2-SW-RC-UNIT-Test-ID-83 [시스템 로그 시간 순서 정렬 유닛] 순서[3-3] 끝.
+                        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[3-3] 끝.
 
 
                     }

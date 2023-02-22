@@ -145,7 +145,7 @@ public class UserFragment extends Fragment
     {
 
 
-        // TD2-SW-RC-UNIT-Test-ID-72 [사용자 목록 표시 유닛] 순서[1] 시작.
+        // TD2-SW-RC-UNIT-Test-ID-60 [사용자 목록 표시 유닛] 순서[1] 시작.
         /*
         {
             List<EntityUser> testUsers = UtilUser.instance.getUsers();
@@ -157,7 +157,7 @@ public class UserFragment extends Fragment
             }
         }
         */
-        // TD2-SW-RC-UNIT-Test-ID-72 [사용자 목록 표시 유닛] 순서[1] 끝.
+        // TD2-SW-RC-UNIT-Test-ID-60 [사용자 목록 표시 유닛] 순서[1] 끝.
 
 
         mUserBinding.defaultUserTitle.setVisibility(View.GONE);
