@@ -130,6 +130,21 @@
                 app:layout_constraintBottom_toBottomOf="@id/remote_control_battery_percent_textview"
                 app:layout_constraintStart_toEndOf="@id/remote_control_battery_percent_textview" />
 
+            <!-- 시작, 텔레코일 아이콘 안보이기 -->
+            <ImageButton
+                android:id="@+id/remote_control_dummy_image_button"
+                style="@style/RemoteControl.RemoteControl.CircleButton"
+                android:layout_width="36dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="24dp"
+                android:clickable="false"
+                android:src="@drawable/remote_control_ic_notifications_24dp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toTopOf="@id/remote_control_program_down_image_button"
+                app:layout_constraintEnd_toStartOf="@id/remote_control_notification_image_button"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/remote_control_battery_progressbar" />
+
             <ImageButton
                 android:id="@+id/remote_control_notification_image_button"
                 style="@style/RemoteControl.RemoteControl.CircleButton"
@@ -138,7 +153,7 @@
                 android:src="@drawable/remote_control_ic_notifications_24dp"
                 app:layout_constraintBottom_toTopOf="@id/remote_control_program_down_image_button"
                 app:layout_constraintEnd_toStartOf="@id/remote_control_led_image_button"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toEndOf="@id/remote_control_dummy_image_button"
                 app:layout_constraintTop_toBottomOf="@id/remote_control_battery_progressbar" />
 
             <ImageButton
@@ -153,12 +168,28 @@
             <ImageButton
                 android:id="@+id/remote_control_telecoil_image_button"
                 style="@style/RemoteControl.RemoteControl.CircleButton"
+                android:layout_width="36dp"
+                android:clickable="false"
                 android:src="@drawable/remote_control_ic_telecoil_24dp"
+                android:visibility="invisible"
                 app:layout_constraintBottom_toBottomOf="@id/remote_control_notification_image_button"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/remote_control_led_image_button"
                 app:layout_constraintTop_toTopOf="@id/remote_control_notification_image_button" />
 
+            <TextView
+                android:id="@+id/remote_control_telecoil_title_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="텔레코일"
+                android:textColor="@color/white_70"
+                android:textSize="14dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@id/remote_control_telecoil_image_button"
+                app:layout_constraintEnd_toEndOf="@id/remote_control_telecoil_image_button"
+                app:layout_constraintStart_toStartOf="@id/remote_control_telecoil_image_button" />
+            <!-- 끝, 텔레코일 아이콘 안보이기 -->
             <TextView
                 android:id="@+id/remote_control_notification_title_textview"
                 android:layout_width="wrap_content"
@@ -182,18 +213,6 @@
                 app:layout_constraintBottom_toTopOf="@id/remote_control_led_image_button"
                 app:layout_constraintEnd_toEndOf="@id/remote_control_led_image_button"
                 app:layout_constraintStart_toStartOf="@id/remote_control_led_image_button" />
-
-            <TextView
-                android:id="@+id/remote_control_telecoil_title_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="텔레코일"
-                android:textColor="@color/white_70"
-                android:textSize="14dp"
-                app:layout_constraintBottom_toTopOf="@id/remote_control_telecoil_image_button"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_telecoil_image_button"
-                app:layout_constraintStart_toStartOf="@id/remote_control_telecoil_image_button" />
 
             <TextView
                 android:id="@+id/remote_control_program_title_textview"
@@ -230,7 +249,7 @@
                 android:background="@drawable/remote_control_program_down_button"
                 app:layout_constraintBottom_toTopOf="@id/remote_control_max_output_progressbar"
                 app:layout_constraintEnd_toStartOf="@id/remote_control_program_up_image_button"
-                app:layout_constraintStart_toStartOf="@id/remote_control_notification_image_button"
+                app:layout_constraintStart_toEndOf="@id/remote_control_dummy_image_button"
                 app:layout_constraintTop_toBottomOf="@id/remote_control_notification_image_button" />
 
             <ImageView
@@ -249,7 +268,7 @@
                 android:layout_height="56dp"
                 android:background="@drawable/remote_control_program_up_button"
                 app:layout_constraintBottom_toBottomOf="@id/remote_control_program_down_image_button"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_telecoil_image_button"
+                app:layout_constraintEnd_toStartOf="@id/remote_control_telecoil_image_button"
                 app:layout_constraintStart_toEndOf="@id/remote_control_program_down_image_button"
                 app:layout_constraintTop_toTopOf="@id/remote_control_program_down_image_button" />
 
@@ -279,7 +298,7 @@
                 app:layout_constraintEnd_toStartOf="@id/remote_control_volume_progressbar"
                 app:layout_constraintHeight_max="256dp"
                 app:layout_constraintHeight_min="160dp"
-                app:layout_constraintStart_toStartOf="@id/remote_control_notification_image_button"
+                app:layout_constraintStart_toEndOf="@id/remote_control_dummy_image_button"
                 app:layout_constraintTop_toBottomOf="@id/remote_control_program_down_image_button" />
 
             <ImageButton
@@ -363,7 +382,7 @@
                 android:progress="4"
                 android:progressDrawable="@drawable/remote_control_imagebutton_background_progressbar"
                 app:layout_constraintBottom_toBottomOf="@id/remote_control_max_output_progressbar"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_telecoil_image_button"
+                app:layout_constraintEnd_toStartOf="@id/remote_control_telecoil_image_button"
                 app:layout_constraintStart_toEndOf="@id/remote_control_max_output_progressbar"
                 app:layout_constraintTop_toTopOf="@id/remote_control_max_output_progressbar" />
 
@@ -541,8 +560,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:visibility="visible">
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                tools:visibility="visible"></androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

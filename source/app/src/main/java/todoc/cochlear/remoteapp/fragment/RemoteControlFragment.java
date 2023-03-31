@@ -110,7 +110,7 @@ public class RemoteControlFragment extends Fragment
         // Click
         clickNotification();
         clickLed();
-        clickTelecoil();
+        //clickTelecoil();
         clickMaxOutput();
         clickVolume();
         clickProgram();
