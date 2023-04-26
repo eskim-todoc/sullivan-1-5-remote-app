@@ -1302,9 +1302,7 @@ public class MainActivity extends AppCompatActivity
         // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[7] 입력 +
         // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[8] 입력 +
         // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[9] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[10] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[11] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[12] 입력 시작.
+        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[10] 입력 시작.
         /*
         {
             new Handler(Looper.getMainLooper()).postDelayed(() ->
@@ -1315,11 +1313,9 @@ public class MainActivity extends AppCompatActivity
                 characteristicChanged(null, new byte[]{PacketInfo.HEADER_SOUND_PROCESSOR_STATUS, 75, 1, 1, 1, 1, 1, 1});// device status
                 characteristicChanged(null, new byte[]{PacketInfo.HEADER_VALUE_NOTIFICATION, PacketInfo.INIT_VALUE_NOTIFICATION});// stim alarm
                 characteristicChanged(null, new byte[]{PacketInfo.HEADER_VALUE_LED, PacketInfo.INIT_VALUE_LED});// led alarm
-                characteristicChanged(null, new byte[]{PacketInfo.HEADER_VALUE_TELECOIL, PacketInfo.INIT_VALUE_TELECOIL});// telecoil setting
                 characteristicChanged(null, new byte[]{PacketInfo.HEADER_VALUE_PROMGRAM, PacketInfo.INIT_VALUE_PROGRAM});// map number
                 characteristicChanged(null, new byte[]{PacketInfo.HEADER_VALUE_MAX_OUTPUT, PacketInfo.INIT_VALUE_MAX_OUTPUT});// output max
                 characteristicChanged(null, new byte[]{PacketInfo.HEADER_VALUE_VOLUME, PacketInfo.INIT_VALUE_VOLUME});// volume
-                characteristicChanged(null, new byte[]{PacketInfo.HEADER_READ_ISD_ID_AND_USER, 1, 0, 0, 0, 0, 2, 'A', 'A', 'A', 'A', 'A'});// map share
                 characteristicChanged(null, new byte[]{PacketInfo.HEADER_ERROR, PacketInfo.HEADER_VALUE_LED, 2});// error
             }, 1000);
         }
@@ -1333,9 +1329,7 @@ public class MainActivity extends AppCompatActivity
         // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[7] 입력 +
         // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[8] 입력 +
         // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[9] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[10] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[11] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[12] 입력 끝.
+        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[10] 입력 끝.
 
 
         // TD2-SW-RC-UNIT-Test-ID-64 [사용자 착용부위를 제외한 이름 정보 획득 유닛] 순서[1] 시작.
@@ -2869,7 +2863,6 @@ public class MainActivity extends AppCompatActivity
                                 ", volume=" + packetInfo.volume +
                                 ", maxOutput=" + packetInfo.maxOutput +
                                 ", led=" + packetInfo.led +
-                                ", telecoil=" + packetInfo.telecoil +
                                 ", stimAlarm=" + packetInfo.notification);
                     }
                     */
@@ -2977,17 +2970,6 @@ public class MainActivity extends AppCompatActivity
                     int value = responsePacket[1];
                     mStatusViewModel.setValueTelecoil(value);
                     UtilLog.instance.writeLog("패킷 수신 : 텔레코일->" + value);
-
-
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[7] 시작.
-                    /*
-                    {
-                        Log.d(TAG, "Response packet --> telecoil setting = " + value);
-                    }
-                    */
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[7] 끝.
-
-
                 }
                 break;
 
@@ -3009,13 +2991,13 @@ public class MainActivity extends AppCompatActivity
                     UtilLog.instance.writeLog("패킷 수신 : 프로그램->" + value);
 
 
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[8] 시작.
+                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[7] 시작.
                     /*
                     {
                         Log.d(TAG, "Response packet --> map number = " + value);
                     }
                     */
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[8] 끝.
+                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[7] 끝.
 
 
                 }
@@ -3038,13 +3020,13 @@ public class MainActivity extends AppCompatActivity
                     UtilLog.instance.writeLog("패킷 수신 : 최대출력->" + value);
 
 
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[9] 시작.
+                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[8] 시작.
                     /*
                     {
                         Log.d(TAG, "Response packet --> max output = " + value);
                     }
                     */
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[9] 끝.
+                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[8] 끝.
 
 
                 }
@@ -3067,13 +3049,13 @@ public class MainActivity extends AppCompatActivity
                     UtilLog.instance.writeLog("패킷 수신 : 볼륨->" + value);
 
 
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[10] 시작.
+                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[9] 시작.
                     /*
                     {
                         Log.d(TAG, "Response packet --> volume = " + value);
                     }
                     */
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[10] 끝.
+                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[9] 끝.
 
 
                 }
@@ -3093,13 +3075,13 @@ public class MainActivity extends AppCompatActivity
                     }
 
 
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[12] 시작.
+                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[10] 시작.
                     /*
                     {
                         Log.d(TAG, "Response packet --> error packet = " + responsePacket[1] + ", " + responsePacket[2]);
                     }
                     */
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[12] 끝.
+                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[10] 끝.
 
 
                     byte errorType = byteExtractor(responsePacket[2]);

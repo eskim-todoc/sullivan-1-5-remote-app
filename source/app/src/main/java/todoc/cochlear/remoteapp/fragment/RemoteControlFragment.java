@@ -146,10 +146,9 @@ public class RemoteControlFragment extends Fragment
                     {
                         Log.d(TAG, "Init the Status View Model.");
                         mStatusViewModel.setConnectionState(StatusViewModel.CONNECTION_STATE_DISCONNECTED);
-                        mStatusViewModel.setValueBatteryLevel(75);
+                        mStatusViewModel.setValueBatteryLevel(0);
                         mStatusViewModel.setValueNotification(PacketInfo.NOTIFICATION_OFF);
                         mStatusViewModel.setValueLed(PacketInfo.LED_OFF);
-                        mStatusViewModel.setValueTelecoil(PacketInfo.TELECOIL_OFF);
                         mStatusViewModel.setValueMaxOutput(PacketInfo.INIT_VALUE_MAX_OUTPUT);
                         mStatusViewModel.setValueVolume(PacketInfo.INIT_VALUE_VOLUME);
                         mStatusViewModel.setValueProgram(PacketInfo.INIT_VALUE_PROGRAM);
@@ -448,13 +447,13 @@ public class RemoteControlFragment extends Fragment
             mRemoteControlBinding.remoteControlMaxOutputProgressbar.setProgress(value);
 
 
-            // TD2-SW-RC-UNIT-Test-ID-58 [리모컨 화면 라이브데이터 처리 유닛] 순서[7] 시작.
+            // TD2-SW-RC-UNIT-Test-ID-58 [리모컨 화면 라이브데이터 처리 유닛] 순서[6] 시작.
             /*
             {
                 Log.d(TAG, "observe --> max output = " + value);
             }
             */
-            // TD2-SW-RC-UNIT-Test-ID-58 [리모컨 화면 라이브데이터 처리 유닛] 순서[7] 끝.
+            // TD2-SW-RC-UNIT-Test-ID-58 [리모컨 화면 라이브데이터 처리 유닛] 순서[6] 끝.
 
 
         });
@@ -472,13 +471,13 @@ public class RemoteControlFragment extends Fragment
             mRemoteControlBinding.remoteControlVolumeProgressbar.setProgress(value);
 
 
-            // TD2-SW-RC-UNIT-Test-ID-58 [리모컨 화면 라이브데이터 처리 유닛] 순서[8] 시작.
+            // TD2-SW-RC-UNIT-Test-ID-58 [리모컨 화면 라이브데이터 처리 유닛] 순서[7] 시작.
             /*
             {
                 Log.d(TAG, "observe --> volume = " + value);
             }
             */
-            // TD2-SW-RC-UNIT-Test-ID-58 [리모컨 화면 라이브데이터 처리 유닛] 순서[8] 끝.
+            // TD2-SW-RC-UNIT-Test-ID-58 [리모컨 화면 라이브데이터 처리 유닛] 순서[7] 끝.
 
 
         });
@@ -495,13 +494,13 @@ public class RemoteControlFragment extends Fragment
             mRemoteControlBinding.remoteControlProgramValueTextview.setText(text);
 
 
-            // TD2-SW-RC-UNIT-Test-ID-58 [리모컨 화면 라이브데이터 처리 유닛] 순서[9] 시작.
+            // TD2-SW-RC-UNIT-Test-ID-58 [리모컨 화면 라이브데이터 처리 유닛] 순서[8] 시작.
             /*
             {
                 Log.d(TAG, "observe --> program = " + value);
             }
             */
-            // TD2-SW-RC-UNIT-Test-ID-58 [리모컨 화면 라이브데이터 처리 유닛] 순서[9] 끝.
+            // TD2-SW-RC-UNIT-Test-ID-58 [리모컨 화면 라이브데이터 처리 유닛] 순서[8] 끝.
 
 
         });
@@ -597,23 +596,6 @@ public class RemoteControlFragment extends Fragment
 
             int value = mStatusViewModel.getValueTelecoil();
 
-
-            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[4] 시작.
-            /*
-            {
-                if (value == PacketInfo.TELECOIL_ON)
-                {
-                    Log.d(TAG, "Click event --> telecoil setting = " + PacketInfo.TELECOIL_OFF);
-                }
-                else if (value == PacketInfo.TELECOIL_OFF)
-                {
-                    Log.d(TAG, "Click event --> telecoil setting = " + PacketInfo.TELECOIL_ON);
-                }
-            }
-            */
-            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[4] 끝.
-
-
             if (value == PacketInfo.TELECOIL_ON)
             {
                 ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_TELECOIL, new byte[]{PacketInfo.TELECOIL_OFF}, 2));
@@ -632,13 +614,13 @@ public class RemoteControlFragment extends Fragment
         {
 
 
-            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[7] 시작.
+            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[6] 시작.
             /*
             {
                 Log.d(TAG, "Click event --> max output = " + PacketInfo.MAX_OUTPUT_UP);
             }
             */
-            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[7] 끝.
+            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[6] 끝.
 
 
             // 장시간 미사용 핸들러 업데이트
@@ -651,13 +633,13 @@ public class RemoteControlFragment extends Fragment
         {
 
 
-            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[8] 시작.
+            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[7] 시작.
             /*
             {
                 Log.d(TAG, "Click event --> max output = " + PacketInfo.MAX_OUTPUT_DOWN);
             }
             */
-            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[8] 끝.
+            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[7] 끝.
 
 
             // 장시간 미사용 핸들러 업데이트
@@ -674,13 +656,13 @@ public class RemoteControlFragment extends Fragment
         {
 
 
-            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[9] 시작.
+            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[8] 시작.
             /*
             {
                 Log.d(TAG, "Click event --> volume = " + PacketInfo.VOLUME_UP);
             }
             */
-            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[9] 끝.
+            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[8] 끝.
 
 
             // 장시간 미사용 핸들러 업데이트
@@ -693,13 +675,13 @@ public class RemoteControlFragment extends Fragment
         {
 
 
-            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[10] 시작.
+            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[9] 시작.
             /*
             {
                 Log.d(TAG, "Click event --> volume = " + PacketInfo.VOLUME_DOWN);
             }
             */
-            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[10] 끝.
+            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[9] 끝.
 
 
             // 장시간 미사용 핸들러 업데이트
@@ -716,13 +698,13 @@ public class RemoteControlFragment extends Fragment
         {
 
 
-            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[5] 시작.
+            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[4] 시작.
             /*
             {
                 Log.d(TAG, "Click event --> program = " + PacketInfo.PROGRAM_UP);
             }
             */
-            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[5] 끝.
+            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[4] 끝.
 
 
             // 장시간 미사용 핸들러 업데이트
@@ -735,13 +717,13 @@ public class RemoteControlFragment extends Fragment
         {
 
 
-            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[6] 시작.
+            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[5] 시작.
             /*
             {
                 Log.d(TAG, "Click event --> program = " + PacketInfo.PROGRAM_DOWN);
             }
             */
-            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[6] 끝.
+            // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[5] 끝.
 
 
             // 장시간 미사용 핸들러 업데이트
