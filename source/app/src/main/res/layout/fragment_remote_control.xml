@@ -37,10 +37,27 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
+                android:id="@+id/remote_control_connection_isd_id_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textAlignment="center"
+                android:letterSpacing="0.14"
+                android:textColor="#FFA726"
+                android:fontFamily="@font/roboto_mono_regular_variable"
+                android:layout_marginTop="16dp"
+                android:textSize="18dp"
+                android:textStyle="italic|bold"
+                app:layout_constraintBottom_toTopOf="@id/remote_control_connection_user_name_textview"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="#12345678" />
+
+            <TextView
                 android:id="@+id/remote_control_connection_user_name_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:text=""
                 android:textAlignment="center"
                 android:textColor="@color/white_90"
@@ -48,7 +65,7 @@
                 app:layout_constraintBottom_toTopOf="@id/remote_control_battery_progressbar"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/remote_control_connection_isd_id_textview"
                 tools:text="사용자 이름" />
 
             <ImageView

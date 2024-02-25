@@ -32,8 +32,7 @@ import todoc.cochlear.remoteapp.params.PacketInfo;
 import todoc.cochlear.remoteapp.params.Status;
 import todoc.cochlear.remoteapp.view_model.StatusViewModel;
 
-public class RemoteControlFragment extends Fragment
-{
+public class RemoteControlFragment extends Fragment {
     static final private String TAG = "TODOC_" + RemoteControlFragment.class.getSimpleName();
 
     public ActivityMainBinding mMainBinding;
@@ -43,16 +42,13 @@ public class RemoteControlFragment extends Fragment
 
     public AlertDialog mDialog;
 
-    public RemoteControlFragment()
-    {
+    public RemoteControlFragment() {
         // Required empty public constructor
     }
 
     @Override
-    public void onDestroyView()
-    {
-        if (mDialog != null && mDialog.isShowing())
-        {
+    public void onDestroyView() {
+        if (mDialog != null && mDialog.isShowing()) {
             mDialog.dismiss();
             mDialog = null;
         }
@@ -63,8 +59,7 @@ public class RemoteControlFragment extends Fragment
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mMainBinding = ((MainActivity) requireActivity()).mBinding;
@@ -80,15 +75,13 @@ public class RemoteControlFragment extends Fragment
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRemoteControlBinding = FragmentRemoteControlBinding.inflate(inflater, container, false);
         return mRemoteControlBinding.getRoot();
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
-    {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         Log.d(TAG, "onViewCreated is called!");
@@ -99,6 +92,7 @@ public class RemoteControlFragment extends Fragment
         liveDataConnection();
 
         // LiveData for status
+        liveDataIsdID();
         liveDataBattery();
         liveDataNotification();
         liveDataLed();
@@ -266,8 +260,7 @@ public class RemoteControlFragment extends Fragment
     }
 
     // LiveData - Connection
-    private void liveDataConnection()
-    {
+    private void liveDataConnection() {
         mStatusViewModel.getObjectConnectionState().observe(getViewLifecycleOwner(), integer ->
         {
 
@@ -283,31 +276,23 @@ public class RemoteControlFragment extends Fragment
 
             Log.v(TAG, "옵저버 : 연결상태 -> " + integer);
 
-            if (integer == StatusViewModel.CONNECTION_STATE_DISCONNECTED)
-            {
+            if (integer == StatusViewModel.CONNECTION_STATE_DISCONNECTED) {
                 mRemoteControlBinding.remoteControlConnectionLayout.setVisibility(View.VISIBLE);
 
-                if (Status.instance().scanState == Status.SCAN_STATE_STOPPED)
-                {
+                if (Status.instance().scanState == Status.SCAN_STATE_STOPPED) {
                     mRemoteControlBinding.remoteControlSearchingAnimator.stopRippleAnimation();
                     mRemoteControlBinding.remoteControlBlurLayout.setVisibility(View.VISIBLE);
                     mRemoteControlBinding.remoteControlFindLayout.setVisibility(View.GONE);
                     mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(true);
-                }
-                else
-                {
+                } else {
                     mRemoteControlBinding.remoteControlBlurLayout.setVisibility(View.GONE);
                     mRemoteControlBinding.remoteControlFindLayout.setVisibility(View.VISIBLE);
                     mRemoteControlBinding.remoteControlSearchingAnimator.startRippleAnimation();
                     mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
                 }
-            }
-            else if (integer == StatusViewModel.CONNECTION_STATE_CONNECTING)
-            {
+            } else if (integer == StatusViewModel.CONNECTION_STATE_CONNECTING) {
                 mRemoteControlBinding.remoteControlConnectionLayout.setVisibility(View.VISIBLE);
-            }
-            else
-            {
+            } else {
                 mRemoteControlBinding.remoteControlConnectionLayout.setVisibility(View.GONE);
                 mRemoteControlBinding.remoteControlSearchingAnimator.stopRippleAnimation();
                 mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
@@ -315,9 +300,18 @@ public class RemoteControlFragment extends Fragment
         });
     }
 
+    // LiveData - IsdID
+    private void liveDataIsdID() {
+        mStatusViewModel.getLiveDataIsdID().observe(getViewLifecycleOwner(), o -> {
+            int value = mStatusViewModel.getValueIsdID();
+            String textValue = String.format("#%08X", value);
+            Log.v(TAG, "옵저버 : 내부기 ID -> " + textValue);
+            mRemoteControlBinding.remoteControlConnectionIsdIdTextview.setText(textValue);
+        });
+    }
+
     // LiveData - Battery
-    private void liveDataBattery()
-    {
+    private void liveDataBattery() {
         mStatusViewModel.getLiveDataBatteryLevel().observe(getViewLifecycleOwner(), o ->
         {
             int value = mStatusViewModel.getValueBatteryLevel();
@@ -340,8 +334,7 @@ public class RemoteControlFragment extends Fragment
     }
 
     // LiveData - Notification
-    private void liveDataNotification()
-    {
+    private void liveDataNotification() {
         mStatusViewModel.getLiveDataNotification().observe(getViewLifecycleOwner(), o ->
         {
             int value = mStatusViewModel.getValueNotification();
@@ -349,12 +342,9 @@ public class RemoteControlFragment extends Fragment
             Log.v(TAG, "옵저버 : 자극알림 -> " + value);
 
 
-            if (value == PacketInfo.NOTIFICATION_ON)
-            {
+            if (value == PacketInfo.NOTIFICATION_ON) {
                 mRemoteControlBinding.remoteControlNotificationImageButton.setBackground(AppCompatResources.getDrawable(requireContext(), R.drawable.remote_control_ic_ripple_circle_background_on));
-            }
-            else if (value == PacketInfo.NOTIFICATION_OFF)
-            {
+            } else if (value == PacketInfo.NOTIFICATION_OFF) {
                 mRemoteControlBinding.remoteControlNotificationImageButton.setBackground(AppCompatResources.getDrawable(requireContext(), R.drawable.remote_control_ic_ripple_circle_background));
             }
 
@@ -372,20 +362,16 @@ public class RemoteControlFragment extends Fragment
     }
 
     // LiveData - LED
-    private void liveDataLed()
-    {
+    private void liveDataLed() {
         mStatusViewModel.getLiveDataLed().observe(getViewLifecycleOwner(), o ->
         {
             int value = mStatusViewModel.getValueLed();
 
             Log.v(TAG, "옵저버 : LED -> " + value);
 
-            if (value == PacketInfo.LED_ON)
-            {
+            if (value == PacketInfo.LED_ON) {
                 mRemoteControlBinding.remoteControlLedImageButton.setBackground(AppCompatResources.getDrawable(requireContext(), R.drawable.remote_control_ic_ripple_circle_background_on));
-            }
-            else if (value == PacketInfo.LED_OFF)
-            {
+            } else if (value == PacketInfo.LED_OFF) {
                 mRemoteControlBinding.remoteControlLedImageButton.setBackground(AppCompatResources.getDrawable(requireContext(), R.drawable.remote_control_ic_ripple_circle_background));
             }
 
@@ -403,20 +389,16 @@ public class RemoteControlFragment extends Fragment
     }
 
     // LiveData - Telecoil
-    private void liveDataTelecoil()
-    {
+    private void liveDataTelecoil() {
         mStatusViewModel.getLiveDataTelecoil().observe(getViewLifecycleOwner(), o ->
         {
             int value = mStatusViewModel.getValueTelecoil();
 
             Log.v(TAG, "옵저버 : 텔레코일 -> " + value);
 
-            if (value == PacketInfo.TELECOIL_ON)
-            {
+            if (value == PacketInfo.TELECOIL_ON) {
                 mRemoteControlBinding.remoteControlTelecoilImageButton.setBackground(AppCompatResources.getDrawable(requireContext(), R.drawable.remote_control_ic_ripple_circle_background_on));
-            }
-            else if (value == PacketInfo.TELECOIL_OFF)
-            {
+            } else if (value == PacketInfo.TELECOIL_OFF) {
                 mRemoteControlBinding.remoteControlTelecoilImageButton.setBackground(AppCompatResources.getDrawable(requireContext(), R.drawable.remote_control_ic_ripple_circle_background));
             }
 
@@ -434,8 +416,7 @@ public class RemoteControlFragment extends Fragment
     }
 
     // LiveData - MaxOutput
-    private void liveDataMaxOutput()
-    {
+    private void liveDataMaxOutput() {
         mStatusViewModel.getLiveDataMaxOutput().observe(getViewLifecycleOwner(), o ->
         {
             int value = mStatusViewModel.getValueMaxOutput();
@@ -460,8 +441,7 @@ public class RemoteControlFragment extends Fragment
     }
 
     // LiveData - Volume
-    private void liveDataVolume()
-    {
+    private void liveDataVolume() {
         mStatusViewModel.getLiveDataVolume().observe(getViewLifecycleOwner(), o ->
         {
             int value = mStatusViewModel.getValueVolume();
@@ -484,8 +464,7 @@ public class RemoteControlFragment extends Fragment
     }
 
     // LiveData - Program
-    private void liveDataProgram()
-    {
+    private void liveDataProgram() {
         mStatusViewModel.getLiveDataProgram().observe(getViewLifecycleOwner(), o ->
         {
             int value = mStatusViewModel.getValueProgram();
@@ -507,8 +486,7 @@ public class RemoteControlFragment extends Fragment
     }
 
     // Button click - Notification
-    private void clickNotification()
-    {
+    private void clickNotification() {
         mRemoteControlBinding.remoteControlNotificationImageButton.setOnClickListener(view ->
         {
             // 장시간 미사용 핸들러 업데이트
@@ -533,14 +511,11 @@ public class RemoteControlFragment extends Fragment
             // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[2] 끝.
 
 
-            if (value == PacketInfo.NOTIFICATION_ON)
-            {
+            if (value == PacketInfo.NOTIFICATION_ON) {
                 ((MainActivity) requireActivity()).sendPacket(
                         ((MainActivity) requireActivity()).packetMaker(
                                 PacketInfo.HEADER_VALUE_NOTIFICATION, new byte[]{PacketInfo.NOTIFICATION_OFF}, PacketInfo.PACKET_SIZE_NOTIFICATION));
-            }
-            else if (value == PacketInfo.NOTIFICATION_OFF)
-            {
+            } else if (value == PacketInfo.NOTIFICATION_OFF) {
                 ((MainActivity) requireActivity()).sendPacket(
                         ((MainActivity) requireActivity()).packetMaker(
                                 PacketInfo.HEADER_VALUE_NOTIFICATION, new byte[]{PacketInfo.NOTIFICATION_ON}, PacketInfo.PACKET_SIZE_NOTIFICATION));
@@ -549,8 +524,7 @@ public class RemoteControlFragment extends Fragment
     }
 
     // Button click - Led
-    private void clickLed()
-    {
+    private void clickLed() {
         mRemoteControlBinding.remoteControlLedImageButton.setOnClickListener(view ->
         {
             // 장시간 미사용 핸들러 업데이트
@@ -575,20 +549,16 @@ public class RemoteControlFragment extends Fragment
             // TD2-SW-RC-UNIT-Test-ID-57 [리모컨 화면 뷰 이벤트 처리 유닛] 순서[3] 끝.
 
 
-            if (value == PacketInfo.LED_ON)
-            {
+            if (value == PacketInfo.LED_ON) {
                 ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_LED, new byte[]{PacketInfo.LED_OFF}, 2));
-            }
-            else if (value == PacketInfo.LED_OFF)
-            {
+            } else if (value == PacketInfo.LED_OFF) {
                 ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_LED, new byte[]{PacketInfo.LED_ON}, 2));
             }
         });
     }
 
     // Button click - Telecoil
-    private void clickTelecoil()
-    {
+    private void clickTelecoil() {
         mRemoteControlBinding.remoteControlTelecoilImageButton.setOnClickListener(view ->
         {
             // 장시간 미사용 핸들러 업데이트
@@ -596,11 +566,9 @@ public class RemoteControlFragment extends Fragment
 
             int value = mStatusViewModel.getValueTelecoil();
 
-            if (value == PacketInfo.TELECOIL_ON)
-            {
+            if (value == PacketInfo.TELECOIL_ON) {
                 ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_TELECOIL, new byte[]{PacketInfo.TELECOIL_OFF}, 2));
-            }
-            else //if (value == PacketInfo.TELECOIL_OFF)
+            } else //if (value == PacketInfo.TELECOIL_OFF)
             {
                 ((MainActivity) requireActivity()).sendPacket(((MainActivity) requireActivity()).packetMaker(PacketInfo.HEADER_VALUE_TELECOIL, new byte[]{PacketInfo.TELECOIL_ON}, 2));
             }
@@ -608,8 +576,7 @@ public class RemoteControlFragment extends Fragment
     }
 
     // Button click - MaxOutput
-    private void clickMaxOutput()
-    {
+    private void clickMaxOutput() {
         mRemoteControlBinding.remoteControlMaxOutputUpImageButton.setOnClickListener(view ->
         {
 
@@ -650,8 +617,7 @@ public class RemoteControlFragment extends Fragment
     }
 
     // Button click - Volume
-    private void clickVolume()
-    {
+    private void clickVolume() {
         mRemoteControlBinding.remoteControlVolumeUpImageButton.setOnClickListener(view ->
         {
 
@@ -692,8 +658,7 @@ public class RemoteControlFragment extends Fragment
     }
 
     // Button click - Program
-    private void clickProgram()
-    {
+    private void clickProgram() {
         mRemoteControlBinding.remoteControlProgramUpImageButton.setOnClickListener(view ->
         {
 
@@ -733,10 +698,8 @@ public class RemoteControlFragment extends Fragment
         });
     }
 
-    public void checkRegisteredList()
-    {
-        if (mMainBinding.lockScreen.getVisibility() != View.VISIBLE)
-        {
+    public void checkRegisteredList() {
+        if (mMainBinding.lockScreen.getVisibility() != View.VISIBLE) {
 
 
             // TD2-SW-RC-UNIT-Test-ID-59 [리모컨 화면 사용자/기기 목록 체크 유닛] 공통 사용 항목1 시작.
@@ -860,54 +823,36 @@ public class RemoteControlFragment extends Fragment
             // TD2-SW-RC-UNIT-Test-ID-59 [리모컨 화면 사용자/기기 목록 체크 유닛] 순서[4] 끝.
 
 
-            if (UtilUser.instance.getUsers().size() == 0)
-            {
+            if (UtilUser.instance.getUsers().size() == 0) {
                 makeNoUserDialog();
-            }
-            else if (UtilDevice.instance.getDevices().size() == 0)
-            {
+            } else if (UtilDevice.instance.getDevices().size() == 0) {
                 makeNoDeviceDialog();
-            }
-            else
-            {
+            } else {
                 EntityUser defaultUser = UtilUser.instance.getDefaultUser();
-                if (defaultUser != null)
-                {
-                    if (defaultUser.nickname != null && defaultUser.nickname.length() > 0)
-                    {
+                if (defaultUser != null) {
+                    if (defaultUser.nickname != null && defaultUser.nickname.length() > 0) {
                         mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(defaultUser.nickname);
-                    }
-                    else
-                    {
+                    } else {
                         String name = defaultUser.name.substring(0, defaultUser.name.length() - 2);
-                        if (defaultUser.ear.equals(EntityUser.EAR_LEFT))
-                        {
+                        if (defaultUser.ear.equals(EntityUser.EAR_LEFT)) {
                             name = name + " (왼쪽)";
-                        }
-                        else if (defaultUser.ear.equals(EntityUser.EAR_RIGHT))
-                        {
+                        } else if (defaultUser.ear.equals(EntityUser.EAR_RIGHT)) {
                             name = name + " (오른쪽)";
                         }
 
                         mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(name);
                     }
 
-                    if (mMainBinding.lockScreen.getVisibility() == View.GONE)
-                    {
-                        if (Status.instance().connectionState == Status.CONNECTION_STATE_DISCONNECTED)
-                        {
+                    if (mMainBinding.lockScreen.getVisibility() == View.GONE) {
+                        if (Status.instance().connectionState == Status.CONNECTION_STATE_DISCONNECTED) {
                             Log.d(TAG, "연결 해제 상태이므로 검색을 시작합니다.");
                             //((MainActivity) requireActivity()).scanLe(true);
                             ((MainActivity) requireActivity()).scanLeWithDelay(true, 0);
-                        }
-                        else
-                        {
+                        } else {
                             Log.d(TAG, "연결 해제 상태가 아닙니다.");
                         }
                     }
-                }
-                else
-                {
+                } else {
                     mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText("");
                     ((MainActivity) requireActivity()).makeDialogSelectUser();
                 }
@@ -942,10 +887,8 @@ public class RemoteControlFragment extends Fragment
     }
 
     // NO 사용자 다이얼로그
-    private void makeNoUserDialog()
-    {
-        if (mDialog == null)
-        {
+    private void makeNoUserDialog() {
+        if (mDialog == null) {
             mDialog = new MaterialAlertDialogBuilder(requireContext())
                     .setTitle(getString(R.string.remote_control_no_user_dialog_title))
                     .setMessage(getString(R.string.remote_control_no_user_dialog_message))
@@ -969,10 +912,8 @@ public class RemoteControlFragment extends Fragment
     }
 
     // NO 사운드처리기 다이얼로그
-    private void makeNoDeviceDialog()
-    {
-        if (mDialog == null)
-        {
+    private void makeNoDeviceDialog() {
+        if (mDialog == null) {
             mDialog = new MaterialAlertDialogBuilder(requireContext())
                     .setTitle(getString(R.string.remote_control_no_device_dialog_title))
                     .setMessage(getString(R.string.remote_control_no_device_dialog_message))

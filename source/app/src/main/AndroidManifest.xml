@@ -3,6 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="todoc.cochlear.remoteapp.activity">
 
+    <!--
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="s" />
+    -->
+
     <!-- 안드로이드 12 (SDK 버전 31) 이상에서는 아래의 블루투스 권한을 사용한다. -->
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />

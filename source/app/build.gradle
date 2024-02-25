@@ -9,8 +9,8 @@ android {
         applicationId "todoc.cochlear.remoteapp.activity"
         minSdkVersion 23
         targetSdkVersion 32
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.1"
 
         renderscriptTargetApi 19
         renderscriptSupportModeEnabled true    // Enable RS support

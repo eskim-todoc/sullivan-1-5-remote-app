@@ -2,8 +2,7 @@ package todoc.cochlear.remoteapp.params;
 
 import androidx.annotation.NonNull;
 
-public class PacketInfo
-{
+public class PacketInfo {
     // 패킷별 헤더 정보
     static public final byte HEADER_PASSWORD = (byte) (0x40 & 0xff);
     static public final byte HEADER_SOUND_PROCESSOR_INFO = (byte) (0x41 & 0xff);
@@ -21,7 +20,8 @@ public class PacketInfo
     static public final byte HEADER_WRITE_ISD_ID_AND_USER = (byte) (0x4D & 0xff);
     static public final byte HEADER_WRITE_MAP_DATA = (byte) (0x4E & 0xff);
     static public final byte HEADER_MAP_RESET_DEFAULT = (byte) (0x51 & 0xff);
-    static public final byte HEADER_SYSTEM_WARNING = (byte) (0x53 & 0xff);
+    static public final byte HEADER_ISD_ID = (byte) (0x53 & 0xff);
+    static public final byte HEADER_SYSTEM_WARNING = (byte) (0x54 & 0xff);
     static public final byte HEADER_ERROR = (byte) (0xf0 & 0xff);
 
     // 응답 패킷별 사이즈 정보
@@ -37,6 +37,7 @@ public class PacketInfo
     static public final int PACKET_SIZE_LED = 2;
     static public final int PACKET_SIZE_AUDIO_INPUT_MAX_READ = 15;
     static public final int PACKET_SIZE_SYSTEM_WARNING = 1;
+    static public final int PACKET_SIZE_ISD_ID = 5;
     static public final int PACKET_SIZE_ERROR = 3;
 
     static public final int INIT_VALUE_BATTERY = 0;
@@ -103,9 +104,9 @@ public class PacketInfo
     public byte notification;
     public byte telecoil;
     public byte error;
+    public int isdId;
 
-    public PacketInfo()
-    {
+    public PacketInfo() {
         battery = INIT_VALUE_BATTERY;
         program = INIT_VALUE_PROGRAM;
         volume = INIT_VALUE_VOLUME;
@@ -117,8 +118,7 @@ public class PacketInfo
 
     @NonNull
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "DeviceParam{" +
                 "battery=" + battery +
                 ", program=" + program +
