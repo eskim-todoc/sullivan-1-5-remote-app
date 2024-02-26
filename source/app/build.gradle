@@ -3,12 +3,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 33
 
     defaultConfig {
-        applicationId "todoc.cochlear.remoteapp.activity"
+        applicationId "todoc.cochlear.remoteapp.release.activity"
         minSdkVersion 23
-        targetSdkVersion 32
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
 
