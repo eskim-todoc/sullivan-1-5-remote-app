@@ -6,7 +6,7 @@ android {
     compileSdkVersion 33
 
     defaultConfig {
-        applicationId "todoc.cochlear.remoteapp.release.activity"
+        applicationId "todoc.cochlear.remoteapp.activity"
         minSdkVersion 23
         targetSdkVersion 33
         versionCode 1

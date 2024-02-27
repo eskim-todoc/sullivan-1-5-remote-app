@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     static private final ParcelUuid SERVICE_DATA_UUID = new ParcelUuid(UUID.fromString("00004944-0000-1000-8000-00805F9B34FB"));
     static private final String BT_NAME_REGEX_FILTER = "^TD_.*$";
 
-    static private final int DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT = 500;
+    static private final int DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT = 2000;//500;
 
     static private final int LONG_TIME_IDLE_TIMEOUT_IN_MS = 600000;
     static public final int CHECK_BATTERY_DELAY_IN_MS = 30000;
