@@ -755,12 +755,15 @@ public class MainActivity extends AppCompatActivity {
 
         initStatusNavigationToolBar(); // 상태바, 네비게이션바, 툴바 초기화
 
+
         // SDK31(API12) 이상이면 사용하지 못하도록 다이얼로그로 경고 메시지를 띄운다.
         if (Build.VERSION.SDK_INT >= LIMITED_ANDROID_VERSION) {
+            // TD2-SW-RC-UNIT-Test-ID-73 [안드로이드 버전 확인 유닛] 공통 시작.
             Log.d(TAG, "안드로이드 SDK가 " + LIMITED_ANDROID_VERSION + " 이상입니다. 지원하지 않는 SDK 버전입니다.");
             new MaterialAlertDialogBuilder(MainActivity.this)
                     //.setTitle("주의")
                     .setMessage("앱이 안드로이드 SDK " + LIMITED_ANDROID_VERSION + " 버전 이상은 지원하지 않습니다. 앱을 종료하시겠습니까?").setPositiveButton("종료", (dialogInterface, i) -> finish()).setCancelable(false).create().show();
+            // TD2-SW-RC-UNIT-Test-ID-73 [안드로이드 버전 확인 유닛] 공통 끝.
         } else {
             // 권한 체크
             if (grantPermissions()) {
