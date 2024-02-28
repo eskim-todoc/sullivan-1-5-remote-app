@@ -24,15 +24,38 @@ android {
         }
     }
 
+    signingConfigs {
+        debugConfig {
+            storeFile file('D:\\OneDrive - 주식회사 토닥\\인공와우\\리모컨\\remote_app_key_store_file.jks')
+            storePassword '!Todoc0987-82%^!'
+            keyAlias 'key0'
+            keyPassword '!Todoc0987-82%^!'
+        }
+
+        releaseConfig {
+            storeFile file('D:\\OneDrive - 주식회사 토닥\\인공와우\\리모컨\\remote_app_key_store_file.jks')
+            storePassword '!Todoc0987-82%^!'
+            keyAlias 'key0'
+            keyPassword '!Todoc0987-82%^!'
+        }
+    }
+
     buildFeatures {
         viewBinding = true
         dataBinding = true
     }
 
     buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debugConfig
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.releaseConfig
         }
     }
     compileOptions {

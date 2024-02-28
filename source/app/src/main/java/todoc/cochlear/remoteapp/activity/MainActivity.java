@@ -21,13 +21,18 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelUuid;
 import android.os.Vibrator;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -45,9 +50,16 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.security.KeyPairGenerator;
+import java.security.KeyStore;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 
 import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
 import todoc.cochlear.remoteapp.database.devices.EntityDevice;
@@ -639,6 +651,65 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void initKeyStore() {
+        String alias = "todoc_remote_alias";
+        String android_keystore = "AndroidKeyStore";
+        String mode = "RSA/ECB/PKCS1Padding";
+
+        try {
+            KeyStore keyStore = KeyStore.getInstance(android_keystore);
+            keyStore.load(null);
+
+            if (!keyStore.containsAlias(alias)) { // 키가 없을 때
+                KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, android_keystore);
+                keyGenerator.init(
+                        new KeyGenParameterSpec.Builder(alias,
+                                KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                                .build());
+                SecretKey key = keyGenerator.generateKey();
+                Log.d(TAG, "keyGenerator : " + key.toString());
+            } else { // 키가 있을 때
+
+                KeyStore.SecretKeyEntry secretKeyEntry = (KeyStore.SecretKeyEntry) keyStore.getEntry(alias, null);
+                SecretKey secretKey = secretKeyEntry.getSecretKey();
+                Log.d(TAG, "secretKey : " + secretKey.toString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getHashKey() {
+        String hash;
+
+        PackageInfo packageInfo = null;
+
+        try {
+            packageInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_SIGNATURES);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        if (packageInfo == null) {
+            Log.e(TAG, "Key Hash is NULL.");
+        } else {
+            for (Signature signature : packageInfo.signatures) {
+                try {
+                    MessageDigest md = MessageDigest.getInstance("SHA-256");
+                    md.update(signature.toByteArray());
+                    hash = Base64.encodeToString(md.digest(), Base64.DEFAULT);
+                    //Log.d(TAG, "Key Hash is " + hash);
+                    return hash;
+                } catch (NoSuchAlgorithmException e) {
+                    Log.e(TAG, "Unable to get MessageDigest. signature = " + signature, e);
+                }
+            }
+        }
+        return null;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -752,27 +823,93 @@ public class MainActivity extends AppCompatActivity {
         */
         // TD2-SW-RC-UNIT-Test-ID-41 [잠금 화면 동작 상태 체크 유닛] 순서[1] 끝.
 
-
         initStatusNavigationToolBar(); // 상태바, 네비게이션바, 툴바 초기화
 
+        byte[] valid_encryption_bytes = {
+                0x71, 0x4E, 0x50, 0x35, 0x6B, 0x6D, 0x56, 0x6C, 0x48, 0x44,
+                0x75, 0x53, 0x58, 0x54, 0x73, 0x65, 0x53, 0x32, 0x6E, 0x77,
+                0x6C, 0x32, 0x71, 0x79, 0x70, 0x6C, 0x37, 0x57, 0x70, 0x5A,
+                0x4F, 0x39, 0x69, 0x6C, 0x68, 0x45, 0x56, 0x76, 0x61, 0x6E,
+                0x6C, 0x79, 0x34, 0x2F, 0x49, 0x47, 0x64, 0x4E, 0x2B, 0x4D,
+                0x75, 0x70, 0x49, 0x6C, 0x33, 0x66, 0x77, 0x61, 0x30, 0x63,
+                0x31, 0x62, 0x4E, 0x52, 0x0A};
 
-        // SDK31(API12) 이상이면 사용하지 못하도록 다이얼로그로 경고 메시지를 띄운다.
-        if (Build.VERSION.SDK_INT >= LIMITED_ANDROID_VERSION) {
-            // TD2-SW-RC-UNIT-Test-ID-73 [안드로이드 버전 확인 유닛] 공통 시작.
-            Log.d(TAG, "안드로이드 SDK가 " + LIMITED_ANDROID_VERSION + " 이상입니다. 지원하지 않는 SDK 버전입니다.");
+        //initKeyStore();
+        String hash_key = getHashKey();
+        Log.d(TAG, "hash_key = " + hash_key);
+
+        if (hash_key == null) {
             new MaterialAlertDialogBuilder(MainActivity.this)
-                    //.setTitle("주의")
-                    .setMessage("앱이 안드로이드 SDK " + LIMITED_ANDROID_VERSION + " 버전 이상은 지원하지 않습니다. 앱을 종료하시겠습니까?").setPositiveButton("종료", (dialogInterface, i) -> finish()).setCancelable(false).create().show();
-            // TD2-SW-RC-UNIT-Test-ID-73 [안드로이드 버전 확인 유닛] 공통 끝.
+                    .setMessage("앱 서명 키가 올바르지 않습니다. 앱을 사용할 수 없습니다.")
+                    .setPositiveButton("종료", (dialogInterface, i) -> finish())
+                    .setCancelable(false)
+                    .create()
+                    .show();
         } else {
-            // 권한 체크
-            if (grantPermissions()) {
-                // 블루투스 활성화 체크
-                if (enableBluetooth()) {
-                    initMainActivity(); // 메인 액티비티 관련 초기화
+            try {
+                boolean is_valid_hash_key = true;
+                String current_encryption_string = LockScreen.encByKey(LockScreen.lock_key, hash_key);
+                byte[] current_encryption_bytes = current_encryption_string.getBytes();
+
+                Log.d(TAG, "current_encryption_string = " + current_encryption_string);
+                Log.d(TAG, "valid_encryption_bytes.length = " + valid_encryption_bytes.length);
+                Log.d(TAG, "current_encryption_bytes.length = " + current_encryption_bytes.length);
+
+                if (valid_encryption_bytes.length != current_encryption_bytes.length) {
+                    is_valid_hash_key = false;
+                } else {
+                    for (int i = 0; i < valid_encryption_bytes.length; i++) {
+                        if (valid_encryption_bytes[i] != current_encryption_bytes[i]) {
+                            is_valid_hash_key = false;
+                            break;
+                        }
+                    }
                 }
-            }
-        }
+
+                if (is_valid_hash_key) {
+                    Log.d(TAG, "앱 Signing 키가 변조되지 않았습니다.");
+
+                    // SDK31(API12) 이상이면 사용하지 못하도록 다이얼로그로 경고 메시지를 띄운다.
+                    if (Build.VERSION.SDK_INT >= LIMITED_ANDROID_VERSION) {
+                        // TD2-SW-RC-UNIT-Test-ID-73 [안드로이드 버전 확인 유닛] 공통 시작.
+                        Log.d(TAG, "안드로이드 SDK가 " + LIMITED_ANDROID_VERSION + " 이상입니다. 지원하지 않는 SDK 버전입니다.");
+                        new MaterialAlertDialogBuilder(MainActivity.this)
+                                .setMessage("앱이 안드로이드 SDK " + LIMITED_ANDROID_VERSION + " 버전 이상은 지원하지 않습니다. 앱을 종료하시겠습니까?")
+                                .setPositiveButton("종료", (dialogInterface, i) -> finish())
+                                .setCancelable(false)
+                                .create()
+                                .show();
+                        // TD2-SW-RC-UNIT-Test-ID-73 [안드로이드 버전 확인 유닛] 공통 끝.
+                    } else {
+                        // 권한 체크
+                        if (grantPermissions()) {
+                            // 블루투스 활성화 체크
+                            if (enableBluetooth()) {
+                                initMainActivity(); // 메인 액티비티 관련 초기화
+                            }
+                        }
+                    }
+                } else { // 암호화된 해시키의 값이 일치 하지 않을 때
+                    Log.d(TAG, "valid_encryption 과 current_encryption 값이 일치하지 않습니다.");
+
+                    new MaterialAlertDialogBuilder(MainActivity.this)
+                            .setMessage("앱 서명 키가 올바르지 않습니다. 앱을 사용할 수 없습니다.")
+                            .setPositiveButton("종료", (dialogInterface, i) -> finish())
+                            .setCancelable(false)
+                            .create()
+                            .show();
+                }
+            } catch (Exception e) {
+                Log.d(TAG, "해시 키 값을 사용 중에 예외가 발생하였습니다.");
+                e.printStackTrace();
+                new MaterialAlertDialogBuilder(MainActivity.this)
+                        .setMessage("앱 서명 키가 올바르지 않습니다. 앱을 사용할 수 없습니다.")
+                        .setPositiveButton("종료", (dialogInterface, i) -> finish())
+                        .setCancelable(false)
+                        .create()
+                        .show();
+            } // End, catch
+        } // End, else (hash_key != null)
     } // onCreate
 
     //
@@ -2659,10 +2796,15 @@ public class MainActivity extends AppCompatActivity {
                     int fwVerLower = responsePacket[7];
                     int fwVerUpper = responsePacket[8];
 
+                    Log.d(TAG, "사운드처리기 펌웨어 버전은 '" + fwVerUpper + "." + fwVerLower + "' 입니다.");
+
+                    fwVerLower = 0;
+                    fwVerUpper = 1;
+
+                    Log.d(TAG, "교정된 사운드처리기 펌웨어 버전은 '" + fwVerUpper + "." + fwVerLower + "' 입니다.");
+
                     mStatusViewModel.setFwVerLower(fwVerLower);
                     mStatusViewModel.setFwVerUpper(fwVerUpper);
-
-                    Log.d(TAG, "사운드처리기 펌웨어 버전은 '" + fwVerUpper + "." + fwVerLower + "' 입니다.");
 
 
                     // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[3] 시작.
