@@ -195,6 +195,16 @@
                     android:id="@+id/lock_screen_circle_3"
                     style="@style/RemoteControl.LockScreen.CircleImage"
                     android:src="@drawable/lock_screen_ic_circle_empty_16dp" />
+
+                <ImageView
+                    android:id="@+id/lock_screen_circle_4"
+                    style="@style/RemoteControl.LockScreen.CircleImage"
+                    android:src="@drawable/lock_screen_ic_circle_empty_16dp" />
+
+                <ImageView
+                    android:id="@+id/lock_screen_circle_5"
+                    style="@style/RemoteControl.LockScreen.CircleImage"
+                    android:src="@drawable/lock_screen_ic_circle_empty_16dp" />
             </LinearLayout>
 
             <Button

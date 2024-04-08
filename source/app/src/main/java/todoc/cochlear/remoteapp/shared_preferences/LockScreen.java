@@ -28,40 +28,49 @@ public class LockScreen {
     static private final String SHARED_PREFERENCES_NAME = "LOCK_SCREEN";
 
     static private final String KEY_FOR_PASSWORD = "PASSWORD";
-    static private final String KEY_FOR_ENABLE = "ENABLE";
+    static private final String KEY_FOR_ENABLE   = "ENABLE";
 
-    static private final int VALUE_LENGTH = 4;
+    //static private final int VALUE_LENGTH = 4;
+    static private final int VALUE_LENGTH = 6;
 
     static public final int STATE_REGISTER = 0;
-    static public final int STATE_COMPARE = 1;
-    static public final int STATE_DECODE = 2;
+    static public final int STATE_COMPARE  = 1;
+    static public final int STATE_DECODE   = 2;
 
-    public int mState;
-    public int mPasswordCounter;
+    public int   mState;
+    public int   mPasswordCounter;
     public int[] mPassword;
-    public int mPasswordCompareCounter;
+    public int   mPasswordCompareCounter;
     public int[] mPasswordCompare;
 
     public String mPasswordString;
     public String mPasswordCompareString;
 
-    private final Context mContext;
-    private final MainActivity mMainActivity;
+    private final Context             mContext;
+    private final MainActivity        mMainActivity;
     private final ActivityMainBinding mBinding;
 
-    static public byte[] lock_iv = {(byte) 0x04, (byte) 0x81, (byte) 0x80, (byte) 0x11, (byte) 0x88, (byte) 0x01, (byte) 0x13, (byte) 0x91, (byte) 0x86, (byte) 0x43, (byte) 0x84, (byte) 0x31, (byte) 0x13, (byte) 0x18, (byte) 0x33, (byte) 0x39};
-    static public String lock_key = "tud4ad8ceo6pe0cj";
+    static public byte[] lock_iv  = // Initialization Vector로 초기화 벡터를 지정한다.
+            {(byte) 0x04, (byte) 0x81, (byte) 0x80, (byte) 0x11, (byte) 0x88, (byte) 0x01, (byte) 0x13, (byte) 0x91, (byte) 0x86, (byte) 0x43, (byte) 0x84, (byte) 0x31, (byte) 0x13, (byte) 0x18, (byte) 0x33, (byte) 0x39};
+    static public String lock_key = "tud4ad8ceo6pe0cj"; // 16 바이트, 128 비트 (AES128)
 
     public static String encByKey(String key, String value) throws Exception {
         return encByKey(key.getBytes(), value.getBytes());
     }
 
     public static String encByKey(byte[] key, byte[] value) throws Exception {
-        SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, new IvParameterSpec(lock_iv));
-        byte[] randomKey = cipher.doFinal(value);
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES"); // 평문을 암호화하는데 사용되는 Secret Key, AES의 종류에 따라 키의 길이가 달라짐)
+        Cipher        cipher        = Cipher.getInstance("AES/CBC/PKCS5Padding"); // 사용할 알고리즘/운용모드/패딩 방식으로 객체 획득 (Cipher는 암호화, 복호화 기능을 제공)
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, new IvParameterSpec(lock_iv)); // Cipher 초기화 : 작동 모드, 키 그리고 초기화 벡터(IV) - CBC 설정
+        byte[] randomKey = cipher.doFinal(value); // 설정한 조건으로 평문을 암호화
         return Base64.encodeToString(randomKey, 0);
+    }
+
+    public static byte[] encKey_bytes(byte[] plainText_bytes) throws Exception {
+        SecretKeySpec secretKeySpec = new SecretKeySpec(lock_key.getBytes(), "AES");
+        Cipher        cipher        = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, new IvParameterSpec(lock_iv));
+        return cipher.doFinal(plainText_bytes);
     }
 
     public static String decByKey(String key, String plainText) throws Exception {
@@ -70,7 +79,7 @@ public class LockScreen {
 
     public static String decByKey(byte[] key, byte[] encText) throws Exception {
         SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        Cipher        cipher        = Cipher.getInstance("AES/CBC/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, new IvParameterSpec(lock_iv));
         byte[] secureKey = cipher.doFinal(encText);
         return new String(secureKey);
@@ -117,7 +126,8 @@ public class LockScreen {
 
         if (readPassword() == null) {
             mState = LockScreen.STATE_REGISTER;
-        } else {
+        }
+        else {
             mState = LockScreen.STATE_DECODE;
         }
     }
@@ -146,7 +156,8 @@ public class LockScreen {
             String encPassword = LockScreen.encByKey(lock_key, password);
             Log.d(TAG, "LockScreen-writePassword : Encrypted password = " + encPassword);
             mContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit().putString(KEY_FOR_PASSWORD, encPassword).apply();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -166,7 +177,8 @@ public class LockScreen {
                 if (decPassword.length() == VALUE_LENGTH) {
                     return decPassword;
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -180,10 +192,12 @@ public class LockScreen {
         if (mState == STATE_REGISTER) {
             mBinding.lockScreenTitle.setText("암호 등록");
             mBinding.forgotPassword.setVisibility(View.GONE);
-        } else if (mState == STATE_COMPARE) {
+        }
+        else if (mState == STATE_COMPARE) {
             mBinding.lockScreenTitle.setText("암호 확인");
             mBinding.forgotPassword.setVisibility(View.GONE);
-        } else {
+        }
+        else {
             mBinding.lockScreenTitle.setText("암호 입력");
             mBinding.forgotPassword.setVisibility(View.VISIBLE);
         }
@@ -210,7 +224,8 @@ public class LockScreen {
                     ((RemoteControlFragment) fragment).mDialog = null;
                 }
             }
-        } else {
+        }
+        else {
             /*
             if (Status.instance().longTimeIdleState == Status.LONG_TIME_IDLE_STATE_TRIGGERED)
             {
@@ -236,12 +251,7 @@ public class LockScreen {
             return -1;
         }
 
-        int[] numberIds = new int[]{
-                R.id.lock_screen_number_0, R.id.lock_screen_number_1,
-                R.id.lock_screen_number_2, R.id.lock_screen_number_3,
-                R.id.lock_screen_number_4, R.id.lock_screen_number_5,
-                R.id.lock_screen_number_6, R.id.lock_screen_number_7,
-                R.id.lock_screen_number_8, R.id.lock_screen_number_9};
+        int[] numberIds = new int[]{R.id.lock_screen_number_0, R.id.lock_screen_number_1, R.id.lock_screen_number_2, R.id.lock_screen_number_3, R.id.lock_screen_number_4, R.id.lock_screen_number_5, R.id.lock_screen_number_6, R.id.lock_screen_number_7, R.id.lock_screen_number_8, R.id.lock_screen_number_9};
 
         for (int i = 0; i < numberIds.length; i++) {
             if (id == numberIds[i]) {
@@ -255,7 +265,7 @@ public class LockScreen {
     public void updateCircle(int count) {
         Log.v(TAG, "updateCircle(" + count + ") called.");
 
-        Drawable fill = AppCompatResources.getDrawable(mContext, R.drawable.lock_screen_ic_circle_fill_16dp);
+        Drawable fill  = AppCompatResources.getDrawable(mContext, R.drawable.lock_screen_ic_circle_fill_16dp);
         Drawable empty = AppCompatResources.getDrawable(mContext, R.drawable.lock_screen_ic_circle_empty_16dp);
 
         switch (count) {
@@ -264,6 +274,8 @@ public class LockScreen {
                 mBinding.lockScreenCircle1.setImageDrawable(empty);
                 mBinding.lockScreenCircle2.setImageDrawable(empty);
                 mBinding.lockScreenCircle3.setImageDrawable(empty);
+                mBinding.lockScreenCircle4.setImageDrawable(empty);
+                mBinding.lockScreenCircle5.setImageDrawable(empty);
                 break;
 
             case 1:
@@ -271,6 +283,8 @@ public class LockScreen {
                 mBinding.lockScreenCircle1.setImageDrawable(empty);
                 mBinding.lockScreenCircle2.setImageDrawable(empty);
                 mBinding.lockScreenCircle3.setImageDrawable(empty);
+                mBinding.lockScreenCircle4.setImageDrawable(empty);
+                mBinding.lockScreenCircle5.setImageDrawable(empty);
                 break;
 
             case 2:
@@ -278,6 +292,8 @@ public class LockScreen {
                 mBinding.lockScreenCircle1.setImageDrawable(fill);
                 mBinding.lockScreenCircle2.setImageDrawable(empty);
                 mBinding.lockScreenCircle3.setImageDrawable(empty);
+                mBinding.lockScreenCircle4.setImageDrawable(empty);
+                mBinding.lockScreenCircle5.setImageDrawable(empty);
                 break;
 
             case 3:
@@ -285,6 +301,8 @@ public class LockScreen {
                 mBinding.lockScreenCircle1.setImageDrawable(fill);
                 mBinding.lockScreenCircle2.setImageDrawable(fill);
                 mBinding.lockScreenCircle3.setImageDrawable(empty);
+                mBinding.lockScreenCircle4.setImageDrawable(empty);
+                mBinding.lockScreenCircle5.setImageDrawable(empty);
                 break;
 
             case 4:
@@ -292,6 +310,26 @@ public class LockScreen {
                 mBinding.lockScreenCircle1.setImageDrawable(fill);
                 mBinding.lockScreenCircle2.setImageDrawable(fill);
                 mBinding.lockScreenCircle3.setImageDrawable(fill);
+                mBinding.lockScreenCircle4.setImageDrawable(empty);
+                mBinding.lockScreenCircle5.setImageDrawable(empty);
+                break;
+
+            case 5:
+                mBinding.lockScreenCircle0.setImageDrawable(fill);
+                mBinding.lockScreenCircle1.setImageDrawable(fill);
+                mBinding.lockScreenCircle2.setImageDrawable(fill);
+                mBinding.lockScreenCircle3.setImageDrawable(fill);
+                mBinding.lockScreenCircle4.setImageDrawable(fill);
+                mBinding.lockScreenCircle5.setImageDrawable(empty);
+                break;
+
+            case 6:
+                mBinding.lockScreenCircle0.setImageDrawable(fill);
+                mBinding.lockScreenCircle1.setImageDrawable(fill);
+                mBinding.lockScreenCircle2.setImageDrawable(fill);
+                mBinding.lockScreenCircle3.setImageDrawable(fill);
+                mBinding.lockScreenCircle4.setImageDrawable(fill);
+                mBinding.lockScreenCircle5.setImageDrawable(fill);
                 break;
         }
     }
@@ -305,7 +343,8 @@ public class LockScreen {
             }
 
             updateCircle(mPasswordCounter);
-        } else if (mState == STATE_COMPARE) {
+        }
+        else if (mState == STATE_COMPARE) {
             if (0 < mPasswordCompareCounter) {
                 mPasswordCompareCounter--;
             }
@@ -328,7 +367,8 @@ public class LockScreen {
             }
 
             updateCircle(mPasswordCounter);
-        } else if (mState == STATE_COMPARE) {
+        }
+        else if (mState == STATE_COMPARE) {
             if (mPasswordCompareCounter < VALUE_LENGTH) {
                 mPasswordCompare[mPasswordCompareCounter] = number;
                 mPasswordCompareCounter++;
@@ -347,7 +387,8 @@ public class LockScreen {
                 updateMessage();
                 updateCircle(mPasswordCompareCounter);
             }
-        } else if (mState == STATE_COMPARE) {
+        }
+        else if (mState == STATE_COMPARE) {
             if (mPasswordCompareCounter == VALUE_LENGTH) {
                 mPasswordString = "";
                 mPasswordCompareString = "";
@@ -360,7 +401,8 @@ public class LockScreen {
                 if (mPasswordString.equals(mPasswordCompareString)) {
                     writePassword(mPasswordString);
                     enableScreen(false);
-                } else {
+                }
+                else {
                     failAnimation();
                     bufferInit();
                     stateInit();
@@ -368,7 +410,8 @@ public class LockScreen {
                     //updateCircle(mPasswordCounter);
                 }
             }
-        } else if (mState == STATE_DECODE) {
+        }
+        else if (mState == STATE_DECODE) {
             if (mPasswordCounter == VALUE_LENGTH) {
                 mPasswordCompareString = readPassword();
                 mPasswordString = "";
@@ -380,7 +423,8 @@ public class LockScreen {
                 if (mPasswordString.equals(mPasswordCompareString)) {
                     enableScreen(false);
                     //successAnimation();
-                } else {
+                }
+                else {
                     failAnimation();
                     bufferInit();
                     updateMessage();
@@ -397,7 +441,8 @@ public class LockScreen {
 
         if (inputNumber == -1) {
             processDel();
-        } else {
+        }
+        else {
             processNumber(inputNumber);
         }
 
