@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
-import androidx.renderscript.ScriptGroup;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -20,7 +19,6 @@ import java.util.Objects;
 
 import todoc.cochlear.remoteapp.activity.MainActivity;
 import todoc.cochlear.remoteapp.activity.R;
-import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
 import todoc.cochlear.remoteapp.activity.databinding.FragmentEditUserBinding;
 import todoc.cochlear.remoteapp.database.users.EntityUser;
 import todoc.cochlear.remoteapp.database.logs.UtilLog;
