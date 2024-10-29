@@ -3,14 +3,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion 32
-
     defaultConfig {
         applicationId "todoc.cochlear.remoteapp.activity"
         minSdkVersion 23
-        targetSdkVersion 32
-        versionCode 3
-        versionName "1.1"
+        targetSdkVersion 34
+        versionCode 1
+        versionName "1.0"
 
         renderscriptTargetApi 19
         renderscriptSupportModeEnabled true    // Enable RS support
@@ -24,35 +22,54 @@ android {
         }
     }
 
+    signingConfigs {
+        config {
+            storeFile file('..\\app\\external\\remote_app_key_store_file.jks')
+            storePassword '!Todoc0987-82%^!'
+            keyAlias 'key0'
+            keyPassword '!Todoc0987-82%^!'
+        }
+    }
+
     buildFeatures {
         viewBinding = true
         dataBinding = true
     }
 
     buildTypes {
+        debug {
+            signingConfig signingConfigs.config
+        }
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+    namespace 'todoc.cochlear.remoteapp.activity'
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging false
+        }
+    }
+    compileSdk 34
 }
 
 dependencies {
 
-    implementation 'androidx.appcompat:appcompat:1.4.2'
-    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    testImplementation 'junit:junit:4.+'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 
     // Room
-    def room_version = "2.3.0"
+    def room_version = "2.6.1"
 
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
@@ -66,13 +83,13 @@ dependencies {
     // optional - Test helpers
     testImplementation "androidx.room:room-testing:$room_version"
 
-    def lifecycle_version = "2.4.1"
+    def lifecycle_version = "2.8.6"
 
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     // LiveData
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:lifecycle_version"
 
-    implementation 'com.github.mmin18:realtimeblurview:1.2.1'
+//    implementation 'com.github.mmin18:realtimeblurview:1.2.1'
     implementation 'com.skyfishjy.ripplebackground:library:1.0.1'
 }

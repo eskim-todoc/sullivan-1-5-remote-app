@@ -2,6 +2,7 @@ package todoc.cochlear.remoteapp.shared_preferences;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -11,49 +12,86 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
 import todoc.cochlear.remoteapp.activity.MainActivity;
 import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
 import todoc.cochlear.remoteapp.fragment.RemoteControlFragment;
 import todoc.cochlear.remoteapp.params.Status;
 
-public class LockScreen
-{
+public class LockScreen {
     static private final String TAG = "TODOC_" + LockScreen.class.getSimpleName();
 
     static private final String SHARED_PREFERENCES_NAME = "LOCK_SCREEN";
 
     static private final String KEY_FOR_PASSWORD = "PASSWORD";
-    static private final String KEY_FOR_ENABLE = "ENABLE";
+    static private final String KEY_FOR_ENABLE   = "ENABLE";
 
-    static private final int VALUE_LENGTH = 4;
+    //static private final int VALUE_LENGTH = 4;
+    static private final int VALUE_LENGTH = 6;
 
     static public final int STATE_REGISTER = 0;
-    static public final int STATE_COMPARE = 1;
-    static public final int STATE_DECODE = 2;
+    static public final int STATE_COMPARE  = 1;
+    static public final int STATE_DECODE   = 2;
 
-    public int mState;
-    public int mPasswordCounter;
+    public int   mState;
+    public int   mPasswordCounter;
     public int[] mPassword;
-    public int mPasswordCompareCounter;
+    public int   mPasswordCompareCounter;
     public int[] mPasswordCompare;
 
     public String mPasswordString;
     public String mPasswordCompareString;
 
-    private final Context mContext;
-    private final MainActivity mMainActivity;
+    private final Context             mContext;
+    private final MainActivity        mMainActivity;
     private final ActivityMainBinding mBinding;
 
-    public LockScreen(Context context, MainActivity activity, ActivityMainBinding binding)
-    {
+    static public byte[] lock_iv  = // Initialization Vector로 초기화 벡터를 지정한다.
+            {(byte) 0x04, (byte) 0x81, (byte) 0x80, (byte) 0x11, (byte) 0x88, (byte) 0x01, (byte) 0x13, (byte) 0x91, (byte) 0x86, (byte) 0x43, (byte) 0x84, (byte) 0x31, (byte) 0x13, (byte) 0x18, (byte) 0x33, (byte) 0x39};
+    static public String lock_key = "tud4ad8ceo6pe0cj"; // 16 바이트, 128 비트 (AES128)
+
+    public static String encByKey(String key, String value) throws Exception {
+        return encByKey(key.getBytes(), value.getBytes());
+    }
+
+    public static String encByKey(byte[] key, byte[] value) throws Exception {
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES"); // 평문을 암호화하는데 사용되는 Secret Key, AES의 종류에 따라 키의 길이가 달라짐)
+        Cipher        cipher        = Cipher.getInstance("AES/CBC/PKCS5Padding"); // 사용할 알고리즘/운용모드/패딩 방식으로 객체 획득 (Cipher는 암호화, 복호화 기능을 제공)
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, new IvParameterSpec(lock_iv)); // Cipher 초기화 : 작동 모드, 키 그리고 초기화 벡터(IV) - CBC 설정
+        byte[] randomKey = cipher.doFinal(value); // 설정한 조건으로 평문을 암호화
+        return Base64.encodeToString(randomKey, 0);
+    }
+
+    public static byte[] encKey_bytes(byte[] plainText_bytes) throws Exception {
+        SecretKeySpec secretKeySpec = new SecretKeySpec(lock_key.getBytes(), "AES");
+        Cipher        cipher        = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, new IvParameterSpec(lock_iv));
+        return cipher.doFinal(plainText_bytes);
+    }
+
+    public static String decByKey(String key, String plainText) throws Exception {
+        return decByKey(key.getBytes(), Base64.decode(plainText, 0));
+    }
+
+    public static String decByKey(byte[] key, byte[] encText) throws Exception {
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
+        Cipher        cipher        = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, new IvParameterSpec(lock_iv));
+        byte[] secureKey = cipher.doFinal(encText);
+        return new String(secureKey);
+    }
+
+    public LockScreen(Context context, MainActivity activity, ActivityMainBinding binding) {
         mContext = context;
         mMainActivity = activity;
         mBinding = binding;
     }
 
-    public void resume()
-    {
+    public void resume() {
         Log.v(TAG, "resume(" + mContext.toString() + ", " + mBinding.toString() + ") called.");
 
         bufferInit();
@@ -63,22 +101,18 @@ public class LockScreen
         enableScreen(isEnabled());
     }
 
-    public void bufferInit()
-    {
+    public void bufferInit() {
         Log.v(TAG, "잠금화면 비밀번호 버퍼 초기화.");
 
-        if (mPassword == null)
-        {
+        if (mPassword == null) {
             mPassword = new int[VALUE_LENGTH];
         }
 
-        if (mPasswordCompare == null)
-        {
+        if (mPasswordCompare == null) {
             mPasswordCompare = new int[VALUE_LENGTH];
         }
 
-        for (int i = 0; i < VALUE_LENGTH; i++)
-        {
+        for (int i = 0; i < VALUE_LENGTH; i++) {
             mPassword[i] = 0;
             mPasswordCompare[i] = 0;
         }
@@ -87,89 +121,93 @@ public class LockScreen
         mPasswordCompareCounter = 0;
     }
 
-    public void stateInit()
-    {
+    public void stateInit() {
         Log.v(TAG, "stateInit() called.");
 
-        if (readPassword() == null)
-        {
+        if (readPassword() == null) {
             mState = LockScreen.STATE_REGISTER;
         }
-        else
-        {
+        else {
             mState = LockScreen.STATE_DECODE;
         }
     }
 
-    public boolean isEnabled()
-    {
+    public boolean isEnabled() {
         return mContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(KEY_FOR_ENABLE, true);
     }
 
     //public void setEnable(Context context, boolean enable)
-    public void setEnable(boolean enable)
-    {
+    public void setEnable(boolean enable) {
         //context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit().putBoolean(KEY_FOR_ENABLE, enable).apply();
         mContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit().putBoolean(KEY_FOR_ENABLE, enable).apply();
         Log.d(TAG, "Lock Screen Enable state = " + enable + ".");
     }
 
-    public void erasePassword()
-    {
+    public void erasePassword() {
         Log.v(TAG, "Erase the lock screen password.");
         mContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit().putString(KEY_FOR_PASSWORD, null).apply();
     }
 
-    public void writePassword(String password)
-    {
+    public void writePassword(String password) {
         Log.v(TAG, "writePassword() called.");
 
-        mContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit().putString(KEY_FOR_PASSWORD, password).apply();
+        try {
+            Log.d(TAG, "LockScreen-writePassword : password = " + password);
+            String encPassword = LockScreen.encByKey(lock_key, password);
+            Log.d(TAG, "LockScreen-writePassword : Encrypted password = " + encPassword);
+            mContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit().putString(KEY_FOR_PASSWORD, encPassword).apply();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public String readPassword()
-    {
+    public String readPassword() {
         Log.v(TAG, "readPassword() called.");
 
         String password = mContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getString(KEY_FOR_PASSWORD, null);
 
-        if (password != null && password.length() == VALUE_LENGTH)
-        {
-            return password;
+        if (password != null) {
+
+            try {
+                Log.d(TAG, "LockScreen-readPassword : password = " + password);
+                String decPassword = LockScreen.decByKey(lock_key, password);
+                Log.d(TAG, "LockScreen-readPassword : Decrypted password = " + decPassword);
+                //if (password != null && password.length() == VALUE_LENGTH)
+                if (decPassword.length() == VALUE_LENGTH) {
+                    return decPassword;
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return null;
     }
 
-    public void updateMessage()
-    {
+    public void updateMessage() {
         Log.v(TAG, "updateMessage() called.");
 
-        if (mState == STATE_REGISTER)
-        {
+        if (mState == STATE_REGISTER) {
             mBinding.lockScreenTitle.setText("암호 등록");
             mBinding.forgotPassword.setVisibility(View.GONE);
         }
-        else if (mState == STATE_COMPARE)
-        {
+        else if (mState == STATE_COMPARE) {
             mBinding.lockScreenTitle.setText("암호 확인");
             mBinding.forgotPassword.setVisibility(View.GONE);
         }
-        else
-        {
+        else {
             mBinding.lockScreenTitle.setText("암호 입력");
             mBinding.forgotPassword.setVisibility(View.VISIBLE);
         }
     }
 
-    public void enableScreen(boolean enable)
-    {
+    public void enableScreen(boolean enable) {
         Log.v(TAG, "enableScreen(" + enable + ") called.");
 
-        if (enable)
-        {
-            if (Status.instance().lockScreenState == Status.LOCK_SCREEN_STATE_TEMPORARY_UNLOCK)
-            {
+        if (enable) {
+            if (Status.instance().lockScreenState == Status.LOCK_SCREEN_STATE_TEMPORARY_UNLOCK) {
                 Status.instance().lockScreenState = Status.LOCK_SCREEN_STATE_LOCK;
 
                 return;
@@ -178,19 +216,16 @@ public class LockScreen
             mBinding.lockScreen.setVisibility(View.VISIBLE);
 
             Fragment fragment = mMainActivity.getSupportFragmentManager().findFragmentById(R.id.frame);
-            if (fragment instanceof RemoteControlFragment)
-            {
+            if (fragment instanceof RemoteControlFragment) {
                 AlertDialog dialog = ((RemoteControlFragment) fragment).mDialog;
 
-                if (dialog != null)
-                {
+                if (dialog != null) {
                     dialog.dismiss();
                     ((RemoteControlFragment) fragment).mDialog = null;
                 }
             }
         }
-        else
-        {
+        else {
             /*
             if (Status.instance().longTimeIdleState == Status.LONG_TIME_IDLE_STATE_TRIGGERED)
             {
@@ -201,35 +236,25 @@ public class LockScreen
             mBinding.lockScreen.setVisibility(View.GONE);
 
             Fragment fragment = mMainActivity.getSupportFragmentManager().findFragmentById(R.id.frame);
-            if (fragment instanceof RemoteControlFragment)
-            {
+            if (fragment instanceof RemoteControlFragment) {
                 ((RemoteControlFragment) fragment).checkRegisteredList();
             }
         }
     }
 
-    public int parseNumber(int id)
-    {
+    public int parseNumber(int id) {
         Log.v(TAG, "parseNumber() called.");
 
         int delId = R.id.lock_screen_number_del;
 
-        if (id == delId)
-        {
+        if (id == delId) {
             return -1;
         }
 
-        int[] numberIds = new int[]{
-                R.id.lock_screen_number_0, R.id.lock_screen_number_1,
-                R.id.lock_screen_number_2, R.id.lock_screen_number_3,
-                R.id.lock_screen_number_4, R.id.lock_screen_number_5,
-                R.id.lock_screen_number_6, R.id.lock_screen_number_7,
-                R.id.lock_screen_number_8, R.id.lock_screen_number_9};
+        int[] numberIds = new int[]{R.id.lock_screen_number_0, R.id.lock_screen_number_1, R.id.lock_screen_number_2, R.id.lock_screen_number_3, R.id.lock_screen_number_4, R.id.lock_screen_number_5, R.id.lock_screen_number_6, R.id.lock_screen_number_7, R.id.lock_screen_number_8, R.id.lock_screen_number_9};
 
-        for (int i = 0; i < numberIds.length; i++)
-        {
-            if (id == numberIds[i])
-            {
+        for (int i = 0; i < numberIds.length; i++) {
+            if (id == numberIds[i]) {
                 return i;
             }
         }
@@ -237,20 +262,20 @@ public class LockScreen
         return -1;
     }
 
-    public void updateCircle(int count)
-    {
+    public void updateCircle(int count) {
         Log.v(TAG, "updateCircle(" + count + ") called.");
 
-        Drawable fill = AppCompatResources.getDrawable(mContext, R.drawable.lock_screen_ic_circle_fill_16dp);
+        Drawable fill  = AppCompatResources.getDrawable(mContext, R.drawable.lock_screen_ic_circle_fill_16dp);
         Drawable empty = AppCompatResources.getDrawable(mContext, R.drawable.lock_screen_ic_circle_empty_16dp);
 
-        switch (count)
-        {
+        switch (count) {
             case 0:
                 mBinding.lockScreenCircle0.setImageDrawable(empty);
                 mBinding.lockScreenCircle1.setImageDrawable(empty);
                 mBinding.lockScreenCircle2.setImageDrawable(empty);
                 mBinding.lockScreenCircle3.setImageDrawable(empty);
+                mBinding.lockScreenCircle4.setImageDrawable(empty);
+                mBinding.lockScreenCircle5.setImageDrawable(empty);
                 break;
 
             case 1:
@@ -258,6 +283,8 @@ public class LockScreen
                 mBinding.lockScreenCircle1.setImageDrawable(empty);
                 mBinding.lockScreenCircle2.setImageDrawable(empty);
                 mBinding.lockScreenCircle3.setImageDrawable(empty);
+                mBinding.lockScreenCircle4.setImageDrawable(empty);
+                mBinding.lockScreenCircle5.setImageDrawable(empty);
                 break;
 
             case 2:
@@ -265,6 +292,8 @@ public class LockScreen
                 mBinding.lockScreenCircle1.setImageDrawable(fill);
                 mBinding.lockScreenCircle2.setImageDrawable(empty);
                 mBinding.lockScreenCircle3.setImageDrawable(empty);
+                mBinding.lockScreenCircle4.setImageDrawable(empty);
+                mBinding.lockScreenCircle5.setImageDrawable(empty);
                 break;
 
             case 3:
@@ -272,6 +301,8 @@ public class LockScreen
                 mBinding.lockScreenCircle1.setImageDrawable(fill);
                 mBinding.lockScreenCircle2.setImageDrawable(fill);
                 mBinding.lockScreenCircle3.setImageDrawable(empty);
+                mBinding.lockScreenCircle4.setImageDrawable(empty);
+                mBinding.lockScreenCircle5.setImageDrawable(empty);
                 break;
 
             case 4:
@@ -279,27 +310,42 @@ public class LockScreen
                 mBinding.lockScreenCircle1.setImageDrawable(fill);
                 mBinding.lockScreenCircle2.setImageDrawable(fill);
                 mBinding.lockScreenCircle3.setImageDrawable(fill);
+                mBinding.lockScreenCircle4.setImageDrawable(empty);
+                mBinding.lockScreenCircle5.setImageDrawable(empty);
+                break;
+
+            case 5:
+                mBinding.lockScreenCircle0.setImageDrawable(fill);
+                mBinding.lockScreenCircle1.setImageDrawable(fill);
+                mBinding.lockScreenCircle2.setImageDrawable(fill);
+                mBinding.lockScreenCircle3.setImageDrawable(fill);
+                mBinding.lockScreenCircle4.setImageDrawable(fill);
+                mBinding.lockScreenCircle5.setImageDrawable(empty);
+                break;
+
+            case 6:
+                mBinding.lockScreenCircle0.setImageDrawable(fill);
+                mBinding.lockScreenCircle1.setImageDrawable(fill);
+                mBinding.lockScreenCircle2.setImageDrawable(fill);
+                mBinding.lockScreenCircle3.setImageDrawable(fill);
+                mBinding.lockScreenCircle4.setImageDrawable(fill);
+                mBinding.lockScreenCircle5.setImageDrawable(fill);
                 break;
         }
     }
 
-    public void processDel()
-    {
+    public void processDel() {
         Log.v(TAG, "processDel() called.");
 
-        if (mState == STATE_REGISTER || mState == STATE_DECODE)
-        {
-            if (0 < mPasswordCounter)
-            {
+        if (mState == STATE_REGISTER || mState == STATE_DECODE) {
+            if (0 < mPasswordCounter) {
                 mPasswordCounter--;
             }
 
             updateCircle(mPasswordCounter);
         }
-        else if (mState == STATE_COMPARE)
-        {
-            if (0 < mPasswordCompareCounter)
-            {
+        else if (mState == STATE_COMPARE) {
+            if (0 < mPasswordCompareCounter) {
                 mPasswordCompareCounter--;
             }
 
@@ -307,29 +353,23 @@ public class LockScreen
         }
     }
 
-    public void processNumber(int number)
-    {
+    public void processNumber(int number) {
         Log.v(TAG, "processNumber(" + number + ") called.");
 
-        if (number < 0 || 9 < number)
-        {
+        if (number < 0 || 9 < number) {
             return;
         }
 
-        if (mState == STATE_REGISTER || mState == STATE_DECODE)
-        {
-            if (mPasswordCounter < VALUE_LENGTH)
-            {
+        if (mState == STATE_REGISTER || mState == STATE_DECODE) {
+            if (mPasswordCounter < VALUE_LENGTH) {
                 mPassword[mPasswordCounter] = number;
                 mPasswordCounter++;
             }
 
             updateCircle(mPasswordCounter);
         }
-        else if (mState == STATE_COMPARE)
-        {
-            if (mPasswordCompareCounter < VALUE_LENGTH)
-            {
+        else if (mState == STATE_COMPARE) {
+            if (mPasswordCompareCounter < VALUE_LENGTH) {
                 mPasswordCompare[mPasswordCompareCounter] = number;
                 mPasswordCompareCounter++;
             }
@@ -338,39 +378,31 @@ public class LockScreen
         }
     }
 
-    public void processChecking()
-    {
+    public void processChecking() {
         Log.v(TAG, "processChecking() called.");
 
-        if (mState == STATE_REGISTER)
-        {
-            if (mPasswordCounter == VALUE_LENGTH)
-            {
+        if (mState == STATE_REGISTER) {
+            if (mPasswordCounter == VALUE_LENGTH) {
                 mState = STATE_COMPARE;
                 updateMessage();
                 updateCircle(mPasswordCompareCounter);
             }
         }
-        else if (mState == STATE_COMPARE)
-        {
-            if (mPasswordCompareCounter == VALUE_LENGTH)
-            {
+        else if (mState == STATE_COMPARE) {
+            if (mPasswordCompareCounter == VALUE_LENGTH) {
                 mPasswordString = "";
                 mPasswordCompareString = "";
 
-                for (int i = 0; i < VALUE_LENGTH; i++)
-                {
+                for (int i = 0; i < VALUE_LENGTH; i++) {
                     mPasswordString = mPasswordString + mPassword[i];
                     mPasswordCompareString = mPasswordCompareString + mPasswordCompare[i];
                 }
 
-                if (mPasswordString.equals(mPasswordCompareString))
-                {
+                if (mPasswordString.equals(mPasswordCompareString)) {
                     writePassword(mPasswordString);
                     enableScreen(false);
                 }
-                else
-                {
+                else {
                     failAnimation();
                     bufferInit();
                     stateInit();
@@ -379,25 +411,20 @@ public class LockScreen
                 }
             }
         }
-        else if (mState == STATE_DECODE)
-        {
-            if (mPasswordCounter == VALUE_LENGTH)
-            {
+        else if (mState == STATE_DECODE) {
+            if (mPasswordCounter == VALUE_LENGTH) {
                 mPasswordCompareString = readPassword();
                 mPasswordString = "";
 
-                for (int i = 0; i < VALUE_LENGTH; i++)
-                {
+                for (int i = 0; i < VALUE_LENGTH; i++) {
                     mPasswordString = mPasswordString + mPassword[i];
                 }
 
-                if (mPasswordString.equals(mPasswordCompareString))
-                {
+                if (mPasswordString.equals(mPasswordCompareString)) {
                     enableScreen(false);
                     //successAnimation();
                 }
-                else
-                {
+                else {
                     failAnimation();
                     bufferInit();
                     updateMessage();
@@ -407,32 +434,27 @@ public class LockScreen
         }
     }
 
-    public void numberClickListener(View view)
-    {
+    public void numberClickListener(View view) {
         Log.v(TAG, "numberClickListener(" + view.toString() + ") called.");
 
         int inputNumber = parseNumber(view.getId());
 
-        if (inputNumber == -1)
-        {
+        if (inputNumber == -1) {
             processDel();
         }
-        else
-        {
+        else {
             processNumber(inputNumber);
         }
 
         processChecking();
     }
 
-    public void successAnimation()
-    {
+    public void successAnimation() {
         Animation disappear = AnimationUtils.loadAnimation(mContext, R.anim.lock_screen_correct_password);
         mBinding.lockScreen.startAnimation(disappear);
     }
 
-    public void failAnimation()
-    {
+    public void failAnimation() {
         Log.v(TAG, "failAnimation() called.");
 
         Animation shaker = AnimationUtils.loadAnimation(mContext, R.anim.lock_screen_incorrect_password);
@@ -441,23 +463,19 @@ public class LockScreen
         mMainActivity.onVibrator(50);
     }
 
-    private final Animation.AnimationListener mAnimationListener = new Animation.AnimationListener()
-    {
+    private final Animation.AnimationListener mAnimationListener = new Animation.AnimationListener() {
         @Override
-        public void onAnimationStart(Animation animation)
-        {
+        public void onAnimationStart(Animation animation) {
 
         }
 
         @Override
-        public void onAnimationEnd(Animation animation)
-        {
+        public void onAnimationEnd(Animation animation) {
             updateCircle(0);
         }
 
         @Override
-        public void onAnimationRepeat(Animation animation)
-        {
+        public void onAnimationRepeat(Animation animation) {
 
         }
     };

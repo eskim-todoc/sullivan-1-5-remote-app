@@ -487,6 +487,7 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:visibility="visible">
 
+            <!--
             <com.github.mmin18.widget.RealtimeBlurView
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -496,6 +497,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:realtimeBlurRadius="8dp"
                 app:realtimeOverlayColor="#8000" />
+                -->
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/remote_control_find_layout"
