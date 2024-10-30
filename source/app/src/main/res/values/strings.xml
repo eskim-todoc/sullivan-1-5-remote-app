@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">토닥 리모컨</string>
+    <string name="app_name">토닥 내부기 확인</string>
     <!-- Toolbar -->
     <string name="toolbar_menu_settings">설정</string>
     <string name="toolbar_title_settings">메뉴</string>

@@ -4,7 +4,7 @@ plugins {
 
 android {
     defaultConfig {
-        applicationId "todoc.cochlear.remoteapp.activity"
+        applicationId "todoc.cochlear.remoteapp_isd_check.activity"
         minSdkVersion 23
         targetSdkVersion 34
         versionCode 1
