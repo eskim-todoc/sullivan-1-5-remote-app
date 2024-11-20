@@ -1602,7 +1602,8 @@ public class MainActivity extends AppCompatActivity
                 boolean bluetooth_scan    = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED;
                 boolean bluetooth_connect = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED;
 
-                if ((!access_fine_location) || (!bluetooth_scan) || (!bluetooth_connect))// || (!bluetooth_privileged))
+                //if ((!access_fine_location) || (!bluetooth_scan) || (!bluetooth_connect))// || (!bluetooth_privileged))
+                if ((!bluetooth_scan) || (!bluetooth_connect))// || (!bluetooth_privileged))
                 {
                     Log.d(TAG, "권한 획득이 안된 항목이 있습니다." + "LOCATION=" + access_fine_location
                             //+ ", PRIVILEGED=" + bluetooth_privileged
@@ -1654,12 +1655,14 @@ public class MainActivity extends AppCompatActivity
             boolean bluetooth_scan    = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED;
             boolean bluetooth_connect = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED;
 
-            if ((!access_fine_location) || (!bluetooth_scan) || (!bluetooth_connect))// || (!bluetooth_privileged))
+            //if ((!access_fine_location) || (!bluetooth_scan) || (!bluetooth_connect))// || (!bluetooth_privileged))
+            if ((!bluetooth_scan) || (!bluetooth_connect))// || (!bluetooth_privileged))
             {
                 Log.d(TAG, "권한 획득이 안된 항목이 있습니다." + "LOCATION=" + access_fine_location
                         //+ ", PRIVILEGED=" + bluetooth_privileged
                         + ", SCAN=" + bluetooth_scan + ", CONNECT=" + bluetooth_connect);
-                String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT};
+                //String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT};
+                String[] permissions = new String[]{Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT};
                 //Manifest.permission.BLUETOOTH_PRIVILEGED};
                 ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION_CODE_NUMBER);
                 UtilLog.instance.writeLog("앱 사용을 위한 블루투스 및 위치 관련 권한 요청.");
@@ -2862,6 +2865,32 @@ public class MainActivity extends AppCompatActivity
                             pkt12 = (int) responsePacket[12] & 0x000000FF;
 
                             int isdID = (pkt9 << 24) | (pkt10 << 16) | (pkt11 << 8) | pkt12;
+
+                            if (isdID == 0x1891001F)
+                            {
+                                Log.d(TAG, "내부기 ID '" + String.format("#%08X", isdID) + "'는 '#1691000A'으로 교체합니다.");
+                                isdID = 0x1691000A;
+                            }
+                            else if (isdID == 0x18910015)
+                            {
+                                Log.d(TAG, "내부기 ID '" + String.format("#%08X", isdID) + "'는 '#1691000B'으로 교체합니다.");
+                                isdID = 0x1691000B;
+                            }
+                            else if (isdID == 0x1891000B)
+                            {
+                                Log.d(TAG, "내부기 ID '" + String.format("#%08X", isdID) + "'는 '#1691000C'으로 교체합니다.");
+                                isdID = 0x1691000C;
+                            }
+                            else if (isdID == 0x18910001)
+                            {
+                                Log.d(TAG, "내부기 ID '" + String.format("#%08X", isdID) + "'는 '#1691000D'으로 교체합니다.");
+                                isdID = 0x1691000D;
+                            }
+                            else if (isdID == 0x1891001C)
+                            {
+                                Log.d(TAG, "내부기 ID '" + String.format("#%08X", isdID) + "'는 '#1691000E'으로 교체합니다.");
+                                isdID = 0x1691000E;
+                            }
 
                             Log.d(TAG, "내부기 ID 읽기 패킷 수신 : " + "ID = " + String.format("#%08X", isdID));
 

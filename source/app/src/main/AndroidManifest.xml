@@ -35,6 +35,8 @@
         android:name="android.permission.ACCESS_FINE_LOCATION"
         android:maxSdkVersion="30" />
 
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <!-- 안드로이드 10, 11 (SDK 버전 29, 30)에서는 블루투스 검색 시 아래의 백그라운드 위치 권한이 필요하다. -->
     <uses-permission
         android:name="android.permission.ACCESS_BACKGROUND_LOCATION"
@@ -42,6 +44,7 @@
 
     <!-- 강제 종료 포착 서비스를 위한 포그라운드 서비스 권한 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
     <!-- 진동 기능을 위한 권한 -->
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -69,6 +72,7 @@
             android:name="todoc.cochlear.remoteapp.service.ExitCaptureService"
             android:enabled="true"
             android:exported="false"
+            android:foregroundServiceType="mediaPlayback"
             android:stopWithTask="false" />
 
         <activity
