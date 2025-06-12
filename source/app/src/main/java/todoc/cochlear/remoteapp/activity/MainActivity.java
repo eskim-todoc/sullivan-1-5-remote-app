@@ -45,6 +45,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -1619,18 +1620,26 @@ public class MainActivity extends AppCompatActivity
             }
             else
             {
-
-                if ((!access_fine_location))// || (!bluetooth_privileged))
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q)
                 {
-                    Log.d(TAG, "권한 획득이 안된 항목이 있습니다." + "LOCATION=" + access_fine_location);
-                    //+ ", PRIVILEGED=" + bluetooth_privileged);
-                    UtilLog.instance.writeLog("앱 사용을 위한 위치 관련 권한 요청이 거부됨.");
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                    {
+                        Log.d(TAG, "외부 저장소 권한 획득 실패");
+                        finish();
+                        return;
+                    }
+                }
+
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                {
+                    Log.d(TAG, "위치 권한 획득 실패");
+                    UtilLog.instance.writeLog("위치 권한 획득 실패");
                     finish();
                     return;
                 }
                 else
                 {
-                    UtilLog.instance.writeLog("앱 사용을 위한 위치 관련 권한이 획득됨.");
+                    UtilLog.instance.writeLog("위치 권한 획득 성공");
                 }
             }
 
@@ -1671,14 +1680,34 @@ public class MainActivity extends AppCompatActivity
         }
         else
         {
-            Log.d(TAG, "런타임 권한을 체크합니다. 버전코드가 S 미만입니다.");
-            if ((!access_fine_location))// || (!bluetooth_privileged))
+            ArrayList<String> permissionList = new ArrayList<>();
+            String[]          permissionArray;
+
+            Log.d(TAG, "런타임 권한 체크 → 버전 코드 S 미만으로 확인");
+
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q)
             {
-                Log.d(TAG, "권한 획득이 안된 항목이 있습니다." + "LOCATION=" + access_fine_location);
-                //+ ", PRIVILEGED=" + bluetooth_privileged);
-                String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};//, Manifest.permission.BLUETOOTH_PRIVILEGED};
-                ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION_CODE_NUMBER);
-                UtilLog.instance.writeLog("앱 사용을 위한 위치 관련 권한 요청.");
+                Log.d(TAG, "세부: 안드로이드 10, API29, 버전 코드 Q 이하");
+
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                {
+                    Log.d(TAG, "외부 저장소 권한 없음 → 권한 요청 시도");
+                    permissionList.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+                }
+            }
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            {
+                Log.d(TAG, "위치 권한 없음 → 권한 요청 시도");
+                UtilLog.instance.writeLog("위치 권한 요청");
+                permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            }
+
+            if (!permissionList.isEmpty())
+            {
+                permissionArray = permissionList.toArray(new String[0]);
+                ActivityCompat.requestPermissions(this, permissionArray, REQUEST_PERMISSION_CODE_NUMBER);
+
                 return false;
             }
         }
@@ -1851,27 +1880,21 @@ public class MainActivity extends AppCompatActivity
 
                             lastDialogDismiss();
 
-                            mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this)
-                                    .setTitle("안내")
-                                    .setMessage("페어링을 실패했습니다.")
-                                    .setNegativeButton("재연결", (dialogInterface, i) ->
-                                    {
-                                        longTimeIdleHandlerUpdate(true);
+                            mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("안내").setMessage("페어링을 실패했습니다.").setNegativeButton("재연결", (dialogInterface, i) ->
+                            {
+                                longTimeIdleHandlerUpdate(true);
 
-                                        if (mStatus.activityRunningState == Status.ACTIVITY_RUNNING_STATE_FOREGROUND)
-                                        {
-                                            if (getSupportFragmentManager().findFragmentById(R.id.frame) instanceof RemoteControlFragment)
-                                            {
-                                                scanLe(true);
-                                            }
-                                        }
-                                    })
-                                    .setPositiveButton("확인", (dialogInterface, i) ->
+                                if (mStatus.activityRunningState == Status.ACTIVITY_RUNNING_STATE_FOREGROUND)
+                                {
+                                    if (getSupportFragmentManager().findFragmentById(R.id.frame) instanceof RemoteControlFragment)
                                     {
-                                        longTimeIdleHandlerUpdate(true);
-                                    })
-                                    .setCancelable(false)
-                                    .create();
+                                        scanLe(true);
+                                    }
+                                }
+                            }).setPositiveButton("확인", (dialogInterface, i) ->
+                            {
+                                longTimeIdleHandlerUpdate(true);
+                            }).setCancelable(false).create();
 
                             mStatus.lastDialog.show();
                         }, 1000);
@@ -2747,34 +2770,28 @@ public class MainActivity extends AppCompatActivity
 
                             lastDialogDismiss();
 
-                            mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this)
-                                    .setTitle("주의")
-                                    .setMessage("내부기 키가 일치하지 않습니다. 재설정하시겠습니까?")
-                                    .setPositiveButton("재설정", (dialogInterface, i) ->
-                                    {
-                                        longTimeIdleHandlerUpdate(true);
+                            mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("주의").setMessage("내부기 키가 일치하지 않습니다. 재설정하시겠습니까?").setPositiveButton("재설정", (dialogInterface, i) ->
+                            {
+                                longTimeIdleHandlerUpdate(true);
 
-                                        //EntityUser user = UtilUser.instance.getDefaultUser();
-                                        EntityUser user   = mStatus.connectedUser;
-                                        Bundle     bundle = new Bundle();
-                                        bundle.putString(EditUserFragment.ARG_NAME, user.name);
-                                        bundle.putString(EditUserFragment.ARG_PASSKEY, user.passKey);
-                                        bundle.putString(EditUserFragment.ARG_NICKNAME, user.nickname);
-                                        bundle.putString(EditUserFragment.ARG_EAR, user.ear);
-                                        bundle.putString(EditUserFragment.ARG_DEFAULT, user.defaultUser);
+                                //EntityUser user = UtilUser.instance.getDefaultUser();
+                                EntityUser user   = mStatus.connectedUser;
+                                Bundle     bundle = new Bundle();
+                                bundle.putString(EditUserFragment.ARG_NAME, user.name);
+                                bundle.putString(EditUserFragment.ARG_PASSKEY, user.passKey);
+                                bundle.putString(EditUserFragment.ARG_NICKNAME, user.nickname);
+                                bundle.putString(EditUserFragment.ARG_EAR, user.ear);
+                                bundle.putString(EditUserFragment.ARG_DEFAULT, user.defaultUser);
                                             /*
                                             EditUserFragment editUserFragment = new EditUserFragment();
                                             editUserFragment.setArguments(bundle);
                                             getSupportFragmentManager().beginTransaction().replace(mBinding.frame.getId(), editUserFragment).commitNowAllowingStateLoss();
                                             */
-                                        replaceFragment(Status.TypeOfFragment.USER_EDIT, bundle);
-                                    })
-                                    .setNegativeButton("취소", (dialogInterface, i) ->
-                                    {
-                                        longTimeIdleHandlerUpdate(true);
-                                    })
-                                    .setCancelable(false)
-                                    .create();
+                                replaceFragment(Status.TypeOfFragment.USER_EDIT, bundle);
+                            }).setNegativeButton("취소", (dialogInterface, i) ->
+                            {
+                                longTimeIdleHandlerUpdate(true);
+                            }).setCancelable(false).create();
 
                             mStatus.lastDialog.show();
                         }
@@ -3275,12 +3292,7 @@ public class MainActivity extends AppCompatActivity
         // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
         lastDialogDismiss();
 
-        mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this)
-                .setTitle("에러")
-                .setMessage("통신 에러가 발생했습니다. 앱을 다시 시작해주세요. 같은 에러가 반복되면 외부기를 다시 착용해주세요.")
-                .setPositiveButton("확인", null)
-                .setCancelable(false)
-                .create();
+        mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("에러").setMessage("통신 에러가 발생했습니다. 앱을 다시 시작해주세요. 같은 에러가 반복되면 외부기를 다시 착용해주세요.").setPositiveButton("확인", null).setCancelable(false).create();
         mStatus.lastDialog.show();
 
         if (mBluetoothGatt != null)
@@ -3525,16 +3537,11 @@ public class MainActivity extends AppCompatActivity
 
             if (users.size() == 0)
             {
-                mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this)
-                        .setTitle("안내")
-                        .setMessage("등록된 사용자가 없습니다. 먼저 사용자를 등록해주세요.")
-                        .setPositiveButton("확인", (dialogInterface, i) ->
-                        {
-                            // 장시간 미사용 핸들러 업데이트
-                            longTimeIdleHandlerUpdate(true);
-                        })
-                        .setCancelable(false)
-                        .create();
+                mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("안내").setMessage("등록된 사용자가 없습니다. 먼저 사용자를 등록해주세요.").setPositiveButton("확인", (dialogInterface, i) ->
+                {
+                    // 장시간 미사용 핸들러 업데이트
+                    longTimeIdleHandlerUpdate(true);
+                }).setCancelable(false).create();
             }
             else
             {
@@ -3551,68 +3558,62 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
 
-                mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this)
-                        .setTitle("사용자 목록")
-                        .setPositiveButton("선택", (dialogInterface, i) ->
+                mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("사용자 목록").setPositiveButton("선택", (dialogInterface, i) ->
+                {
+                    // 장시간 미사용 핸들러 업데이트
+                    longTimeIdleHandlerUpdate(true);
+
+                    String selectName = mUserList[mCheckItem];
+
+                    EntityUser defaultUser = UtilUser.instance.getDefaultUser();
+
+                    if (defaultUser != null)
+                    {
+                        defaultUser.defaultUser = EntityUser.USER_NOT_DEFAULT;
+                        UtilUser.instance.update(defaultUser);
+                    }
+
+                    EntityUser selectUser = UtilUser.instance.getUserByName(selectName);
+
+                    if (selectUser != null)
+                    {
+                        selectUser.defaultUser = EntityUser.USER_DEFAULT;
+                        UtilUser.instance.update(selectUser);
+                    }
+
+                    Fragment fragment = MainActivity.this.getSupportFragmentManager().findFragmentById(R.id.frame);
+
+                    if (fragment instanceof RemoteControlFragment)
+                    {
+                        if (selectUser != null && selectUser.nickname != null && selectUser.nickname.length() > 0)
                         {
-                            // 장시간 미사용 핸들러 업데이트
-                            longTimeIdleHandlerUpdate(true);
-
-                            String selectName = mUserList[mCheckItem];
-
-                            EntityUser defaultUser = UtilUser.instance.getDefaultUser();
-
-                            if (defaultUser != null)
-                            {
-                                defaultUser.defaultUser = EntityUser.USER_NOT_DEFAULT;
-                                UtilUser.instance.update(defaultUser);
-                            }
-
-                            EntityUser selectUser = UtilUser.instance.getUserByName(selectName);
-
-                            if (selectUser != null)
-                            {
-                                selectUser.defaultUser = EntityUser.USER_DEFAULT;
-                                UtilUser.instance.update(selectUser);
-                            }
-
-                            Fragment fragment = MainActivity.this.getSupportFragmentManager().findFragmentById(R.id.frame);
-
-                            if (fragment instanceof RemoteControlFragment)
-                            {
-                                if (selectUser != null && selectUser.nickname != null && selectUser.nickname.length() > 0)
-                                {
-                                    ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(selectUser.nickname);
-                                }
-                                else if (selectUser != null)
-                                {
-                                    String name = UtilUser.getNameOnly(selectUser.name) + " (" + UtilUser.getEarKorean(selectUser.ear) + ")";
-
-                                    ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(name);
-                                }
-                            }
-
-                            if (mStatus.connectionState != Status.CONNECTION_STATE_DISCONNECTED)
-                            {
-                                mBluetoothGatt.disconnect();
-                            }
-                            else if (mStatus.scanState == Status.SCAN_STATE_STOPPED)
-                            {
-                                MainActivity.this.scanLe(true);
-                            }
-
-                        })
-                        .setSingleChoiceItems(nicknameList, mCheckItem, (dialogInterface, i) ->
+                            ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(selectUser.nickname);
+                        }
+                        else if (selectUser != null)
                         {
-                            longTimeIdleHandlerUpdate(true);
-                            mCheckItem = i;
-                        })
-                        .setNegativeButton("취소", (dialogInterface, i) ->
-                        {
-                            longTimeIdleHandlerUpdate(true);
-                        })
-                        .setCancelable(false)
-                        .create();
+                            String name = UtilUser.getNameOnly(selectUser.name) + " (" + UtilUser.getEarKorean(selectUser.ear) + ")";
+
+                            ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(name);
+                        }
+                    }
+
+                    if (mStatus.connectionState != Status.CONNECTION_STATE_DISCONNECTED)
+                    {
+                        mBluetoothGatt.disconnect();
+                    }
+                    else if (mStatus.scanState == Status.SCAN_STATE_STOPPED)
+                    {
+                        MainActivity.this.scanLe(true);
+                    }
+
+                }).setSingleChoiceItems(nicknameList, mCheckItem, (dialogInterface, i) ->
+                {
+                    longTimeIdleHandlerUpdate(true);
+                    mCheckItem = i;
+                }).setNegativeButton("취소", (dialogInterface, i) ->
+                {
+                    longTimeIdleHandlerUpdate(true);
+                }).setCancelable(false).create();
             }
             mStatus.lastDialog.show();
 
@@ -3640,16 +3641,11 @@ public class MainActivity extends AppCompatActivity
 
         if (users.size() == 0)
         {
-            mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this)
-                    .setTitle("안내")
-                    .setMessage("등록된 사용자가 없습니다. 먼저 사용자를 등록해주세요.")
-                    .setPositiveButton("확인", (dialogInterface, i) ->
-                    {
-                        // 장시간 미사용 핸들러 업데이트
-                        longTimeIdleHandlerUpdate(true);
-                    })
-                    .setCancelable(false)
-                    .create();
+            mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("안내").setMessage("등록된 사용자가 없습니다. 먼저 사용자를 등록해주세요.").setPositiveButton("확인", (dialogInterface, i) ->
+            {
+                // 장시간 미사용 핸들러 업데이트
+                longTimeIdleHandlerUpdate(true);
+            }).setCancelable(false).create();
         }
         else
         {
@@ -3666,58 +3662,54 @@ public class MainActivity extends AppCompatActivity
                 }
             }
 
-            mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this)
-                    .setTitle("사용자 목록")
-                    .setPositiveButton("선택", (dialogInterface, i) ->
+            mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("사용자 목록").setPositiveButton("선택", (dialogInterface, i) ->
+            {
+                // 장시간 미사용 핸들러 업데이트
+                longTimeIdleHandlerUpdate(true);
+
+                String selectName = mUserList[mCheckItem];
+
+                EntityUser defaultUser = UtilUser.instance.getDefaultUser();
+
+                if (defaultUser != null)
+                {
+                    defaultUser.defaultUser = EntityUser.USER_NOT_DEFAULT;
+                    UtilUser.instance.update(defaultUser);
+                }
+
+                EntityUser selectUser = UtilUser.instance.getUserByName(selectName);
+
+                if (selectUser != null)
+                {
+                    selectUser.defaultUser = EntityUser.USER_DEFAULT;
+                    UtilUser.instance.update(selectUser);
+                }
+
+                Fragment fragment = MainActivity.this.getSupportFragmentManager().findFragmentById(R.id.frame);
+
+                if (fragment instanceof RemoteControlFragment)
+                {
+                    if (selectUser != null && selectUser.nickname != null && selectUser.nickname.length() > 0)
                     {
-                        // 장시간 미사용 핸들러 업데이트
-                        longTimeIdleHandlerUpdate(true);
-
-                        String selectName = mUserList[mCheckItem];
-
-                        EntityUser defaultUser = UtilUser.instance.getDefaultUser();
-
-                        if (defaultUser != null)
-                        {
-                            defaultUser.defaultUser = EntityUser.USER_NOT_DEFAULT;
-                            UtilUser.instance.update(defaultUser);
-                        }
-
-                        EntityUser selectUser = UtilUser.instance.getUserByName(selectName);
-
-                        if (selectUser != null)
-                        {
-                            selectUser.defaultUser = EntityUser.USER_DEFAULT;
-                            UtilUser.instance.update(selectUser);
-                        }
-
-                        Fragment fragment = MainActivity.this.getSupportFragmentManager().findFragmentById(R.id.frame);
-
-                        if (fragment instanceof RemoteControlFragment)
-                        {
-                            if (selectUser != null && selectUser.nickname != null && selectUser.nickname.length() > 0)
-                            {
-                                ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(selectUser.nickname);
-                            }
-                            else if (selectUser != null)
-                            {
-                                String name = UtilUser.getNameOnly(selectUser.name) + " (" + UtilUser.getEarKorean(selectUser.ear) + ")";
-                                ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(name);
-                            }
-                        }
-
-                        if (mStatus.scanState == Status.SCAN_STATE_STOPPED)
-                        {
-                            MainActivity.this.scanLe(true);
-                        }
-                    })
-                    .setSingleChoiceItems(nicknameList, mCheckItem, (dialogInterface, i) ->
+                        ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(selectUser.nickname);
+                    }
+                    else if (selectUser != null)
                     {
-                        // 장시간 미사용 핸들러 업데이트
-                        longTimeIdleHandlerUpdate(true);
-                        mCheckItem = i;
-                    })
-                    .setCancelable(false).create();
+                        String name = UtilUser.getNameOnly(selectUser.name) + " (" + UtilUser.getEarKorean(selectUser.ear) + ")";
+                        ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(name);
+                    }
+                }
+
+                if (mStatus.scanState == Status.SCAN_STATE_STOPPED)
+                {
+                    MainActivity.this.scanLe(true);
+                }
+            }).setSingleChoiceItems(nicknameList, mCheckItem, (dialogInterface, i) ->
+            {
+                // 장시간 미사용 핸들러 업데이트
+                longTimeIdleHandlerUpdate(true);
+                mCheckItem = i;
+            }).setCancelable(false).create();
         }
         mStatus.lastDialog.show();
     }
@@ -3746,58 +3738,52 @@ public class MainActivity extends AppCompatActivity
 
         lastDialogDismiss();
 
-        mStatus.lastDialog = new MaterialAlertDialogBuilder(this)
-                .setTitle(getString(R.string.lock_screen_dialog_title))
-                .setMessage(getString(R.string.lock_screen_dialog_message))
-                .setPositiveButton(getString(R.string.lock_screen_dialog_positive), (dialogInterface, i) ->
-                {
-                    // 장시간 미사용 핸들러 업데이트
-                    longTimeIdleHandlerUpdate(true);
+        mStatus.lastDialog = new MaterialAlertDialogBuilder(this).setTitle(getString(R.string.lock_screen_dialog_title)).setMessage(getString(R.string.lock_screen_dialog_message)).setPositiveButton(getString(R.string.lock_screen_dialog_positive), (dialogInterface, i) ->
+        {
+            // 장시간 미사용 핸들러 업데이트
+            longTimeIdleHandlerUpdate(true);
 
-                    // 현재 연결 중인 사운드처리기가 있을 때
-                    if (mStatus.connectionState != Status.CONNECTION_STATE_DISCONNECTED)
-                    {
-                        mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
-                        mBluetoothGatt.disconnect();
-                    }
+            // 현재 연결 중인 사운드처리기가 있을 때
+            if (mStatus.connectionState != Status.CONNECTION_STATE_DISCONNECTED)
+            {
+                mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
+                mBluetoothGatt.disconnect();
+            }
 
-                    List<EntityUser>   users   = UtilUser.instance.getUsers();
-                    List<EntityDevice> devices = UtilDevice.instance.getDevices();
+            List<EntityUser>   users   = UtilUser.instance.getUsers();
+            List<EntityDevice> devices = UtilDevice.instance.getDevices();
 
-                    for (EntityUser user : users)
-                    {
-                        UtilUser.instance.delete(user);
-                        Log.d(TAG, "사용자 " + user.name + "  삭제됨.");
-                    }
+            for (EntityUser user : users)
+            {
+                UtilUser.instance.delete(user);
+                Log.d(TAG, "사용자 " + user.name + "  삭제됨.");
+            }
 
-                    for (EntityDevice device : devices)
-                    {
-                        UtilDevice.instance.delete(device);
-                        Log.d(TAG, "사운드처리기 " + device.serialNumber + "  삭제됨.");
-                    }
+            for (EntityDevice device : devices)
+            {
+                UtilDevice.instance.delete(device);
+                Log.d(TAG, "사운드처리기 " + device.serialNumber + "  삭제됨.");
+            }
 
-                    mLockScreen.erasePassword();
-                    //mLockScreen.setEnable(this, true);
-                    mLockScreen.setEnable(true);
-                    mLockScreen.resume();
-                    mManualScreen.setEnable(true);
+            mLockScreen.erasePassword();
+            //mLockScreen.setEnable(this, true);
+            mLockScreen.setEnable(true);
+            mLockScreen.resume();
+            mManualScreen.setEnable(true);
 
-                    Bundle bundle = new Bundle();
-                    bundle.putBoolean(ManualFragment.ARG_FIRST_SCREEN, true);
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(ManualFragment.ARG_FIRST_SCREEN, true);
                     /*
                     ManualFragment manualFragment = new ManualFragment();
                     manualFragment.setArguments(bundle);
                     getSupportFragmentManager().beginTransaction().replace(R.id.frame, manualFragment).commitAllowingStateLoss();
                     */
-                    replaceFragment(Status.TypeOfFragment.MANUAL, bundle);
-                })
-                .setNegativeButton(getString(R.string.lock_screen_dialog_negative), (dialogInterface, i) ->
-                {
-                    // 장시간 미사용 핸들러 업데이트
-                    longTimeIdleHandlerUpdate(true);
-                })
-                .setCancelable(false)
-                .create();
+            replaceFragment(Status.TypeOfFragment.MANUAL, bundle);
+        }).setNegativeButton(getString(R.string.lock_screen_dialog_negative), (dialogInterface, i) ->
+        {
+            // 장시간 미사용 핸들러 업데이트
+            longTimeIdleHandlerUpdate(true);
+        }).setCancelable(false).create();
         mStatus.lastDialog.show();
     }
 

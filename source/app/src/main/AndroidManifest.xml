@@ -49,6 +49,9 @@
     <!-- 진동 기능을 위한 권한 -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- 외부 저장소 권한 (안드로이드 10, API29, Q 이하) -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <uses-feature
         android:name="android.hardware.bluetooth"
         android:required="true" />
