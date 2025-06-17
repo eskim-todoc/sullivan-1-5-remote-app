@@ -21,6 +21,7 @@ public class PacketInfo
     static public final byte HEADER_WRITE_MAP_DATA         = (byte) (0x4D & 0xff);
     static public final byte HEADER_MAP_RESET_DEFAULT      = (byte) (0x50 & 0xff);
     static public final byte HEADER_SOUND_PROCESSING_PARAM = (byte) (0x52 & 0xff); // 0x52로 바뀜
+    static public final byte HEADER_DFU                    = (byte) (0x80 & 0xff);
     static public final byte HEADER_ISD_ID                 = (byte) (0x98 & 0xff);
     static public final byte HEADER_SYSTEM_WARNING         = (byte) (0x99 & 0xff);
     static public final byte HEADER_ERROR                  = (byte) (0xf0 & 0xff);
@@ -51,6 +52,24 @@ public class PacketInfo
     static public final int PACKET_SIZE_SOUND_PROCESSING_PARAM_INDEX_5 = 18;
     static public final int PACKET_SIZE_SOUND_PROCESSING_PARAM_INDEX_6 = 18;
     static public final int PACKET_SIZE_SOUND_PROCESSING_PARAM_INDEX_7 = 18;
+
+    // Header=1, DataIndex=3, FileType=2, TotalBytes=4, LastPacketIndex=4, LastPacket_remainedByte=1, RW=1
+    // => 16 bytes
+    static public final int PACKET_SIZE_DFU_SEND_COMMAND = 16;
+
+    // Header=1, DataIndex=3, PassFail=1
+    // => 5 bytes
+    static public final int PACKET_SIZE_DFU_RESP_COMMAND = 5;
+
+    // Header=1, DataIndex=3, Data=16 (단, 마지막 패킷에는 데이터가 16개가 아닐 수 있음)
+    static public final int PACKET_SIZE_DFU_SEND_DATA = 20;
+
+    // Header=1, DataIndex=3, PassFail=1
+    // => 5 bytes
+    static public final int PACKET_SIZE_DFU_RESP_DATA = 5;
+
+    // Data=16 (단, 마지막 패킷에는 데이터가 16개가 아닐 수 있음)
+    static public final int PACKET_SIZE_DFU_SEND_DATA_UNIT = 16;
 
     static public final int INIT_VALUE_BATTERY      = 0;
     static public final int INIT_VALUE_PROGRAM      = 1;

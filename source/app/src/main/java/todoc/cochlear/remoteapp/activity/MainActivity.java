@@ -55,6 +55,7 @@ import todoc.cochlear.remoteapp.database.devices.EntityDevice;
 import todoc.cochlear.remoteapp.database.devices.UtilDevice;
 import todoc.cochlear.remoteapp.database.users.EntityUser;
 import todoc.cochlear.remoteapp.database.users.UtilUser;
+import todoc.cochlear.remoteapp.dfu.Dfu;
 import todoc.cochlear.remoteapp.fragment.AddDeviceFragment;
 import todoc.cochlear.remoteapp.fragment.AddUserFragment;
 import todoc.cochlear.remoteapp.fragment.DeviceFragment;
@@ -88,7 +89,7 @@ public class MainActivity extends AppCompatActivity
 
     static private final int DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT = 2000;//500;
 
-    static private final int LONG_TIME_IDLE_TIMEOUT_IN_MS    = 600000;
+    static private final int LONG_TIME_IDLE_TIMEOUT_IN_MS    = 3600000; // 1시간
     static public final  int CHECK_BATTERY_DELAY_IN_MS       = 30000;
     static public final  int DISCOVER_SERVICES_TIMEOUT_IN_MS = 2000;
     static public final  int CCCD_TIMEOUT_IN_MS              = 2000;
@@ -123,6 +124,8 @@ public class MainActivity extends AppCompatActivity
     // 사용자 전환 메뉴 버튼 관련
     private String[] mUserList;
     private int      mCheckItem;
+
+    public Dfu mDfu;
 
     @Override
     protected void onPause()
@@ -667,12 +670,17 @@ public class MainActivity extends AppCompatActivity
         View view = mBinding.getRoot();
         setContentView(view);
 
-        Log.d(TAG, " \r\n*\r\n* *\r\n* * *\r\n* * * *\r\n* * * * *\r\n* * * * * *\r\n* * * * * * *\r\n* * * * * * * *\r\n* * * * * * * * *\n* * * * * * * * * *");
+        Log.d(TAG, " \r\n*\r\n* *\r\n* * *\r\n* * * *\r\n* * * * *\r\n* * * * * *\r\n* * * * * * *\r\n* * * * * * * *\r\n* * * * * * * * *\n* * * * * * * * *" + " *");
         Log.d(TAG, "액티비티가 실행되었습니다. -> onCreate()");
 
         if (mStatus == null)
         {
             mStatus = Status.instance();
+        }
+
+        if (mDfu == null)
+        {
+            mDfu = Dfu.getInstance();
         }
 
         mStatus.typeOfFragment = Status.TypeOfFragment.NONE;
@@ -870,7 +878,8 @@ public class MainActivity extends AppCompatActivity
 
             for (EntityUser user : testUserInfos)
             {
-                Log.d(TAG, "name = " + user.name + ", passKey = " + user.passKey + ", nickname = " + user.nickname + ", ear = " + user.ear + ", defaultUser = " + user.defaultUser);
+                Log.d(TAG, "name = " + user.name + ", passKey = " + user.passKey + ", nickname = " + user.nickname + ", ear = " + user.ear + ", defaultUser =
+                 " + user.defaultUser);
             }
 
             UtilUser.instance.delete(testUserInfo1);
@@ -983,7 +992,8 @@ public class MainActivity extends AppCompatActivity
 
             for (EntityUser user : users)
             {
-                Log.d(TAG, "name = " + user.name + ", passKey = " + user.passKey + ", nickname = " + user.nickname + ", ear = " + user.ear + ", defaultUser = " + user.defaultUser);
+                Log.d(TAG, "name = " + user.name + ", passKey = " + user.passKey + ", nickname = " + user.nickname + ", ear = " + user.ear + ", defaultUser =
+                 " + user.defaultUser);
 
                 if (user.name.equals("TEST-A_R"))
                 {
@@ -1017,7 +1027,8 @@ public class MainActivity extends AppCompatActivity
 
             for (EntityUser user : users)
             {
-                Log.d(TAG, "name = " + user.name + ", passKey = " + user.passKey + ", nickname = " + user.nickname + ", ear = " + user.ear + ", defaultUser = " + user.defaultUser);
+                Log.d(TAG, "name = " + user.name + ", passKey = " + user.passKey + ", nickname = " + user.nickname + ", ear = " + user.ear + ", defaultUser =
+                 " + user.defaultUser);
 
                 if (user.name.equals("TEST-A_R"))
                 {
@@ -1064,7 +1075,8 @@ public class MainActivity extends AppCompatActivity
 
             for (EntityDevice device : testDeviceInfos)
             {
-                Log.d(TAG, "serialNumber = " + device.serialNumber + ", pairingKey = " + device.pairingKey + ", additionalInformation = " + device.additionalInformation);
+                Log.d(TAG, "serialNumber = " + device.serialNumber + ", pairingKey = " + device.pairingKey + ", additionalInformation = " + device
+                .additionalInformation);
 
                 if (device.serialNumber.equals("A1B2"))
                 {
@@ -1094,7 +1106,8 @@ public class MainActivity extends AppCompatActivity
 
             if (testDevice != null)
             {
-                Log.d(TAG, "serialNumber = " + testDevice.serialNumber + ", pairingKey = " + testDevice.pairingKey + ", additionalInformation = " + testDevice.additionalInformation);
+                Log.d(TAG, "serialNumber = " + testDevice.serialNumber + ", pairingKey = " + testDevice.pairingKey + ", additionalInformation = " +
+                testDevice.additionalInformation);
             }
             else
             {
@@ -1112,7 +1125,8 @@ public class MainActivity extends AppCompatActivity
 
             if (testDevice != null)
             {
-                Log.d(TAG, "serialNumber = " + testDevice.serialNumber + ", pairingKey = " + testDevice.pairingKey + ", additionalInformation = " + testDevice.additionalInformation);
+                Log.d(TAG, "serialNumber = " + testDevice.serialNumber + ", pairingKey = " + testDevice.pairingKey + ", additionalInformation = " +
+                testDevice.additionalInformation);
             }
             else
             {
@@ -1146,7 +1160,8 @@ public class MainActivity extends AppCompatActivity
 
             for (EntityDevice device : testDeviceInfos)
             {
-                Log.d(TAG, "serialNumber = " + device.serialNumber + ", pairingKey = " + device.pairingKey + ", additionalInformation = " + device.additionalInformation);
+                Log.d(TAG, "serialNumber = " + device.serialNumber + ", pairingKey = " + device.pairingKey + ", additionalInformation = " + device
+                .additionalInformation);
 
                 if (device.serialNumber.equals("A1B2"))
                 {
@@ -1180,7 +1195,8 @@ public class MainActivity extends AppCompatActivity
 
             for (EntityDevice device : testDeviceInfos)
             {
-                Log.d(TAG, "serialNumber = " + device.serialNumber + ", pairingKey = " + device.pairingKey + ", additionalInformation = " + device.additionalInformation);
+                Log.d(TAG, "serialNumber = " + device.serialNumber + ", pairingKey = " + device.pairingKey + ", additionalInformation = " + device
+                .additionalInformation);
 
                 if (device.serialNumber.equals("A1B2"))
                 {
@@ -1381,12 +1397,16 @@ public class MainActivity extends AppCompatActivity
             userDst.defaultUser = "";
 
             Log.d(TAG, "Before copy");
-            Log.d(TAG, "src : name = " + userSrc.name + ", passKey = " + userSrc.passKey + ", nickname = " + userSrc.nickname + ", ear = " + userSrc.ear + ", defaultUser = " + userSrc.defaultUser);
-            Log.d(TAG, "dst : name = " + userDst.name + ", passKey = " + userDst.passKey + ", nickname = " + userDst.nickname + ", ear = " + userDst.ear + ", defaultUser = " + userDst.defaultUser);
+            Log.d(TAG, "src : name = " + userSrc.name + ", passKey = " + userSrc.passKey + ", nickname = " + userSrc.nickname + ", ear = " + userSrc.ear + ",
+             defaultUser = " + userSrc.defaultUser);
+            Log.d(TAG, "dst : name = " + userDst.name + ", passKey = " + userDst.passKey + ", nickname = " + userDst.nickname + ", ear = " + userDst.ear + ",
+             defaultUser = " + userDst.defaultUser);
             UtilUser.copyData(userDst, userSrc);
             Log.d(TAG, "After copy");
-            Log.d(TAG, "src : name = " + userSrc.name + ", passKey = " + userSrc.passKey + ", nickname = " + userSrc.nickname + ", ear = " + userSrc.ear + ", defaultUser = " + userSrc.defaultUser);
-            Log.d(TAG, "dst : name = " + userDst.name + ", passKey = " + userDst.passKey + ", nickname = " + userDst.nickname + ", ear = " + userDst.ear + ", defaultUser = " + userDst.defaultUser);
+            Log.d(TAG, "src : name = " + userSrc.name + ", passKey = " + userSrc.passKey + ", nickname = " + userSrc.nickname + ", ear = " + userSrc.ear + ",
+             defaultUser = " + userSrc.defaultUser);
+            Log.d(TAG, "dst : name = " + userDst.name + ", passKey = " + userDst.passKey + ", nickname = " + userDst.nickname + ", ear = " + userDst.ear + ",
+             defaultUser = " + userDst.defaultUser);
         }
         */
         // TD2-SW-RC-UNIT-Test-ID-66 [사용자 정보 복사 유닛] 순서[1] 끝.
@@ -1556,7 +1576,8 @@ public class MainActivity extends AppCompatActivity
         // 잠금화면 상태의 다이얼로그는 항상 최상위에 출력되어야 한다. 그래서 다이얼로그 객체를 따로 저장하지 않고,
         // 오직 확인 버튼을 눌러서만 제거가 가능하도록 구현한다.
         /*
-        mStatus.longTimeIdleDialog = new MaterialAlertDialogBuilder(MainActivity.this).setMessage("전력소모를 줄이기 위해 절전모드로 진입하였습니다.").setPositiveButton("해제", (dialogInterface, i) ->
+        mStatus.longTimeIdleDialog = new MaterialAlertDialogBuilder(MainActivity.this).setMessage("전력소모를 줄이기 위해 절전모드로 진입하였습니다.").setPositiveButton("해제",
+        (dialogInterface, i) ->
         {
             Log.d(TAG, "절전모드에서 빠져나옵니다.");
 
@@ -1603,8 +1624,7 @@ public class MainActivity extends AppCompatActivity
                 boolean bluetooth_scan    = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED;
                 boolean bluetooth_connect = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED;
 
-                //if ((!access_fine_location) || (!bluetooth_scan) || (!bluetooth_connect))// || (!bluetooth_privileged))
-                if ((!bluetooth_scan) || (!bluetooth_connect))// || (!bluetooth_privileged))
+                if ((!bluetooth_scan) || (!bluetooth_connect))
                 {
                     Log.d(TAG, "권한 획득이 안된 항목이 있습니다." + "LOCATION=" + access_fine_location
                             //+ ", PRIVILEGED=" + bluetooth_privileged
@@ -1664,15 +1684,10 @@ public class MainActivity extends AppCompatActivity
             boolean bluetooth_scan    = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED;
             boolean bluetooth_connect = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED;
 
-            //if ((!access_fine_location) || (!bluetooth_scan) || (!bluetooth_connect))// || (!bluetooth_privileged))
-            if ((!bluetooth_scan) || (!bluetooth_connect))// || (!bluetooth_privileged))
+            if ((!bluetooth_scan) || (!bluetooth_connect))
             {
-                Log.d(TAG, "권한 획득이 안된 항목이 있습니다." + "LOCATION=" + access_fine_location
-                        //+ ", PRIVILEGED=" + bluetooth_privileged
-                        + ", SCAN=" + bluetooth_scan + ", CONNECT=" + bluetooth_connect);
-                //String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT};
+                Log.d(TAG, "권한 획득이 안된 항목이 있습니다." + "LOCATION=" + access_fine_location + ", SCAN=" + bluetooth_scan + ", CONNECT=" + bluetooth_connect);
                 String[] permissions = new String[]{Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT};
-                //Manifest.permission.BLUETOOTH_PRIVILEGED};
                 ActivityCompat.requestPermissions(this, permissions, REQUEST_PERMISSION_CODE_NUMBER);
                 UtilLog.instance.writeLog("앱 사용을 위한 블루투스 및 위치 관련 권한 요청.");
                 return false;
@@ -2785,7 +2800,8 @@ public class MainActivity extends AppCompatActivity
                                             /*
                                             EditUserFragment editUserFragment = new EditUserFragment();
                                             editUserFragment.setArguments(bundle);
-                                            getSupportFragmentManager().beginTransaction().replace(mBinding.frame.getId(), editUserFragment).commitNowAllowingStateLoss();
+                                            getSupportFragmentManager().beginTransaction().replace(mBinding.frame.getId(), editUserFragment)
+                                            .commitNowAllowingStateLoss();
                                             */
                                 replaceFragment(Status.TypeOfFragment.USER_EDIT, bundle);
                             }).setNegativeButton("취소", (dialogInterface, i) ->
@@ -2964,7 +2980,7 @@ public class MainActivity extends AppCompatActivity
                     packetInfo.telecoil = (byte) (responsePacket[6] & 0xff);
                     packetInfo.notification = (byte) (responsePacket[7] & 0xff);
 
-                    Log.d(TAG, "사운드처리기 상태 확인 패킷 수신 : " + "배터리 = " + packetInfo.battery + ", " + "맵번호 = " + packetInfo.program + ", " + "볼륨 = " + packetInfo.volume + ", " + "최대출력 = " + packetInfo.maxOutput + ", " + "LED = " + packetInfo.led + ", " + "텔레코일 = " + packetInfo.telecoil + ", " + "자극알림 = " + packetInfo.notification);
+                    Log.d(TAG, "사운드처리기 상태 확인 패킷 수신 : " + "배터리 = " + packetInfo.battery + ", " + "맵번호 = " + packetInfo.program + ", " + "볼륨 = " + packetInfo.volume + "," + " " + "최대출력 = " + packetInfo.maxOutput + ", " + "LED = " + packetInfo.led + ", " + "텔레코일 = " + packetInfo.telecoil + ", " + "자극알림 = " + packetInfo.notification);
 
                     mStatusViewModel.setValueBatteryLevel(packetInfo.battery);
                     mStatusViewModel.setValueNotification(packetInfo.notification);
@@ -3182,6 +3198,194 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
 
+                case PacketInfo.HEADER_DFU:
+                {
+                    switch (mDfu.mCommState)
+                    {
+                        case Dfu.COMM_STATE_WAIT_RESP_COMMAND:
+                        {
+                            if (packetSize != PacketInfo.PACKET_SIZE_DFU_RESP_COMMAND)
+                            {
+                                Log.d(TAG, "DFU 명령어 응답 패킷 사이즈 에러, 사이즈 = " + packetSize);
+                                mDfu.mCommState = Dfu.COMM_STATE_IDLE;
+                                packetSizeErrorDialog(); // 경고창 출력
+                            }
+                            else
+                            {
+                                int respDataIndex;
+                                int respPassFail;
+
+                                respDataIndex = ((responsePacket[1] & 0xFF) << 16) & 0x00FF0000;
+                                respDataIndex |= ((responsePacket[2] & 0xFF) << 8) & 0x0000FF00;
+                                respDataIndex |= (responsePacket[3] & 0xFF) & 0x000000FF;
+
+                                respPassFail = responsePacket[4] & 0x000000FF;
+
+                                if (respDataIndex != mDfu.mCommRespDataIndex || respPassFail != Dfu.COMM_RESP_OK)
+                                {
+                                    Log.d(TAG,
+                                            "DFU 명령어 응답 에러, 예상 인덱스 = " + mDfu.mCommRespDataIndex + ", 받은 인덱스 = " + respDataIndex + ", 통과 여부 = " + respPassFail);
+                                    mDfu.mCommState = Dfu.COMM_STATE_IDLE;
+                                    packetSizeErrorDialog(); // 경고창 출력
+                                }
+                                else
+                                {
+                                    byte[] sendPacket;
+                                    int    sendSize;
+
+                                    mDfu.mCommState = Dfu.COMM_STATE_READY_DATA;
+
+                                    mDfu.mCommSendDataIndex++;
+                                    mDfu.mCommRespDataIndex++;
+
+                                    if (mDfu.mCommSendDataIndex == mDfu.mCommLastPacketIndex)
+                                    {
+                                        Log.d(TAG, "전송 인덱스와 마지막 패킷 인덱스가 같습니다.");
+                                        sendPacket = new byte[4 + mDfu.mCommLastPacket_remainedBytes];
+                                        sendSize = mDfu.mCommLastPacket_remainedBytes;
+                                    }
+                                    else
+                                    {
+                                        sendPacket = new byte[PacketInfo.PACKET_SIZE_DFU_SEND_DATA];
+                                        sendSize = PacketInfo.PACKET_SIZE_DFU_SEND_DATA_UNIT;
+                                    }
+
+                                    Log.d(TAG, "전송 사이즈는 = " + sendSize);
+
+                                    sendPacket[0] = PacketInfo.HEADER_DFU;
+
+                                    sendPacket[1] = (byte) ((mDfu.mCommSendDataIndex >> 16) & 0xFF); // Data index (MSB to LSB)
+                                    sendPacket[2] = (byte) ((mDfu.mCommSendDataIndex >> 8) & 0xFF);
+                                    sendPacket[3] = (byte) (mDfu.mCommSendDataIndex & 0xFF);
+
+                                    Log.d(TAG, "전송 인덱스 = " + mDfu.mCommSendDataIndex + ", 버퍼 인덱스 = " + mDfu.mCommCurrDfu_BufferIndex);
+
+                                    for (int i = 0; i < sendSize; i++)
+                                    {
+                                        sendPacket[4 + i] = mDfu.mBuffer[mDfu.mCommCurrDfu_BufferIndex];
+                                        mDfu.mCommCurrDfu_BufferIndex++;
+                                    }
+
+                                    Log.d(TAG, "패킷 생성 후 버퍼 인덱스 = " + mDfu.mCommCurrDfu_BufferIndex);
+
+                                    if (mBluetoothGatt != null && mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED)
+                                    {
+                                        mDfu.mCommState = Dfu.COMM_STATE_SEND_DATA;
+                                        sendPacket(sendPacket);
+                                        mDfu.mCommState = Dfu.COMM_STATE_WAIT_RESP_DATA;
+                                    }
+                                    else
+                                    {
+                                        Log.d(TAG, "연결이 끊어져서 패킷을 보낼 수 없음");
+                                    }
+                                }
+                            }
+                        }
+                        break;
+
+                        case Dfu.COMM_STATE_WAIT_RESP_DATA:
+                        {
+                            if (packetSize != PacketInfo.PACKET_SIZE_DFU_RESP_DATA)
+                            {
+                                Log.d(TAG, "DFU 데이터 응답 패킷 사이즈 에러, 사이즈 = " + packetSize);
+                                mDfu.mCommState = Dfu.COMM_STATE_IDLE;
+                                packetSizeErrorDialog(); // 경고창 출력
+                            }
+                            else
+                            {
+                                int respDataIndex;
+                                int respPassFail;
+
+                                respDataIndex = ((responsePacket[1] & 0xFF) << 16) | ((responsePacket[2] & 0xFF) << 8) | (responsePacket[3] & 0xFF);
+                                respPassFail = responsePacket[4] & 0x000000FF;
+
+                                if (respDataIndex != mDfu.mCommRespDataIndex || respPassFail != Dfu.COMM_RESP_OK)
+                                {
+                                    Log.d(TAG,
+                                            "DFU 데이터 응답 에러, 예상 인덱스 = " + mDfu.mCommRespDataIndex + ", 받은 인덱스 = " + respDataIndex + ", 통과 여부 = " + respPassFail);
+                                    mDfu.mCommState = Dfu.COMM_STATE_IDLE;
+                                    packetSizeErrorDialog(); // 경고창 출력
+                                }
+                                else
+                                {
+                                    byte[] sendPacket;
+                                    int    sendSize;
+
+                                    if (respDataIndex == mDfu.mCommLastPacketIndex) // 다 보내고, 마지막 응답 받은 상태
+                                    {
+                                        Log.d(TAG,
+                                                "DFU 데이터 마지막 응답 수신 예상 인덱스 = " + mDfu.mCommRespDataIndex + ", 받은 인덱스 = " + respDataIndex + ", 통과 여부 = " + respPassFail);
+                                        mDfu.mCommState = Dfu.COMM_STATE_IDLE;
+
+                                        //mCheckBatteryHandler.postDelayed(mCheckBatteryRunner, CHECK_BATTERY_DELAY_IN_MS);
+                                    }
+                                    else
+                                    {
+                                        mDfu.mCommState = Dfu.COMM_STATE_READY_DATA;
+
+                                        mDfu.mCommSendDataIndex++;
+                                        mDfu.mCommRespDataIndex++;
+
+                                        if (mDfu.mCommSendDataIndex == mDfu.mCommLastPacketIndex)
+                                        {
+                                            Log.d(TAG, "전송 인덱스와 마지막 패킷 인덱스가 같습니다.");
+                                            if (mDfu.mCommLastPacket_remainedBytes != 0)
+                                            {
+                                                sendPacket = new byte[4 + mDfu.mCommLastPacket_remainedBytes];
+                                                sendSize = mDfu.mCommLastPacket_remainedBytes;
+                                            }
+                                            else
+                                            {
+                                                sendPacket = new byte[PacketInfo.PACKET_SIZE_DFU_SEND_DATA];
+                                                sendSize = PacketInfo.PACKET_SIZE_DFU_SEND_DATA_UNIT;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            sendPacket = new byte[PacketInfo.PACKET_SIZE_DFU_SEND_DATA];
+                                            sendSize = PacketInfo.PACKET_SIZE_DFU_SEND_DATA_UNIT;
+                                        }
+
+                                        Log.d(TAG, "전송 사이즈는 = " + sendSize);
+
+                                        sendPacket[0] = PacketInfo.HEADER_DFU;
+
+                                        sendPacket[1] = (byte) ((mDfu.mCommSendDataIndex >> 16) & 0xFF); // Data index (MSB to LSB)
+                                        sendPacket[2] = (byte) ((mDfu.mCommSendDataIndex >> 8) & 0xFF);
+                                        sendPacket[3] = (byte) (mDfu.mCommSendDataIndex & 0xFF);
+
+                                        Log.d(TAG, "전송 인덱스 = " + mDfu.mCommSendDataIndex + ", 버퍼 인덱스 = " + mDfu.mCommCurrDfu_BufferIndex);
+
+                                        for (int i = 0; i < sendSize; i++)
+                                        {
+                                            sendPacket[4 + i] = mDfu.mBuffer[mDfu.mCommCurrDfu_BufferIndex];
+                                            mDfu.mCommCurrDfu_BufferIndex++;
+                                        }
+
+                                        Log.d(TAG, "패킷 생성 후 버퍼 인덱스 = " + mDfu.mCommCurrDfu_BufferIndex);
+
+                                        if (mBluetoothGatt != null && mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED)
+                                        {
+                                            mDfu.mCommState = Dfu.COMM_STATE_SEND_DATA;
+                                            sendPacket(sendPacket);
+                                            mDfu.mCommState = Dfu.COMM_STATE_WAIT_RESP_DATA;
+                                        }
+                                        else
+                                        {
+                                            Log.d(TAG, "연결이 끊어져서 패킷을 보낼 수 없음");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+
+                        default:
+                            break;
+                    } // swtich=>mDfu.mCommState
+                }
+                break; // case=>PacketInfo.HEADER_DFU
+
                 // 에러
                 case PacketInfo.HEADER_ERROR:
                 {
@@ -3292,7 +3496,7 @@ public class MainActivity extends AppCompatActivity
         // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
         lastDialogDismiss();
 
-        mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("에러").setMessage("통신 에러가 발생했습니다. 앱을 다시 시작해주세요. 같은 에러가 반복되면 외부기를 다시 착용해주세요.").setPositiveButton("확인", null).setCancelable(false).create();
+        mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("에러").setMessage("통신 에러가 발생했습니다. 앱을 다시 시작해주세요. 같은 에러가 반복되면 외부기를 다시 " + "착용해주세요.").setPositiveButton("확인", null).setCancelable(false).create();
         mStatus.lastDialog.show();
 
         if (mBluetoothGatt != null)
