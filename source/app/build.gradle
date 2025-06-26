@@ -3,15 +3,14 @@ plugins {
 }
 
 android {
+    compileSdk 35
+
     defaultConfig {
-        applicationId "todoc.cochlear.remoteapp_isd_check.activity"
-        minSdkVersion 23
-        targetSdkVersion 34
+        applicationId "kr.co.todoc.cochlear.implant.ota"
+        minSdk 23 // Android 6.0 (Marshmallow)
+        targetSdk 35
         versionCode 1
         versionName "1.0"
-
-        renderscriptTargetApi 19
-        renderscriptSupportModeEnabled true    // Enable RS support
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -60,16 +59,16 @@ android {
 
 dependencies {
 
-    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 
     // Room
-    def room_version = "2.6.1"
+    def room_version = "2.7.1"
 
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
@@ -83,7 +82,7 @@ dependencies {
     // optional - Test helpers
     testImplementation "androidx.room:room-testing:$room_version"
 
-    def lifecycle_version = "2.8.6"
+    def lifecycle_version = "2.9.1"
 
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"

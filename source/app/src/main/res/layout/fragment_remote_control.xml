@@ -5,33 +5,15 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/white_10"
         tools:context="todoc.cochlear.remoteapp.fragment.RemoteControlFragment">
 
-        <androidx.constraintlayout.widget.Guideline
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.25" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.5" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.75" />
-
-        <!-- Body -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/remote_control_body_layout"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="@color/black_70"
-            app:layout_constraintBottom_toTopOf="@id/remote_control_dfu_top_guideline"
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -40,718 +22,589 @@
                 android:id="@+id/remote_control_connection_isd_id_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
                 android:fontFamily="@font/roboto_mono_regular_variable"
                 android:letterSpacing="0.14"
                 android:text=""
                 android:textAlignment="center"
-                android:textColor="#FFA726"
+                android:textColor="#66BB6A"
                 android:textSize="14dp"
                 android:textStyle="italic|bold"
-                app:layout_constraintBottom_toTopOf="@id/remote_control_connection_user_name_textview"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 tools:text="#16210001" />
 
             <TextView
                 android:id="@+id/remote_control_connection_user_name_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text=""
                 android:textAlignment="center"
-                android:textColor="@color/white_90"
+                android:textColor="@color/white_100"
                 android:textSize="18dp"
-                app:layout_constraintBottom_toTopOf="@id/remote_control_battery_progressbar"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/remote_control_connection_isd_id_textview"
+                android:textStyle="bold"
                 tools:text="사용자 이름" />
 
-            <ImageView
-                android:id="@+id/remote_control_device_background_imageview"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="24dp"
-                android:src="@drawable/remote_control_device_background_image"
-                android:visibility="gone"
-                app:layout_constraintBottom_toTopOf="@id/remote_control_notification_image_button"
-                app:layout_constraintEnd_toStartOf="@id/remote_control_led_image_button"
-                app:layout_constraintTop_toBottomOf="@id/remote_control_connection_user_name_textview" />
-
-            <ImageView
-                android:id="@+id/remote_control_device_imageview"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/ote_png_image"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@id/remote_control_device_background_imageview"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_device_background_imageview"
-                app:layout_constraintStart_toStartOf="@id/remote_control_device_background_imageview"
-                app:layout_constraintTop_toTopOf="@id/remote_control_device_background_imageview" />
-
-            <ProgressBar
-                android:id="@+id/remote_control_battery_progressbar"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:layout_width="112dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="24dp"
-                android:elevation="8dp"
-                android:max="100"
-                android:progress="0"
-                android:progressDrawable="@drawable/custom_progressbar_battery_level"
-                android:visibility="visible"
-                app:layout_constraintBottom_toTopOf="@id/remote_control_notification_image_button"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/remote_control_connection_user_name_textview"
-                tools:progress="22" />
-
-            <ImageView
-                android:layout_width="8dp"
-                android:layout_height="18dp"
-                android:contentDescription=""
-                android:elevation="8dp"
-                android:src="@drawable/drawable_home_battery_tap"
-                app:layout_constraintBottom_toBottomOf="@id/remote_control_battery_progressbar"
-                app:layout_constraintStart_toEndOf="@id/remote_control_battery_progressbar"
-                app:layout_constraintTop_toTopOf="@id/remote_control_battery_progressbar" />
-
             <TextView
-                android:id="@+id/remote_control_battery_percent_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:elevation="8dp"
-                android:text=""
-                android:textColor="@color/black_90"
-                android:textSize="20dp"
-                app:layout_constraintBottom_toBottomOf="@id/remote_control_battery_progressbar"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_battery_progressbar"
-                app:layout_constraintStart_toStartOf="@id/remote_control_battery_progressbar"
-                app:layout_constraintTop_toTopOf="@id/remote_control_battery_progressbar"
-                tools:text="22" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_marginBottom="2dp"
-                android:elevation="8dp"
-                android:text="%"
-                android:textColor="@color/black_90"
-                android:textSize="14dp"
-                app:layout_constraintBottom_toBottomOf="@id/remote_control_battery_percent_textview"
-                app:layout_constraintStart_toEndOf="@id/remote_control_battery_percent_textview" />
-
-            <!-- 시작, 텔레코일 아이콘 안보이기 -->
-            <ImageButton
-                android:id="@+id/remote_control_dummy_image_button"
-                style="@style/RemoteControl.RemoteControl.CircleButton"
-                android:layout_width="24dp"
-                android:layout_marginTop="0dp"
-                android:layout_marginBottom="0dp"
-                android:clickable="false"
-                android:src="@drawable/remote_control_ic_notifications_24dp"
-                android:visibility="invisible"
-                app:layout_constraintBottom_toTopOf="@id/remote_control_program_down_image_button"
-                app:layout_constraintEnd_toStartOf="@id/remote_control_notification_image_button"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/remote_control_battery_progressbar" />
-
-            <ImageButton
-                android:id="@+id/remote_control_notification_image_button"
-                style="@style/RemoteControl.RemoteControl.CircleButton"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="12dp"
-                android:src="@drawable/remote_control_ic_notifications_24dp"
-                app:layout_constraintBottom_toTopOf="@id/remote_control_program_down_image_button"
-                app:layout_constraintEnd_toStartOf="@id/remote_control_led_image_button"
-                app:layout_constraintStart_toEndOf="@id/remote_control_dummy_image_button"
-                app:layout_constraintTop_toBottomOf="@id/remote_control_battery_progressbar" />
-
-            <ImageButton
-                android:id="@+id/remote_control_led_image_button"
-                style="@style/RemoteControl.RemoteControl.CircleButton"
-                android:src="@drawable/remote_control_ic_light_24dp"
-                app:layout_constraintBottom_toBottomOf="@id/remote_control_notification_image_button"
-                app:layout_constraintEnd_toStartOf="@id/remote_control_telecoil_image_button"
-                app:layout_constraintStart_toEndOf="@id/remote_control_notification_image_button"
-                app:layout_constraintTop_toTopOf="@id/remote_control_notification_image_button" />
-
-            <ImageButton
-                android:id="@+id/remote_control_telecoil_image_button"
-                style="@style/RemoteControl.RemoteControl.CircleButton"
-                android:layout_width="36dp"
-                android:clickable="false"
-                android:src="@drawable/remote_control_ic_telecoil_24dp"
-                android:visibility="invisible"
-                app:layout_constraintBottom_toBottomOf="@id/remote_control_notification_image_button"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/remote_control_led_image_button"
-                app:layout_constraintTop_toTopOf="@id/remote_control_notification_image_button" />
-
-            <TextView
-                android:id="@+id/remote_control_telecoil_title_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="텔레코일"
-                android:textColor="@color/white_70"
-                android:textSize="14dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toTopOf="@id/remote_control_telecoil_image_button"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_telecoil_image_button"
-                app:layout_constraintStart_toStartOf="@id/remote_control_telecoil_image_button" />
-            <!-- 끝, 텔레코일 아이콘 안보이기 -->
-            <TextView
-                android:id="@+id/remote_control_notification_title_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="0dp"
-                android:text="알림"
-                android:textColor="@color/white_70"
-                android:textSize="14dp"
-                app:layout_constraintBottom_toTopOf="@id/remote_control_notification_image_button"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_notification_image_button"
-                app:layout_constraintStart_toStartOf="@id/remote_control_notification_image_button" />
-
-            <TextView
-                android:id="@+id/remote_control_led_title_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="0dp"
-                android:text="LED"
-                android:textColor="@color/white_70"
-                android:textSize="14dp"
-                app:layout_constraintBottom_toTopOf="@id/remote_control_led_image_button"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_led_image_button"
-                app:layout_constraintStart_toStartOf="@id/remote_control_led_image_button" />
-
-            <TextView
-                android:id="@+id/remote_control_program_title_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="0dp"
-                android:text="프로그램"
-                android:textColor="@color/white_70"
-                android:textSize="14dp"
-                app:layout_constraintBottom_toTopOf="@id/remote_control_program_down_image_button"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_program_up_image_button"
-                app:layout_constraintStart_toStartOf="@id/remote_control_program_down_image_button" />
-
-            <TextView
-                android:id="@+id/remote_control_program_value_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:elevation="8dp"
-                android:text=""
-                android:textColor="@color/black_90"
-                android:textSize="18dp"
-                app:layout_constraintBottom_toBottomOf="@id/remote_control_program_down_image_button"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_program_up_image_button"
-                app:layout_constraintStart_toStartOf="@id/remote_control_program_down_image_button"
-                app:layout_constraintTop_toTopOf="@id/remote_control_program_down_image_button"
-                tools:text="2" />
-
-            <ImageButton
-                android:id="@+id/remote_control_program_down_image_button"
-                android:layout_width="0dp"
-                android:layout_height="32dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="24dp"
-                android:background="@drawable/remote_control_program_down_button"
-                app:layout_constraintBottom_toTopOf="@id/remote_control_max_output_progressbar"
-                app:layout_constraintEnd_toStartOf="@id/remote_control_program_up_image_button"
-                app:layout_constraintStart_toEndOf="@id/remote_control_dummy_image_button"
-                app:layout_constraintTop_toBottomOf="@id/remote_control_notification_image_button" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/remote_control_ic_left_24dp"
-                app:layout_constraintBottom_toBottomOf="@id/remote_control_program_down_image_button"
-                app:layout_constraintStart_toStartOf="@id/remote_control_program_down_image_button"
-                app:layout_constraintTop_toTopOf="@id/remote_control_program_down_image_button" />
-
-            <ImageButton
-                android:id="@+id/remote_control_program_up_image_button"
-                android:layout_width="0dp"
-                android:layout_height="32dp"
-                android:background="@drawable/remote_control_program_up_button"
-                app:layout_constraintBottom_toBottomOf="@id/remote_control_program_down_image_button"
-                app:layout_constraintEnd_toStartOf="@id/remote_control_telecoil_image_button"
-                app:layout_constraintStart_toEndOf="@id/remote_control_program_down_image_button"
-                app:layout_constraintTop_toTopOf="@id/remote_control_program_down_image_button" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/remote_control_ic_right_24dp"
-                app:layout_constraintBottom_toBottomOf="@id/remote_control_program_up_image_button"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_program_up_image_button"
-                app:layout_constraintTop_toTopOf="@id/remote_control_program_up_image_button" />
-
-            <ProgressBar
-                android:id="@+id/remote_control_max_output_progressbar"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="8dp"
-                android:elevation="8dp"
-                android:max="4"
-                android:progress="2"
-                android:progressDrawable="@drawable/remote_control_imagebutton_background_progressbar"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/remote_control_volume_progressbar"
-                app:layout_constraintHeight_max="256dp"
-                app:layout_constraintHeight_min="160dp"
-                app:layout_constraintStart_toEndOf="@id/remote_control_dummy_image_button"
-                app:layout_constraintTop_toBottomOf="@id/remote_control_program_down_image_button" />
-
-            <ImageButton
-                android:id="@+id/remote_control_max_output_up_image_button"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:background="@drawable/remote_control_button_ripple_round_top_background"
-                android:elevation="8dp"
-                app:layout_constraintBottom_toTopOf="@id/remote_control_max_output_down_image_button"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_max_output_progressbar"
-                app:layout_constraintStart_toStartOf="@id/remote_control_max_output_progressbar"
-                app:layout_constraintTop_toTopOf="@id/remote_control_max_output_progressbar" />
-
-            <ImageView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@android:color/transparent"
-                android:elevation="8dp"
-                android:src="@drawable/remote_control_ic_up_24dp"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_max_output_up_image_button"
-                app:layout_constraintStart_toStartOf="@id/remote_control_max_output_up_image_button"
-                app:layout_constraintTop_toTopOf="@id/remote_control_max_output_up_image_button" />
+                android:fontFamily="@font/nanum_gothic_regular"
+                android:text="List of slots"
+                android:textColor="#FFA000"
+                android:textSize="12dp"
+                android:textStyle="bold" />
 
-            <ImageButton
-                android:id="@+id/remote_control_max_output_down_image_button"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:background="@drawable/remote_control_button_ripple_round_bottom_background"
-                android:elevation="8dp"
-                app:layout_constraintBottom_toBottomOf="@id/remote_control_max_output_progressbar"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_max_output_progressbar"
-                app:layout_constraintStart_toStartOf="@id/remote_control_max_output_progressbar"
-                app:layout_constraintTop_toBottomOf="@id/remote_control_max_output_up_image_button" />
-
-            <ImageView
-                android:layout_width="wrap_content"
+            <RadioGroup
+                android:id="@+id/slot_radio_button_group"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:background="@android:color/transparent"
-                android:elevation="8dp"
-                android:src="@drawable/remote_control_ic_down_24dp"
-                app:layout_constraintBottom_toBottomOf="@id/remote_control_max_output_down_image_button"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_max_output_down_image_button"
-                app:layout_constraintStart_toStartOf="@id/remote_control_max_output_down_image_button" />
+                android:orientation="horizontal">
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/slot_1_radio_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="1"
+                    android:textColor="@color/white_100"
+                    android:textSize="12dp" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/slot_2_radio_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="2"
+                    android:textColor="@color/white_100"
+                    android:textSize="12dp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:visibility="invisible" />
+            </RadioGroup>
 
             <TextView
-                android:id="@+id/remote_control_max_output_title_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="최대출력"
-                android:textColor="@color/white_70"
-                android:textSize="14dp"
-                app:layout_constraintBottom_toTopOf="@id/remote_control_max_output_progressbar"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_max_output_progressbar"
-                app:layout_constraintStart_toStartOf="@id/remote_control_max_output_progressbar" />
-
-            <TextView
-                android:id="@+id/remote_control_max_output_value_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:elevation="8dp"
-                android:text=""
-                android:textColor="@color/black_90"
-                android:textSize="20dp"
-                app:layout_constraintBottom_toBottomOf="@id/remote_control_max_output_progressbar"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_max_output_progressbar"
-                app:layout_constraintStart_toStartOf="@id/remote_control_max_output_progressbar"
-                app:layout_constraintTop_toTopOf="@id/remote_control_max_output_progressbar"
-                tools:text="80%" />
-
-            <ProgressBar
-                android:id="@+id/remote_control_volume_progressbar"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginStart="16dp"
-                android:elevation="8dp"
-                android:max="10"
-                android:progress="4"
-                android:progressDrawable="@drawable/remote_control_imagebutton_background_progressbar"
-                app:layout_constraintBottom_toBottomOf="@id/remote_control_max_output_progressbar"
-                app:layout_constraintEnd_toStartOf="@id/remote_control_telecoil_image_button"
-                app:layout_constraintStart_toEndOf="@id/remote_control_max_output_progressbar"
-                app:layout_constraintTop_toTopOf="@id/remote_control_max_output_progressbar" />
-
-            <ImageButton
-                android:id="@+id/remote_control_volume_up_image_button"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:background="@drawable/remote_control_button_ripple_round_top_background"
-                android:elevation="8dp"
-                app:layout_constraintBottom_toTopOf="@id/remote_control_volume_down_image_button"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_volume_progressbar"
-                app:layout_constraintStart_toStartOf="@id/remote_control_volume_progressbar"
-                app:layout_constraintTop_toTopOf="@id/remote_control_volume_progressbar" />
-
-            <ImageView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@android:color/transparent"
-                android:elevation="8dp"
-                android:src="@drawable/remote_control_ic_up_24dp"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_volume_up_image_button"
-                app:layout_constraintStart_toStartOf="@id/remote_control_volume_up_image_button"
-                app:layout_constraintTop_toTopOf="@id/remote_control_volume_up_image_button" />
+                android:fontFamily="@font/nanum_gothic_regular"
+                android:text="List of files"
+                android:textColor="#FFA000"
+                android:textSize="12dp"
+                android:textStyle="bold" />
 
-            <ImageButton
-                android:id="@+id/remote_control_volume_down_image_button"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:background="@drawable/remote_control_button_ripple_round_bottom_background"
-                android:elevation="8dp"
-                app:layout_constraintBottom_toBottomOf="@id/remote_control_volume_progressbar"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_volume_progressbar"
-                app:layout_constraintStart_toStartOf="@id/remote_control_volume_progressbar"
-                app:layout_constraintTop_toBottomOf="@id/remote_control_volume_up_image_button" />
-
-            <ImageView
-                android:layout_width="wrap_content"
+            <RadioGroup
+                android:id="@+id/file_radio_button_group"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:background="@android:color/transparent"
-                android:elevation="8dp"
-                android:src="@drawable/remote_control_ic_down_24dp"
-                app:layout_constraintBottom_toBottomOf="@id/remote_control_volume_down_image_button"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_volume_down_image_button"
-                app:layout_constraintStart_toStartOf="@id/remote_control_volume_down_image_button" />
+                android:orientation="horizontal">
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/file_m_radio_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="MFST"
+                    android:textColor="@color/white_100"
+                    android:textSize="12dp" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/file_0_radio_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="APP0"
+                    android:textColor="@color/white_100"
+                    android:textSize="12dp" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/file_1_radio_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="APP1"
+                    android:textColor="@color/white_100"
+                    android:textSize="12dp" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/file_2_radio_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="APP2"
+                    android:textColor="@color/white_100"
+                    android:textSize="12dp" />
+            </RadioGroup>
 
             <TextView
-                android:id="@+id/remote_control_volume_title_textview"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="볼륨"
-                android:textColor="@color/white_70"
-                android:textSize="14dp"
-                app:layout_constraintBottom_toTopOf="@id/remote_control_volume_up_image_button"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_volume_up_image_button"
-                app:layout_constraintStart_toStartOf="@id/remote_control_volume_up_image_button" />
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/nanum_gothic_regular"
+                android:text="Status of files"
+                android:textColor="#FFA000"
+                android:textSize="12dp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="Name"
+                    android:textColor="#BBDEFB"
+                    android:textSize="12dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="Local size"
+                    android:textColor="#BBDEFB"
+                    android:textSize="12dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="Remote size"
+                    android:textColor="#BBDEFB"
+                    android:textSize="12dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="Collect"
+                    android:textColor="#BBDEFB"
+                    android:textSize="12dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="Write"
+                    android:textColor="#BBDEFB"
+                    android:textSize="12dp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/mfst_name_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="MFST"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/mfst_local_size_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="0"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="1048576" />
+
+                <TextView
+                    android:id="@+id/mfst_remote_size_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="0"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="1048576" />
+
+                <TextView
+                    android:id="@+id/mfst_collect_percent_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="0%"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="100%" />
+
+                <TextView
+                    android:id="@+id/mfst_write_percent_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="0%"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="100%" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/app0_name_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="APP0"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/app0_local_size_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="0"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="1048576" />
+
+                <TextView
+                    android:id="@+id/app0_remote_size_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="0"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="1048576" />
+
+                <TextView
+                    android:id="@+id/app0_collect_percent_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="0%"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="100%" />
+
+                <TextView
+                    android:id="@+id/app0_write_percent_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="0%"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="100%" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/app1_name_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="APP1"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/app1_local_size_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="0"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="1048576" />
+
+                <TextView
+                    android:id="@+id/app1_remote_size_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="0"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="1048576" />
+
+                <TextView
+                    android:id="@+id/app1_collect_percent_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="0%"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="100%" />
+
+                <TextView
+                    android:id="@+id/app1_write_percent_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="0%"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="100%" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/app2_name_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="APP2"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/app2_local_size_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="0"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="1048576" />
+
+                <TextView
+                    android:id="@+id/app2_remote_size_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="0"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="1048576" />
+
+                <TextView
+                    android:id="@+id/app2_collect_percent_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="0%"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="100%" />
+
+                <TextView
+                    android:id="@+id/app2_write_percent_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="0%"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="100%" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="Slot information"
+                    android:textColor="#FFA000"
+                    android:textSize="12dp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="Curr slot"
+                        android:textColor="#BBDEFB"
+                        android:textSize="12dp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="Last slot"
+                        android:textColor="#BBDEFB"
+                        android:textSize="12dp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/curr_slot_text_view"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="FF"
+                        android:textColor="#00E676"
+                        android:textSize="14dp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/last_slot_text_view"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="FF"
+                        android:textColor="#00E676"
+                        android:textSize="14dp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/remote_control_volume_value_textview"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:elevation="8dp"
-                android:text=""
-                android:textColor="@color/black_90"
-                android:textSize="20dp"
-                app:layout_constraintBottom_toBottomOf="@id/remote_control_volume_progressbar"
-                app:layout_constraintEnd_toEndOf="@id/remote_control_volume_progressbar"
-                app:layout_constraintStart_toStartOf="@id/remote_control_volume_progressbar"
-                app:layout_constraintTop_toTopOf="@id/remote_control_volume_progressbar"
-                tools:text="10" />
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/nanum_gothic_regular"
+                android:text="Buttons"
+                android:textColor="#FFA000"
+                android:textSize="12dp"
+                android:textStyle="bold" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/remote_control_dfu_top_guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.65" />
-
-        <!-- DFU -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/remote_control_dfu_layout"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@color/black_70"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="16dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/remote_control_dfu_top_guideline">
-
-            <TextView
-                android:id="@+id/dfu_title_manifest_tv"
-                android:layout_width="wrap_content"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/ota_info_button"
+                style="@style/TextAppearance.MaterialComponents.Button"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Manifest"
+                android:layout_marginTop="8dp"
+                android:text="Info"
+                android:textAllCaps="false"
                 android:textColor="@color/white_100"
                 android:textSize="12dp"
-                app:layout_constraintBottom_toTopOf="@id/dfu_manifest_read_btn"
-                app:layout_constraintEnd_toEndOf="@id/dfu_manifest_read_btn"
-                app:layout_constraintStart_toStartOf="@id/dfu_manifest_read_btn"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:backgroundTint="#1976D2" />
 
-            <TextView
-                android:id="@+id/dfu_title_app0_tv"
-                android:layout_width="wrap_content"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/ota_collect_material_button"
+                style="@style/TextAppearance.MaterialComponents.Button"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:elevation="4dp"
-                android:text="CM3"
+                android:text="Collect"
+                android:textAllCaps="false"
                 android:textColor="@color/white_100"
                 android:textSize="12dp"
-                app:layout_constraintBottom_toBottomOf="@id/dfu_title_manifest_tv"
-                app:layout_constraintEnd_toEndOf="@id/dfu_app0_read_btn"
-                app:layout_constraintStart_toStartOf="@id/dfu_app0_read_btn"
-                app:layout_constraintTop_toTopOf="@id/dfu_title_manifest_tv" />
+                app:backgroundTint="#388E3C" />
 
-            <TextView
-                android:id="@+id/dfu_title_app1_tv"
-                android:layout_width="wrap_content"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/ota_write_material_button"
+                style="@style/TextAppearance.MaterialComponents.Button"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:elevation="4dp"
-                android:text="HEAR"
+                android:text="Write"
+                android:textAllCaps="false"
                 android:textColor="@color/white_100"
                 android:textSize="12dp"
-                app:layout_constraintBottom_toBottomOf="@id/dfu_title_manifest_tv"
-                app:layout_constraintEnd_toEndOf="@id/dfu_app1_read_btn"
-                app:layout_constraintStart_toStartOf="@id/dfu_app1_read_btn"
-                app:layout_constraintTop_toTopOf="@id/dfu_title_manifest_tv" />
+                app:backgroundTint="#FF6F00" />
 
-            <TextView
-                android:id="@+id/dfu_title_app2_tv"
-                android:layout_width="wrap_content"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/ota_select_material_button"
+                style="@style/TextAppearance.MaterialComponents.Button"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:elevation="4dp"
-                android:text="CFX"
+                android:text="Select"
+                android:textAllCaps="false"
                 android:textColor="@color/white_100"
                 android:textSize="12dp"
-                app:layout_constraintBottom_toBottomOf="@id/dfu_title_manifest_tv"
-                app:layout_constraintEnd_toEndOf="@id/dfu_app2_read_btn"
-                app:layout_constraintStart_toStartOf="@id/dfu_app2_read_btn"
-                app:layout_constraintTop_toTopOf="@id/dfu_title_manifest_tv" />
+                app:backgroundTint="#4A148C" />
 
-            <Button
-                android:id="@+id/dfu_manifest_read_btn"
-                android:layout_width="64dp"
-                android:layout_height="wrap_content"
-                android:text="읽기"
-                android:textColor="@color/black_100"
-                android:textSize="12dp"
-                app:layout_constraintEnd_toStartOf="@id/dfu_app0_read_btn"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/dfu_title_manifest_tv" />
+        </LinearLayout>
 
-            <Button
-                android:id="@+id/dfu_app0_read_btn"
-                android:layout_width="64dp"
-                android:layout_height="wrap_content"
-                android:text="읽기"
-                android:textColor="@color/black_100"
-                android:textSize="12dp"
-                app:layout_constraintBottom_toBottomOf="@id/dfu_manifest_read_btn"
-                app:layout_constraintEnd_toStartOf="@id/dfu_app1_read_btn"
-                app:layout_constraintStart_toEndOf="@id/dfu_manifest_read_btn"
-                app:layout_constraintTop_toTopOf="@id/dfu_manifest_read_btn" />
-
-            <Button
-                android:id="@+id/dfu_app1_read_btn"
-                android:layout_width="64dp"
-                android:layout_height="wrap_content"
-                android:text="읽기"
-                android:textColor="@color/black_100"
-                android:textSize="12dp"
-                app:layout_constraintBottom_toBottomOf="@id/dfu_manifest_read_btn"
-                app:layout_constraintEnd_toStartOf="@id/dfu_app2_read_btn"
-                app:layout_constraintStart_toEndOf="@id/dfu_app0_read_btn"
-                app:layout_constraintTop_toTopOf="@id/dfu_manifest_read_btn" />
-
-            <Button
-                android:id="@+id/dfu_app2_read_btn"
-                android:layout_width="64dp"
-                android:layout_height="wrap_content"
-                android:text="읽기"
-                android:textColor="@color/black_100"
-                android:textSize="12dp"
-                app:layout_constraintBottom_toBottomOf="@id/dfu_manifest_read_btn"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/dfu_app1_read_btn"
-                app:layout_constraintTop_toTopOf="@id/dfu_manifest_read_btn" />
-
-            <Button
-                android:id="@+id/dfu_manifest_send_btn"
-                android:layout_width="64dp"
-                android:layout_height="wrap_content"
-                android:text="전송"
-                android:textColor="@color/black_100"
-                android:textSize="12dp"
-                app:layout_constraintBottom_toTopOf="@id/dfu_manifest_state_tv"
-                app:layout_constraintEnd_toEndOf="@id/dfu_manifest_read_btn"
-                app:layout_constraintStart_toStartOf="@id/dfu_manifest_read_btn"
-                app:layout_constraintTop_toBottomOf="@id/dfu_manifest_read_btn" />
-
-            <Button
-                android:id="@+id/dfu_app0_send_btn"
-                android:layout_width="64dp"
-                android:layout_height="wrap_content"
-                android:text="전송"
-                android:textColor="@color/black_100"
-                android:textSize="12dp"
-                app:layout_constraintBottom_toBottomOf="@id/dfu_manifest_send_btn"
-                app:layout_constraintEnd_toEndOf="@id/dfu_app0_read_btn"
-                app:layout_constraintStart_toStartOf="@id/dfu_app0_read_btn"
-                app:layout_constraintTop_toTopOf="@id/dfu_manifest_send_btn" />
-
-            <Button
-                android:id="@+id/dfu_app1_send_btn"
-                android:layout_width="64dp"
-                android:layout_height="wrap_content"
-                android:text="전송"
-                android:textColor="@color/black_100"
-                android:textSize="12dp"
-                app:layout_constraintBottom_toBottomOf="@id/dfu_manifest_send_btn"
-                app:layout_constraintEnd_toEndOf="@id/dfu_app1_read_btn"
-                app:layout_constraintStart_toStartOf="@id/dfu_app1_read_btn"
-                app:layout_constraintTop_toTopOf="@id/dfu_manifest_send_btn" />
-
-            <Button
-                android:id="@+id/dfu_app2_send_btn"
-                android:layout_width="64dp"
-                android:layout_height="wrap_content"
-                android:text="전송"
-                android:textColor="@color/black_100"
-                android:textSize="12dp"
-                app:layout_constraintBottom_toBottomOf="@id/dfu_manifest_send_btn"
-                app:layout_constraintEnd_toEndOf="@id/dfu_app2_read_btn"
-                app:layout_constraintStart_toStartOf="@id/dfu_app2_read_btn"
-                app:layout_constraintTop_toTopOf="@id/dfu_manifest_send_btn" />
-
-            <TextView
-                android:id="@+id/dfu_manifest_state_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="모름"
-                android:textColor="@color/field_100"
-                android:textSize="14dp"
-                android:textStyle="italic"
-                app:layout_constraintBottom_toTopOf="@id/dfu_manifest_progress_tv"
-                app:layout_constraintEnd_toEndOf="@id/dfu_manifest_read_btn"
-                app:layout_constraintStart_toStartOf="@id/dfu_manifest_read_btn"
-                app:layout_constraintTop_toBottomOf="@id/dfu_manifest_send_btn" />
-
-            <TextView
-                android:id="@+id/dfu_app0_state_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="모름"
-                android:textColor="@color/field_100"
-                android:textSize="14dp"
-                android:textStyle="italic"
-                app:layout_constraintEnd_toEndOf="@id/dfu_app0_read_btn"
-                app:layout_constraintStart_toStartOf="@id/dfu_app0_read_btn"
-                app:layout_constraintTop_toTopOf="@id/dfu_manifest_state_tv" />
-
-            <TextView
-                android:id="@+id/dfu_app1_state_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="모름"
-                android:textColor="@color/field_100"
-                android:textSize="14dp"
-                android:textStyle="italic"
-                app:layout_constraintEnd_toEndOf="@id/dfu_app1_read_btn"
-                app:layout_constraintStart_toStartOf="@id/dfu_app1_read_btn"
-                app:layout_constraintTop_toTopOf="@id/dfu_manifest_state_tv" />
-
-            <TextView
-                android:id="@+id/dfu_app2_state_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="모름"
-                android:textColor="@color/field_100"
-                android:textSize="14dp"
-                android:textStyle="italic"
-                app:layout_constraintEnd_toEndOf="@id/dfu_app2_read_btn"
-                app:layout_constraintStart_toStartOf="@id/dfu_app2_read_btn"
-                app:layout_constraintTop_toTopOf="@id/dfu_manifest_state_tv" />
-
-            <TextView
-                android:id="@+id/dfu_manifest_progress_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="100%"
-                android:textColor="@color/white_100"
-                android:textSize="14dp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@id/dfu_final_update_btn"
-                app:layout_constraintEnd_toEndOf="@id/dfu_manifest_read_btn"
-                app:layout_constraintStart_toStartOf="@id/dfu_manifest_read_btn"
-                app:layout_constraintTop_toBottomOf="@id/dfu_manifest_state_tv" />
-
-            <TextView
-                android:id="@+id/dfu_app0_progress_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="100%"
-                android:textColor="@color/white_100"
-                android:textSize="14dp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="@id/dfu_app0_read_btn"
-                app:layout_constraintStart_toStartOf="@id/dfu_app0_read_btn"
-                app:layout_constraintTop_toTopOf="@id/dfu_manifest_progress_tv" />
-
-            <TextView
-                android:id="@+id/dfu_app1_progress_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="100%"
-                android:textColor="@color/white_100"
-                android:textSize="14dp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="@id/dfu_app1_read_btn"
-                app:layout_constraintStart_toStartOf="@id/dfu_app1_read_btn"
-                app:layout_constraintTop_toTopOf="@id/dfu_manifest_progress_tv" />
-
-            <TextView
-                android:id="@+id/dfu_app2_progress_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="100%"
-                android:textColor="@color/white_100"
-                android:textSize="14dp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="@id/dfu_app2_read_btn"
-                app:layout_constraintStart_toStartOf="@id/dfu_app2_read_btn"
-                app:layout_constraintTop_toTopOf="@id/dfu_manifest_progress_tv" />
-
-            <Button
-                android:id="@+id/dfu_final_update_btn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="업데이트 적용"
-                android:textColor="@color/black_100"
-                android:textSize="12dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
         <!-- Connection -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/remote_control_connection_layout"
@@ -763,18 +616,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:visibility="visible">
-
-            <!--
-            <com.github.mmin18.widget.RealtimeBlurView
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:realtimeBlurRadius="8dp"
-                app:realtimeOverlayColor="#8000" />
-                -->
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/remote_control_find_layout"
@@ -845,18 +686,7 @@
                     app:layout_constraintTop_toBottomOf="@id/remote_control_progressbar"
                     app:layout_constraintVertical_bias="0.35" />
             </androidx.constraintlayout.widget.ConstraintLayout>
-            <!-- Blur -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/remote_control_blur_layout"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:clickable="true"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:visibility="visible"></androidx.constraintlayout.widget.ConstraintLayout>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

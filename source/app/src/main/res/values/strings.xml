@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">토닥 내부기 확인</string>
+    <string name="app_name">토닥 OTA</string>
     <!-- Toolbar -->
     <string name="toolbar_menu_settings">설정</string>
     <string name="toolbar_title_settings">메뉴</string>
@@ -50,5 +50,6 @@
     <string name="service_termination_notification_title">리모컨</string>
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="no_content">No Content</string>
 
 </resources>

@@ -55,7 +55,7 @@ import todoc.cochlear.remoteapp.database.devices.EntityDevice;
 import todoc.cochlear.remoteapp.database.devices.UtilDevice;
 import todoc.cochlear.remoteapp.database.users.EntityUser;
 import todoc.cochlear.remoteapp.database.users.UtilUser;
-import todoc.cochlear.remoteapp.dfu.Dfu;
+import todoc.cochlear.remoteapp.ota.Ota;
 import todoc.cochlear.remoteapp.fragment.AddDeviceFragment;
 import todoc.cochlear.remoteapp.fragment.AddUserFragment;
 import todoc.cochlear.remoteapp.fragment.DeviceFragment;
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity
     static public final  int PASSWORD_TIMEOUT_IN_MS          = 1000;
     static public final  int STATUS_TIMEOUT_IN_MS            = 1000;
     static public final  int DEVICE_AND_MAP_INFO_IN_MS       = 1000;
-    static public final  int SEND_PACKET_DELAY_IN_MS         = 50;
+    static public final  int SEND_PACKET_DELAY_IN_MS         = 1;//50;
 
     // Bluetooth
     public BluetoothDevice mBluetoothDevice;
@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity
     private String[] mUserList;
     private int      mCheckItem;
 
-    public Dfu mDfu;
+    public Ota mOta;
 
     @Override
     protected void onPause()
@@ -182,77 +182,6 @@ public class MainActivity extends AppCompatActivity
     {
         super.onResume();
 
-
-        // TD2-SW-RC-UNIT-Test-ID-20 [잠금 화면 활성화 유닛] 순서[1] 시작.
-        /*
-        {
-            // onCreate -> onResume 순서로 호출 되므로 onCreate에서 생성한 mLockScreen을 사용해서 테스트한다.
-            mLockScreen.setEnable(true);
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-20 [잠금 화면 활성화 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-20 [잠금 화면 활성화 유닛] 순서[2] 시작.
-        /*
-        {
-            // onCreate -> onResume 순서로 호출 되므로 onCreate에서 생성한 mLockScreen을 사용해서 테스트한다.
-            mLockScreen.setEnable(false);
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-20 [잠금 화면 활성화 유닛] 순서[2] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-21 [잠금 화면 체크 유닛] 순서[1] 시작.
-        /*
-        {
-            // onCreate -> onResume 순서로 호출 되므로 onCreate에서 생성한 mLockScreen을 사용해서 테스트한다.
-            Log.d(TAG, "Lock screen setting = " + mLockScreen.isEnabled());
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-21 [잠금 화면 체크 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-23 [암호 쓰기 유닛] 순서[1] 시작.
-        /*
-        {
-            // onCreate -> onResume 순서로 호출 되므로 onCreate에서 생성한 mLockScreen을 사용해서 테스트한다.
-            mLockScreen.writePassword("1111");
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-23 [암호 쓰기 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-23 [암호 쓰기 유닛] 순서[2] 시작.
-        /*
-        {
-            // onCreate -> onResume 순서로 호출 되므로 onCreate에서 생성한 mLockScreen을 사용해서 테스트한다.
-            mLockScreen.writePassword("2222");
-        }
-        //*/
-        // TD2-SW-RC-UNIT-Test-ID-23 [암호 쓰기 유닛] 순서[2] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-22 [암호 삭제 유닛] 순서[1] 시작.
-        /*
-        {
-            // onCreate -> onResume 순서로 호출 되므로 onCreate에서 생성한 mLockScreen을 사용해서 테스트한다.
-            mLockScreen.erasePassword();
-        }
-        //*/
-        // TD2-SW-RC-UNIT-Test-ID-22 [암호 삭제 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-24 [암호 읽기 유닛] 순서[1] 시작.
-        /*
-        {
-            // onCreate -> onResume 순서로 호출 되므로 onCreate에서 생성한 mLockScreen을 사용해서 테스트한다.
-            Log.d(TAG, "Lock screen password = " + mLockScreen.readPassword());
-        }
-        //*/
-        // TD2-SW-RC-UNIT-Test-ID-24 [암호 읽기 유닛] 순서[1] 끝.
-
-
         mStatus.activityRunningState = Status.ACTIVITY_RUNNING_STATE_FOREGROUND;
 
         // 장시간 미사용 이벤트 핸들러 시작
@@ -263,309 +192,6 @@ public class MainActivity extends AppCompatActivity
 
         // Check lock screen password whether registered or not.
         mLockScreen.resume();
-
-
-        // TD2-SW-RC-UNIT-Test-ID-42 [잠금 화면 메시지 업데이트 유닛] 순서[1] 시작.
-        /*
-        {
-            if (mLockScreen != null)
-            {
-                mLockScreen.mState = LockScreen.STATE_REGISTER;
-                mLockScreen.updateMessage();
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-42 [잠금 화면 메시지 업데이트 유닛] 순서[1] 끝.
-
-        // TD2-SW-RC-UNIT-Test-ID-42 [잠금 화면 메시지 업데이트 유닛] 순서[2] 시작.
-        /*
-        {
-            if (mLockScreen != null)
-            {
-                mLockScreen.mState = LockScreen.STATE_COMPARE;
-                mLockScreen.updateMessage();
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-42 [잠금 화면 메시지 업데이트 유닛] 순서[2] 끝.
-
-        // TD2-SW-RC-UNIT-Test-ID-42 [잠금 화면 메시지 업데이트 유닛] 순서[3] 시작.
-        /*
-        {
-            if (mLockScreen != null)
-            {
-                mLockScreen.mState = LockScreen.STATE_DECODE;
-                mLockScreen.updateMessage();
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-42 [잠금 화면 메시지 업데이트 유닛] 순서[3] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-43 [잠금 화면 표시 유닛] 공통 사용 항목1 시작.
-        /*
-        final List<EntityUser> unitTest_users = UtilUser.instance.getUsers();
-        final List<EntityDevice> unitTest_devices = UtilDevice.instance.getDevices();
-
-        for (EntityUser user : unitTest_users)
-        {
-            UtilUser.instance.delete(user);
-        }
-
-        for (EntityDevice device : unitTest_devices)
-        {
-            UtilDevice.instance.insert(device);
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-43 [잠금 화면 표시 유닛] 공통 사용 항목1 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-43 [잠금 화면 표시 유닛] 순서[1] 시작.
-        /*
-        {
-            // 공통 사용 항목 1과 2를 활용한다.
-            if (mLockScreen != null)
-            {
-                replaceFragment(Status.TypeOfFragment.REMOTE_CONTROL);
-                Status.instance().lockScreenState = Status.LOCK_SCREEN_STATE_TEMPORARY_UNLOCK;
-                mLockScreen.enableScreen(false);
-
-                new Handler(Looper.getMainLooper()).postDelayed(() ->
-                {
-                    mLockScreen.enableScreen(true);
-                }, 1000);
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-43 [잠금 화면 표시 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-43 [잠금 화면 표시 유닛] 순서[2] 시작.
-        /*
-        {
-            // 공통 사용 항목 1과 2를 활용한다.
-            if (mLockScreen != null)
-            {
-                replaceFragment(Status.TypeOfFragment.REMOTE_CONTROL);
-                Status.instance().lockScreenState = Status.LOCK_SCREEN_STATE_LOCK;
-                mLockScreen.enableScreen(false);
-
-                new Handler(Looper.getMainLooper()).postDelayed(() ->
-                {
-                    mLockScreen.enableScreen(true);
-                }, 1000);
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-43 [잠금 화면 표시 유닛] 순서[2] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-43 [잠금 화면 표시 유닛] 순서[3] 시작.
-        /*
-        {
-            // 공통 사용 항목 1과 2를 활용한다.
-            replaceFragment(Status.TypeOfFragment.REMOTE_CONTROL);
-            Status.instance().lockScreenState = Status.LOCK_SCREEN_STATE_LOCK;
-            mLockScreen.enableScreen(true);
-
-            new Handler(Looper.getMainLooper()).postDelayed(() ->
-            {
-                if (mLockScreen != null)
-                {
-                    mLockScreen.enableScreen(false);
-                }
-            }, 1000);
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-43 [잠금 화면 표시 유닛] 순서[3] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-43 [잠금 화면 표시 유닛] 순서[4] 시작.
-        /*
-        {
-            // 공통 사용 항목 1과 2를 활용한다.
-            replaceFragment(Status.TypeOfFragment.MENU);
-            Status.instance().lockScreenState = Status.LOCK_SCREEN_STATE_LOCK;
-            mLockScreen.enableScreen(true);
-
-            new Handler(Looper.getMainLooper()).postDelayed(() ->
-            {
-                if (mLockScreen != null)
-                {
-                    mLockScreen.enableScreen(false);
-                }
-            }, 1000);
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-43 [잠금 화면 표시 유닛] 순서[4] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-43 [잠금 화면 표시 유닛] 공통 사용 항목2 시작.
-        /*
-        new Handler(Looper.getMainLooper()).postDelayed(() ->
-        {
-            for (EntityUser user : unitTest_users)
-            {
-                UtilUser.instance.insert(user);
-            }
-
-            for (EntityDevice device : unitTest_devices)
-            {
-                UtilDevice.instance.insert(device);
-            }
-        }, 2000);
-        */
-        // TD2-SW-RC-UNIT-Test-ID-43 [잠금 화면 표시 유닛] 공통 사용 항목2 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-44 [잠금 화면 암호 입력 처리 유닛] 공통 사용 항목 시작.
-        /*
-        View unitTest_delId = findViewById(R.id.lock_screen_number_del);
-        View unitTest_1Id = findViewById(R.id.lock_screen_number_1);
-        View unitTest_2Id = findViewById(R.id.lock_screen_number_2);
-        View unitTest_3Id = findViewById(R.id.lock_screen_number_3);
-        View unitTest_4Id = findViewById(R.id.lock_screen_number_4);
-        */
-        // TD2-SW-RC-UNIT-Test-ID-44 [잠금 화면 암호 입력 처리 유닛] 공통 사용 항목 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-44 [잠금 화면 암호 입력 처리 유닛] 순서[1] 시작.
-        /*
-        {
-            if (mLockScreen != null)
-            {
-                mLockScreen.erasePassword();
-                mLockScreen.bufferInit();
-                mLockScreen.stateInit();
-
-                Log.d(TAG, "mLockScreen.mPassword = "
-                        + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
-                        + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
-                Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
-
-                mLockScreen.numberClickListener(unitTest_1Id);
-                mLockScreen.numberClickListener(unitTest_2Id);
-                mLockScreen.numberClickListener(unitTest_delId);
-                mLockScreen.numberClickListener(unitTest_3Id);
-                mLockScreen.numberClickListener(unitTest_4Id);
-                mLockScreen.numberClickListener(unitTest_4Id);
-
-                Log.d(TAG, "mLockScreen.mPassword = "
-                        + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
-                        + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
-                Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
-
-                mLockScreen.numberClickListener(unitTest_1Id);
-                mLockScreen.numberClickListener(unitTest_2Id);
-                mLockScreen.numberClickListener(unitTest_3Id);
-                mLockScreen.numberClickListener(unitTest_4Id);
-
-                mLockScreen.stateInit();
-
-                Log.d(TAG, "mLockScreen.mPassword = "
-                        + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
-                        + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
-                Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-44 [잠금 화면 암호 입력 처리 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-44 [잠금 화면 암호 입력 처리 유닛] 순서[2] 시작.
-        /*
-        {
-            if (mLockScreen != null)
-            {
-                mLockScreen.erasePassword();
-                mLockScreen.bufferInit();
-                mLockScreen.stateInit();
-
-                Log.d(TAG, "mLockScreen.mPassword = "
-                        + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
-                        + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
-                Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
-
-                mLockScreen.numberClickListener(unitTest_1Id);
-                mLockScreen.numberClickListener(unitTest_2Id);
-                mLockScreen.numberClickListener(unitTest_3Id);
-                mLockScreen.numberClickListener(unitTest_4Id);
-
-                Log.d(TAG, "mLockScreen.mPassword = "
-                        + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
-                        + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
-                Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
-
-                mLockScreen.numberClickListener(unitTest_1Id);
-                mLockScreen.numberClickListener(unitTest_2Id);
-                mLockScreen.numberClickListener(unitTest_3Id);
-                mLockScreen.numberClickListener(unitTest_4Id);
-
-                mLockScreen.stateInit();
-
-                Log.d(TAG, "mLockScreen.mPassword = "
-                        + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
-                        + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
-                Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-44 [잠금 화면 암호 입력 처리 유닛] 순서[2] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-44 [잠금 화면 암호 입력 처리 유닛] 순서[3] 시작.
-        /*
-        {
-            Log.d(TAG, "TD2-SW-RC-UNIT-Test-ID-44 [잠금 화면 암호 입력 처리 유닛] 순서[3]");
-
-            mLockScreen.bufferInit();
-            mLockScreen.stateInit();
-
-            Log.d(TAG, "mLockScreen.mPassword = "
-                    + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
-                    + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
-            Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
-
-            mLockScreen.numberClickListener(unitTest_1Id);
-            mLockScreen.numberClickListener(unitTest_1Id);
-            mLockScreen.numberClickListener(unitTest_1Id);
-            mLockScreen.numberClickListener(unitTest_1Id);
-
-            Log.d(TAG, "mLockScreen.mPassword = "
-                    + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
-                    + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
-            Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-44 [잠금 화면 암호 입력 처리 유닛] 순서[3] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-44 [잠금 화면 암호 입력 처리 유닛] 순서[4] 시작.
-        /*
-        {
-            Log.d(TAG, "TD2-SW-RC-UNIT-Test-ID-44 [잠금 화면 암호 입력 처리 유닛] 순서[4]");
-
-            mLockScreen.bufferInit();
-            mLockScreen.stateInit();
-
-            Log.d(TAG, "mLockScreen.mPassword = "
-                    + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
-                    + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
-            Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
-
-            mLockScreen.numberClickListener(unitTest_1Id);
-            mLockScreen.numberClickListener(unitTest_2Id);
-            mLockScreen.numberClickListener(unitTest_3Id);
-            mLockScreen.numberClickListener(unitTest_4Id);
-
-            Log.d(TAG, "mLockScreen.mPassword = "
-                    + mLockScreen.mPassword[0] + ", " + mLockScreen.mPassword[1] + ", "
-                    + mLockScreen.mPassword[2] + ", " + mLockScreen.mPassword[3]);
-            Log.d(TAG, "mLockScreen.mState = " + mLockScreen.mState);
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-44 [잠금 화면 암호 입력 처리 유닛] 순서[4] 끝.
-
 
     } // End, onResume();
 
@@ -635,19 +261,6 @@ public class MainActivity extends AppCompatActivity
         // 다이얼로그 생성되어있으면 제거
         lastDialogDismiss();
 
-        // 장시간 미사용 다이얼로그 제거
-        /*
-        if (mStatus.longTimeIdleDialog != null)
-        {
-            if (mStatus.longTimeIdleDialog.isShowing())
-            {
-                mStatus.longTimeIdleDialog.dismiss();
-            }
-
-            mStatus.longTimeIdleDialog = null;
-        }
-        */
-
         // 리모컨 화면 다이얼로그 제거
         Fragment fragment = getSupportFragmentManager().findFragmentById(mBinding.frame.getId());
         if (fragment instanceof RemoteControlFragment)
@@ -678,110 +291,14 @@ public class MainActivity extends AppCompatActivity
             mStatus = Status.instance();
         }
 
-        if (mDfu == null)
+        if (mOta == null)
         {
-            mDfu = Dfu.getInstance();
+            mOta = Ota.getInstance();
         }
 
         mStatus.typeOfFragment = Status.TypeOfFragment.NONE;
 
         mLockScreen = new LockScreen(getApplicationContext(), MainActivity.this, mBinding); // 잠금화면 객체 생성
-
-
-        // TD2-SW-RC-UNIT-Test-ID-40 [잠금 화면 암호 입력 버퍼 초기화 유닛] 순서[1] 시작.
-        /*
-        {
-            // 임의로 암호 입력 버퍼의 값들을 설정하고,
-            // [잠금 화면 암호 입력 버퍼 초기화 유닛]을 수행한 뒤에 암호 입력 버퍼의 값들이 초기화 되었는지 로그 메시지로 출력한다.
-            if (mLockScreen != null)
-            {
-                mLockScreen.bufferInit();
-
-                for (int i = 0; i < mLockScreen.mPassword.length; i++)
-                {
-                    mLockScreen.mPassword[i] = i + 1;
-                }
-
-                mLockScreen.mPasswordCounter = 4;
-
-                for (int i = 0; i < mLockScreen.mPasswordCompare.length; i++)
-                {
-                    mLockScreen.mPasswordCompare[i] = mLockScreen.mPasswordCompare.length - i;
-                }
-
-                mLockScreen.mPasswordCompareCounter = 4;
-
-                Log.d(TAG, "mPassword[0] = " + mLockScreen.mPassword[0]
-                        + ", mPassword[1] = " + mLockScreen.mPassword[1]
-                        + ", mPassword[2] = " + mLockScreen.mPassword[2]
-                        + ", mPassword[3] = " + mLockScreen.mPassword[3]);
-                Log.d(TAG, "mPasswordCounter = " + mLockScreen.mPasswordCounter);
-                Log.d(TAG, "mPasswordCompare[0] = " + mLockScreen.mPasswordCompare[0]
-                        + ", mPasswordCompare[1] = " + mLockScreen.mPasswordCompare[1]
-                        + ", mPasswordCompare[2] = " + mLockScreen.mPasswordCompare[2]
-                        + ", mPasswordCompare[3] = " + mLockScreen.mPasswordCompare[3]);
-                Log.d(TAG, "mPasswordCompareCounter = " + mLockScreen.mPasswordCompareCounter);
-
-                mLockScreen.bufferInit();
-
-                Log.d(TAG, "mPassword[0] = " + mLockScreen.mPassword[0]
-                        + ", mPassword[1] = " + mLockScreen.mPassword[1]
-                        + ", mPassword[2] = " + mLockScreen.mPassword[2]
-                        + ", mPassword[3] = " + mLockScreen.mPassword[3]);
-                Log.d(TAG, "mPasswordCounter = " + mLockScreen.mPasswordCounter);
-                Log.d(TAG, "mPasswordCompare[0] = " + mLockScreen.mPasswordCompare[0]
-                        + ", mPasswordCompare[1] = " + mLockScreen.mPasswordCompare[1]
-                        + ", mPasswordCompare[2] = " + mLockScreen.mPasswordCompare[2]
-                        + ", mPasswordCompare[3] = " + mLockScreen.mPasswordCompare[3]);
-                Log.d(TAG, "mPasswordCompareCounter = " + mLockScreen.mPasswordCompareCounter);
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-40 [잠금 화면 암호 입력 버퍼 초기화 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-41 [잠금 화면 동작 상태 체크 유닛] 순서[1] 시작.
-        /*
-        {
-            if (mLockScreen != null)
-            {
-                for (int test_i = 0; test_i < 3; test_i++)
-                {
-                    switch (test_i)
-                    {
-                        case 0:
-                            mLockScreen.writePassword("1111");
-                            break;
-                        case 1:
-                            mLockScreen.erasePassword();
-                            break;
-                        case 2:
-                            mLockScreen.writePassword("1111");
-                            break;
-                    }
-
-                    mLockScreen.stateInit();
-
-                    switch (mLockScreen.mState)
-                    {
-                        case LockScreen.STATE_REGISTER:
-                            Log.d(TAG, "mLockScreen.mState = STATE_REGISTER (" + LockScreen.STATE_REGISTER + ").");
-                            break;
-
-                        case LockScreen.STATE_DECODE:
-                            Log.d(TAG, "mLockScreen.mState = STATE_DECODE (" + LockScreen.STATE_DECODE + ").");
-                            break;
-
-                        default:
-                            Log.d(TAG, "Not handled.");
-                            break;
-                    }
-                }
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-41 [잠금 화면 동작 상태 체크 유닛] 순서[1] 끝.
-
 
         initStatusNavigationToolBar(); // 상태바, 네비게이션바, 툴바 초기화
 
@@ -818,399 +335,11 @@ public class MainActivity extends AppCompatActivity
         // 1) 로그
         UtilLog.instance.open(getApplicationContext());
 
-
-        // TD2-SW-RC-UNIT-Test-ID-19 [DB 시스템 로그 쓰기 유닛] 순서[1] 시작.
-        /*
-        {
-            UtilLog.instance.writeLog("테스트 메시지 1");
-            UtilLog.instance.writeLog("테스트 메시지 2");
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-19 [DB 시스템 로그 쓰기 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-18 [DB 모든 시스템 로그 읽기 유닛] 순서[1] 시작.
-        /*
-        {
-            List<EntityLog> logs = UtilLog.instance.readAllLogs();
-
-            for (EntityLog log : logs)
-            {
-                Log.d(TAG, "index = " + log.number + ", data = " + log.date + ", message = " + log.message);
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-18 [DB 모든 시스템 로그 읽기 유닛] 순서[1] 끝.
-
-
         // 2) 사용자
         UtilUser.instance.open(getApplicationContext());
 
-
-        // TD2-SW-RC-UNIT-Test-ID-6 [DB 사용자 정보 추가 유닛] 순서[1] 시작.
-        /*
-        {
-            EntityUser testUserInfo1 = new EntityUser();
-            testUserInfo1.name = "TEST-A_R";
-            testUserInfo1.passKey = "1111";
-            testUserInfo1.nickname = "테스트 A";
-            testUserInfo1.ear = "R";
-            testUserInfo1.defaultUser = "Y";
-
-            EntityUser testUserInfo2 = new EntityUser();
-            testUserInfo2.name = "TEST-B_L";
-            testUserInfo2.passKey = "2222";
-            testUserInfo2.nickname = "테스트 B";
-            testUserInfo2.ear = "L";
-            testUserInfo2.defaultUser = "N";
-
-            UtilUser.instance.insert(testUserInfo1);
-            UtilUser.instance.insert(testUserInfo2);
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-6 [DB 사용자 정보 추가 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-3 [DB 모든 사용자 정보 읽기 유닛] 순서[1] 시작.
-        /*
-        {
-            List<EntityUser> testUserInfos = UtilUser.instance.getUsers();
-
-            for (EntityUser user : testUserInfos)
-            {
-                Log.d(TAG, "name = " + user.name + ", passKey = " + user.passKey + ", nickname = " + user.nickname + ", ear = " + user.ear + ", defaultUser =
-                 " + user.defaultUser);
-            }
-
-            UtilUser.instance.delete(testUserInfo1);
-            UtilUser.instance.delete(testUserInfo2);
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-3 [DB 모든 사용자 정보 읽기 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-4 [DB 기본 사용자 정보 읽기 유닛] 순서[1] 시작.
-        /*
-        {
-            EntityUser testUserInfo1 = new EntityUser();
-            testUserInfo1.name = "TEST-A_R";
-            testUserInfo1.passKey = "1111";
-            testUserInfo1.nickname = "테스트 A";
-            testUserInfo1.ear = "R";
-            testUserInfo1.defaultUser = "Y";
-
-            EntityUser testUserInfo2 = new EntityUser();
-            testUserInfo2.name = "TEST-B_L";
-            testUserInfo2.passKey = "2222";
-            testUserInfo2.nickname = "테스트 B";
-            testUserInfo2.ear = "L";
-            testUserInfo2.defaultUser = "N";
-
-            UtilUser.instance.insert(testUserInfo1);
-            UtilUser.instance.insert(testUserInfo2);
-
-            EntityUser testDefaultUser = UtilUser.instance.getDefaultUser();
-
-            Log.d(TAG, "name = " + testDefaultUser.name + ", passKey = " + testDefaultUser.passKey + ", nickname = " + testDefaultUser.nickname
-                    + ", ear = " + testDefaultUser.ear + ", defaultUser = " + testDefaultUser.defaultUser);
-
-            UtilUser.instance.delete(testUserInfo1);
-            UtilUser.instance.delete(testUserInfo2);
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-4 [DB 기본 사용자 정보 읽기 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-5 [DB 이름 기반 사용자 정보 읽기 유닛] 순서[1] 시작.
-        /*
-        {
-            EntityUser testUserInfo = new EntityUser();
-            testUserInfo.name = "TEST-A_R";
-            testUserInfo.passKey = "1111";
-            testUserInfo.nickname = "테스트 A";
-            testUserInfo.ear = "R";
-            testUserInfo.defaultUser = "Y";
-
-            UtilUser.instance.insert(testUserInfo);
-
-            EntityUser testUser = UtilUser.instance.getUserByName("TEST-A_R");
-
-            if (testUser != null)
-            {
-                Log.d(TAG, "name = " + testUser.name + ", passKey = " + testUser.passKey + ", nickname = " + testUser.nickname
-                        + ", ear = " + testUser.ear + ", defaultUser = " + testUser.defaultUser);
-            }
-            else
-            {
-                Log.d(TAG, "null");
-            }
-
-            UtilUser.instance.delete(testUserInfo);
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-5 [DB 이름 기반 사용자 정보 읽기 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-5 [DB 이름 기반 사용자 정보 읽기 유닛] 순서[2] 시작.
-        /*
-        {
-            EntityUser testUser = UtilUser.instance.getUserByName("TEST-B_L");
-            if (testUser != null)
-            {
-                Log.d(TAG, "name = " + testUser.name + ", passKey = " + testUser.passKey + ", nickname = " + testUser.nickname
-                        + ", ear = " + testUser.ear + ", defaultUser = " + testUser.defaultUser);
-            }
-            else
-            {
-                Log.d(TAG, "null");
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-5 [DB 이름 기반 사용자 정보 읽기 유닛] 순서[2] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-7 [DB 사용자 정보 업데이트 유닛] 순서[1] 시작.
-        /*
-        {
-            List<EntityUser> users = UtilUser.instance.getUsers();
-
-            for (EntityUser user : users)
-            {
-                if (user.name.equals("TEST-A_R"))
-                {
-                    user.nickname = "사용자 A";
-                    UtilUser.instance.update(user);
-                }
-                else if (user.name.equals("TEST-B_L"))
-                {
-                    user.nickname = "사용자 B";
-                    UtilUser.instance.update(user);
-                }
-            }
-
-            users = UtilUser.instance.getUsers();
-
-            for (EntityUser user : users)
-            {
-                Log.d(TAG, "name = " + user.name + ", passKey = " + user.passKey + ", nickname = " + user.nickname + ", ear = " + user.ear + ", defaultUser =
-                 " + user.defaultUser);
-
-                if (user.name.equals("TEST-A_R"))
-                {
-                    UtilUser.instance.delete(user);
-                }
-                else if (user.name.equals("TEST-B_L"))
-                {
-                    UtilUser.instance.delete(user);
-                }
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-7 [DB 사용자 정보 업데이트 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-8 [DB 사용자 정보 삭제 유닛] 순서[1] 시작.
-        /*
-        {
-            List<EntityUser> users = UtilUser.instance.getUsers();
-
-            for (EntityUser user : users)
-            {
-                if (user.name.equals("TEST-B_L"))
-                {
-                    user.nickname = "사용자 B";
-                    UtilUser.instance.delete(user);
-                }
-            }
-
-            users = UtilUser.instance.getUsers();
-
-            for (EntityUser user : users)
-            {
-                Log.d(TAG, "name = " + user.name + ", passKey = " + user.passKey + ", nickname = " + user.nickname + ", ear = " + user.ear + ", defaultUser =
-                 " + user.defaultUser);
-
-                if (user.name.equals("TEST-A_R"))
-                {
-                    UtilUser.instance.delete(user);
-                }
-                else if (user.name.equals("TEST-B_L"))
-                {
-                    UtilUser.instance.delete(user);
-                }
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-8 [DB 사용자 정보 삭제 유닛] 순서[1] 끝.
-
-
         // 3) 사운드처리기
         UtilDevice.instance.open(getApplicationContext());
-
-
-        // TD2-SW-RC-UNIT-Test-ID-13 [DB 기기 정보 추가 유닛] 순서[1] 시작.
-        /*
-        {
-            EntityDevice testDeviceInfo1 = new EntityDevice();
-            testDeviceInfo1.serialNumber = "A1B2";
-            testDeviceInfo1.pairingKey = "123456";
-            testDeviceInfo1.additionalInformation = "기기 A";
-
-            EntityDevice testDeviceInfo2 = new EntityDevice();
-            testDeviceInfo2.serialNumber = "A8B9";
-            testDeviceInfo2.pairingKey = "654321";
-            testDeviceInfo2.additionalInformation = "기기 B";
-
-            UtilDevice.instance.insert(testDeviceInfo1);
-            UtilDevice.instance.insert(testDeviceInfo2);
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-13 [DB 기기 정보 추가 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-11 [DB 모든 기기 정보 읽기 유닛] 순서[1] 시작.
-        /*
-        {
-            List<EntityDevice> testDeviceInfos = UtilDevice.instance.getDevices();
-
-            for (EntityDevice device : testDeviceInfos)
-            {
-                Log.d(TAG, "serialNumber = " + device.serialNumber + ", pairingKey = " + device.pairingKey + ", additionalInformation = " + device
-                .additionalInformation);
-
-                if (device.serialNumber.equals("A1B2"))
-                {
-                    UtilDevice.instance.delete(device);
-                }
-                else if (device.serialNumber.equals("A8B9"))
-                {
-                    UtilDevice.instance.delete(device);
-                }
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-11 [DB 모든 기기 정보 읽기 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-12 [DB 제품번호 기반 기기 정보 읽기 유닛] 순서[1] 시작.
-        /*
-        {
-            EntityDevice testDeviceInfo = new EntityDevice();
-            testDeviceInfo.serialNumber = "A1B2";
-            testDeviceInfo.pairingKey = "123456";
-            testDeviceInfo.additionalInformation = "기기 A";
-
-            UtilDevice.instance.insert(testDeviceInfo);
-
-            EntityDevice testDevice = UtilDevice.instance.getDeviceBySerialNumber("A1B2");
-
-            if (testDevice != null)
-            {
-                Log.d(TAG, "serialNumber = " + testDevice.serialNumber + ", pairingKey = " + testDevice.pairingKey + ", additionalInformation = " +
-                testDevice.additionalInformation);
-            }
-            else
-            {
-                Log.d(TAG, "null");
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-12 [DB 제품번호 기반 기기 정보 읽기 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-12 [DB 제품번호 기반 기기 정보 읽기 유닛] 순서[2] 시작.
-        /*
-        {
-            EntityDevice testDevice = UtilDevice.instance.getDeviceBySerialNumber("A2B3");
-
-            if (testDevice != null)
-            {
-                Log.d(TAG, "serialNumber = " + testDevice.serialNumber + ", pairingKey = " + testDevice.pairingKey + ", additionalInformation = " +
-                testDevice.additionalInformation);
-            }
-            else
-            {
-                Log.d(TAG, "null");
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-12 [DB 제품번호 기반 기기 정보 읽기 유닛] 순서[2] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-14 [DB 기기 정보 업데이트 유닛] 순서[1] 시작.
-        /*
-        {
-            List<EntityDevice> testDeviceInfos = UtilDevice.instance.getDevices();
-
-            for (EntityDevice device : testDeviceInfos)
-            {
-                if (device.serialNumber.equals("A1B2"))
-                {
-                    device.additionalInformation = "외부기 A";
-                    UtilDevice.instance.update(device);
-                }
-                else if (device.serialNumber.equals("A8B9"))
-                {
-                    device.additionalInformation = "외부기 B";
-                    UtilDevice.instance.update(device);
-                }
-            }
-
-            testDeviceInfos = UtilDevice.instance.getDevices();
-
-            for (EntityDevice device : testDeviceInfos)
-            {
-                Log.d(TAG, "serialNumber = " + device.serialNumber + ", pairingKey = " + device.pairingKey + ", additionalInformation = " + device
-                .additionalInformation);
-
-                if (device.serialNumber.equals("A1B2"))
-                {
-                    UtilDevice.instance.delete(device);
-                }
-                else if (device.serialNumber.equals("A8B9"))
-                {
-                    UtilDevice.instance.delete(device);
-                }
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-14 [DB 기기 정보 업데이트 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-15 [DB 기기 정보 삭제 유닛] 순서[1] 시작.
-        /*
-        {
-
-            List<EntityDevice> testDeviceInfos = UtilDevice.instance.getDevices();
-
-            for (EntityDevice device : testDeviceInfos)
-            {
-                if (device.serialNumber.equals("A1B2"))
-                {
-                    UtilDevice.instance.delete(device);
-                }
-            }
-
-            testDeviceInfos = UtilDevice.instance.getDevices();
-
-            for (EntityDevice device : testDeviceInfos)
-            {
-                Log.d(TAG, "serialNumber = " + device.serialNumber + ", pairingKey = " + device.pairingKey + ", additionalInformation = " + device
-                .additionalInformation);
-
-                if (device.serialNumber.equals("A1B2"))
-                {
-                    UtilDevice.instance.delete(device);
-                }
-                else if (device.serialNumber.equals("A8B9"))
-                {
-                    UtilDevice.instance.delete(device);
-                }
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-15 [DB 기기 정보 삭제 유닛] 순서[1] 끝.
-
 
         // 상태 값 뷰 모델
         Log.d(TAG, "사운드처리기 상태 값 뷰모델 클래스를 불러옵니다.");
@@ -1243,37 +372,7 @@ public class MainActivity extends AppCompatActivity
             mManualScreen = new ManualScreen(this);
         }
 
-
-        // TD2-SW-RC-UNIT-Test-ID-26 [사용설명서 상태 설정 유닛] 순서[1] 시작.
-        /*
-        {
-            // onCreate에서 생성한 mManualScreen을 사용해서 테스트한다.
-            mManualScreen.setEnable(true);
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-26 [사용설명서 상태 설정 유닛] 순서[1] 끝.
-
         Log.d(TAG, "Manual screen enabled = " + mManualScreen.isEnabled());
-
-        // TD2-SW-RC-UNIT-Test-ID-26 [사용설명서 상태 설정 유닛] 순서[2] 시작.
-        /*
-        {
-            // onCreate에서 생성한 mManualScreen을 사용해서 테스트한다.
-            mManualScreen.setEnable(false);
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-26 [사용설명서 상태 설정 유닛] 순서[2] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-25 [사용설명서 화면 활성화 체크 유닛] 순서[1] 시작.
-        /*
-        {
-            // onCreate에서 생성한 mManualScreen을 사용해서 테스트한다.
-            Log.d(TAG, "Manual screen enabled = " + mManualScreen.isEnabled());
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-25 [사용설명서 화면 활성화 체크 유닛] 순서[1] 끝.
-
 
         if (mManualScreen.isEnabled())
         {
@@ -1295,123 +394,6 @@ public class MainActivity extends AppCompatActivity
             */
             replaceFragment(Status.TypeOfFragment.REMOTE_CONTROL);
         }
-
-
-        // TD2-SW-RC-UNIT-Test-ID-55 [블루투스 패킷 전송 유닛] 순서[1] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-55 [블루투스 패킷 전송 유닛] 순서[2] 입력 시작.
-        /*
-        {
-            byte[] testPacket = new byte[]{0x40, '0', '4', '8', '1'};
-            sendPacket(testPacket);
-            sendPacket(testPacket);
-            sendPacket(testPacket);
-        }
-        /*/
-        // TD2-SW-RC-UNIT-Test-ID-55 [블루투스 패킷 전송 유닛] 순서[1] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-55 [블루투스 패킷 전송 유닛] 순서[2] 입력 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[1] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[2] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[3] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[4] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[5] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[6] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[7] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[8] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[9] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[10] 입력 시작.
-        /*
-        {
-            new Handler(Looper.getMainLooper()).postDelayed(() ->
-            {
-                characteristicChanged(null, new byte[]{PacketInfo.HEADER_PASSWORD, PacketInfo.PASSWORD_PASS}); // password pass
-                characteristicChanged(null, new byte[]{PacketInfo.HEADER_PASSWORD, PacketInfo.PASSWORD_FAIL}); // password fail
-                characteristicChanged(null, new byte[]{PacketInfo.HEADER_SOUND_PROCESSOR_INFO, 0x00, 'A', '1', 'B', '2', 0x00, 0x00, 0x00});// device & map info
-                characteristicChanged(null, new byte[]{PacketInfo.HEADER_SOUND_PROCESSOR_STATUS, 75, 1, 1, 1, 1, 1, 1});// device status
-                characteristicChanged(null, new byte[]{PacketInfo.HEADER_VALUE_NOTIFICATION, PacketInfo.INIT_VALUE_NOTIFICATION});// stim alarm
-                characteristicChanged(null, new byte[]{PacketInfo.HEADER_VALUE_LED, PacketInfo.INIT_VALUE_LED});// led alarm
-                characteristicChanged(null, new byte[]{PacketInfo.HEADER_VALUE_PROMGRAM, PacketInfo.INIT_VALUE_PROGRAM});// map number
-                characteristicChanged(null, new byte[]{PacketInfo.HEADER_VALUE_MAX_OUTPUT, PacketInfo.INIT_VALUE_MAX_OUTPUT});// output max
-                characteristicChanged(null, new byte[]{PacketInfo.HEADER_VALUE_VOLUME, PacketInfo.INIT_VALUE_VOLUME});// volume
-                characteristicChanged(null, new byte[]{PacketInfo.HEADER_ERROR, PacketInfo.HEADER_VALUE_LED, 2});// error
-            }, 1000);
-        }
-        /*/
-        // TD2-SW-RC-UNIT-Test-ID-55 [블루투스 패킷 전송 유닛] 순서[1] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[2] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[3] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[4] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[5] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[6] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[7] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[8] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[9] 입력 +
-        // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[10] 입력 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-64 [사용자 착용부위를 제외한 이름 정보 획득 유닛] 순서[1] 시작.
-        /*
-        {
-            String[] infos = new String[]{"AAAAA_R", "BBBBB_L", "CCCCC_L", "DDDDD_R"};
-
-            for (String str : infos)
-            {
-                Log.d(TAG, "input : " + str + ", output : " + UtilUser.getNameOnly(str));
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-64 [사용자 착용부위를 제외한 이름 정보 획득 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-65 [사용자 착용부위 한글 정보 획득 유닛] 순서[1] 시작.
-        /*
-        {
-            String[] infos = new String[]{"AAAAA_R", "BBBBB_L", "CCCCC_L", "DDDDD_R"};
-
-            for (String str : infos)
-            {
-                Log.d(TAG, "input : " + str + ", output : " + UtilUser.getEarKorean(str));
-            }
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-65 [사용자 착용부위 한글 정보 획득 유닛] 순서[1] 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-66 [사용자 정보 복사 유닛] 순서[1] 시작.
-        /*
-        {
-            EntityUser userSrc = new EntityUser();
-            EntityUser userDst = new EntityUser();
-
-            userSrc.name = "AAAAA_R";
-            userSrc.passKey = "0481";
-            userSrc.nickname = "사용자 A";
-            userSrc.ear = "R";
-            userSrc.defaultUser = "Y";
-
-            userDst.name = "";
-            userDst.passKey = "";
-            userDst.nickname = "";
-            userDst.ear = "";
-            userDst.defaultUser = "";
-
-            Log.d(TAG, "Before copy");
-            Log.d(TAG, "src : name = " + userSrc.name + ", passKey = " + userSrc.passKey + ", nickname = " + userSrc.nickname + ", ear = " + userSrc.ear + ",
-             defaultUser = " + userSrc.defaultUser);
-            Log.d(TAG, "dst : name = " + userDst.name + ", passKey = " + userDst.passKey + ", nickname = " + userDst.nickname + ", ear = " + userDst.ear + ",
-             defaultUser = " + userDst.defaultUser);
-            UtilUser.copyData(userDst, userSrc);
-            Log.d(TAG, "After copy");
-            Log.d(TAG, "src : name = " + userSrc.name + ", passKey = " + userSrc.passKey + ", nickname = " + userSrc.nickname + ", ear = " + userSrc.ear + ",
-             defaultUser = " + userSrc.defaultUser);
-            Log.d(TAG, "dst : name = " + userDst.name + ", passKey = " + userDst.passKey + ", nickname = " + userDst.nickname + ", ear = " + userDst.ear + ",
-             defaultUser = " + userDst.defaultUser);
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-66 [사용자 정보 복사 유닛] 순서[1] 끝.
-
-
     } // initMainActivity
 
     //
@@ -1421,41 +403,12 @@ public class MainActivity extends AppCompatActivity
     {
         if (enable)
         {
-            /*
-            if (mStatus.longTimeIdleState == Status.LONG_TIME_IDLE_STATE_NOT_TRIGGERED)
-            {
-            */
-
-
-            // TD2-SW-RC-UNIT-Test-ID-49 [절전모드 타이머 초기화 유닛] 순서[1] 시작.
-            /*
-            {
-                Log.d(TAG, "Long Time Idle Handler (registered) updated.");
-            }
-            */
-            // TD2-SW-RC-UNIT-Test-ID-49 [절전모드 타이머 초기화 유닛] 순서[1] 끝.
-
-
             mLongTimeIdleHandler.removeCallbacks(mLongTimeIdleRunner);
             mLongTimeIdleHandler.postDelayed(mLongTimeIdleRunner, LONG_TIME_IDLE_TIMEOUT_IN_MS); // 10분
             Log.v(TAG, "장시간 미사용 핸들러 업데이트 완료.");
-            /*
-            }
-            */
         }
         else
         {
-
-
-            // TD2-SW-RC-UNIT-Test-ID-49 [절전모드 타이머 초기화 유닛] 순서[2] 시작.
-            /*
-            {
-                Log.d(TAG, "Long Time Idle Handler removed.");
-            }
-            */
-            // TD2-SW-RC-UNIT-Test-ID-49 [절전모드 타이머 초기화 유닛] 순서[2] 끝.
-
-
             mLongTimeIdleHandler.removeCallbacks(mLongTimeIdleRunner);
             Log.v(TAG, "장시간 미사용 핸들러 제거 완료.");
         }
@@ -1464,42 +417,10 @@ public class MainActivity extends AppCompatActivity
     private final Handler  mLongTimeIdleHandler = new Handler();
     private final Runnable mLongTimeIdleRunner  = () ->
     {
-        //mStatus.longTimeIdleState = Status.LONG_TIME_IDLE_STATE_TRIGGERED;
-
-
-        // TD2-SW-RC-UNIT-Test-ID-61 & TD2-SW-RC-UNIT-Test-ID-62 병행 사용 시작.
-        /*
-        {
-            Log.d(TAG, "Long Time Idle Handler started.");
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-61 & TD2-SW-RC-UNIT-Test-ID-62 병행 사용 끝.
-
-        // TD2-SW-RC-UNIT-Test-ID-50 [절전모드 처리 유닛] 테스트 초기 조건 시작.
-        /*
-        {
-            mStatus.connectionState = Status.CONNECTION_STATE_CONNECTED;
-            mStatus.scanState = Status.SCAN_STATE_STARTED;
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-50 [절전모드 처리 유닛] 테스트 초기 조건 끝.
-
-
         Log.d(TAG, "장시간 미사용으로 인해 자동 절전모드로 진입합니다.");
 
         if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED || mStatus.connectionState == Status.CONNECTION_STATE_CONNECTING)
         {
-
-
-            // TD2-SW-RC-UNIT-Test-ID-50 [절전모드 처리 유닛] 순서[1] 시작.
-            /*
-            {
-                Log.d(TAG, "Disconnection process will be performed.");
-            }
-            */
-            // TD2-SW-RC-UNIT-Test-ID-50 [절전모드 처리 유닛] 순서[1] 끝.
-
-
             if (mBluetoothGatt != null)
             {
                 Log.d(TAG, "현재 연결중인 사운드처리기와 연결을 해제합니다.");
@@ -1510,17 +431,6 @@ public class MainActivity extends AppCompatActivity
 
         if (mStatus.scanState == Status.SCAN_STATE_STARTED)
         {
-
-
-            // TD2-SW-RC-UNIT-Test-ID-50 [절전모드 처리 유닛] 순서[2] 시작.
-            /*
-            {
-                Log.d(TAG, "Stop scanning process will be performed.");
-            }
-            */
-            // TD2-SW-RC-UNIT-Test-ID-50 [절전모드 처리 유닛] 순서[2] 끝.
-
-
             Log.d(TAG, "스캔을 정지합니다.");
             scanLe(false);
         }
@@ -1531,77 +441,13 @@ public class MainActivity extends AppCompatActivity
         {
             if (((RemoteControlFragment) fragment).mDialog != null && ((RemoteControlFragment) fragment).mDialog.isShowing())
             {
-
-                // TD2-SW-RC-UNIT-Test-ID-50 [절전모드 처리 유닛] 순서[3] 시작.
-                /*
-                {
-                    Log.d(TAG, "Clearing remote control screen dialog process will be performed.");
-                }
-                */
-                // TD2-SW-RC-UNIT-Test-ID-50 [절전모드 처리 유닛] 순서[3] 끝.
-
-
                 Log.d(TAG, "리모컨 화면의 등록 유도 다이얼로그를 제거합니다.");
                 ((RemoteControlFragment) fragment).mDialog.dismiss();
             }
         }
 
-
-        // TD2-SW-RC-UNIT-Test-ID-50 [절전모드 처리 유닛] 순서[4] 시작.
-        /*
-        {
-            Log.d(TAG, "clearing activity dialog process will be performed.");
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-50 [절전모드 처리 유닛] 순서[4] 끝.
-
-
-        // 현재 화면에 출력되어 있는 다이얼로그가 있다면 제거한다.
         lastDialogDismiss();
-
-
-        // TD2-SW-RC-UNIT-Test-ID-50 [절전모드 처리 유닛] 순서[5] 시작.
-        /*
-        {
-            Log.d(TAG, "Lockscreen enable process will be performed.");
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-50 [절전모드 처리 유닛] 순서[5] 끝.
-
-
-        // 잠금화면 기능이 활성화되어 있다면 화면을 잠금화면으로 설정한다.
-        // 만약 활성화되어 있다면 이 부분에서 다이얼로그들을 전부 제거하겠지만, 비활성화 상태를 생각하여 위에서 다이얼로그를 미리 제거했다.
         mLockScreen.resume();
-
-        // 잠금화면 상태의 다이얼로그는 항상 최상위에 출력되어야 한다. 그래서 다이얼로그 객체를 따로 저장하지 않고,
-        // 오직 확인 버튼을 눌러서만 제거가 가능하도록 구현한다.
-        /*
-        mStatus.longTimeIdleDialog = new MaterialAlertDialogBuilder(MainActivity.this).setMessage("전력소모를 줄이기 위해 절전모드로 진입하였습니다.").setPositiveButton("해제",
-        (dialogInterface, i) ->
-        {
-            Log.d(TAG, "절전모드에서 빠져나옵니다.");
-
-            mStatus.longTimeIdleState = Status.LONG_TIME_IDLE_STATE_NOT_TRIGGERED;
-
-            // 잠금화면 기능이 활성화 중이라면, 암호를 입력하고 진입하기 때문에 리모컨 화면의 경우 검색도 자동으로 시작하게 된다.
-            // 하지만 잠금화면 기능이 비활성화 상태라면 현재 프래그먼트가 리모컨 화면이 체크하고,
-            // 리모컨 화면이라면 등록 여부를 검사하는 것으로 검색까지 자동으로 시작하게 한다.
-            if (!mLockScreen.isEnabled())
-            {
-                Fragment remoteControlFragment = MainActivity.this.getSupportFragmentManager().findFragmentById(R.id.frame);
-
-                if (remoteControlFragment instanceof RemoteControlFragment)
-                {
-                    Log.d(TAG, "잠금화면 기능이 비활성화 중인데, 현재 프래그먼트가 리모컨 화면입니다. 등록상황부터 다시 체크를 시작합니다.");
-                    ((RemoteControlFragment) remoteControlFragment).checkRegisteredList();
-                }
-            }
-
-            // 다시 장시간 미사용 핸들러를 시작한다.
-            longTimeIdleHandlerUpdate(true);
-        }).setCancelable(false).create();
-        mStatus.longTimeIdleDialog.show();
-        */
     };
 
     //
@@ -1678,7 +524,7 @@ public class MainActivity extends AppCompatActivity
         boolean access_fine_location = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         boolean bluetooth_privileged = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_PRIVILEGED) == PackageManager.PERMISSION_GRANTED;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) // Android 12 이상
         {
             Log.d(TAG, "런타임 권한을 체크합니다. 버전코드가 S 이상입니다.");
             boolean bluetooth_scan    = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED;
@@ -1831,17 +677,6 @@ public class MainActivity extends AppCompatActivity
 
                     if (bondState == BluetoothDevice.BOND_BONDED)
                     {
-
-
-                        // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[1-3] 시작.
-                        /*
-                        {
-                            Log.d(TAG, "Success to create bond, try to connect again.");
-                        }
-                        */
-                        // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[1-3] 끝.
-
-
                         Log.d(TAG, "본딩되었습니다. -> {" + device.getAddress() + "}");
 
                         mBinding.pairingKeyLayout.setVisibility(View.GONE);
@@ -2077,17 +912,6 @@ public class MainActivity extends AppCompatActivity
     Handler  mScanHandler = new Handler();
     Runnable mScanRunner  = () ->
     {
-
-
-        // TD2-SW-RC-UNIT-Test-ID-53 [블루투스 검색 유닛] 순서[2] 시작.
-        /*
-        {
-            Log.d(TAG, "Bluetooth scan unit timeout occurred.");
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-53 [블루투스 검색 유닛] 순서[2] 끝.
-
-
         Log.v(TAG, "BLE 스캔 시간이 초과되었습니다.");
         scanLe(false); // 스캔 정지
     }; // scanRunner
@@ -2097,17 +921,6 @@ public class MainActivity extends AppCompatActivity
     //
     public void scanLeWithDelay(boolean enable, int delay)
     {
-
-
-        // TD2-SW-RC-UNIT-Test-ID-53 [블루투스 검색 유닛] 공통 시작.
-        /*
-        {
-            Log.d(TAG, "Bluetooth scan unit input : " + enable);
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-53 [블루투스 검색 유닛] 공통 끝.
-
-
         if (enable) // 스캔 시작
         {
             if (mStatus.scanState == Status.SCAN_STATE_STOPPED)
@@ -2126,8 +939,8 @@ public class MainActivity extends AppCompatActivity
                 {
                     mBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
                     ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlFindLayout.setVisibility(View.VISIBLE);
-                    ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlBlurLayout.setVisibility(View.GONE);
                     ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlSearchingAnimator.startRippleAnimation();
+                    ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionTitle.setText("외부기를 머리에 부착한 상태에서\n장치 연결을 진행하세요.");
                 }
             }, delay);
 
@@ -2149,8 +962,8 @@ public class MainActivity extends AppCompatActivity
                 if (fragment instanceof RemoteControlFragment && mStatus.connectionState == Status.CONNECTION_STATE_DISCONNECTED)
                 {
                     ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlSearchingAnimator.stopRippleAnimation();
-                    ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlFindLayout.setVisibility(View.GONE);
-                    ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlBlurLayout.setVisibility(View.VISIBLE);
+                    ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlFindLayout.setVisibility(View.VISIBLE);
+                    ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionTitle.setText("상단의 검색 버튼을 눌러\n검색을 다시 시작하세요.");
                     mBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(true);
                 }
             }, delay);
@@ -2229,18 +1042,6 @@ public class MainActivity extends AppCompatActivity
 
                 if (isFound)
                 {
-
-
-                    // TD2-SW-RC-UNIT-Test-ID-53 [블루투스 검색 유닛] 순서[1] 시작.
-                    /*
-                    {
-                        Log.d(TAG, "Bluetooth scan success. Device full name = " + result.getDevice().getName());
-                        Log.d(TAG, "Bluetooth connection will be performed.");
-                    }
-                    */
-                    // TD2-SW-RC-UNIT-Test-ID-53 [블루투스 검색 유닛] 순서[1] 끝.
-
-
                     // 모든 조건에 부합하므로, 검색된 장치와 연결한다. 단, 현재 BLE 연결 상태가 연결해제 상태여야 한다.
                     if (mStatus.connectionState == Status.CONNECTION_STATE_DISCONNECTED)
                     {
@@ -2371,19 +1172,25 @@ public class MainActivity extends AppCompatActivity
                     mStatus.receivedPackets.clear();
                     mStatus.connectionState = Status.CONNECTION_STATE_CONNECTING;
 
-
-                    // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[1-1] +
-                    // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[2-1] 시작.
-                    /*
-                    {
-                        Log.d(TAG, "Bluetooth connection event occurred.");
-                    }
-                    */
-                    // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[1-1] +
-                    // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[2-1] 끝.
-
-
                     Log.d(TAG, "BLE 연결 이벤트 발생 -> NAME = " + name + ", ADDRESS = " + address);
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) // Android 12 이상에서는 BLUETOOTH_CONNECT 권한이 필요함
+                    {
+                        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED)
+                        {
+                            Log.d(TAG, "[BLE] BLUETOOTH_CONNECT 권한이 없어서, CONNECTION PRIORITY 설정을 할 수 없음");
+                        }
+                        else
+                        {
+                            Log.d(TAG, "[BLE] BLUETOOTH_CONNECT 권한이 있어서, CONNECTION PRIORITY 설정 시도");
+                            gatt.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH);
+                        }
+                    }
+                    else
+                    {
+                        Log.d(TAG, "[BLE] CONNECTION PRIORITY 설정 시도");
+                        gatt.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH);
+                    }
 
                     if (gatt.getDevice().getBondState() == BluetoothDevice.BOND_BONDED)
                     {
@@ -2404,16 +1211,6 @@ public class MainActivity extends AppCompatActivity
                     else
                     {
                         Log.d(TAG, "본딩을 시도합니다.");
-
-
-                        // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[1-2] 시작.
-                        /*
-                        {
-                            Log.d(TAG, "Try to create bond.");
-                        }
-                        */
-                        // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[1-2] 끝.
-
 
                         gatt.getDevice().createBond();
                     }
@@ -2472,17 +1269,6 @@ public class MainActivity extends AppCompatActivity
                                 if (mStatus.activityRunningState == Status.ACTIVITY_RUNNING_STATE_FOREGROUND)
                                 {
 
-
-                                    // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[4] 시작.
-                                    /*
-                                    {
-                                        Log.d(TAG, "Unexpected disconnection event occurred.");
-                                        Log.d(TAG, "Start bluetooth scanning.");
-                                    }
-                                    */
-                                    // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[4] 끝.
-
-
                                     Log.d(TAG, "현재 리모컨 화면이며, 액티비티 화면이 포그라운드 상태이므로 자동 재연결을 위해 BLE 스캔을 시작합니다.");
                                     scanLe(true);
                                 }
@@ -2497,16 +1283,6 @@ public class MainActivity extends AppCompatActivity
                     {    // 이 후 사용자의 이벤트로 스캔을 다시 시작할 것이므로 지금은 스캔을 시작하지 않는다.
                         mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTED;
                         Log.d(TAG, "사용자에 의한 연결해제로 인식되었습니다.");
-
-
-                        // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[3] 시작.
-                        /*
-                        {
-                            Log.d(TAG, "Expected disconnection event occurred.");
-                        }
-                        */
-                        // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[3] 끝.
-
 
                     }
 
@@ -2601,17 +1377,6 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "GATT Callback Service Discovered : Failed to write descriptor.");
                 gatt.disconnect();
             }
-
-
-            // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[1-4] +
-            // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[2-2] 시작.
-            /*
-            {
-                Log.d(TAG, "Success to discover services.");
-            }
-            */
-            // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[1-4] +
-            // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[2-2] 끝.
         }
 
         @Override
@@ -2626,29 +1391,6 @@ public class MainActivity extends AppCompatActivity
             {
                 // Success to write descriptor for indication on remote device.
                 Log.d(TAG, "CCCD(클라이언트 특성 설정 설명자) 쓰기에 성공했습니다. 보안코드 인증 시간초과 핸들러를 생성하고, 보안코드 패킷을 전송합니다.");
-
-
-                // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[1-5] +
-                // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[2-3] 시작.
-                /*
-                {
-                    Log.d(TAG, "Success to configure descriptor.");
-                }
-                */
-                // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[1-5] +
-                // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[2-3] 끝.
-
-
-                // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[1-6] +
-                // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[2-4] 시작.
-                /*
-                {
-                    Log.d(TAG, "Try to send packet for password.");
-                }
-                */
-                // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[1-6] +
-                // TD2-SW-RC-UNIT-Test-ID-54 [블루투스 연결/해제 유닛] 순서[2-4] 끝.
-
 
                 // 보안코드 인증하기 전에 핸들러를 등록한다.
                 mPasswordHandler.postDelayed(mPasswordRunner, PASSWORD_TIMEOUT_IN_MS);
@@ -2736,17 +1478,6 @@ public class MainActivity extends AppCompatActivity
                         if (byteExtractor(responsePacket[1]) == PacketInfo.PASSWORD_PASS)
                         {
 
-
-                            // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[1] 시작.
-                            /*
-                            {
-                                Log.d(TAG, "Response packet --> password passed");
-                                Log.d(TAG, "Try to send packet for sound processor and map information");
-                            }
-                            */
-                            // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[1] 끝.
-
-
                             Log.d(TAG, "사용자의 내부기 키가 올바릅니다.");
                             Log.d(TAG, "내부기 키 인증에 성공했습니다. 상태정보 획득 시간초과 핸들러를 생성하고, 상태정보 획득 패킷을 전송합니다. ");
 
@@ -2757,16 +1488,6 @@ public class MainActivity extends AppCompatActivity
                         // Not correct password.
                         else
                         {
-
-
-                            // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[2] 시작.
-                            /*
-                            {
-                                Log.d(TAG, "Response packet --> password failed");
-                            }
-                            */
-                            // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[2] 끝.
-
 
                             Log.d(TAG, "사용자의 내부기 키가 올바르지 않습니다.");
                             Log.d(TAG, "스캔을 멈추고, 사운드처리기와의 연결을 해제합니다.");
@@ -2837,17 +1558,6 @@ public class MainActivity extends AppCompatActivity
                     mStatusViewModel.setFwVerUpper(fwVerUpper);
 
                     Log.d(TAG, "사운드처리기 펌웨어 버전은 '" + fwVerUpper + "." + fwVerLower + "' 입니다.");
-
-
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[3] 시작.
-                    /*
-                    {
-                        Log.d(TAG, "Response packet --> sound processor and map information, fwVer upper=" + fwVerUpper + ", lower=" + fwVerLower);
-                        Log.d(TAG, "Try to send packet for sound processor status");
-                    }
-                    */
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[3] 끝.
-
 
                     // 상태정보 획득 패킷을 보내기 전에 핸들러를 등록한다.
                     mStatusHandler.postDelayed(mStatusRunner, STATUS_TIMEOUT_IN_MS);
@@ -2990,22 +1700,6 @@ public class MainActivity extends AppCompatActivity
                     mStatusViewModel.setValueVolume(packetInfo.volume);
                     mStatusViewModel.setValueProgram(packetInfo.program);
 
-
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[4] 시작.
-                    /*
-                    {
-                        Log.d(TAG, "Response packet --> sound processor status");
-                        Log.d(TAG, "battery=" + packetInfo.battery +
-                                ", map=" + packetInfo.program +
-                                ", volume=" + packetInfo.volume +
-                                ", maxOutput=" + packetInfo.maxOutput +
-                                ", led=" + packetInfo.led +
-                                ", stimAlarm=" + packetInfo.notification);
-                    }
-                    */
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[4] 끝.
-
-
                     Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
 
                     // 현재 BLE 연결중(CONNECTING)인 상태라면, 주기적인 배터리 상태 핸들러를 생성한다.
@@ -3048,16 +1742,6 @@ public class MainActivity extends AppCompatActivity
                     mStatusViewModel.setValueNotification(value);
                     UtilLog.instance.writeLog("패킷 수신 : 자극알림->" + value);
 
-
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[5] 시작.
-                    /*
-                    {
-                        Log.d(TAG, "Response packet --> stimulation alarm = " + value);
-                    }
-                    */
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[5] 끝.
-
-
                 }
                 break;
 
@@ -3077,16 +1761,6 @@ public class MainActivity extends AppCompatActivity
                     int value = responsePacket[1];
                     mStatusViewModel.setValueLed(value);
                     UtilLog.instance.writeLog("패킷 수신 : LED알림->" + value);
-
-
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[6] 시작.
-                    /*
-                    {
-                        Log.d(TAG, "Response packet --> led alarm = " + value);
-                    }
-                    */
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[6] 끝.
-
 
                 }
                 break;
@@ -3127,16 +1801,6 @@ public class MainActivity extends AppCompatActivity
                     mStatusViewModel.setValueProgram(value);
                     UtilLog.instance.writeLog("패킷 수신 : 프로그램->" + value);
 
-
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[7] 시작.
-                    /*
-                    {
-                        Log.d(TAG, "Response packet --> map number = " + value);
-                    }
-                    */
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[7] 끝.
-
-
                 }
                 break;
                 // 최대출력
@@ -3155,16 +1819,6 @@ public class MainActivity extends AppCompatActivity
                     int value = responsePacket[1];
                     mStatusViewModel.setValueMaxOutput(value);
                     UtilLog.instance.writeLog("패킷 수신 : 최대출력->" + value);
-
-
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[8] 시작.
-                    /*
-                    {
-                        Log.d(TAG, "Response packet --> max output = " + value);
-                    }
-                    */
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[8] 끝.
-
 
                 }
                 break;
@@ -3185,29 +1839,19 @@ public class MainActivity extends AppCompatActivity
                     mStatusViewModel.setValueVolume(value);
                     UtilLog.instance.writeLog("패킷 수신 : 볼륨->" + value);
 
-
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[9] 시작.
-                    /*
-                    {
-                        Log.d(TAG, "Response packet --> volume = " + value);
-                    }
-                    */
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[9] 끝.
-
-
                 }
                 break;
 
-                case PacketInfo.HEADER_DFU:
+                case PacketInfo.HEADER_OTA:
                 {
-                    switch (mDfu.mCommState)
+                    switch (mOta.mCommState)
                     {
-                        case Dfu.COMM_STATE_WAIT_RESP_COMMAND:
+                        case Ota.COMM_STATE_WAIT_RESP_COMMAND:
                         {
-                            if (packetSize != PacketInfo.PACKET_SIZE_DFU_RESP_COMMAND)
+                            if (packetSize != PacketInfo.PACKET_SIZE_OTA_RESP_COMMAND)
                             {
                                 Log.d(TAG, "DFU 명령어 응답 패킷 사이즈 에러, 사이즈 = " + packetSize);
-                                mDfu.mCommState = Dfu.COMM_STATE_IDLE;
+                                mOta.mCommState = Ota.COMM_STATE_IDLE;
                                 packetSizeErrorDialog(); // 경고창 출력
                             }
                             else
@@ -3221,11 +1865,10 @@ public class MainActivity extends AppCompatActivity
 
                                 respPassFail = responsePacket[4] & 0x000000FF;
 
-                                if (respDataIndex != mDfu.mCommRespDataIndex || respPassFail != Dfu.COMM_RESP_OK)
+                                if (respDataIndex != mOta.mCommRespDataIndex || respPassFail != Ota.COMM_RESP_OK)
                                 {
-                                    Log.d(TAG,
-                                            "DFU 명령어 응답 에러, 예상 인덱스 = " + mDfu.mCommRespDataIndex + ", 받은 인덱스 = " + respDataIndex + ", 통과 여부 = " + respPassFail);
-                                    mDfu.mCommState = Dfu.COMM_STATE_IDLE;
+                                    Log.d(TAG, "DFU 명령어 응답 에러, 예상 인덱스 = " + mOta.mCommRespDataIndex + ", 받은 인덱스 = " + respDataIndex + ", 통과 여부 = " + respPassFail);
+                                    mOta.mCommState = Ota.COMM_STATE_IDLE;
                                     packetSizeErrorDialog(); // 경고창 출력
                                 }
                                 else
@@ -3233,46 +1876,48 @@ public class MainActivity extends AppCompatActivity
                                     byte[] sendPacket;
                                     int    sendSize;
 
-                                    mDfu.mCommState = Dfu.COMM_STATE_READY_DATA;
+                                    mOta.mCommState = Ota.COMM_STATE_READY_DATA;
 
-                                    mDfu.mCommSendDataIndex++;
-                                    mDfu.mCommRespDataIndex++;
+                                    mOta.mCommSendDataIndex++;
+                                    mOta.mCommRespDataIndex++;
 
-                                    if (mDfu.mCommSendDataIndex == mDfu.mCommLastPacketIndex)
+                                    if (mOta.mCommSendDataIndex == mOta.mCommLastPacketIndex)
                                     {
                                         Log.d(TAG, "전송 인덱스와 마지막 패킷 인덱스가 같습니다.");
-                                        sendPacket = new byte[4 + mDfu.mCommLastPacket_remainedBytes];
-                                        sendSize = mDfu.mCommLastPacket_remainedBytes;
+                                        sendPacket = new byte[4 + mOta.mCommLastPacket_remainedBytes];
+                                        sendSize = mOta.mCommLastPacket_remainedBytes;
                                     }
                                     else
                                     {
-                                        sendPacket = new byte[PacketInfo.PACKET_SIZE_DFU_SEND_DATA];
-                                        sendSize = PacketInfo.PACKET_SIZE_DFU_SEND_DATA_UNIT;
+                                        sendPacket = new byte[PacketInfo.PACKET_SIZE_OTA_SEND_DATA];
+                                        sendSize = PacketInfo.PACKET_SIZE_OTA_SEND_DATA_UNIT;
                                     }
 
                                     Log.d(TAG, "전송 사이즈는 = " + sendSize);
 
-                                    sendPacket[0] = PacketInfo.HEADER_DFU;
+                                    sendPacket[0] = PacketInfo.HEADER_OTA;
 
-                                    sendPacket[1] = (byte) ((mDfu.mCommSendDataIndex >> 16) & 0xFF); // Data index (MSB to LSB)
-                                    sendPacket[2] = (byte) ((mDfu.mCommSendDataIndex >> 8) & 0xFF);
-                                    sendPacket[3] = (byte) (mDfu.mCommSendDataIndex & 0xFF);
+                                    sendPacket[1] = (byte) ((mOta.mCommSendDataIndex >> 16) & 0xFF); // Data index (MSB to LSB)
+                                    sendPacket[2] = (byte) ((mOta.mCommSendDataIndex >> 8) & 0xFF);
+                                    sendPacket[3] = (byte) (mOta.mCommSendDataIndex & 0xFF);
 
-                                    Log.d(TAG, "전송 인덱스 = " + mDfu.mCommSendDataIndex + ", 버퍼 인덱스 = " + mDfu.mCommCurrDfu_BufferIndex);
+                                    Ota.OtaFile otaFile = mOta.getOtaFile(mOta.mCommFileType);
+
+                                    Log.d(TAG, "전송 인덱스 = " + mOta.mCommSendDataIndex + ", 버퍼 인덱스 = " + mOta.mCommCurrDfu_BufferIndex);
 
                                     for (int i = 0; i < sendSize; i++)
                                     {
-                                        sendPacket[4 + i] = mDfu.mBuffer[mDfu.mCommCurrDfu_BufferIndex];
-                                        mDfu.mCommCurrDfu_BufferIndex++;
+                                        sendPacket[4 + i] = otaFile.mBuffer[mOta.mCommCurrDfu_BufferIndex];
+                                        mOta.mCommCurrDfu_BufferIndex++;
                                     }
 
-                                    Log.d(TAG, "패킷 생성 후 버퍼 인덱스 = " + mDfu.mCommCurrDfu_BufferIndex);
+                                    Log.d(TAG, "패킷 생성 후 버퍼 인덱스 = " + mOta.mCommCurrDfu_BufferIndex);
 
                                     if (mBluetoothGatt != null && mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED)
                                     {
-                                        mDfu.mCommState = Dfu.COMM_STATE_SEND_DATA;
+                                        mOta.mCommState = Ota.COMM_STATE_SEND_DATA;
                                         sendPacket(sendPacket);
-                                        mDfu.mCommState = Dfu.COMM_STATE_WAIT_RESP_DATA;
+                                        mOta.mCommState = Ota.COMM_STATE_WAIT_RESP_DATA;
                                     }
                                     else
                                     {
@@ -3283,12 +1928,12 @@ public class MainActivity extends AppCompatActivity
                         }
                         break;
 
-                        case Dfu.COMM_STATE_WAIT_RESP_DATA:
+                        case Ota.COMM_STATE_WAIT_RESP_DATA:
                         {
-                            if (packetSize != PacketInfo.PACKET_SIZE_DFU_RESP_DATA)
+                            if (packetSize != PacketInfo.PACKET_SIZE_OTA_RESP_DATA)
                             {
                                 Log.d(TAG, "DFU 데이터 응답 패킷 사이즈 에러, 사이즈 = " + packetSize);
-                                mDfu.mCommState = Dfu.COMM_STATE_IDLE;
+                                mOta.mCommState = Ota.COMM_STATE_IDLE;
                                 packetSizeErrorDialog(); // 경고창 출력
                             }
                             else
@@ -3299,11 +1944,10 @@ public class MainActivity extends AppCompatActivity
                                 respDataIndex = ((responsePacket[1] & 0xFF) << 16) | ((responsePacket[2] & 0xFF) << 8) | (responsePacket[3] & 0xFF);
                                 respPassFail = responsePacket[4] & 0x000000FF;
 
-                                if (respDataIndex != mDfu.mCommRespDataIndex || respPassFail != Dfu.COMM_RESP_OK)
+                                if (respDataIndex != mOta.mCommRespDataIndex || respPassFail != Ota.COMM_RESP_OK)
                                 {
-                                    Log.d(TAG,
-                                            "DFU 데이터 응답 에러, 예상 인덱스 = " + mDfu.mCommRespDataIndex + ", 받은 인덱스 = " + respDataIndex + ", 통과 여부 = " + respPassFail);
-                                    mDfu.mCommState = Dfu.COMM_STATE_IDLE;
+                                    Log.d(TAG, "DFU 데이터 응답 에러, 예상 인덱스 = " + mOta.mCommRespDataIndex + ", 받은 인덱스 = " + respDataIndex + ", 통과 여부 = " + respPassFail);
+                                    mOta.mCommState = Ota.COMM_STATE_IDLE;
                                     packetSizeErrorDialog(); // 경고창 출력
                                 }
                                 else
@@ -3311,64 +1955,84 @@ public class MainActivity extends AppCompatActivity
                                     byte[] sendPacket;
                                     int    sendSize;
 
-                                    if (respDataIndex == mDfu.mCommLastPacketIndex) // 다 보내고, 마지막 응답 받은 상태
-                                    {
-                                        Log.d(TAG,
-                                                "DFU 데이터 마지막 응답 수신 예상 인덱스 = " + mDfu.mCommRespDataIndex + ", 받은 인덱스 = " + respDataIndex + ", 통과 여부 = " + respPassFail);
-                                        mDfu.mCommState = Dfu.COMM_STATE_IDLE;
+                                    Ota.OtaFile otaFile = mOta.getOtaFile(mOta.mCommFileType);
 
-                                        //mCheckBatteryHandler.postDelayed(mCheckBatteryRunner, CHECK_BATTERY_DELAY_IN_MS);
+                                    if (mOta.mCommFileType != Ota.PARAM_STATUS)
+                                    {
+                                        int    percent       = ((respDataIndex * 100) / mOta.mCommLastPacketIndex);
+                                        String stringPercent = percent + "%";
+                                        otaFile.mTv_sendPercent.setText(stringPercent);
+                                    }
+
+                                    if (respDataIndex == mOta.mCommLastPacketIndex) // 다 보내고, 마지막 응답 받은 상태
+                                    {
+                                        Log.d(TAG, "DFU 데이터 마지막 응답 수신 예상 인덱스 = " + mOta.mCommRespDataIndex + ", 받은 인덱스 = " + respDataIndex + ", 통과 여부 = " + respPassFail);
+                                        mOta.mCommState = Ota.COMM_STATE_IDLE;
+                                        otaFile.mSendDone = true;
+
+                                        if (mOta.mCommFileType == Ota.PARAM_STATUS)
+                                        {
+                                            Fragment fragment = getSupportFragmentManager().findFragmentById(mBinding.frame.getId());
+
+                                            if (fragment instanceof RemoteControlFragment)
+                                            {
+                                                new Handler(Looper.getMainLooper()).post(() ->
+                                                {
+                                                    ((RemoteControlFragment) fragment).makeDialog_finishOTA();
+                                                });
+                                            }
+                                        }
                                     }
                                     else
                                     {
-                                        mDfu.mCommState = Dfu.COMM_STATE_READY_DATA;
+                                        mOta.mCommState = Ota.COMM_STATE_READY_DATA;
 
-                                        mDfu.mCommSendDataIndex++;
-                                        mDfu.mCommRespDataIndex++;
+                                        mOta.mCommSendDataIndex++;
+                                        mOta.mCommRespDataIndex++;
 
-                                        if (mDfu.mCommSendDataIndex == mDfu.mCommLastPacketIndex)
+                                        if (mOta.mCommSendDataIndex == mOta.mCommLastPacketIndex)
                                         {
                                             Log.d(TAG, "전송 인덱스와 마지막 패킷 인덱스가 같습니다.");
-                                            if (mDfu.mCommLastPacket_remainedBytes != 0)
+                                            if (mOta.mCommLastPacket_remainedBytes != 0)
                                             {
-                                                sendPacket = new byte[4 + mDfu.mCommLastPacket_remainedBytes];
-                                                sendSize = mDfu.mCommLastPacket_remainedBytes;
+                                                sendPacket = new byte[4 + mOta.mCommLastPacket_remainedBytes];
+                                                sendSize = mOta.mCommLastPacket_remainedBytes;
                                             }
                                             else
                                             {
-                                                sendPacket = new byte[PacketInfo.PACKET_SIZE_DFU_SEND_DATA];
-                                                sendSize = PacketInfo.PACKET_SIZE_DFU_SEND_DATA_UNIT;
+                                                sendPacket = new byte[PacketInfo.PACKET_SIZE_OTA_SEND_DATA];
+                                                sendSize = PacketInfo.PACKET_SIZE_OTA_SEND_DATA_UNIT;
                                             }
                                         }
                                         else
                                         {
-                                            sendPacket = new byte[PacketInfo.PACKET_SIZE_DFU_SEND_DATA];
-                                            sendSize = PacketInfo.PACKET_SIZE_DFU_SEND_DATA_UNIT;
+                                            sendPacket = new byte[PacketInfo.PACKET_SIZE_OTA_SEND_DATA];
+                                            sendSize = PacketInfo.PACKET_SIZE_OTA_SEND_DATA_UNIT;
                                         }
 
                                         Log.d(TAG, "전송 사이즈는 = " + sendSize);
 
-                                        sendPacket[0] = PacketInfo.HEADER_DFU;
+                                        sendPacket[0] = PacketInfo.HEADER_OTA;
 
-                                        sendPacket[1] = (byte) ((mDfu.mCommSendDataIndex >> 16) & 0xFF); // Data index (MSB to LSB)
-                                        sendPacket[2] = (byte) ((mDfu.mCommSendDataIndex >> 8) & 0xFF);
-                                        sendPacket[3] = (byte) (mDfu.mCommSendDataIndex & 0xFF);
+                                        sendPacket[1] = (byte) ((mOta.mCommSendDataIndex >> 16) & 0xFF); // Data index (MSB to LSB)
+                                        sendPacket[2] = (byte) ((mOta.mCommSendDataIndex >> 8) & 0xFF);
+                                        sendPacket[3] = (byte) (mOta.mCommSendDataIndex & 0xFF);
 
-                                        Log.d(TAG, "전송 인덱스 = " + mDfu.mCommSendDataIndex + ", 버퍼 인덱스 = " + mDfu.mCommCurrDfu_BufferIndex);
+                                        Log.d(TAG, "전송 인덱스 = " + mOta.mCommSendDataIndex + ", 버퍼 인덱스 = " + mOta.mCommCurrDfu_BufferIndex);
 
                                         for (int i = 0; i < sendSize; i++)
                                         {
-                                            sendPacket[4 + i] = mDfu.mBuffer[mDfu.mCommCurrDfu_BufferIndex];
-                                            mDfu.mCommCurrDfu_BufferIndex++;
+                                            sendPacket[4 + i] = otaFile.mBuffer[mOta.mCommCurrDfu_BufferIndex];
+                                            mOta.mCommCurrDfu_BufferIndex++;
                                         }
 
-                                        Log.d(TAG, "패킷 생성 후 버퍼 인덱스 = " + mDfu.mCommCurrDfu_BufferIndex);
+                                        Log.d(TAG, "패킷 생성 후 버퍼 인덱스 = " + mOta.mCommCurrDfu_BufferIndex);
 
                                         if (mBluetoothGatt != null && mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED)
                                         {
-                                            mDfu.mCommState = Dfu.COMM_STATE_SEND_DATA;
+                                            mOta.mCommState = Ota.COMM_STATE_SEND_DATA;
                                             sendPacket(sendPacket);
-                                            mDfu.mCommState = Dfu.COMM_STATE_WAIT_RESP_DATA;
+                                            mOta.mCommState = Ota.COMM_STATE_WAIT_RESP_DATA;
                                         }
                                         else
                                         {
@@ -3398,16 +2062,6 @@ public class MainActivity extends AppCompatActivity
                         packetSizeErrorDialog();
                         break;
                     }
-
-
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[10] 시작.
-                    /*
-                    {
-                        Log.d(TAG, "Response packet --> error packet = " + responsePacket[1] + ", " + responsePacket[2]);
-                    }
-                    */
-                    // TD2-SW-RC-UNIT-Test-ID-56 [블루투스 패킷 수신 유닛] 순서[10] 끝.
-
 
                     byte errorType = byteExtractor(responsePacket[2]);
 
@@ -3560,16 +2214,6 @@ public class MainActivity extends AppCompatActivity
     Runnable mPacketSendRunner  = () ->
     {
 
-
-        // TD2-SW-RC-UNIT-Test-ID-55 [블루투스 패킷 전송 유닛] 순서[1-2] 시작.
-        /*
-        {
-            Log.d(TAG, "Sending packet started.");
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-55 [블루투스 패킷 전송 유닛] 순서[1-2] 끝.
-
-
         if (mBluetoothGatt == null || mStatus.sendingPacket == null)
         {
             Log.d(TAG, "패킷 전송 시도를 실패했습니다. -> GATT 객체가 null 이거나, 패킷 정보가 없습니다.");
@@ -3607,29 +2251,9 @@ public class MainActivity extends AppCompatActivity
     {
         if (mStatus.transferState == Status.TRANSFER_STATE_BUSY)
         {
-
-            // TD2-SW-RC-UNIT-Test-ID-55 [블루투스 패킷 전송 유닛] 순서[2] 시작.
-            /*
-            {
-                Log.d(TAG, "Packet transfer state is busy.");
-            }
-            */
-            // TD2-SW-RC-UNIT-Test-ID-55 [블루투스 패킷 전송 유닛] 순서[2] 끝.
-
-
             Log.d(TAG, "패킷 전송 처리 중입니다. 잠시 후 다시 시도해주세요.");
             return;
         }
-
-
-        // TD2-SW-RC-UNIT-Test-ID-55 [블루투스 패킷 전송 유닛] 순서[1-1] 시작.
-        /*
-        {
-            Log.d(TAG, "Packet transfer will be start in SEND_PACKET_DELAY_IN_MS.");
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-55 [블루투스 패킷 전송 유닛] 순서[1-1] 끝.
-
 
         mStatus.transferState = Status.TRANSFER_STATE_BUSY;
         mStatus.sendingPacket = packet;

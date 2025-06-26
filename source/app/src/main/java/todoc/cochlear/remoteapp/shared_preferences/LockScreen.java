@@ -237,7 +237,7 @@ public class LockScreen {
 
             Fragment fragment = mMainActivity.getSupportFragmentManager().findFragmentById(R.id.frame);
             if (fragment instanceof RemoteControlFragment) {
-                ((RemoteControlFragment) fragment).checkRegisteredList();
+                ((RemoteControlFragment) fragment).checkRegisteredList_userAndDevice();
             }
         }
     }
