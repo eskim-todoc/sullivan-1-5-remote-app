@@ -1,52 +1,35 @@
 package todoc.cochlear.remoteapp.ota;
 
-import android.widget.TextView;
-
-import todoc.cochlear.remoteapp.params.PacketInfo;
+import java.util.ArrayList;
 
 public class Ota
 {
     // Constants
-    static public final String OTA_PATH = "/OTA/";
+    static public final String BASE_FOLDER = "/OTA/";
 
     static public final String FILE_NAME_MANIFEST = "MANIFEST.TXT";
     static public final String FILE_NAME_APP000   = "APP000.FEZ";
     static public final String FILE_NAME_APP001   = "APP001.FEZ";
     static public final String FILE_NAME_APP002   = "APP002.FEZ";
-    static public final String FILE_NAME_STATUS   = "STATUS.BIN";
 
     static public final int THREAD_STATE_IDLE = 0;
     static public final int THREAD_STATE_BUSY = 1;
 
-    static public final int PARAM_NONE     = 0;
-    static public final int PARAM_MANIFEST = 1;
-    static public final int PARAM_APP000   = 2;
-    static public final int PARAM_APP001   = 3;
-    static public final int PARAM_APP002   = 4;
-    static public final int PARAM_STATUS   = 12345;
+    static public final int FILE_NUM_MFST = 1;
+    static public final int FILE_NUM_APP0 = 2;
+    static public final int FILE_NUM_APP1 = 3;
+    static public final int FILE_NUM_APP2 = 4;
 
     static public final int PRINT_LOG_HEX_LENGTH = 48;
 
-    // Instance
-    private static final Ota mInstance = new Ota();
-
-    // Members
-    public OtaFile mFile_manifest;
-    public OtaFile mFile_app000;
-    public OtaFile mFile_app001;
-    public OtaFile mFile_app002;
-    public OtaFile mFile_status;
-
-    public int mThread_state;
-    public int mThread_param;
+    static public final int SLOT_NUM_1 = 1;
+    static public final int SLOT_NUM_2 = 2;
 
     static public final int COMM_STATE_IDLE              = 0;
-    static public final int COMM_STATE_READY_COMMAND     = 1;
-    static public final int COMM_STATE_SEND_COMMAND      = 2;
-    static public final int COMM_STATE_WAIT_RESP_COMMAND = 3;
-    static public final int COMM_STATE_READY_DATA        = 4;
-    static public final int COMM_STATE_SEND_DATA         = 5;
-    static public final int COMM_STATE_WAIT_RESP_DATA    = 6;
+    static public final int COMM_STATE_PREPARE_COMMAND   = 1;
+    static public final int COMM_STATE_WAIT_RESP_COMMAND = 2;
+    static public final int COMM_STATE_PREPARE_DATA      = 3;
+    static public final int COMM_STATE_WAIT_RESP_DATA    = 4;
 
     static public final int COMM_RW_WRITE = 1;
     static public final int COMM_RW_READ  = 2;
@@ -54,25 +37,40 @@ public class Ota
     static public final int COMM_RESP_OK   = 1;
     static public final int COMM_RESP_FAIL = 2;
 
+    // Instance
+    private static final Ota mInstance = new Ota();
+
+    public int currentSlotNum;
+    public int currentFileNum;
+
+    // Members
+    public static ArrayList<OtaFile> fileList;
+
+    public int threadState;
+
     // 무선 프로토콜 관련
-    public int mCommState;
-    public int mCommDataIndex;
-    public int mCommFileType;
-    public int mCommTotalBytes;
-    public int mCommLastPacketIndex;
-    public int mCommRw;
-    public int mCommLastPacket_remainedBytes;
-
-    public int mCommSendDataIndex;
-    public int mCommRespDataIndex;
-
-    public int mCommCurrDfu_BufferIndex;
+    public int    commState;
+    public int    commDataIndex;
+    public int    commSlotNum;
+    public int    commFileNum;
+    public int    commOption;
+    public int    commTotalByte;
+    public int    commEndDataIndexNum;
+    public int    commEndDataIndexByte;
+    public int    commBufferIndex;
+    public byte[] commBuffer;
 
     // Constructor
     private Ota()
     {
-        mThread_state = THREAD_STATE_IDLE;
-        mThread_param = PARAM_NONE;
+        threadState = THREAD_STATE_IDLE;
+
+        currentSlotNum = -1;
+        currentFileNum = -1;
+
+        commState = COMM_STATE_IDLE;
+
+        fileList = new ArrayList<>();
     }
 
     // Get instance
@@ -81,37 +79,58 @@ public class Ota
         return mInstance;
     }
 
-    public OtaFile getOtaFile(int param)
+    public static String getFileName(int fileNum)
     {
-        OtaFile otaFile;
-
-        switch (param)
+        switch (fileNum)
         {
-            case PARAM_MANIFEST:
-                otaFile = mFile_manifest;
-                break;
-            case PARAM_APP000:
-                otaFile = mFile_app000;
-                break;
-            case PARAM_APP001:
-                otaFile = mFile_app001;
-                break;
-            case PARAM_APP002:
-                otaFile = mFile_app002;
-                break;
-            case PARAM_STATUS:
-                otaFile = mFile_status;
-                break;
+            case FILE_NUM_MFST:
+                return FILE_NAME_MANIFEST;
+
+            case FILE_NUM_APP0:
+                return FILE_NAME_APP000;
+
+            case FILE_NUM_APP1:
+                return FILE_NAME_APP001;
+
+            case FILE_NUM_APP2:
+                return FILE_NAME_APP002;
+
             default:
-                otaFile = null;
+                return null;
+        }
+    }
+
+    public static OtaFile getFile(int slotNum, int fileNum)
+    {
+        OtaFile file = null;
+
+        if (fileList == null)
+        {
+            fileList = new ArrayList<>();
         }
 
-        return otaFile;
+        for (int i = 0; i < fileList.size(); i++)
+        {
+            if ((fileList.get(i).slotNum == slotNum) && (fileList.get(i).fileNum == fileNum))
+            {
+                file = fileList.get(i);
+                break;
+            }
+        }
+
+        if (file == null)
+        {
+            file = new OtaFile(slotNum, fileNum);
+            fileList.add(file);
+        }
+
+        return file;
     }
 
     public void writeOtaFile(int param, int index, int length, boolean readDone, int total)
     {
-        OtaFile otaFile = getOtaFile(param);
+        /*
+        OtaFile otaFile = getFile(param);
 
         if (otaFile != null)
         {
@@ -120,11 +139,13 @@ public class Ota
             otaFile.mReadDone = readDone;
             //mBufferIndex = total;
         }
+        */
     }
 
     public byte[] prepare_dfuCommPacket(int param)
     {
-        OtaFile otaFile = getOtaFile(param);
+        /*
+        OtaFile otaFile = getFileObject(param);
         byte[]  packet;
 
         if (otaFile == null)
@@ -170,31 +191,33 @@ public class Ota
         // 0x80 00 00 00 00 02 00 00 5B EC 00 00 05 BF 0C 01
 
         return packet;
+        */
+
+        return null;
     }
 
     public static class OtaFile
     {
-        public boolean  mReadDone;
-        public boolean  mSendDone;
-        public byte[]   mBuffer;
-        public int      mLength;
-        public int      mIndex;
-        public int      mParam;
-        public String   mName;
-        public String   mPath;
-        public TextView mTv_readPercent;
-        public TextView mTv_sendPercent;
+        public int    slotNum;
+        public int    fileNum;
+        public int    collectSize;
+        public int    collectPercent;
+        public int    writeSize;
+        public int    writePercent;
+        public int    totalBytes;
+        public byte[] buffer;
 
         // Constructor
-        public OtaFile(String name, int param, int length)
+        public OtaFile(int slotNum, int fileNum)
         {
-            mReadDone = false;
-            mSendDone = false;
-            mBuffer = new byte[length];
-            mLength = length;
-            mIndex = 0;
-            mName = name;
-            mParam = param;
+            this.slotNum = slotNum;
+            this.fileNum = fileNum;
+            this.collectSize = 0;
+            this.collectPercent = 0;
+            this.writeSize = 0;
+            this.writePercent = 0;
+            this.totalBytes = 0;
+            this.buffer = null;
         }
     }
 }

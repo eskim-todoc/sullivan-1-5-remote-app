@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity
     static private final ParcelUuid SERVICE_DATA_UUID                        = new ParcelUuid(UUID.fromString("00004944-0000-1000-8000-00805F9B34FB"));
     static private final String     BT_NAME_REGEX_FILTER                     = "^TD_.*$";
 
-    static private final int DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT = 2000;//500;
+    static private final int DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT = 1000;
 
     static private final int LONG_TIME_IDLE_TIMEOUT_IN_MS    = 3600000; // 1시간
     static public final  int CHECK_BATTERY_DELAY_IN_MS       = 30000;
@@ -1842,299 +1842,188 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
 
+                case PacketInfo.HEADER_BOOT_STATUS:
+                {
+                    RemoteControlFragment remoteFragment;
+                    Fragment              fragment = getSupportFragmentManager().findFragmentById(mBinding.frame.getId());
+
+                    if (!(fragment instanceof RemoteControlFragment))
+                    {
+                        Log.e(TAG, "[BLE][OTA] 리모콘 화면이 아닌데, 어떻게 호출됐지?");
+                        return;
+                    }
+
+                    remoteFragment = (RemoteControlFragment) fragment;
+
+                    // Info
+                    if (responsePacket[1] == 1)
+                    {
+                        String boot_slot_num, last_boot_slot_num;
+
+                        boot_slot_num = "" + (responsePacket[5] & 0xFF);
+                        last_boot_slot_num = "" + (responsePacket[6] & 0xFF);
+
+                        new Handler(Looper.getMainLooper()).post(() ->
+                        {
+                            remoteFragment.mRemoteControlBinding.currSlotTextView.setText(boot_slot_num);
+                            remoteFragment.mRemoteControlBinding.lastSlotTextView.setText(last_boot_slot_num);
+                        });
+                    }
+                    // Select
+                    else if (responsePacket[1] == 2)
+                    {
+                        if (responsePacket[2] == 1)
+                        {
+                            Log.i(TAG, "[BLE][OTA] 슬롯 선택 성공.");
+                            remoteFragment.makeDialog_withMessage("슬롯 선택 성공.");
+                        }
+                        else
+                        {
+                            Log.i(TAG, "[BLE][OTA] 슬롯 선택 실패.");
+                            remoteFragment.makeDialog_withMessage("슬롯 선택 실패.");
+                        }
+                    }
+                }
+                break;
+
                 case PacketInfo.HEADER_OTA:
                 {
-                    switch (mOta.mCommState)
+                    Fragment fragment = getSupportFragmentManager().findFragmentById(mBinding.frame.getId());
+
+                    if (fragment instanceof RemoteControlFragment)
                     {
-                        case Ota.COMM_STATE_WAIT_RESP_COMMAND:
+                        if (mOta.commState == Ota.COMM_STATE_WAIT_RESP_COMMAND)
                         {
-                            if (packetSize != PacketInfo.PACKET_SIZE_OTA_RESP_COMMAND)
-                            {
-                                Log.d(TAG, "DFU 명령어 응답 패킷 사이즈 에러, 사이즈 = " + packetSize);
-                                mOta.mCommState = Ota.COMM_STATE_IDLE;
-                                packetSizeErrorDialog(); // 경고창 출력
-                            }
-                            else
-                            {
-                                int respDataIndex;
-                                int respPassFail;
-
-                                respDataIndex = ((responsePacket[1] & 0xFF) << 16) & 0x00FF0000;
-                                respDataIndex |= ((responsePacket[2] & 0xFF) << 8) & 0x0000FF00;
-                                respDataIndex |= (responsePacket[3] & 0xFF) & 0x000000FF;
-
-                                respPassFail = responsePacket[4] & 0x000000FF;
-
-                                if (respDataIndex != mOta.mCommRespDataIndex || respPassFail != Ota.COMM_RESP_OK)
-                                {
-                                    Log.d(TAG, "DFU 명령어 응답 에러, 예상 인덱스 = " + mOta.mCommRespDataIndex + ", 받은 인덱스 = " + respDataIndex + ", 통과 여부 = " + respPassFail);
-                                    mOta.mCommState = Ota.COMM_STATE_IDLE;
-                                    packetSizeErrorDialog(); // 경고창 출력
-                                }
-                                else
-                                {
-                                    byte[] sendPacket;
-                                    int    sendSize;
-
-                                    mOta.mCommState = Ota.COMM_STATE_READY_DATA;
-
-                                    mOta.mCommSendDataIndex++;
-                                    mOta.mCommRespDataIndex++;
-
-                                    if (mOta.mCommSendDataIndex == mOta.mCommLastPacketIndex)
-                                    {
-                                        Log.d(TAG, "전송 인덱스와 마지막 패킷 인덱스가 같습니다.");
-                                        sendPacket = new byte[4 + mOta.mCommLastPacket_remainedBytes];
-                                        sendSize = mOta.mCommLastPacket_remainedBytes;
-                                    }
-                                    else
-                                    {
-                                        sendPacket = new byte[PacketInfo.PACKET_SIZE_OTA_SEND_DATA];
-                                        sendSize = PacketInfo.PACKET_SIZE_OTA_SEND_DATA_UNIT;
-                                    }
-
-                                    Log.d(TAG, "전송 사이즈는 = " + sendSize);
-
-                                    sendPacket[0] = PacketInfo.HEADER_OTA;
-
-                                    sendPacket[1] = (byte) ((mOta.mCommSendDataIndex >> 16) & 0xFF); // Data index (MSB to LSB)
-                                    sendPacket[2] = (byte) ((mOta.mCommSendDataIndex >> 8) & 0xFF);
-                                    sendPacket[3] = (byte) (mOta.mCommSendDataIndex & 0xFF);
-
-                                    Ota.OtaFile otaFile = mOta.getOtaFile(mOta.mCommFileType);
-
-                                    Log.d(TAG, "전송 인덱스 = " + mOta.mCommSendDataIndex + ", 버퍼 인덱스 = " + mOta.mCommCurrDfu_BufferIndex);
-
-                                    for (int i = 0; i < sendSize; i++)
-                                    {
-                                        sendPacket[4 + i] = otaFile.mBuffer[mOta.mCommCurrDfu_BufferIndex];
-                                        mOta.mCommCurrDfu_BufferIndex++;
-                                    }
-
-                                    Log.d(TAG, "패킷 생성 후 버퍼 인덱스 = " + mOta.mCommCurrDfu_BufferIndex);
-
-                                    if (mBluetoothGatt != null && mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED)
-                                    {
-                                        mOta.mCommState = Ota.COMM_STATE_SEND_DATA;
-                                        sendPacket(sendPacket);
-                                        mOta.mCommState = Ota.COMM_STATE_WAIT_RESP_DATA;
-                                    }
-                                    else
-                                    {
-                                        Log.d(TAG, "연결이 끊어져서 패킷을 보낼 수 없음");
-                                    }
-                                }
-                            }
+                            ((RemoteControlFragment) fragment).handleRespCommandPacket(responsePacket);
                         }
-                        break;
-
-                        case Ota.COMM_STATE_WAIT_RESP_DATA:
+                        else if (mOta.commState == Ota.COMM_STATE_WAIT_RESP_DATA)
                         {
-                            if (packetSize != PacketInfo.PACKET_SIZE_OTA_RESP_DATA)
-                            {
-                                Log.d(TAG, "DFU 데이터 응답 패킷 사이즈 에러, 사이즈 = " + packetSize);
-                                mOta.mCommState = Ota.COMM_STATE_IDLE;
-                                packetSizeErrorDialog(); // 경고창 출력
-                            }
-                            else
-                            {
-                                int respDataIndex;
-                                int respPassFail;
-
-                                respDataIndex = ((responsePacket[1] & 0xFF) << 16) | ((responsePacket[2] & 0xFF) << 8) | (responsePacket[3] & 0xFF);
-                                respPassFail = responsePacket[4] & 0x000000FF;
-
-                                if (respDataIndex != mOta.mCommRespDataIndex || respPassFail != Ota.COMM_RESP_OK)
-                                {
-                                    Log.d(TAG, "DFU 데이터 응답 에러, 예상 인덱스 = " + mOta.mCommRespDataIndex + ", 받은 인덱스 = " + respDataIndex + ", 통과 여부 = " + respPassFail);
-                                    mOta.mCommState = Ota.COMM_STATE_IDLE;
-                                    packetSizeErrorDialog(); // 경고창 출력
-                                }
-                                else
-                                {
-                                    byte[] sendPacket;
-                                    int    sendSize;
-
-                                    Ota.OtaFile otaFile = mOta.getOtaFile(mOta.mCommFileType);
-
-                                    if (mOta.mCommFileType != Ota.PARAM_STATUS)
-                                    {
-                                        int    percent       = ((respDataIndex * 100) / mOta.mCommLastPacketIndex);
-                                        String stringPercent = percent + "%";
-                                        otaFile.mTv_sendPercent.setText(stringPercent);
-                                    }
-
-                                    if (respDataIndex == mOta.mCommLastPacketIndex) // 다 보내고, 마지막 응답 받은 상태
-                                    {
-                                        Log.d(TAG, "DFU 데이터 마지막 응답 수신 예상 인덱스 = " + mOta.mCommRespDataIndex + ", 받은 인덱스 = " + respDataIndex + ", 통과 여부 = " + respPassFail);
-                                        mOta.mCommState = Ota.COMM_STATE_IDLE;
-                                        otaFile.mSendDone = true;
-
-                                        if (mOta.mCommFileType == Ota.PARAM_STATUS)
-                                        {
-                                            Fragment fragment = getSupportFragmentManager().findFragmentById(mBinding.frame.getId());
-
-                                            if (fragment instanceof RemoteControlFragment)
-                                            {
-                                                new Handler(Looper.getMainLooper()).post(() ->
-                                                {
-                                                    ((RemoteControlFragment) fragment).makeDialog_finishOTA();
-                                                });
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        mOta.mCommState = Ota.COMM_STATE_READY_DATA;
-
-                                        mOta.mCommSendDataIndex++;
-                                        mOta.mCommRespDataIndex++;
-
-                                        if (mOta.mCommSendDataIndex == mOta.mCommLastPacketIndex)
-                                        {
-                                            Log.d(TAG, "전송 인덱스와 마지막 패킷 인덱스가 같습니다.");
-                                            if (mOta.mCommLastPacket_remainedBytes != 0)
-                                            {
-                                                sendPacket = new byte[4 + mOta.mCommLastPacket_remainedBytes];
-                                                sendSize = mOta.mCommLastPacket_remainedBytes;
-                                            }
-                                            else
-                                            {
-                                                sendPacket = new byte[PacketInfo.PACKET_SIZE_OTA_SEND_DATA];
-                                                sendSize = PacketInfo.PACKET_SIZE_OTA_SEND_DATA_UNIT;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            sendPacket = new byte[PacketInfo.PACKET_SIZE_OTA_SEND_DATA];
-                                            sendSize = PacketInfo.PACKET_SIZE_OTA_SEND_DATA_UNIT;
-                                        }
-
-                                        Log.d(TAG, "전송 사이즈는 = " + sendSize);
-
-                                        sendPacket[0] = PacketInfo.HEADER_OTA;
-
-                                        sendPacket[1] = (byte) ((mOta.mCommSendDataIndex >> 16) & 0xFF); // Data index (MSB to LSB)
-                                        sendPacket[2] = (byte) ((mOta.mCommSendDataIndex >> 8) & 0xFF);
-                                        sendPacket[3] = (byte) (mOta.mCommSendDataIndex & 0xFF);
-
-                                        Log.d(TAG, "전송 인덱스 = " + mOta.mCommSendDataIndex + ", 버퍼 인덱스 = " + mOta.mCommCurrDfu_BufferIndex);
-
-                                        for (int i = 0; i < sendSize; i++)
-                                        {
-                                            sendPacket[4 + i] = otaFile.mBuffer[mOta.mCommCurrDfu_BufferIndex];
-                                            mOta.mCommCurrDfu_BufferIndex++;
-                                        }
-
-                                        Log.d(TAG, "패킷 생성 후 버퍼 인덱스 = " + mOta.mCommCurrDfu_BufferIndex);
-
-                                        if (mBluetoothGatt != null && mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED)
-                                        {
-                                            mOta.mCommState = Ota.COMM_STATE_SEND_DATA;
-                                            sendPacket(sendPacket);
-                                            mOta.mCommState = Ota.COMM_STATE_WAIT_RESP_DATA;
-                                        }
-                                        else
-                                        {
-                                            Log.d(TAG, "연결이 끊어져서 패킷을 보낼 수 없음");
-                                        }
-                                    }
-                                }
-                            }
+                            ((RemoteControlFragment) fragment).handleRespDataPacket(responsePacket);
                         }
-                        break;
-
-                        default:
-                            break;
-                    } // swtich=>mDfu.mCommState
+                    }
                 }
-                break; // case=>PacketInfo.HEADER_DFU
+                break; // PacketInfo.HEADER_OTA
+
 
                 // 에러
                 case PacketInfo.HEADER_ERROR:
                 {
-                    if (packetSize != PacketInfo.PACKET_SIZE_ERROR)
-                    {
-                        Log.d(TAG, "BLE 특성 변경 감지 -> 에러 패킷 사이즈 에러 : 사이즈 = " + packetSize);
-                        UtilLog.instance.writeLog("패킷 에러 : 에러 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+                    RemoteControlFragment remoteFragment;
+                    Fragment              fragment;
 
-                        // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
-                        packetSizeErrorDialog();
-                        break;
+                    if (responsePacket[1] == PacketInfo.HEADER_OTA)
+                    {
+                        fragment = getSupportFragmentManager().findFragmentById(mBinding.frame.getId());
+
+                        if (!(fragment instanceof RemoteControlFragment))
+                        {
+                            Log.e(TAG, "[BLE][OTA] 리모콘 화면이 아닌데, 어떻게 호출됐지?");
+                            return;
+                        }
+
+                        remoteFragment = (RemoteControlFragment) fragment;
+
+                        ((RemoteControlFragment) fragment).makeDialog_withMessage("OTA 에러 패킷 수신");
                     }
-
-                    byte errorType = byteExtractor(responsePacket[2]);
-
-                    switch (errorType)
+                    else if (responsePacket[1] == PacketInfo.HEADER_BOOT_STATUS)
                     {
-                        case 1: // 없는 명령
-                        case 2: // 데이터 범위 이탈
-                            Log.d(TAG, "패킷 위반 에러를 수신했습니다.");
+                        fragment = getSupportFragmentManager().findFragmentById(mBinding.frame.getId());
 
-                            if (!mStatus.isEnabledInvalidPacketToast)
-                            {
-                                Toast.makeText(getApplicationContext(), "사운드처리기가 유효하지 않은 명령어를 전송했습니다.", Toast.LENGTH_LONG).show();
+                        if (!(fragment instanceof RemoteControlFragment))
+                        {
+                            Log.e(TAG, "[BLE][OTA] 리모콘 화면이 아닌데, 어떻게 호출됐지?");
+                            return;
+                        }
 
-                                mStatus.isEnabledInvalidPacketToast = true;
+                        remoteFragment = (RemoteControlFragment) fragment;
 
-                                new Handler(Looper.getMainLooper()).postDelayed(() ->
-                                {
-                                    mStatus.isEnabledInvalidPacketToast = false;
-                                    longTimeIdleHandlerUpdate(true);
-                                }, 3500);
-                            }
+                        ((RemoteControlFragment) fragment).makeDialog_withMessage("BOOT 에러 패킷 수신");
+                    }
+                    else
+                    {
+                        if (packetSize != PacketInfo.PACKET_SIZE_ERROR)
+                        {
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 에러 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : 에러 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
+                            packetSizeErrorDialog();
                             break;
+                        }
 
-                        case 3: // Busy
-                            Log.d(TAG, "Busy 에러를 수신했습니다.");
+                        byte errorType = byteExtractor(responsePacket[2]);
 
-                            if (!mStatus.isEnabledBusyToast)
-                            {
-                                Toast.makeText(getApplicationContext(), "이전에 전송한 명령을 처리중입니다.", Toast.LENGTH_LONG).show();
+                        switch (errorType)
+                        {
+                            case 1: // 없는 명령
+                            case 2: // 데이터 범위 이탈
+                                Log.d(TAG, "패킷 위반 에러를 수신했습니다.");
 
-                                mStatus.isEnabledBusyToast = true;
-
-                                new Handler(Looper.getMainLooper()).postDelayed(() ->
+                                if (!mStatus.isEnabledInvalidPacketToast)
                                 {
-                                    longTimeIdleHandlerUpdate(true);
-                                    mStatus.isEnabledBusyToast = false;
-                                }, 3500);
-                            }
-                            break;
+                                    Toast.makeText(getApplicationContext(), "사운드처리기가 유효하지 않은 명령어를 전송했습니다.", Toast.LENGTH_LONG).show();
 
-                        case 4: // 보안코드 미적용 에러
-                            Log.d(TAG, "보안코드 미적용 에러를 수신했습니다.");
+                                    mStatus.isEnabledInvalidPacketToast = true;
 
-                            if (!mStatus.isEnabledUnlockedToast)
-                            {
-                                Toast.makeText(getApplicationContext(), "사운드처리기의 암호가 풀리지 않았습니다. 보안 비밀번호를 사용해 잠금을 해제해주세요.", Toast.LENGTH_LONG).show();
-                                mStatus.isEnabledUnlockedToast = true;
+                                    new Handler(Looper.getMainLooper()).postDelayed(() ->
+                                    {
+                                        mStatus.isEnabledInvalidPacketToast = false;
+                                        longTimeIdleHandlerUpdate(true);
+                                    }, 3500);
+                                }
+                                break;
 
-                                new Handler(Looper.getMainLooper()).postDelayed(() ->
+                            case 3: // Busy
+                                Log.d(TAG, "Busy 에러를 수신했습니다.");
+
+                                if (!mStatus.isEnabledBusyToast)
                                 {
-                                    longTimeIdleHandlerUpdate(true);
-                                    mStatus.isEnabledUnlockedToast = false;
-                                }, 3500);
-                            }
-                            break;
+                                    Toast.makeText(getApplicationContext(), "이전에 전송한 명령을 처리중입니다.", Toast.LENGTH_LONG).show();
 
-                        case 5: // SPI 통신 에러
-                        case 6: // CFX_CM3 통신 에러
-                        case 7: // NRF_FLASH 초기화 에러
-                            Log.d(TAG, "사운드처리기에 문제가 발생했습니다.");
+                                    mStatus.isEnabledBusyToast = true;
 
-                            if (!mStatus.isEnabledInternalErrorToast)
-                            {
-                                Toast.makeText(getApplicationContext(), "사운드처리기 내부에서 에러가 발생했습니다. 탈착 후 다시 부착해주세요.", Toast.LENGTH_LONG).show();
-                                mStatus.isEnabledInternalErrorToast = true;
+                                    new Handler(Looper.getMainLooper()).postDelayed(() ->
+                                    {
+                                        longTimeIdleHandlerUpdate(true);
+                                        mStatus.isEnabledBusyToast = false;
+                                    }, 3500);
+                                }
+                                break;
 
-                                new Handler(Looper.getMainLooper()).postDelayed(() ->
+                            case 4: // 보안코드 미적용 에러
+                                Log.d(TAG, "보안코드 미적용 에러를 수신했습니다.");
+
+                                if (!mStatus.isEnabledUnlockedToast)
                                 {
-                                    longTimeIdleHandlerUpdate(true);
-                                    mStatus.isEnabledInternalErrorToast = false;
-                                }, 3500);
-                            }
-                            break;
+                                    Toast.makeText(getApplicationContext(), "사운드처리기의 암호가 풀리지 않았습니다. 보안 비밀번호를 사용해 잠금을 해제해주세요.", Toast.LENGTH_LONG).show();
+                                    mStatus.isEnabledUnlockedToast = true;
+
+                                    new Handler(Looper.getMainLooper()).postDelayed(() ->
+                                    {
+                                        longTimeIdleHandlerUpdate(true);
+                                        mStatus.isEnabledUnlockedToast = false;
+                                    }, 3500);
+                                }
+                                break;
+
+                            case 5: // SPI 통신 에러
+                            case 6: // CFX_CM3 통신 에러
+                            case 7: // NRF_FLASH 초기화 에러
+                                Log.d(TAG, "사운드처리기에 문제가 발생했습니다.");
+
+                                if (!mStatus.isEnabledInternalErrorToast)
+                                {
+                                    Toast.makeText(getApplicationContext(), "사운드처리기 내부에서 에러가 발생했습니다. 탈착 후 다시 부착해주세요.", Toast.LENGTH_LONG).show();
+                                    mStatus.isEnabledInternalErrorToast = true;
+
+                                    new Handler(Looper.getMainLooper()).postDelayed(() ->
+                                    {
+                                        longTimeIdleHandlerUpdate(true);
+                                        mStatus.isEnabledInternalErrorToast = false;
+                                    }, 3500);
+                                }
+                                break;
+                        }
                     }
                 }
                 break;
@@ -2145,7 +2034,7 @@ public class MainActivity extends AppCompatActivity
     //
     // 패킷 사이즈 에러 다이얼로그
     //
-    private void packetSizeErrorDialog()
+    public void packetSizeErrorDialog()
     {
         // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
         lastDialogDismiss();
@@ -2193,18 +2082,41 @@ public class MainActivity extends AppCompatActivity
     Handler  mPacketResponseTimeoutHandler = new Handler();
     Runnable mPacketResponseTimeoutRunner  = () ->
     {
-        //
-        // 패킷 응답 시간 초과일 때 오디오 입력 최대 신호 측정 중일 때를 위한 부분입니다.
-        //
-        Log.d(TAG, "패킷 응답 시간 초과 발생 -> 기기와 연결을 해제하겠습니다.");
+        boolean retBool;
 
-        if (mBluetoothGatt != null)
+        if ((mBluetoothGatt == null) || (mStatus.connectionState != Status.CONNECTION_STATE_CONNECTED))
         {
-            if (mStatus.connectionState != Status.CONNECTION_STATE_DISCONNECTED && mStatus.connectionState != Status.CONNECTION_STATE_DISCONNECTING)
-            {
-                mBluetoothGatt.disconnect();
-            }
+            Log.e(TAG, "[BLE] 패킷 전송 실패 → 'GATT == null' 또는 '연결 상태 아님'.");
+            return;
         }
+
+        if (mStatus.resendingCount <= 0)
+        {
+            Log.e(TAG, "[BLE] 패킷 전송 재전송 횟수 초과.");
+            mBluetoothGatt.disconnect();
+            return;
+        }
+
+        mStatus.resendingCount--;
+
+        retBool = mCharClientToServer.setValue(mStatus.sendingPacket);
+
+        if (!retBool)
+        {
+            Log.e(TAG, "[BLE] 패킷 준비 실패.");
+            mBluetoothGatt.disconnect();
+            return;
+        }
+
+        retBool = mBluetoothGatt.writeCharacteristic(mCharClientToServer);
+
+        if (!retBool)
+        {
+            Log.e(TAG, "[BLE] 패킷 재전송 실패.");
+            mBluetoothGatt.disconnect();
+            return;
+        }
+
     }; // scanRunner
 
     //
@@ -2222,9 +2134,9 @@ public class MainActivity extends AppCompatActivity
 
         boolean isSuccess = false;
 
-        Log.v(TAG, "패킷 전송 : " + printLogBytesToString(mStatus.sendingPacket));
+        Log.v(TAG, "[BLE] 시간 초과 핸들러 생성 후 패킷 전송 : " + printLogBytesToString(mStatus.sendingPacket));
 
-        Log.v(TAG, "패킷 응답 시간 초과 핸들러를 생성합니다.");
+        mStatus.resendingCount = Status.RESENDING_PACKET_COUNT;
         mPacketResponseTimeoutHandler.postDelayed(mPacketResponseTimeoutRunner, DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT);
 
         if (mCharClientToServer.setValue(mStatus.sendingPacket))
@@ -2241,7 +2153,7 @@ public class MainActivity extends AppCompatActivity
             mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner);
         }
 
-        mStatus.sendingPacket = null;
+        //mStatus.sendingPacket = null;
     };
 
     //

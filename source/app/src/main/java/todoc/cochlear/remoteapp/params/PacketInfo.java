@@ -54,6 +54,13 @@ public class PacketInfo
     static public final int PACKET_SIZE_SOUND_PROCESSING_PARAM_INDEX_6 = 18;
     static public final int PACKET_SIZE_SOUND_PROCESSING_PARAM_INDEX_7 = 18;
 
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// OTA packet
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static public final int OTA_OPT_WRITE = 1;
+    static public final int OTA_OPT_READ  = 2;
+    static public final int OTA_OPT_SIZE  = 3;
+
     // Header=1, DataIndex=3, FileType=2, TotalBytes=4, LastPacketIndex=4, LastPacket_remainedByte=1, RW=1
     // => 16 bytes
     static public final int PACKET_SIZE_OTA_SEND_COMMAND = 16;
