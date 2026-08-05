@@ -6,53 +6,221 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white_10"
-        android:padding="16dp"
+        android:paddingStart="8dp"
+        android:paddingTop="6dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="6dp"
         tools:context="todoc.cochlear.remoteapp.fragment.RemoteControlFragment">
 
 
+        <!--
+        상태 정보 묶음 (표시 전용).
+        항목이 많아 내부기 시리얼과 한 줄에 두면 시리얼이 잘리므로 별도 묶음으로 분리했다.
+        세로 체인의 머리이며, 아래 묶음들과 함께 남는 공간을 균등하게 나눠 갖는다.
+        -->
+        <LinearLayout
+            android:id="@+id/ota_status_info_box"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@id/ota_id_box"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!--
+            상태 표시는 4열 2행 격자로 고정한다.
+
+            각 칸을 layout_width="0dp" + layout_weight="1" 로 두면 칸의 폭이 화면 폭으로만
+            정해지고 글자 길이와 무관해진다. On <-> Off 처럼 글자 수가 달라져도 그 칸 안에서만
+            바뀌므로 뒤따르는 항목들의 위치가 밀리지 않는다.
+            두 행의 열 수가 같아 세로로도 열이 맞는다.
+            -->
+
+            <!-- 1행 : PMIC / BT / Gating / LED -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="true"
+                android:orientation="horizontal">
+
+                <!-- 현재 링크 Tx 파워 하한(PMIC) : 연결 직후 읽어온다 -->
+                <TextView
+                    android:id="@+id/ota_pmic_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="PMIC -"
+                    android:textColor="#BBDEFB"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="PMIC 4.0V" />
+
+                <!-- 현재 링크 백텔 주기 : 연결 직후 읽어온다 -->
+                <TextView
+                    android:id="@+id/ota_backtel_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="BT -"
+                    android:textColor="#BBDEFB"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="BT 300ms" />
+
+                <!-- 현재 게이팅(묵음) 상태 : 연결 직후 읽어온다 -->
+                <TextView
+                    android:id="@+id/ota_gating_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Gating -"
+                    android:textColor="#BBDEFB"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="Gating On" />
+
+                <!-- 현재 LED 상태 -->
+                <TextView
+                    android:id="@+id/ota_led_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="LED -"
+                    android:textColor="#BBDEFB"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="LED On" />
+            </LinearLayout>
+
+            <!-- 2행 : Alarm / Vol / Out / Prog -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:baselineAligned="true"
+                android:orientation="horizontal">
+
+                <!-- 현재 자극알림 상태 -->
+                <TextView
+                    android:id="@+id/ota_alarm_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Alarm -"
+                    android:textColor="#BBDEFB"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="Alarm On" />
+
+                <!-- 현재 볼륨 -->
+                <TextView
+                    android:id="@+id/ota_volume_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Vol -"
+                    android:textColor="#BBDEFB"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="Vol 5" />
+
+                <!-- 현재 최대출력 -->
+                <TextView
+                    android:id="@+id/ota_max_output_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Out -"
+                    android:textColor="#BBDEFB"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="Out 2" />
+
+                <!-- 현재 프로그램 번호 (Remote 꼭지의 Program-, Program+ 버튼으로 변경) -->
+                <TextView
+                    android:id="@+id/ota_program_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Prog -"
+                    android:textColor="#00E676"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    tools:text="Prog 1" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 내부기 시리얼 · 사용자 이름 묶음 -->
         <LinearLayout
             android:id="@+id/ota_id_box"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@id/ota_slot_box"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/ota_status_info_box">
 
-            <!-- ISD 시리얼 -->
+            <!-- 내부기 시리얼 -->
             <TextView
                 android:id="@+id/remote_control_connection_isd_id_textview"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/roboto_mono_regular_variable"
                 android:letterSpacing="0.14"
                 android:text=""
-                android:textAlignment="center"
+                android:textAlignment="viewStart"
                 android:textColor="#66BB6A"
                 android:textSize="14dp"
                 android:textStyle="italic|bold"
                 tools:text="#16210001" />
 
-            <!-- 내부기 이름 -->
+            <!-- 사용자 이름 -->
             <TextView
                 android:id="@+id/remote_control_connection_user_name_textview"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="2dp"
                 android:text=""
-                android:textAlignment="center"
+                android:textAlignment="textStart"
                 android:textColor="@color/white_100"
                 android:textSize="18dp"
                 android:textStyle="bold"
                 tools:text="사용자 이름" />
+
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/ota_radiogroup_box"
+            android:id="@+id/ota_slot_box"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@id/ota_status_box"
+            app:layout_constraintBottom_toTopOf="@id/ota_file_box"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ota_id_box">
@@ -80,6 +248,9 @@
                     android:layout_weight="1"
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="1"
+                    android:minHeight="0dp"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="0dp"
                     android:textColor="@color/white_100"
                     android:textSize="12dp" />
 
@@ -90,16 +261,35 @@
                     android:layout_weight="1"
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="2"
+                    android:minHeight="0dp"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="0dp"
                     android:textColor="@color/white_100"
                     android:textSize="12dp" />
 
-                <TextView
+                <!--
+                자리 차지용 빈 칸.
+
+                슬롯 행의 가중치 합(1+1+2)을 아래 파일 행(1+1+1+1)과 같은 4로 맞춰,
+                슬롯 1 · 2 가 아래 MFST · APP0 과 같은 너비·위치에 오도록 한다.
+                이 칸을 빼면 슬롯 버튼이 화면 절반씩 차지해 두 행이 어긋난다.
+                -->
+                <Space
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:visibility="invisible" />
+                    android:layout_weight="2" />
             </RadioGroup>
+        </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/ota_file_box"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@id/ota_status_box"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ota_slot_box">
             <!-- List of files -->
             <TextView
                 android:layout_width="match_parent"
@@ -124,6 +314,9 @@
                     android:layout_weight="1"
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="MFST"
+                    android:minHeight="0dp"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="0dp"
                     android:textColor="@color/white_100"
                     android:textSize="12dp" />
 
@@ -134,6 +327,9 @@
                     android:layout_weight="1"
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="APP0"
+                    android:minHeight="0dp"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="0dp"
                     android:textColor="@color/white_100"
                     android:textSize="12dp" />
 
@@ -144,6 +340,9 @@
                     android:layout_weight="1"
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="APP1"
+                    android:minHeight="0dp"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="0dp"
                     android:textColor="@color/white_100"
                     android:textSize="12dp" />
 
@@ -154,6 +353,9 @@
                     android:layout_weight="1"
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="APP2"
+                    android:minHeight="0dp"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="0dp"
                     android:textColor="@color/white_100"
                     android:textSize="12dp" />
             </RadioGroup>
@@ -167,7 +369,7 @@
             app:layout_constraintBottom_toTopOf="@id/ota_slotinfo_box"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ota_radiogroup_box">
+            app:layout_constraintTop_toBottomOf="@id/ota_file_box">
             <!-- Status of files -->
             <TextView
                 android:layout_width="match_parent"
@@ -182,7 +384,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="2dp"
                 android:orientation="horizontal">
 
                 <TextView
@@ -658,54 +860,86 @@
                 android:textSize="12dp"
                 android:textStyle="bold" />
 
-            <!-- Button : Info -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/ota_info_button"
-                style="@style/TextAppearance.MaterialComponents.Button"
+            <!-- Button 1행 : Info / Collect -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_marginTop="4dp"
-                android:text="Info"
-                android:textAllCaps="false"
-                android:textColor="@color/white_100"
-                android:textSize="12dp"
-                app:backgroundTint="#1976D2" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:orientation="horizontal">
 
-            <!-- Button : Collect -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/ota_collect_button"
-                style="@style/TextAppearance.MaterialComponents.Button"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:text="Collect"
-                android:textAllCaps="false"
-                android:textColor="@color/white_100"
-                android:textSize="12dp"
-                app:backgroundTint="#388E3C" />
+                <!-- Button : Info -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_info_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    android:text="Info"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#1976D2"
+                    app:cornerRadius="4dp" />
 
-            <!-- Button : Write -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/ota_write_button"
-                style="@style/TextAppearance.MaterialComponents.Button"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:text="Write"
-                android:textAllCaps="false"
-                android:textColor="@color/white_100"
-                android:textSize="12dp"
-                app:backgroundTint="#FF6F00" />
+                <!-- Button : Collect -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_collect_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="Collect"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#00796B"
+                    app:cornerRadius="4dp" />
+            </LinearLayout>
 
-            <!-- Button : Select -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/ota_select_button"
-                style="@style/TextAppearance.MaterialComponents.Button"
+            <!-- Button 2행 : Write / Select -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:text="Select"
-                android:textAllCaps="false"
-                android:textColor="@color/white_100"
-                android:textSize="12dp"
-                app:backgroundTint="#4A148C" />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Button : Write -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_write_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    android:text="Write"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#D84315"
+                    app:cornerRadius="4dp" />
+
+                <!-- Button : Select -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_select_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="Select"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#8E24AA"
+                    app:cornerRadius="4dp" />
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -714,9 +948,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/ota_remote_box"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ota_button_box">
 
             <TextView
                 android:layout_width="match_parent"
@@ -727,18 +962,348 @@
                 android:textSize="12dp"
                 android:textStyle="bold" />
 
-            <!-- Button : Factory reset -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/ota_factory_reset_button"
-                style="@style/TextAppearance.MaterialComponents.Button"
+            <!-- Caution 1행 : Factory rollback / Map rollback (되돌릴 수 없는 동작) -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:text="Factory rollback"
-                android:textAllCaps="false"
-                android:textColor="#FF0000"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:orientation="horizontal">
+
+                <!-- Button : Factory reset -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_factory_reset_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    android:text="FW slot rollback"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:textAllCaps="false"
+                    android:textColor="#FF8A80"
+                    android:textSize="11dp"
+                    android:textStyle="italic"
+                    app:backgroundTint="#5D1A1A"
+                    app:cornerRadius="4dp" />
+
+                <!-- Button : 기본 맵으로 되돌리기 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_map_init_default_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:text="Map rollback"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:textAllCaps="false"
+                    android:textColor="#FF8A80"
+                    android:textSize="11dp"
+                    android:textStyle="italic"
+                    app:backgroundTint="#5D1A1A"
+                    app:cornerRadius="4dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ota_remote_box"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@id/ota_etc_box"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ota_caution_box">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/nanum_gothic_regular"
+                android:text="Remote"
+                android:textColor="#FFA000"
                 android:textSize="12dp"
-                android:textStyle="italic"
-                app:backgroundTint="#FFD5D1" />
+                android:textStyle="bold" />
+
+            <!-- Remote 1행 : Program- / Program+ / Vol- / Vol+ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:orientation="horizontal">
+
+                <!-- Button : 이전 프로그램 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_program_down_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="Program-"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#0277BD"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+
+                <!-- Button : 다음 프로그램 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_program_up_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="Program+"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#0277BD"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+
+                <!-- Button : 볼륨 내리기 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_volume_down_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="Vol-"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#2E7D32"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+
+                <!-- Button : 볼륨 올리기 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_volume_up_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="Vol+"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#2E7D32"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+            </LinearLayout>
+
+            <!-- Remote 2행 : Out- / Out+ / LED / Alarm -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Button : 최대출력 내리기 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_max_output_down_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="Out-"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#BF360C"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+
+                <!-- Button : 최대출력 올리기 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_max_output_up_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="Out+"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#BF360C"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+
+                <!-- Button : LED 켜기 / 끄기 (누를 때마다 반대 상태로) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_led_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="LED"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#5E35B1"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+
+                <!-- Button : 자극알림 켜기 / 끄기 (누를 때마다 반대 상태로) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_alarm_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="Alarm"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#AD1457"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ota_etc_box"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ota_remote_box">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/nanum_gothic_regular"
+                android:text="Etc,..."
+                android:textColor="#FFA000"
+                android:textSize="12dp"
+                android:textStyle="bold" />
+
+            <!-- Etc 1행 : Map / Gating / PMIC / BT (각각 다이얼로그 또는 토글) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:orientation="horizontal">
+
+                <!-- Button : 맵 강제 초기화 종류를 선택 (32Ch / 16Ch) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_map_select_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="Map"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#795548"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+
+                <!-- Button : 게이팅(묵음) 켜기 / 끄기 (누를 때마다 반대 상태로) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_gating_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="Gating"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#00838F"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+
+                <!-- Button : 링크 Tx 파워 하한을 선택 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_pmic_select_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="PMIC"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#3F51B5"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+
+                <!-- Button : 링크 백텔 주기를 선택 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_bt_select_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="BT"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#455A64"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+            </LinearLayout>
         </LinearLayout>
         <!-- Connection -->
         <androidx.constraintlayout.widget.ConstraintLayout

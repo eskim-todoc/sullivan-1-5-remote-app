@@ -109,6 +109,8 @@ public class RemoteControlFragment extends Fragment
 
         liveDataIsdID(); // LiveData for status
 
+        liveDataProgramAndLevels(); // LiveData for 프로그램 번호 / 볼륨 / 최대출력
+
         checkRegisteredList_userAndDevice(); // User list
 
         mOta = Ota.getInstance();
@@ -121,6 +123,24 @@ public class RemoteControlFragment extends Fragment
         mRemoteControlBinding.otaWriteButton.setOnClickListener(onClick_writeButton);
         mRemoteControlBinding.otaSelectButton.setOnClickListener(onClick_selectButton);
         mRemoteControlBinding.otaFactoryResetButton.setOnClickListener(onClick_factoryResetButton);
+
+        mRemoteControlBinding.otaMapInitDefaultButton.setOnClickListener(onClick_mapInitDefaultButton);
+
+        // Remote 꼭지
+        mRemoteControlBinding.otaProgramDownButton.setOnClickListener(onClick_programDownButton);
+        mRemoteControlBinding.otaProgramUpButton.setOnClickListener(onClick_programUpButton);
+        mRemoteControlBinding.otaVolumeDownButton.setOnClickListener(onClick_volumeDownButton);
+        mRemoteControlBinding.otaVolumeUpButton.setOnClickListener(onClick_volumeUpButton);
+        mRemoteControlBinding.otaMaxOutputDownButton.setOnClickListener(onClick_maxOutputDownButton);
+        mRemoteControlBinding.otaMaxOutputUpButton.setOnClickListener(onClick_maxOutputUpButton);
+        mRemoteControlBinding.otaLedButton.setOnClickListener(onClick_ledButton);
+        mRemoteControlBinding.otaAlarmButton.setOnClickListener(onClick_alarmButton);
+
+        // Etc 꼭지
+        mRemoteControlBinding.otaMapSelectButton.setOnClickListener(onClick_mapSelectButton);
+        mRemoteControlBinding.otaGatingButton.setOnClickListener(onClick_gatingButton);
+        mRemoteControlBinding.otaPmicSelectButton.setOnClickListener(onClick_pmicSelectButton);
+        mRemoteControlBinding.otaBtSelectButton.setOnClickListener(onClick_btSelectButton);
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -641,10 +661,13 @@ public class RemoteControlFragment extends Fragment
         {
             mMainActivity.longTimeIdleHandlerUpdate(true);
 
-            byte[] packet = new byte[2];
+            /* 사운드처리기는 옵션 바이트만 읽지만, ci_ble_control_boot.h 가 부트 패킷을
+             * 3바이트(RECV_PKT_SIZE_BOOT_INFO)로 정의하므로 길이를 맞춰 보낸다. */
+            byte[] packet = new byte[PacketInfo.PACKET_SIZE_BOOT_SEND];
 
             packet[0] = PacketInfo.HEADER_BOOT_STATUS;
-            packet[1] = 1;
+            packet[1] = (byte) PacketInfo.BOOT_OPTION_INFO;
+            packet[2] = 0;
 
             mMainActivity.sendPacket(packet);
         }
@@ -690,10 +713,10 @@ public class RemoteControlFragment extends Fragment
         {
             mMainActivity.longTimeIdleHandlerUpdate(true);
 
-            byte[] packet = new byte[3];
+            byte[] packet = new byte[PacketInfo.PACKET_SIZE_BOOT_SEND];
 
             packet[0] = PacketInfo.HEADER_BOOT_STATUS;
-            packet[1] = 2;
+            packet[1] = (byte) PacketInfo.BOOT_OPTION_SELECT;
             packet[2] = (byte) (mOta.currentSlotNum & 0xFF);
 
             mMainActivity.sendPacket(packet);
@@ -708,15 +731,426 @@ public class RemoteControlFragment extends Fragment
         @Override
         public void onClick(View v)
         {
-            byte[] packet = new byte[3];
+            /* 슬롯 0xFF 는 공장 초기화 이미지를 뜻한다.
+             * 사운드처리기 _fetch_packet_boot_select() 가 슬롯 범위(1~2) 밖이어도 0xFF 만은 허용한다. */
+            byte[] packet = new byte[PacketInfo.PACKET_SIZE_BOOT_SEND];
 
             packet[0] = PacketInfo.HEADER_BOOT_STATUS;
-            packet[1] = 2;
+            packet[1] = (byte) PacketInfo.BOOT_OPTION_SELECT;
             packet[2] = (byte) 0xFF;
 
             mMainActivity.sendPacket(packet);
         }
     };
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // OnClickListener - map init 버튼 (기본 맵 / MRI 32채널 / MRI 16채널)
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    View.OnClickListener onClick_mapInitDefaultButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            makeDialog_mapInitConfirm(PacketInfo.MAP_INIT_TYPE_DEFAULT, PacketInfo.MAP_INIT_NAME_DEFAULT);
+        }
+    };
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // OnClickListener - Map 버튼 (초기화할 맵 종류를 선택)
+    ///
+    /// 목록에서 고른 뒤, 되돌릴 수 없는 동작이므로 확인 다이얼로그를 한 번 더 거친다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    View.OnClickListener onClick_mapSelectButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            makeDialog_mapSelect();
+        }
+    };
+
+    private void makeDialog_mapSelect()
+    {
+        if (mDialog != null)
+        {
+            Log.d(TAG, "[MAP INIT] 이미 다이얼로그가 표시 중이라서 선택 목록을 띄우지 않습니다.");
+            return;
+        }
+
+        final int[]    types = {PacketInfo.MAP_INIT_TYPE_MRI_32CH, PacketInfo.MAP_INIT_TYPE_MRI_16CH};
+        final String[] names = {PacketInfo.MAP_INIT_NAME_MRI_32CH, PacketInfo.MAP_INIT_NAME_MRI_16CH};
+        final String[] items = {"32Ch (MRI 32채널 맵)", "16Ch (MRI 16채널 맵)"};
+
+        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+                .setTitle("맵 초기화 종류 선택") //
+                .setSingleChoiceItems(items, -1, (dialogInterface, which) ->
+                {
+                    final int    type = types[which];
+                    final String name = names[which];
+
+                    dialogInterface.dismiss();
+
+                    /* 위 다이얼로그가 닫히면서 mDialog 를 비운 뒤에 확인 다이얼로그를 띄워야 한다.
+                     * 같은 자리에서 바로 호출하면 mDialog 가 아직 남아 있어 무시된다. */
+                    new Handler(Looper.getMainLooper()).post(() -> makeDialog_mapInitConfirm(type, name));
+                }) //
+                .setNegativeButton("취소", null) //
+                .create();
+
+        mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
+
+        mDialog.show();
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // OnClickListener - 프로그램(맵번호) 이전 / 다음 버튼
+    ///
+    /// 응답 패킷(0x44)은 MainActivity 가 받아 뷰모델에 반영하고,
+    /// 화면 표시는 liveDataProgramAndLevels() 의 옵저버가 담당한다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    View.OnClickListener onClick_programDownButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            Log.d(TAG, "[PROGRAM] 이전 프로그램 요청");
+
+            mMainActivity.longTimeIdleHandlerUpdate(true);
+            mMainActivity.sendPacket(mMainActivity.packetMaker(PacketInfo.HEADER_VALUE_PROMGRAM, new byte[]{PacketInfo.PROGRAM_DOWN}, PacketInfo.PACKET_SIZE_PROGRAM));
+        }
+    };
+
+    View.OnClickListener onClick_programUpButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            Log.d(TAG, "[PROGRAM] 다음 프로그램 요청");
+
+            mMainActivity.longTimeIdleHandlerUpdate(true);
+            mMainActivity.sendPacket(mMainActivity.packetMaker(PacketInfo.HEADER_VALUE_PROMGRAM, new byte[]{PacketInfo.PROGRAM_UP}, PacketInfo.PACKET_SIZE_PROGRAM));
+        }
+    };
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // OnClickListener - 볼륨 / 최대출력 증감 버튼
+    ///
+    /// 사운드처리기가 단계 조정을 처리하고 결과 값을 응답으로 돌려준다.
+    /// 화면 표시는 MainActivity 가 뷰모델에 반영한 값을 옵저버가 받아 갱신한다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    View.OnClickListener onClick_volumeDownButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            sendValuePacket(PacketInfo.HEADER_VALUE_VOLUME, PacketInfo.VOLUME_DOWN, PacketInfo.PACKET_SIZE_VOLUME, "[VOLUME] 볼륨 내리기 요청");
+        }
+    };
+
+    View.OnClickListener onClick_volumeUpButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            sendValuePacket(PacketInfo.HEADER_VALUE_VOLUME, PacketInfo.VOLUME_UP, PacketInfo.PACKET_SIZE_VOLUME, "[VOLUME] 볼륨 올리기 요청");
+        }
+    };
+
+    View.OnClickListener onClick_maxOutputDownButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            sendValuePacket(PacketInfo.HEADER_VALUE_MAX_OUTPUT, PacketInfo.MAX_OUTPUT_DOWN, PacketInfo.PACKET_SIZE_MAX_OUTPUT, "[MAX OUT] 최대출력 내리기 요청");
+        }
+    };
+
+    View.OnClickListener onClick_maxOutputUpButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            sendValuePacket(PacketInfo.HEADER_VALUE_MAX_OUTPUT, PacketInfo.MAX_OUTPUT_UP, PacketInfo.PACKET_SIZE_MAX_OUTPUT, "[MAX OUT] 최대출력 올리기 요청");
+        }
+    };
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // OnClickListener - LED / 자극알림 토글 버튼
+    ///
+    /// 현재 상태의 반대 값을 보낸다. 상태를 아직 못 읽었으면 켜기부터 시도한다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    View.OnClickListener onClick_ledButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            byte value = (mStatusViewModel.getValueLed() == PacketInfo.LED_ON) ? PacketInfo.LED_OFF : PacketInfo.LED_ON;
+
+            sendValuePacket(PacketInfo.HEADER_VALUE_LED, value, PacketInfo.PACKET_SIZE_LED, "[LED] LED " + ((value == PacketInfo.LED_ON) ? "켜기" : "끄기") + " 요청");
+        }
+    };
+
+    View.OnClickListener onClick_alarmButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            byte value = (mStatusViewModel.getValueNotification() == PacketInfo.NOTIFICATION_ON) ? PacketInfo.NOTIFICATION_OFF : PacketInfo.NOTIFICATION_ON;
+
+            sendValuePacket(PacketInfo.HEADER_VALUE_NOTIFICATION, value, PacketInfo.PACKET_SIZE_NOTIFICATION, "[ALARM] 자극알림 " + ((value == PacketInfo.NOTIFICATION_ON) ? "켜기" : "끄기") + " 요청");
+        }
+    };
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - 값 조정 패킷 전송 ([헤더, 값] 2바이트 공통 형식)
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void sendValuePacket(byte header, byte value, int packetSize, String logMessage)
+    {
+        Log.d(TAG, logMessage);
+
+        mMainActivity.longTimeIdleHandlerUpdate(true);
+        mMainActivity.sendPacket(mMainActivity.packetMaker(header, new byte[]{value}, packetSize));
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // OnClickListener - Gating 토글 버튼 (자극 묵음 처리)
+    ///
+    /// 현재 상태의 반대 값을 보낸다. 상태를 아직 못 읽었으면 활성화부터 시도한다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    View.OnClickListener onClick_gatingButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            int state = (mStatusViewModel.getValueGatingState() == PacketInfo.GATING_ENABLE) ? PacketInfo.GATING_DISABLE : PacketInfo.GATING_ENABLE;
+
+            sendGatingPacket(state);
+        }
+    };
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // OnClickListener - PMIC Select 버튼 (링크 Tx 파워 하한을 목록에서 직접 선택)
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    View.OnClickListener onClick_pmicSelectButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            makeDialog_pmicSelect();
+        }
+    };
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - 링크 Tx 파워 하한 선택 다이얼로그
+    ///
+    /// 25mV 단위로 1.800V ~ 5.325V 목록을 만들고, 고르는 즉시 그 값으로 설정한다.
+    /// 현재 값이 있으면 미리 선택해 두어 목록이 그 위치로 스크롤되게 한다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void makeDialog_pmicSelect()
+    {
+        if (mDialog != null)
+        {
+            Log.d(TAG, "[PMIC] 이미 다이얼로그가 표시 중이라서 선택 목록을 띄우지 않습니다.");
+            return;
+        }
+
+        final int minLevel = PacketInfo.MIN_TX_PWR_LEVEL_SELECT_MIN;
+        final int maxLevel = PacketInfo.MIN_TX_PWR_LEVEL_SELECT_MAX;
+        final int count    = (maxLevel - minLevel) + 1;
+
+        String[] items = new String[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            int level = minLevel + i;
+            items[i] = String.format("%.3f V  (레벨 %d)", (level * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV) / 1000.0f, level);
+        }
+
+        // 현재 값을 미리 선택해 둔다. 아직 못 읽었으면 기본값 위치를 가리킨다.
+        int currentLevel = mStatusViewModel.getValueMinTxPowerLevel();
+
+        if (currentLevel < minLevel || maxLevel < currentLevel)
+        {
+            currentLevel = PacketInfo.MIN_TX_PWR_LEVEL_DEFAULT;
+        }
+
+        final int checkedIndex = currentLevel - minLevel;
+
+        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+                .setTitle("PMIC 하한 선택") //
+                .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
+                {
+                    sendMinTxPowerPacket(minLevel + which);
+                    dialogInterface.dismiss();
+                }) //
+                .setNegativeButton("Default", (dialogInterface, i) -> sendMinTxPowerPacket(PacketInfo.MIN_TX_PWR_LEVEL_DEFAULT)) //
+                .create();
+
+        mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
+
+        mDialog.show();
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - 링크 Tx 파워 하한 설정 패킷 전송
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void sendMinTxPowerPacket(int level)
+    {
+        byte[] packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_MIN_TX_PWR_WRITE];
+
+        packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
+        packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MIN_TX_PWR_WRITE;
+        packet[2] = (byte) (level & 0xFF);
+
+        Log.d(TAG, "[PMIC] 링크 Tx 파워 하한 설정 요청 : " + level + " (" + (level * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV) + "mV)");
+
+        mMainActivity.longTimeIdleHandlerUpdate(true);
+        mMainActivity.sendPacket(packet);
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // OnClickListener - BT Select 버튼 (링크 백텔 주기를 목록에서 직접 선택)
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    View.OnClickListener onClick_btSelectButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            makeDialog_backtelSelect();
+        }
+    };
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - 링크 백텔 주기 선택 다이얼로그
+    ///
+    /// 프로토콜 단위가 100msec 이므로 100 ~ 1000msec 를 100msec 간격으로 고른다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void makeDialog_backtelSelect()
+    {
+        if (mDialog != null)
+        {
+            Log.d(TAG, "[BACKTEL] 이미 다이얼로그가 표시 중이라서 선택 목록을 띄우지 않습니다.");
+            return;
+        }
+
+        final int minPeriod = PacketInfo.BACKTEL_PERIOD_SELECT_MIN_100MS;
+        final int maxPeriod = PacketInfo.BACKTEL_PERIOD_SELECT_MAX_100MS;
+        final int count     = (maxPeriod - minPeriod) + 1;
+
+        String[] items = new String[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            items[i] = ((minPeriod + i) * PacketInfo.BACKTEL_PERIOD_UNIT_MS) + " msec";
+        }
+
+        int currentPeriod = mStatusViewModel.getValueBacktelPeriod();
+
+        if (currentPeriod < minPeriod || maxPeriod < currentPeriod)
+        {
+            currentPeriod = PacketInfo.BACKTEL_PERIOD_DEFAULT_100MS;
+        }
+
+        final int checkedIndex = currentPeriod - minPeriod;
+
+        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+                .setTitle("백텔 주기 선택") //
+                .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
+                {
+                    sendBacktelPeriodPacket(minPeriod + which);
+                    dialogInterface.dismiss();
+                }) //
+                .setNegativeButton("Default", (dialogInterface, i) -> sendBacktelPeriodPacket(PacketInfo.BACKTEL_PERIOD_DEFAULT_100MS)) //
+                .create();
+
+        mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
+
+        mDialog.show();
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - 링크 백텔 주기 설정 패킷 전송
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void sendBacktelPeriodPacket(int period100ms)
+    {
+        byte[] packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_BACKTEL_PERIOD];
+
+        packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
+        packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_BACKTEL_PERIOD;
+        packet[2] = (byte) (period100ms & 0xFF);
+
+        Log.d(TAG, "[BACKTEL] 백텔 주기 설정 요청 : " + period100ms + " (" + (period100ms * PacketInfo.BACKTEL_PERIOD_UNIT_MS) + "msec)");
+
+        mMainActivity.longTimeIdleHandlerUpdate(true);
+        mMainActivity.sendPacket(packet);
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - 게이팅(묵음) 설정 패킷 전송
+    ///
+    /// 비활성화(GATING_DISABLE) 시 펌웨어는 오프셋 값을 N/A 로 무시하고 기존 값을 유지하므로,
+    /// 여기서 실어 보내는 오프셋은 활성화일 때만 실제로 반영된다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void sendGatingPacket(int enableState)
+    {
+        int offset = PacketInfo.GATING_T_LEVEL_OFFSET_DEFAULT;
+
+        byte[] packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_GATING_WRITE];
+
+        packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
+        packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_GATING_WRITE;
+        packet[2] = (byte) PacketInfo.GATING_SUB_OPT_NORMAL_MODE;
+        packet[3] = (byte) (enableState & 0xFF);
+        packet[4] = (byte) (offset & 0xFF);
+
+        Log.d(TAG, "[GATING] 게이팅 설정 요청 : " + ((enableState == PacketInfo.GATING_ENABLE) ? "활성화" : "비활성화") + ", 오프셋 " + offset);
+
+        mMainActivity.longTimeIdleHandlerUpdate(true);
+        mMainActivity.sendPacket(packet);
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - 맵 초기화 확인 다이얼로그
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void makeDialog_mapInitConfirm(int mapInitType, String mapInitName)
+    {
+        // 다른 다이얼로그가 이미 떠 있으면 무시한다.
+        if (mDialog != null)
+        {
+            Log.d(TAG, "[MAP INIT] 이미 다이얼로그가 표시 중이라서 맵 초기화 확인 다이얼로그를 띄우지 않습니다.");
+            return;
+        }
+
+        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+                .setTitle("맵 초기화") //
+                .setMessage("사운드처리기에 등록된 모든 내부기의 맵 데이터를\n" + mapInitName + " 으로 덮어씁니다.\n\n되돌릴 수 없습니다. 진행하시겠습니까?") //
+                .setPositiveButton("초기화", (dialogInterface, i) -> sendMapInitPacket(mapInitType, mapInitName)) //
+                .setNegativeButton("취소", null) //
+                .setCancelable(false) //
+                .create();
+
+        // 이 화면의 다른 다이얼로그와 달리 반복 사용해야 하므로, 닫힐 때 참조를 비워 다시 띄울 수 있게 한다.
+        mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
+
+        mDialog.show();
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - 맵 초기화 패킷 전송
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void sendMapInitPacket(int mapInitType, String mapInitName)
+    {
+        byte[] packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_MAP_INIT];
+
+        packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
+        packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MAP_INIT;
+        packet[2] = (byte) (mapInitType & 0xFF);
+
+        Log.d(TAG, "[MAP INIT] 맵 초기화 패킷 전송 : " + mapInitName + " (type=" + String.format("%02X", mapInitType) + ")");
+
+        mMainActivity.longTimeIdleHandlerUpdate(true);
+        mMainActivity.sendPacket(packet);
+    }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// func - print buffer
@@ -809,6 +1243,111 @@ public class RemoteControlFragment extends Fragment
             String textValue = String.format("#%08X", value);
             Log.v(TAG, "옵저버 : 내부기 ID -> " + textValue);
             mRemoteControlBinding.remoteControlConnectionIsdIdTextview.setText(textValue);
+        });
+    }
+
+    // LiveData - 프로그램 번호 / 볼륨 / 최대출력
+    //
+    // 세 값 모두 연결 직후의 상태 패킷(0x43)으로 채워지고, 이후에는 해당 항목의
+    // 응답 패킷을 받을 때마다 갱신된다. 볼륨과 최대출력은 표시 전용이다.
+    private void liveDataProgramAndLevels()
+    {
+        mStatusViewModel.getLiveDataProgram().observe(getViewLifecycleOwner(), o ->
+        {
+            int value = mStatusViewModel.getValueProgram();
+            Log.v(TAG, "옵저버 : 프로그램 -> " + value);
+            mRemoteControlBinding.otaProgramTextview.setText("Prog " + value);
+        });
+
+        mStatusViewModel.getLiveDataVolume().observe(getViewLifecycleOwner(), o ->
+        {
+            int value = mStatusViewModel.getValueVolume();
+            Log.v(TAG, "옵저버 : 볼륨 -> " + value);
+            mRemoteControlBinding.otaVolumeTextview.setText("Vol " + value);
+        });
+
+        mStatusViewModel.getLiveDataMaxOutput().observe(getViewLifecycleOwner(), o ->
+        {
+            int value = mStatusViewModel.getValueMaxOutput();
+            Log.v(TAG, "옵저버 : 최대출력 -> " + value);
+            mRemoteControlBinding.otaMaxOutputTextview.setText("Out " + value);
+        });
+
+        // LED 상태. 연결 직후 상태 패킷(0x43)으로 채워지고, LED 버튼 응답마다 갱신된다.
+        mStatusViewModel.getLiveDataLed().observe(getViewLifecycleOwner(), o ->
+        {
+            int value = mStatusViewModel.getValueLed();
+            Log.v(TAG, "옵저버 : LED -> " + value);
+            mRemoteControlBinding.otaLedTextview.setText("LED " + ((value == PacketInfo.LED_ON) ? "On" : "Off"));
+        });
+
+        // 자극알림 상태.
+        mStatusViewModel.getLiveDataNotification().observe(getViewLifecycleOwner(), o ->
+        {
+            int value = mStatusViewModel.getValueNotification();
+            Log.v(TAG, "옵저버 : 자극알림 -> " + value);
+            mRemoteControlBinding.otaAlarmTextview.setText("Alarm " + ((value == PacketInfo.NOTIFICATION_ON) ? "On" : "Off"));
+        });
+
+        // 링크 Tx 파워 하한(PMIC). 레벨 1스텝 = 25mV 이므로 볼트로 환산해 표시한다.
+        mStatusViewModel.getLiveDataMinTxPowerLevel().observe(getViewLifecycleOwner(), o ->
+        {
+            int    level = mStatusViewModel.getValueMinTxPowerLevel();
+            String text;
+
+            if (level == PacketInfo.LINK_VALUE_UNKNOWN)
+            {
+                text = "PMIC -";
+            }
+            else
+            {
+                text = String.format("PMIC %.1fV", (level * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV) / 1000.0f);
+            }
+
+            Log.v(TAG, "옵저버 : PMIC 하한 -> " + level);
+            mRemoteControlBinding.otaPmicTextview.setText(text);
+        });
+
+        // 링크 백텔 주기. 100msec 단위로 받아 밀리초로 환산해 표시한다.
+        mStatusViewModel.getLiveDataBacktelPeriod().observe(getViewLifecycleOwner(), o ->
+        {
+            int    period100ms = mStatusViewModel.getValueBacktelPeriod();
+            String text;
+
+            if (period100ms == PacketInfo.LINK_VALUE_UNKNOWN)
+            {
+                text = "BT -";
+            }
+            else
+            {
+                text = "BT " + (period100ms * PacketInfo.BACKTEL_PERIOD_UNIT_MS) + "ms";
+            }
+
+            Log.v(TAG, "옵저버 : 백텔 주기 -> " + period100ms);
+            mRemoteControlBinding.otaBacktelTextview.setText(text);
+        });
+
+        // 게이팅(묵음) 활성화 상태.
+        mStatusViewModel.getLiveDataGatingState().observe(getViewLifecycleOwner(), o ->
+        {
+            int    state = mStatusViewModel.getValueGatingState();
+            String text;
+
+            if (state == PacketInfo.GATING_ENABLE)
+            {
+                text = "Gating On";
+            }
+            else if (state == PacketInfo.GATING_DISABLE)
+            {
+                text = "Gating Off";
+            }
+            else
+            {
+                text = "Gating -";
+            }
+
+            Log.v(TAG, "옵저버 : 게이팅 상태 -> " + state);
+            mRemoteControlBinding.otaGatingTextview.setText(text);
         });
     }
 

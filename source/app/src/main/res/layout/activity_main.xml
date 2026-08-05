@@ -3,10 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!--
+    배경색은 시스템 바(상태바 · 내비게이션바) 영역에 그대로 드러난다.
+    안드로이드 15부터 앱이 시스템 바 아래까지 그리게 되면서, 루트에 인셋만큼 여백을 주면
+    그 여백 부분이 이 배경색으로 칠해지기 때문이다.
+    status_bar 와 bottom_navigation 이 모두 black_90 이므로 같은 색을 사용한다.
+    -->
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main_root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white_100"
+        android:background="@color/status_bar"
         tools:context=".MainActivity">
 
         <!-- Main screen -->

@@ -223,4 +223,61 @@ public class StatusViewModel extends ViewModel {
 
         return mProgram.getValue();
     }
+
+    // 링크 Tx 파워 하한(PMIC) 레벨. 1스텝 = 25mV. 연결 직후 특수 명령(0x59) 옵션 5로 읽어온다.
+    private final MutableLiveData<Integer> mMinTxPowerLevel = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataMinTxPowerLevel() {
+        return mMinTxPowerLevel;
+    }
+
+    public void setValueMinTxPowerLevel(int value) {
+        mMinTxPowerLevel.setValue(value);
+    }
+
+    public int getValueMinTxPowerLevel() {
+        if (mMinTxPowerLevel.getValue() == null) {
+            mMinTxPowerLevel.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mMinTxPowerLevel.getValue();
+    }
+
+    // 링크 백텔 주기. 100msec 단위. 연결 직후 특수 명령(0x59) 옵션 4로 읽어온다.
+    private final MutableLiveData<Integer> mBacktelPeriod = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataBacktelPeriod() {
+        return mBacktelPeriod;
+    }
+
+    public void setValueBacktelPeriod(int value) {
+        mBacktelPeriod.setValue(value);
+    }
+
+    public int getValueBacktelPeriod() {
+        if (mBacktelPeriod.getValue() == null) {
+            mBacktelPeriod.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mBacktelPeriod.getValue();
+    }
+
+    // 게이팅(묵음) 활성화 상태. 1 = 활성화, 2 = 비활성화. 연결 직후 특수 명령(0x59) 옵션 1로 읽어온다.
+    private final MutableLiveData<Integer> mGatingState = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataGatingState() {
+        return mGatingState;
+    }
+
+    public void setValueGatingState(int value) {
+        mGatingState.setValue(value);
+    }
+
+    public int getValueGatingState() {
+        if (mGatingState.getValue() == null) {
+            mGatingState.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mGatingState.getValue();
+    }
 }

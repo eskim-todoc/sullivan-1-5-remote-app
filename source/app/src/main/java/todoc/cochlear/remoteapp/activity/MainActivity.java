@@ -22,12 +22,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelUuid;
 import android.os.Vibrator;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -35,16 +38,21 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -202,6 +210,17 @@ public class MainActivity extends AppCompatActivity
 
         Log.d(TAG, "액티비티를 종료합니다. -> onDestroy()");
 
+        // 모든 파일 접근 권한 안내 다이얼로그 제거 (윈도우 누수 방지)
+        if (mAllFilesAccessDialog != null)
+        {
+            if (mAllFilesAccessDialog.isShowing())
+            {
+                mAllFilesAccessDialog.dismiss();
+            }
+
+            mAllFilesAccessDialog = null;
+        }
+
         // 장시간 미사용 핸들러를 제거
         longTimeIdleHandlerUpdate(false);
 
@@ -278,7 +297,18 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
+        /* savedInstanceState 를 그대로 넘기면 FragmentManager 가 이전 실행의 프래그먼트를
+         * 여기서 되살린다. 그런데 되살아난 프래그먼트의 onCreate 는 바로 아래에서 만드는
+         * mBinding 을 참조하므로, 아직 null 인 상태에서 접근해 NullPointerException 이 난다.
+         *
+         * 이 앱은 화면을 복원해서 쓰지 않고 initMainActivity() 에서 항상 직접 만들어 붙이므로,
+         * 복원 자체를 하지 않도록 null 을 넘긴다.
+         *
+         * 참고: 화면 방향을 고정할 때는 onCreate 안에서 setRequestedOrientation() 을 호출하지 말고
+         * 매니페스트의 android:screenOrientation 으로 지정해야 한다. 여기서 호출하면 구성 변경이
+         * 생겨 액티비티가 즉시 재생성되고, 그 재생성 때마다 위의 복원 문제가 발생한다. */
+        super.onCreate(null);
+
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = mBinding.getRoot();
         setContentView(view);
@@ -394,6 +424,12 @@ public class MainActivity extends AppCompatActivity
             */
             replaceFragment(Status.TypeOfFragment.REMOTE_CONTROL);
         }
+
+        /* OTA 이미지 읽기에 필요한 '모든 파일 접근' 권한을 확인한다.
+         * 이 권한은 OTA 파일 읽기에만 쓰이므로, 앱 초기화를 끝낸 뒤에 안내한다.
+         * 초기화보다 먼저 안내하면 권한을 얻기 전까지 DB와 화면이 준비되지 않아
+         * 프래그먼트가 생성되는 순간 NullPointerException 이 발생한다. */
+        checkAllFilesAccess();
     } // initMainActivity
 
     //
@@ -574,6 +610,227 @@ public class MainActivity extends AppCompatActivity
         }
 
         return true;
+    }
+
+    //
+    // 연결 직후 링크 설정 값 순차 읽기
+    //
+    // 특수 명령(0x59)의 읽기 옵션 3개를 차례로 보낸다.
+    // sendPacket() 은 응답을 받기 전에는 다음 패킷을 버리므로 한 번에 보낼 수 없다.
+    // 그래서 각 응답을 받은 자리에서 다음 항목을 이어 보내는 방식으로 연결한다.
+    //
+    static private final int LINK_INFO_READ_STEP_IDLE    = 0;
+    static private final int LINK_INFO_READ_STEP_PMIC    = 1;
+    static private final int LINK_INFO_READ_STEP_BACKTEL = 2;
+    static private final int LINK_INFO_READ_STEP_GATING  = 3;
+    static private final int LINK_INFO_READ_STEP_DONE    = 4;
+
+    private int mLinkInfoReadStep = LINK_INFO_READ_STEP_IDLE;
+
+    // 연결이 끝난 직후 호출한다.
+    public void startLinkInfoRead()
+    {
+        Log.d(TAG, "[LINK] 연결 직후 링크 설정 읽기를 시작합니다.");
+
+        mLinkInfoReadStep = LINK_INFO_READ_STEP_PMIC;
+        sendLinkInfoReadPacket();
+    }
+
+    private void sendLinkInfoReadPacket()
+    {
+        byte[] packet;
+
+        switch (mLinkInfoReadStep)
+        {
+            case LINK_INFO_READ_STEP_PMIC: // 링크 Tx 파워 하한(PMIC) 읽기
+                packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_MIN_TX_PWR_READ];
+                packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
+                packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MIN_TX_PWR_READ;
+                break;
+
+            case LINK_INFO_READ_STEP_BACKTEL: // 백텔 주기 읽기 (값 0 이 읽기 요청이다)
+                packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_BACKTEL_PERIOD];
+                packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
+                packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_BACKTEL_PERIOD;
+                packet[2] = (byte) PacketInfo.BACKTEL_PERIOD_READ;
+                break;
+
+            case LINK_INFO_READ_STEP_GATING: // 게이팅(묵음) 상태 읽기
+                packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_GATING_READ];
+                packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
+                packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_GATING_READ;
+                break;
+
+            default:
+                return;
+        }
+
+        sendPacket(packet);
+    }
+
+    // 특수 명령 응답을 받을 때마다 호출한다. 순차 읽기 중일 때만 다음 항목으로 넘어간다.
+    private void advanceLinkInfoRead(int option)
+    {
+        int expectedOption;
+
+        switch (mLinkInfoReadStep)
+        {
+            case LINK_INFO_READ_STEP_PMIC:
+                expectedOption = PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MIN_TX_PWR_READ;
+                break;
+
+            case LINK_INFO_READ_STEP_BACKTEL:
+                expectedOption = PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_BACKTEL_PERIOD;
+                break;
+
+            case LINK_INFO_READ_STEP_GATING:
+                expectedOption = PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_GATING_READ;
+                break;
+
+            default: // 순차 읽기 중이 아니다. (버튼으로 개별 조작한 경우)
+                return;
+        }
+
+        if (option != expectedOption) // 기다리던 응답이 아니면 순서를 넘기지 않는다.
+        {
+            return;
+        }
+
+        mLinkInfoReadStep++;
+
+        if (mLinkInfoReadStep == LINK_INFO_READ_STEP_DONE)
+        {
+            Log.d(TAG, "[LINK] 연결 직후 링크 설정 읽기를 완료했습니다.");
+            return;
+        }
+
+        sendLinkInfoReadPacket();
+    }
+
+    //
+    // 모든 파일 접근 권한(안드로이드 11, API30 이상) 보유 여부
+    //
+    public boolean isAllFilesAccessGranted()
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) // 안드로이드 11 (API30) 이상
+        {
+            return Environment.isExternalStorageManager();
+        }
+
+        // API29 이하는 READ_EXTERNAL_STORAGE 로 충분하며, grantPermissions() 에서 이미 처리한다.
+        return true;
+    }
+
+    //
+    // 모든 파일 접근 권한 요청 결과
+    //
+    // 설정 화면은 결과 코드를 돌려주지 않으므로, 돌아온 뒤 권한 상태를 직접 다시 확인한다.
+    //
+    ActivityResultLauncher<Intent> mAllFilesAccessResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result ->
+    {
+        if (isAllFilesAccessGranted())
+        {
+            Log.d(TAG, "모든 파일 접근 권한을 획득했습니다.");
+            UtilLog.instance.writeLog("모든 파일 접근 권한 획득됨.");
+
+            makeOtaFolders();
+
+            Toast.makeText(getApplicationContext(), "OTA 폴더 준비 완료\n" + Environment.getExternalStorageDirectory().getAbsolutePath() + Ota.BASE_FOLDER, Toast.LENGTH_LONG).show();
+        }
+        else
+        {
+            Log.d(TAG, "모든 파일 접근 권한을 거부당했습니다. OTA 이미지 읽기는 동작하지 않습니다.");
+            UtilLog.instance.writeLog("모든 파일 접근 권한 거부됨.");
+
+            Toast.makeText(getApplicationContext(), "모든 파일 접근 권한이 없어 OTA 이미지를 읽을 수 없습니다.", Toast.LENGTH_LONG).show();
+        }
+    });
+
+    // 모든 파일 접근 권한 안내 다이얼로그
+    //
+    // onResume() 의 lastDialogDismiss() 가 mStatus.lastDialog 를 닫아버리므로,
+    // 이 다이얼로그는 공용 참조를 쓰지 않고 별도 필드로 관리한다.
+    private AlertDialog mAllFilesAccessDialog = null;
+
+    // 안내는 앱 실행당 한 번만 한다. (거부해도 계속 되묻지 않도록)
+    private boolean mIsAllFilesAccessAsked = false;
+
+    //
+    // 모든 파일 접근 권한 확인 및 안내
+    //
+    // 권한이 있으면 OTA 폴더만 준비하고, 없으면 설정 화면으로 안내한다.
+    // 이 권한은 OTA 이미지 읽기에만 필요하므로 앱 진입을 막지 않는다.
+    //
+    public void checkAllFilesAccess()
+    {
+        if (isAllFilesAccessGranted())
+        {
+            makeOtaFolders();
+            return;
+        }
+
+        if (mIsAllFilesAccessAsked) // 이번 실행에서 이미 안내했다.
+        {
+            Log.d(TAG, "모든 파일 접근 권한이 없지만, 이번 실행에서 이미 안내했으므로 넘어갑니다.");
+            return;
+        }
+
+        mIsAllFilesAccessAsked = true;
+
+        Log.d(TAG, "모든 파일 접근 권한이 없습니다. 설정 화면으로 안내합니다.");
+
+        if (mAllFilesAccessDialog != null && mAllFilesAccessDialog.isShowing())
+        {
+            return;
+        }
+
+        mAllFilesAccessDialog = new MaterialAlertDialogBuilder(MainActivity.this) //
+                .setTitle("권한 필요") //
+                .setMessage("OTA 이미지를 아래 폴더에서 읽으려면 '모든 파일 접근 허용' 권한이 필요합니다.\n\n" //
+                            + Environment.getExternalStorageDirectory().getAbsolutePath() + Ota.BASE_FOLDER //
+                            + "\n\n이어지는 설정 화면에서 허용해 주세요.\n허용하지 않아도 OTA 외의 기능은 사용할 수 있습니다.") //
+                .setPositiveButton("설정으로 이동", (dialogInterface, i) ->
+                {
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, Uri.parse("package:" + getPackageName()));
+                    mAllFilesAccessResult.launch(intent);
+                }) //
+                .setNegativeButton("나중에", null) //
+                .create();
+
+        mAllFilesAccessDialog.setOnDismissListener(dialogInterface -> mAllFilesAccessDialog = null);
+
+        mAllFilesAccessDialog.show();
+    }
+
+    //
+    // OTA 이미지를 넣을 폴더를 미리 만들어 둔다.
+    //
+    // 윈도우 탐색기(USB/MTP)로 연결했을 때 폴더가 이미 보이도록 하여,
+    // 사용자가 경로를 직접 만들지 않아도 파일을 복사해 넣을 수 있게 한다.
+    //
+    public void makeOtaFolders()
+    {
+        String basePath = Environment.getExternalStorageDirectory().getAbsolutePath() + Ota.BASE_FOLDER;
+
+        for (int slotNum = Ota.SLOT_NUM_1; slotNum <= Ota.SLOT_NUM_2; slotNum++)
+        {
+            File folder = new File(basePath + slotNum);
+
+            if (folder.exists())
+            {
+                Log.d(TAG, "[OTA] 폴더 확인 : " + folder.getAbsolutePath());
+                continue;
+            }
+
+            if (folder.mkdirs())
+            {
+                Log.d(TAG, "[OTA] 폴더 생성 : " + folder.getAbsolutePath());
+            }
+            else
+            {
+                Log.d(TAG, "[OTA] 폴더 생성 실패 : " + folder.getAbsolutePath());
+            }
+        }
     }
 
     //
@@ -1231,8 +1488,15 @@ public class MainActivity extends AppCompatActivity
                     mCCCDHandler.removeCallbacks(mCCCDRunner);
                     mDiscoverServicesHandler.removeCallbacks(mDiscoverServicesRunner);
 
+                    // 연결이 끊겼으므로 링크 설정 순차 읽기도 중단한다.
+                    mLinkInfoReadStep = LINK_INFO_READ_STEP_IDLE;
+
                     if (mStatusViewModel != null)
                     {
+                        mStatusViewModel.setValueMinTxPowerLevel(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueBacktelPeriod(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueGatingState(PacketInfo.LINK_VALUE_UNKNOWN);
+
                         mStatusViewModel.setValueIsdID(0);
                         mStatusViewModel.setValueBatteryLevel(PacketInfo.INIT_VALUE_BATTERY);
                         mStatusViewModel.setValueNotification(PacketInfo.INIT_VALUE_NOTIFICATION);
@@ -1717,10 +1981,14 @@ public class MainActivity extends AppCompatActivity
 
                         Log.d(TAG, "사운드처리기와 BLE 통신이 온전하게 연결되었습니다.");
                         mStatus.connectionState = Status.CONNECTION_STATE_CONNECTED;
-                        mCheckBatteryHandler.postDelayed(mCheckBatteryRunner, CHECK_BATTERY_DELAY_IN_MS);
+                        //mCheckBatteryHandler.postDelayed(mCheckBatteryRunner, CHECK_BATTERY_DELAY_IN_MS);
 
                         // 리모컨 화면의 옵저버를 위해 뷰모델 값을 업데이트한다.
                         mStatusViewModel.setConnectionState(StatusViewModel.CONNECTION_STATE_CONNECTED);
+
+                        /* 연결 과정의 마지막 단계다. 이어서 링크 설정 값(PMIC 하한, 백텔 주기,
+                         * 게이팅 상태)을 차례로 읽어와 화면 상단에 표시한다. */
+                        startLinkInfoRead();
                     }
                 }
                 break;
@@ -1885,6 +2153,132 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
                 break;
+
+                // 특수 시스템 동작 설정
+                case PacketInfo.HEADER_SPECIFIC_CMD:
+                {
+                    // 옵션 바이트를 읽기 전에 최소 길이를 먼저 확인한다.
+                    if (packetSize < 2)
+                    {
+                        Log.d(TAG, "BLE 특성 변경 감지 -> 특수 시스템 동작 설정 응답에 옵션이 없습니다 : 사이즈 = " + packetSize);
+                        UtilLog.instance.writeLog("패킷 에러 : 특수 시스템 동작 설정 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                        packetSizeErrorDialog();
+                        break;
+                    }
+
+                    // 맵 데이터 강제 초기화
+                    if (responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MAP_INIT)
+                    {
+                        if (packetSize != PacketInfo.PACKET_SIZE_SPECIFIC_CMD_MAP_INIT)
+                        {
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 맵 초기화 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : 맵 초기화 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                            packetSizeErrorDialog();
+                            break;
+                        }
+
+                        int    mapInitType = responsePacket[2] & 0xFF;
+                        int    isdCount    = responsePacket[3] & 0xFF;
+                        String mapInitName = PacketInfo.mapInitTypeName(mapInitType);
+
+                        /* 사운드처리기는 초기화를 시작하기 직전에 이 응답을 먼저 보낸다.
+                         * 실제 초기화는 ISD 개수만큼 맵 파일을 쓰기 때문에 수 초 이상 걸리므로,
+                         * '완료'가 아니라 '시작'을 알리는 안내로 표시한다. */
+                        Log.i(TAG, "[MAP INIT] 맵 초기화 시작 : " + mapInitName + ", ISD 1 ~ " + isdCount);
+                        UtilLog.instance.writeLog("패킷 수신 : 맵 초기화 시작->" + mapInitName + " (ISD 1~" + isdCount + ")");
+
+                        Toast.makeText(getApplicationContext(), "맵 초기화 시작 : " + mapInitName + " (ISD 1~" + isdCount + ")\n완료까지 수 초 이상 걸립니다.", Toast.LENGTH_LONG).show();
+                    }
+                    // 게이팅(묵음) 읽기 / 쓰기 : [헤더, 옵션, 세부1, 활성화 상태, 오프셋]
+                    else if (responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_GATING_READ //
+                             || responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_GATING_WRITE)
+                    {
+                        if (packetSize != PacketInfo.PACKET_SIZE_SPECIFIC_CMD_GATING)
+                        {
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 게이팅 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : 게이팅 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                            packetSizeErrorDialog();
+                            break;
+                        }
+
+                        int    enableState = responsePacket[3] & 0xFF;
+                        int    offset      = responsePacket[4] & 0xFF;
+                        String stateName   = (enableState == PacketInfo.GATING_ENABLE) ? "On" : "Off";
+
+                        Log.i(TAG, "[GATING] 게이팅 설정 결과 : " + stateName + ", 오프셋 " + offset);
+                        UtilLog.instance.writeLog("패킷 수신 : 게이팅->" + stateName + " (오프셋 " + offset + ")");
+
+                        mStatusViewModel.setValueGatingState(enableState);
+
+                        // 연결 직후 순차 읽기 중에는 Toast 를 띄우지 않는다. (버튼 조작 결과만 알린다)
+                        if (mLinkInfoReadStep == LINK_INFO_READ_STEP_IDLE || mLinkInfoReadStep == LINK_INFO_READ_STEP_DONE)
+                        {
+                            Toast.makeText(getApplicationContext(), "게이팅 " + stateName + " (T레벨 오프셋 " + offset + ")", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    // 링크 백텔 주기 : [헤더, 4, 100msec 단위 주기]
+                    else if (responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_BACKTEL_PERIOD)
+                    {
+                        if (packetSize != PacketInfo.PACKET_SIZE_SPECIFIC_CMD_BACKTEL)
+                        {
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 백텔 주기 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : 백텔 주기 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                            packetSizeErrorDialog();
+                            break;
+                        }
+
+                        int period100ms = responsePacket[2] & 0xFF;
+                        int periodMs    = period100ms * PacketInfo.BACKTEL_PERIOD_UNIT_MS;
+
+                        Log.i(TAG, "[BACKTEL] 현재 백텔 주기 : " + period100ms + " (" + periodMs + "msec)");
+                        UtilLog.instance.writeLog("패킷 수신 : 백텔 주기->" + periodMs + "msec");
+
+                        mStatusViewModel.setValueBacktelPeriod(period100ms);
+
+                        if (mLinkInfoReadStep == LINK_INFO_READ_STEP_IDLE || mLinkInfoReadStep == LINK_INFO_READ_STEP_DONE)
+                        {
+                            Toast.makeText(getApplicationContext(), "백텔 주기 " + periodMs + "msec", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    // 링크 Tx 파워 하한(PMIC) 읽기 / 쓰기 : [헤더, 옵션, 레벨]
+                    else if (responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MIN_TX_PWR_READ //
+                             || responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MIN_TX_PWR_WRITE)
+                    {
+                        if (packetSize != PacketInfo.PACKET_SIZE_SPECIFIC_CMD_MIN_TX_PWR)
+                        {
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 링크 Tx 파워 하한 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : 링크 Tx 파워 하한 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                            packetSizeErrorDialog();
+                            break;
+                        }
+
+                        int level = responsePacket[2] & 0xFF;
+                        int mv    = level * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV;
+
+                        Log.i(TAG, "[PMIC] 현재 링크 Tx 파워 하한 : " + level + " (" + mv + "mV)");
+                        UtilLog.instance.writeLog("패킷 수신 : 링크 Tx 파워 하한->" + level + " (" + mv + "mV)");
+
+                        mStatusViewModel.setValueMinTxPowerLevel(level);
+
+                        if (mLinkInfoReadStep == LINK_INFO_READ_STEP_IDLE || mLinkInfoReadStep == LINK_INFO_READ_STEP_DONE)
+                        {
+                            Toast.makeText(getApplicationContext(), String.format("PMIC 하한 %d (%.3fV)", level, (mv / 1000.0f)), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    else
+                    {
+                        Log.d(TAG, "[SPECIFIC] 처리하지 않는 특수 시스템 동작 설정 옵션 수신 : " + (responsePacket[1] & 0xFF));
+                    }
+
+                    // 연결 직후 순차 읽기 중이라면 다음 항목을 이어서 읽는다.
+                    advanceLinkInfoRead(responsePacket[1] & 0xFF);
+                }
+                break; // PacketInfo.HEADER_SPECIFIC_CMD
 
                 case PacketInfo.HEADER_OTA:
                 {
@@ -2212,6 +2606,30 @@ public class MainActivity extends AppCompatActivity
     //
     public void initStatusNavigationToolBar()
     {
+        /* 안드로이드 15(API35)부터 targetSdk 35 이상 앱은 상태바 · 내비게이션바 아래까지
+         * 화면 전체에 그리도록 강제된다(edge-to-edge). 그대로 두면 화면 맨 아래 버튼이
+         * 내비게이션 바에 가려 눌리지 않으므로, 시스템 바와 디스플레이 컷아웃(펀치홀) 크기만큼
+         * 루트 뷰에 여백을 주어 콘텐츠가 안전 영역 안에 들어오게 한다.
+         *
+         * 안드로이드 14 이하에서는 시스템이 알아서 콘텐츠를 시스템 바 아래로 배치하므로,
+         * 여기서 여백을 또 주면 이중으로 밀린다. 그래서 API35 이상에서만 적용한다. */
+        if (Build.VERSION.SDK_INT >= 35)
+        {
+            ViewCompat.setOnApplyWindowInsetsListener(mBinding.getRoot(), (view, windowInsets) ->
+            {
+                Insets bars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+                Insets ime  = windowInsets.getInsets(WindowInsetsCompat.Type.ime());
+
+                /* 키보드가 올라오면 내비게이션 바보다 더 많이 가리므로 둘 중 큰 값을 쓴다.
+                 * (edge-to-edge 상태에서는 windowSoftInputMode 의 adjustResize 가 동작하지 않는다.) */
+                int bottom = Math.max(bars.bottom, ime.bottom);
+
+                view.setPadding(bars.left, bars.top, bars.right, bottom);
+
+                return WindowInsetsCompat.CONSUMED;
+            });
+        }
+
         // 상태바, 하단 네비게이션바 그리고 툴바의 색상 설정
         getWindow().setStatusBarColor(getColor(R.color.status_bar));
         getWindow().setNavigationBarColor(getColor(R.color.bottom_navigation));

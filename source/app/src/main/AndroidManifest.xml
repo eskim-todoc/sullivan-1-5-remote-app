@@ -52,6 +52,21 @@
     <!-- 외부 저장소 권한 (안드로이드 10, API29, Q 이하) -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+    <!--
+    모든 파일 접근 권한 (안드로이드 11, API30 이상)
+
+    OTA 이미지를 /sdcard/OTA/ 에서 File API 로 직접 읽기 위해 필요하다.
+    안드로이드 11부터 scoped storage 가 강제되어, 앱 전용 폴더(Android/data/) 밖의
+    비(非)미디어 파일은 이 권한 없이는 열 수 없다.
+
+    앱 전용 폴더를 쓰면 이 권한이 필요 없지만, 그 폴더는 안드로이드 11부터
+    MTP(USB) 에서 숨겨져 윈도우 탐색기로 파일을 넣을 수 없다.
+    윈도우에서 복사/붙여넣기로 이미지를 넣는 방식을 유지하려고 이 권한을 사용한다.
+    -->
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+
     <uses-feature
         android:name="android.hardware.bluetooth"
         android:required="true" />
