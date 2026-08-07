@@ -178,6 +178,25 @@ public class PacketInfo
     static public final int MIN_TX_PWR_LEVEL_SELECT_MAX = 213;
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// 특수 시스템 동작 설정 (HEADER_SPECIFIC_CMD) - 매핑(피팅) 전용 Tx 파워 하한
+    ///
+    /// 사운드처리기 remoteControl.c 의 case 9(읽기) / case 10(쓰기) 규격
+    /// 쓰기 : [헤더, 10, 레벨] => 3바이트. 단위와 허용 범위는 상시 동작 하한과 같다.
+    ///
+    /// 매핑 중에는 임피던스나 ECAP 측정이 안정된 전력에서 이뤄져야 하므로,
+    /// 상시 동작 하한과 무관하게 이 값 아래로는 내려가지 않는다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static public final int TX_PKT_OPT_SPECIFIC_CMD_MAPPING_TX_PWR_READ  = 9;
+    static public final int TX_PKT_OPT_SPECIFIC_CMD_MAPPING_TX_PWR_WRITE = 10;
+    static public final int TX_PKT_LEN_SPECIFIC_CMD_MAPPING_TX_PWR_READ  = 2;
+    static public final int TX_PKT_LEN_SPECIFIC_CMD_MAPPING_TX_PWR_WRITE = 3;
+    static public final int PACKET_SIZE_SPECIFIC_CMD_MAPPING_TX_PWR      = 3;
+
+    /* 기본 매핑 Tx 파워 하한 = 5.000V (25mV x 200)
+     * 사운드처리기 isd_interface.c 의 TDC_MAPPING_MIN_TX_POWER_LEVEL_DEFAULT 와 같다. */
+    static public final int MAPPING_TX_PWR_LEVEL_DEFAULT = 200;
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// 특수 시스템 동작 설정 (HEADER_SPECIFIC_CMD) - 맵 데이터 강제 초기화
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 송신 : Header=1, Option=1, Type=1 => 3 bytes

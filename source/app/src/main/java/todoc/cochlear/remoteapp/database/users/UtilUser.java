@@ -214,23 +214,31 @@ public class UtilUser {
         return nameWithEar.substring(0, nameWithEar.length() - (EntityUser.EAR_LEFT.length() + EntityUser.DELIMITER.length()));
     }
 
-    // 착용 위치에 대한 한극 문자열 얻어오기
+    // 착용 위치에 대한 한글 문자열 얻어오기
+    //
+    // 이름과 함께 붙어 있는 형태("홍길동_L")로 들어올 수도 있어 마지막 조각을 본다.
+    // F 는 착용 위치가 아니라 맵 데이터가 공장 초기화된 상태를 뜻한다.
     static public String getEarKorean(String ear) {
-        String[] splits = ear.split("_");
-
-        if (splits.length == 1) {
-            if (ear.equals(EntityUser.EAR_LEFT)) {
-                return EntityUser.EAR_LEFT_KR;
-            } else {
-                return EntityUser.EAR_RIGHT_KR;
-            }
-        } else {
-            if (splits[splits.length - 1].equals(EntityUser.EAR_LEFT)) {
-                return EntityUser.EAR_LEFT_KR;
-            } else {
-                return EntityUser.EAR_RIGHT_KR;
-            }
+        if (ear == null) {
+            return "";
         }
+
+        String[] splits = ear.split(EntityUser.DELIMITER);
+        String   value  = splits[splits.length - 1];
+
+        if (value.equals(EntityUser.EAR_LEFT)) {
+            return EntityUser.EAR_LEFT_KR;
+        }
+
+        if (value.equals(EntityUser.EAR_RIGHT)) {
+            return EntityUser.EAR_RIGHT_KR;
+        }
+
+        if (value.equals(EntityUser.EAR_FACTORY_RESET)) {
+            return EntityUser.EAR_FACTORY_RESET_KR;
+        }
+
+        return value;
     }
 
     static public void copyData(EntityUser dst, EntityUser src) {

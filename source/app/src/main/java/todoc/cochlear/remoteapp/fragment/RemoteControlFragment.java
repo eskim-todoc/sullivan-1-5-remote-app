@@ -140,6 +140,7 @@ public class RemoteControlFragment extends Fragment
         mRemoteControlBinding.otaMapSelectButton.setOnClickListener(onClick_mapSelectButton);
         mRemoteControlBinding.otaGatingButton.setOnClickListener(onClick_gatingButton);
         mRemoteControlBinding.otaPmicSelectButton.setOnClickListener(onClick_pmicSelectButton);
+        mRemoteControlBinding.otaPmicSelectButton.setOnLongClickListener(onLongClick_pmicSelectButton);
         mRemoteControlBinding.otaBtSelectButton.setOnClickListener(onClick_btSelectButton);
     }
 
@@ -992,6 +993,89 @@ public class RemoteControlFragment extends Fragment
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // OnLongClickListener - PMIC 버튼 길게 누르기 (매핑 전용 Tx 파워 하한 선택)
+    ///
+    /// 짧게 누르면 상시 동작 하한, 길게 누르면 매핑(피팅) 전용 하한을 고른다.
+    /// 매핑 중에는 임피던스나 ECAP 측정이 안정된 전력에서 이뤄져야 해서 별도 하한을 둔다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    View.OnLongClickListener onLongClick_pmicSelectButton = new View.OnLongClickListener()
+    {
+        @Override
+        public boolean onLongClick(View v)
+        {
+            makeDialog_mappingTxPowerSelect();
+
+            return true; // 이어서 짧은 클릭이 발생하지 않도록 소비한다.
+        }
+    };
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - 매핑 전용 Tx 파워 하한 선택 다이얼로그
+    ///
+    /// 허용 범위는 상시 동작 하한과 같다. (사운드처리기가 두 값의 검사를 공유한다)
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void makeDialog_mappingTxPowerSelect()
+    {
+        if (mDialog != null)
+        {
+            Log.d(TAG, "[PMIC] 이미 다이얼로그가 표시 중이라서 매핑 선택 목록을 띄우지 않습니다.");
+            return;
+        }
+
+        final int minLevel = PacketInfo.MIN_TX_PWR_LEVEL_SELECT_MIN;
+        final int maxLevel = PacketInfo.MIN_TX_PWR_LEVEL_SELECT_MAX;
+        final int count    = (maxLevel - minLevel) + 1;
+
+        String[] items = new String[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            int level = minLevel + i;
+            items[i] = String.format("%.3f V  (레벨 %d)", (level * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV) / 1000.0f, level);
+        }
+
+        int currentLevel = mStatusViewModel.getValueMappingTxPowerLevel();
+
+        if (currentLevel < minLevel || maxLevel < currentLevel)
+        {
+            currentLevel = PacketInfo.MAPPING_TX_PWR_LEVEL_DEFAULT;
+        }
+
+        final int checkedIndex = currentLevel - minLevel;
+
+        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+                .setTitle("매핑 PMIC 하한 선택") //
+                .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
+                {
+                    sendMappingTxPowerPacket(minLevel + which);
+                    dialogInterface.dismiss();
+                }) //
+                .setNegativeButton("Default", (dialogInterface, i) -> sendMappingTxPowerPacket(PacketInfo.MAPPING_TX_PWR_LEVEL_DEFAULT)) //
+                .create();
+
+        mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
+
+        mDialog.show();
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - 매핑 전용 Tx 파워 하한 설정 패킷 전송
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void sendMappingTxPowerPacket(int level)
+    {
+        byte[] packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_MAPPING_TX_PWR_WRITE];
+
+        packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
+        packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MAPPING_TX_PWR_WRITE;
+        packet[2] = (byte) (level & 0xFF);
+
+        Log.d(TAG, "[PMIC] 매핑 Tx 파워 하한 설정 요청 : " + level + " (" + (level * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV) + "mV)");
+
+        mMainActivity.longTimeIdleHandlerUpdate(true);
+        mMainActivity.sendPacket(packet);
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// func - 링크 Tx 파워 하한 설정 패킷 전송
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private void sendMinTxPowerPacket(int level)
@@ -1377,18 +1461,7 @@ public class RemoteControlFragment extends Fragment
                         }
                         else
                         {
-                            String name = defaultUser.name.substring(0, defaultUser.name.length() - 2);
-                            if (defaultUser.ear.equals(EntityUser.EAR_LEFT))
-                            {
-                                name = name + " (왼쪽)";
-                            }
-                            else
-                            {
-                                if (defaultUser.ear.equals(EntityUser.EAR_RIGHT))
-                                {
-                                    name = name + " (오른쪽)";
-                                }
-                            }
+                            String name = UtilUser.getNameOnly(defaultUser.name) + " (" + UtilUser.getEarKorean(defaultUser.ear) + ")";
 
                             mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(name);
                         }

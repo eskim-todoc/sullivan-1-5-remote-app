@@ -619,11 +619,12 @@ public class MainActivity extends AppCompatActivity
     // sendPacket() 은 응답을 받기 전에는 다음 패킷을 버리므로 한 번에 보낼 수 없다.
     // 그래서 각 응답을 받은 자리에서 다음 항목을 이어 보내는 방식으로 연결한다.
     //
-    static private final int LINK_INFO_READ_STEP_IDLE    = 0;
-    static private final int LINK_INFO_READ_STEP_PMIC    = 1;
-    static private final int LINK_INFO_READ_STEP_BACKTEL = 2;
-    static private final int LINK_INFO_READ_STEP_GATING  = 3;
-    static private final int LINK_INFO_READ_STEP_DONE    = 4;
+    static private final int LINK_INFO_READ_STEP_IDLE        = 0;
+    static private final int LINK_INFO_READ_STEP_PMIC        = 1;
+    static private final int LINK_INFO_READ_STEP_MAPPING_PMIC = 2;
+    static private final int LINK_INFO_READ_STEP_BACKTEL     = 3;
+    static private final int LINK_INFO_READ_STEP_GATING      = 4;
+    static private final int LINK_INFO_READ_STEP_DONE        = 5;
 
     private int mLinkInfoReadStep = LINK_INFO_READ_STEP_IDLE;
 
@@ -646,6 +647,12 @@ public class MainActivity extends AppCompatActivity
                 packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_MIN_TX_PWR_READ];
                 packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
                 packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MIN_TX_PWR_READ;
+                break;
+
+            case LINK_INFO_READ_STEP_MAPPING_PMIC: // 매핑 전용 Tx 파워 하한 읽기
+                packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_MAPPING_TX_PWR_READ];
+                packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
+                packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MAPPING_TX_PWR_READ;
                 break;
 
             case LINK_INFO_READ_STEP_BACKTEL: // 백텔 주기 읽기 (값 0 이 읽기 요청이다)
@@ -677,6 +684,10 @@ public class MainActivity extends AppCompatActivity
         {
             case LINK_INFO_READ_STEP_PMIC:
                 expectedOption = PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MIN_TX_PWR_READ;
+                break;
+
+            case LINK_INFO_READ_STEP_MAPPING_PMIC:
+                expectedOption = PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MAPPING_TX_PWR_READ;
                 break;
 
             case LINK_INFO_READ_STEP_BACKTEL:
@@ -1494,6 +1505,7 @@ public class MainActivity extends AppCompatActivity
                     if (mStatusViewModel != null)
                     {
                         mStatusViewModel.setValueMinTxPowerLevel(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueMappingTxPowerLevel(PacketInfo.LINK_VALUE_UNKNOWN);
                         mStatusViewModel.setValueBacktelPeriod(PacketInfo.LINK_VALUE_UNKNOWN);
                         mStatusViewModel.setValueGatingState(PacketInfo.LINK_VALUE_UNKNOWN);
 
@@ -2268,6 +2280,32 @@ public class MainActivity extends AppCompatActivity
                         if (mLinkInfoReadStep == LINK_INFO_READ_STEP_IDLE || mLinkInfoReadStep == LINK_INFO_READ_STEP_DONE)
                         {
                             Toast.makeText(getApplicationContext(), String.format("PMIC 하한 %d (%.3fV)", level, (mv / 1000.0f)), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    // 매핑(피팅) 전용 Tx 파워 하한 읽기 / 쓰기 : [헤더, 옵션, 레벨]
+                    else if (responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MAPPING_TX_PWR_READ //
+                             || responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MAPPING_TX_PWR_WRITE)
+                    {
+                        if (packetSize != PacketInfo.PACKET_SIZE_SPECIFIC_CMD_MAPPING_TX_PWR)
+                        {
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 매핑 Tx 파워 하한 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : 매핑 Tx 파워 하한 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                            packetSizeErrorDialog();
+                            break;
+                        }
+
+                        int level = responsePacket[2] & 0xFF;
+                        int mv    = level * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV;
+
+                        Log.i(TAG, "[PMIC] 현재 매핑 Tx 파워 하한 : " + level + " (" + mv + "mV)");
+                        UtilLog.instance.writeLog("패킷 수신 : 매핑 Tx 파워 하한->" + level + " (" + mv + "mV)");
+
+                        mStatusViewModel.setValueMappingTxPowerLevel(level);
+
+                        if (mLinkInfoReadStep == LINK_INFO_READ_STEP_IDLE || mLinkInfoReadStep == LINK_INFO_READ_STEP_DONE)
+                        {
+                            Toast.makeText(getApplicationContext(), String.format("매핑 PMIC 하한 %d (%.3fV)", level, (mv / 1000.0f)), Toast.LENGTH_SHORT).show();
                         }
                     }
                     else

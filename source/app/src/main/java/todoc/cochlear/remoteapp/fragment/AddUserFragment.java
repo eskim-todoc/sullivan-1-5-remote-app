@@ -148,6 +148,10 @@ public class AddUserFragment extends Fragment
             {
                 user.ear = EntityUser.EAR_RIGHT;
             }
+            else if (mAddUserBinding.factoryResetRadiobutton.isChecked())
+            {
+                user.ear = EntityUser.EAR_FACTORY_RESET;
+            }
             else
             {
                 user.ear = null;

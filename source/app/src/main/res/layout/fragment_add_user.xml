@@ -102,6 +102,17 @@
                     android:text="오른쪽"
                     android:textColor="@color/white_90"
                     android:textSize="14dp" />
+
+                <!-- 착용 위치가 아니라 맵 데이터가 공장 초기화된 외부기를 뜻한다. -->
+                <RadioButton
+                    android:id="@+id/factory_reset_radiobutton"
+                    style="@style/Widget.MaterialComponents.CompoundButton.RadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="초기화"
+                    android:textColor="@color/white_90"
+                    android:textSize="14dp" />
             </RadioGroup>
 
             <TextView

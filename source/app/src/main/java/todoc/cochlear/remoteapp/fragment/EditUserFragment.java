@@ -106,15 +106,25 @@ public class EditUserFragment extends Fragment
         mEditUserBinding.edittextPasskey.setText(mItem.passKey);
         mEditUserBinding.edittextNickname.setText(mItem.nickname);
 
-        if (mItem.ear.equals(EntityUser.EAR_LEFT))
+        /* 수정 화면에서는 착용 위치를 바꾸지 못하므로, 현재 값만 남기고 나머지는 감춘다. */
+        mEditUserBinding.editUserLeftRadiobutton.setVisibility(View.GONE);
+        mEditUserBinding.editUserRightRadiobutton.setVisibility(View.GONE);
+        mEditUserBinding.editUserFactoryResetRadiobutton.setVisibility(View.GONE);
+
+        if (EntityUser.EAR_LEFT.equals(mItem.ear))
         {
+            mEditUserBinding.editUserLeftRadiobutton.setVisibility(View.VISIBLE);
             mEditUserBinding.editUserLeftRadiobutton.setChecked(true);
-            mEditUserBinding.editUserRightRadiobutton.setVisibility(View.GONE);
         }
-        else if (mItem.ear.equals(EntityUser.EAR_RIGHT))
+        else if (EntityUser.EAR_RIGHT.equals(mItem.ear))
         {
+            mEditUserBinding.editUserRightRadiobutton.setVisibility(View.VISIBLE);
             mEditUserBinding.editUserRightRadiobutton.setChecked(true);
-            mEditUserBinding.editUserLeftRadiobutton.setVisibility(View.GONE);
+        }
+        else if (EntityUser.EAR_FACTORY_RESET.equals(mItem.ear))
+        {
+            mEditUserBinding.editUserFactoryResetRadiobutton.setVisibility(View.VISIBLE);
+            mEditUserBinding.editUserFactoryResetRadiobutton.setChecked(true);
         }
 
         boolean isDefault = mItem.defaultUser.equals(EntityUser.USER_DEFAULT);
@@ -263,9 +273,13 @@ public class EditUserFragment extends Fragment
                 {
                     mItem.ear = EntityUser.EAR_LEFT;
                 }
-                else
+                else if (mEditUserBinding.editUserRightRadiobutton.isChecked())
                 {
                     mItem.ear = EntityUser.EAR_RIGHT;
+                }
+                else if (mEditUserBinding.editUserFactoryResetRadiobutton.isChecked())
+                {
+                    mItem.ear = EntityUser.EAR_FACTORY_RESET;
                 }
 
                 if (mEditUserBinding.checkboxDefaultUser.isChecked())

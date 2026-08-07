@@ -18,6 +18,7 @@ import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
 import todoc.cochlear.remoteapp.activity.databinding.FragmentSettingsBinding;
 import todoc.cochlear.remoteapp.database.users.EntityUser;
+import todoc.cochlear.remoteapp.database.users.UtilUser;
 import todoc.cochlear.remoteapp.params.Status;
 import todoc.cochlear.remoteapp.view_model.StatusViewModel;
 
@@ -180,14 +181,7 @@ public class SettingsFragment extends Fragment
                 String name = Status.instance().connectedUser.name.substring(0, Status.instance().connectedUser.name.length() - 2);
                 String fwVersion = "" + mStatusViewModel.getFwVerUpper() + "." + mStatusViewModel.getFwVerLower();
 
-                if (Status.instance().connectedUser.ear.equals(EntityUser.EAR_LEFT))
-                {
-                    ear = "왼쪽";
-                }
-                else
-                {
-                    ear = "오른쪽";
-                }
+                ear = UtilUser.getEarKorean(Status.instance().connectedUser.ear);
 
                 msg = "제조번호 : " + serial + "\n"
                         + "사용자 : " + name + "\n"

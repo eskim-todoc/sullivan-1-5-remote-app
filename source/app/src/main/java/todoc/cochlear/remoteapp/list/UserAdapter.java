@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.database.users.EntityUser;
+import todoc.cochlear.remoteapp.database.users.UtilUser;
 import todoc.cochlear.remoteapp.fragment.UserFragment;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder>
@@ -113,16 +114,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder>
                 defaultUserIv.setImageDrawable(AppCompatResources.getDrawable(mUserFragment.requireContext(), R.drawable.item_user_ic_person_40dp));
             }
 
-            nameTv.setText(item.name.substring(0, item.name.length() - 2));
+            nameTv.setText(UtilUser.getNameOnly(item.name));
 
-            if (item.ear.equals(EntityUser.EAR_LEFT))
-            {
-                earTv.setText("왼쪽");
-            }
-            else
-            {
-                earTv.setText("오른쪽");
-            }
+            earTv.setText(UtilUser.getEarKorean(item.ear));
 
             nicknameTv.setText(item.nickname);
         }
