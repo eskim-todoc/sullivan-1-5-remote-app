@@ -197,6 +197,31 @@ public class PacketInfo
     static public final int MAPPING_TX_PWR_LEVEL_DEFAULT = 200;
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// 특수 시스템 동작 설정 (HEADER_SPECIFIC_CMD) - 링크 Tx 파워 상승 스텝
+    ///
+    /// 사운드처리기 remoteControl.c 의 case 11(읽기) / case 12(쓰기) 규격
+    /// 쓰기 : [헤더, 12, 스텝] => 3바이트. 1 스텝 = 25mV.
+    ///
+    /// 내부기 전원이 모자랄 때(Low 판정) 한 번에 올리는 폭이다.
+    /// 하강은 1 스텝 고정이라 값을 키우면 회복은 빨라지지만 경계에서의 진동 폭이 커진다.
+    /// 하한 계열(72 ~ 213)과 유효 범위가 달라 사운드처리기도 검사 함수를 따로 둔다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static public final int TX_PKT_OPT_SPECIFIC_CMD_TX_STEP_UP_READ  = 11;
+    static public final int TX_PKT_OPT_SPECIFIC_CMD_TX_STEP_UP_WRITE = 12;
+    static public final int TX_PKT_LEN_SPECIFIC_CMD_TX_STEP_UP_READ  = 2;
+    static public final int TX_PKT_LEN_SPECIFIC_CMD_TX_STEP_UP_WRITE = 3;
+    static public final int PACKET_SIZE_SPECIFIC_CMD_TX_STEP_UP      = 3;
+
+    /* 허용 범위 1 ~ 40 (isd_interface.c 의 TDC_TX_POWER_STEP_UP_LOWER / UPPER)
+     *   하한 1  : 0 이면 Low 판정에서 파워가 올라가지 않아 제어가 멈춘다.
+     *   상한 40 : 1.0V. 그 이상은 상한 클램프에 걸려 의미가 없다. */
+    static public final int TX_STEP_UP_SELECT_MIN = 1;
+    static public final int TX_STEP_UP_SELECT_MAX = 40;
+
+    // 부팅 기본값 (isd_interface.c 의 TDC_TX_POWER_STEP_UP_DEFAULT)
+    static public final int TX_STEP_UP_DEFAULT = 1;
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// 특수 시스템 동작 설정 (HEADER_SPECIFIC_CMD) - 맵 데이터 강제 초기화
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // 송신 : Header=1, Option=1, Type=1 => 3 bytes

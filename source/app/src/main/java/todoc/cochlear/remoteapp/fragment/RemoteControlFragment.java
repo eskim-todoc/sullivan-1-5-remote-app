@@ -140,8 +140,9 @@ public class RemoteControlFragment extends Fragment
         mRemoteControlBinding.otaMapSelectButton.setOnClickListener(onClick_mapSelectButton);
         mRemoteControlBinding.otaGatingButton.setOnClickListener(onClick_gatingButton);
         mRemoteControlBinding.otaPmicSelectButton.setOnClickListener(onClick_pmicSelectButton);
-        mRemoteControlBinding.otaPmicSelectButton.setOnLongClickListener(onLongClick_pmicSelectButton);
+        mRemoteControlBinding.otaMappingPmicButton.setOnClickListener(onClick_mappingPmicButton);
         mRemoteControlBinding.otaBtSelectButton.setOnClickListener(onClick_btSelectButton);
+        mRemoteControlBinding.otaLinkStepButton.setOnClickListener(onClick_linkStepButton);
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -993,19 +994,29 @@ public class RemoteControlFragment extends Fragment
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // OnLongClickListener - PMIC 버튼 길게 누르기 (매핑 전용 Tx 파워 하한 선택)
+    // OnClickListener - BT PMIC 버튼 (매핑 전용 Tx 파워 하한 선택)
     ///
-    /// 짧게 누르면 상시 동작 하한, 길게 누르면 매핑(피팅) 전용 하한을 고른다.
-    /// 매핑 중에는 임피던스나 ECAP 측정이 안정된 전력에서 이뤄져야 해서 별도 하한을 둔다.
+    /// 매핑 중에는 임피던스나 ECAP 측정이 안정된 전력에서 이뤄져야 하므로,
+    /// 상시 동작(Normal PMIC) 하한과 별도로 둔다.
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    View.OnLongClickListener onLongClick_pmicSelectButton = new View.OnLongClickListener()
+    View.OnClickListener onClick_mappingPmicButton = new View.OnClickListener()
     {
         @Override
-        public boolean onLongClick(View v)
+        public void onClick(View v)
         {
             makeDialog_mappingTxPowerSelect();
+        }
+    };
 
-            return true; // 이어서 짧은 클릭이 발생하지 않도록 소비한다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // OnClickListener - Link Step 버튼 (링크 Tx 파워 상승 스텝 선택)
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    View.OnClickListener onClick_linkStepButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            makeDialog_txStepUpSelect();
         }
     };
 
@@ -1070,6 +1081,73 @@ public class RemoteControlFragment extends Fragment
         packet[2] = (byte) (level & 0xFF);
 
         Log.d(TAG, "[PMIC] 매핑 Tx 파워 하한 설정 요청 : " + level + " (" + (level * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV) + "mV)");
+
+        mMainActivity.longTimeIdleHandlerUpdate(true);
+        mMainActivity.sendPacket(packet);
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - 링크 Tx 파워 상승 스텝 선택 다이얼로그
+    ///
+    /// 내부기 전원이 모자랄 때 한 번에 올리는 폭이다. 하강은 1 스텝 고정이므로,
+    /// 값을 키우면 회복은 빨라지지만 경계에서의 진동 폭도 그만큼 커진다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void makeDialog_txStepUpSelect()
+    {
+        if (mDialog != null)
+        {
+            Log.d(TAG, "[PMIC] 이미 다이얼로그가 표시 중이라서 상승 스텝 목록을 띄우지 않습니다.");
+            return;
+        }
+
+        final int minStep = PacketInfo.TX_STEP_UP_SELECT_MIN;
+        final int maxStep = PacketInfo.TX_STEP_UP_SELECT_MAX;
+        final int count   = (maxStep - minStep) + 1;
+
+        String[] items = new String[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            int step = minStep + i;
+            items[i] = String.format("%d 스텝  (%d mV)", step, (step * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV));
+        }
+
+        int currentStep = mStatusViewModel.getValueTxStepUp();
+
+        if (currentStep < minStep || maxStep < currentStep)
+        {
+            currentStep = PacketInfo.TX_STEP_UP_DEFAULT;
+        }
+
+        final int checkedIndex = currentStep - minStep;
+
+        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+                .setTitle("링크 상승 스텝 선택") //
+                .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
+                {
+                    sendTxStepUpPacket(minStep + which);
+                    dialogInterface.dismiss();
+                }) //
+                .setNegativeButton("Default", (dialogInterface, i) -> sendTxStepUpPacket(PacketInfo.TX_STEP_UP_DEFAULT)) //
+                .create();
+
+        mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
+
+        mDialog.show();
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - 링크 Tx 파워 상승 스텝 설정 패킷 전송
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void sendTxStepUpPacket(int step)
+    {
+        byte[] packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_TX_STEP_UP_WRITE];
+
+        packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
+        packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_TX_STEP_UP_WRITE;
+        packet[2] = (byte) (step & 0xFF);
+
+        Log.d(TAG, "[PMIC] 링크 상승 스텝 설정 요청 : " + step + " (" + (step * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV) + "mV)");
 
         mMainActivity.longTimeIdleHandlerUpdate(true);
         mMainActivity.sendPacket(packet);

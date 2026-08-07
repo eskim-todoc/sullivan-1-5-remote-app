@@ -622,9 +622,10 @@ public class MainActivity extends AppCompatActivity
     static private final int LINK_INFO_READ_STEP_IDLE        = 0;
     static private final int LINK_INFO_READ_STEP_PMIC        = 1;
     static private final int LINK_INFO_READ_STEP_MAPPING_PMIC = 2;
-    static private final int LINK_INFO_READ_STEP_BACKTEL     = 3;
-    static private final int LINK_INFO_READ_STEP_GATING      = 4;
-    static private final int LINK_INFO_READ_STEP_DONE        = 5;
+    static private final int LINK_INFO_READ_STEP_STEP_UP     = 3;
+    static private final int LINK_INFO_READ_STEP_BACKTEL     = 4;
+    static private final int LINK_INFO_READ_STEP_GATING      = 5;
+    static private final int LINK_INFO_READ_STEP_DONE        = 6;
 
     private int mLinkInfoReadStep = LINK_INFO_READ_STEP_IDLE;
 
@@ -653,6 +654,12 @@ public class MainActivity extends AppCompatActivity
                 packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_MAPPING_TX_PWR_READ];
                 packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
                 packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MAPPING_TX_PWR_READ;
+                break;
+
+            case LINK_INFO_READ_STEP_STEP_UP: // 링크 Tx 파워 상승 스텝 읽기
+                packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_TX_STEP_UP_READ];
+                packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
+                packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_TX_STEP_UP_READ;
                 break;
 
             case LINK_INFO_READ_STEP_BACKTEL: // 백텔 주기 읽기 (값 0 이 읽기 요청이다)
@@ -688,6 +695,10 @@ public class MainActivity extends AppCompatActivity
 
             case LINK_INFO_READ_STEP_MAPPING_PMIC:
                 expectedOption = PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MAPPING_TX_PWR_READ;
+                break;
+
+            case LINK_INFO_READ_STEP_STEP_UP:
+                expectedOption = PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_TX_STEP_UP_READ;
                 break;
 
             case LINK_INFO_READ_STEP_BACKTEL:
@@ -1506,6 +1517,7 @@ public class MainActivity extends AppCompatActivity
                     {
                         mStatusViewModel.setValueMinTxPowerLevel(PacketInfo.LINK_VALUE_UNKNOWN);
                         mStatusViewModel.setValueMappingTxPowerLevel(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueTxStepUp(PacketInfo.LINK_VALUE_UNKNOWN);
                         mStatusViewModel.setValueBacktelPeriod(PacketInfo.LINK_VALUE_UNKNOWN);
                         mStatusViewModel.setValueGatingState(PacketInfo.LINK_VALUE_UNKNOWN);
 
@@ -2306,6 +2318,32 @@ public class MainActivity extends AppCompatActivity
                         if (mLinkInfoReadStep == LINK_INFO_READ_STEP_IDLE || mLinkInfoReadStep == LINK_INFO_READ_STEP_DONE)
                         {
                             Toast.makeText(getApplicationContext(), String.format("매핑 PMIC 하한 %d (%.3fV)", level, (mv / 1000.0f)), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    // 링크 Tx 파워 상승 스텝 읽기 / 쓰기 : [헤더, 옵션, 스텝]
+                    else if (responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_TX_STEP_UP_READ //
+                             || responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_TX_STEP_UP_WRITE)
+                    {
+                        if (packetSize != PacketInfo.PACKET_SIZE_SPECIFIC_CMD_TX_STEP_UP)
+                        {
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 링크 상승 스텝 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : 링크 상승 스텝 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+
+                            packetSizeErrorDialog();
+                            break;
+                        }
+
+                        int step = responsePacket[2] & 0xFF;
+                        int mv   = step * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV;
+
+                        Log.i(TAG, "[PMIC] 현재 링크 상승 스텝 : " + step + " (" + mv + "mV)");
+                        UtilLog.instance.writeLog("패킷 수신 : 링크 상승 스텝->" + step + " (" + mv + "mV)");
+
+                        mStatusViewModel.setValueTxStepUp(step);
+
+                        if (mLinkInfoReadStep == LINK_INFO_READ_STEP_IDLE || mLinkInfoReadStep == LINK_INFO_READ_STEP_DONE)
+                        {
+                            Toast.makeText(getApplicationContext(), "링크 상승 스텝 " + step + " (" + mv + "mV)", Toast.LENGTH_SHORT).show();
                         }
                     }
                     else

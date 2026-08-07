@@ -1218,7 +1218,7 @@
                 android:textSize="12dp"
                 android:textStyle="bold" />
 
-            <!-- Etc 1행 : Map / Gating / PMIC / BT (각각 다이얼로그 또는 토글) -->
+            <!-- Etc 1행 : Map / Gating / Normal PMIC / BT PMIC -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -1264,7 +1264,7 @@
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
 
-                <!-- Button : 링크 Tx 파워 하한을 선택 -->
+                <!-- Button : 상시 동작 Tx 파워 하한을 선택 -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/ota_pmic_select_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
@@ -1276,7 +1276,7 @@
                     android:insetBottom="2dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
-                    android:text="PMIC"
+                    android:text="Normal PMIC"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
                     android:textSize="11dp"
@@ -1284,9 +1284,9 @@
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
 
-                <!-- Button : 링크 백텔 주기를 선택 -->
+                <!-- Button : 매핑(피팅) 전용 Tx 파워 하한을 선택 -->
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_bt_select_button"
+                    android:id="@+id/ota_mapping_pmic_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
                     android:layout_height="30dp"
@@ -1296,13 +1296,77 @@
                     android:insetBottom="2dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
-                    android:text="BT"
+                    android:text="BT PMIC"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#00695C"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+            </LinearLayout>
+
+            <!--
+            Etc 2행 : BT Period / Link Step
+
+            버튼이 2개뿐이라 오른쪽 두 칸은 Space 로 비워 둔다.
+            윗줄과 같은 4열 격자를 유지해야 열이 맞기 때문이다.
+            -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Button : 링크 백텔 주기를 선택 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_bt_select_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="BT Period"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
                     android:textSize="11dp"
                     app:backgroundTint="#455A64"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
+
+                <!-- Button : 링크 Tx 파워 상승 스텝을 선택 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_link_step_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="Link Step"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#6A1B9A"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+
+                <!-- 자리 맞춤용 빈 칸 2개 (윗줄과 열을 맞춘다) -->
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1" />
             </LinearLayout>
         </LinearLayout>
         <!-- Connection -->

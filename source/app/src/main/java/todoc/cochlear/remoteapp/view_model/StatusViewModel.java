@@ -262,6 +262,25 @@ public class StatusViewModel extends ViewModel {
         return mMappingTxPowerLevel.getValue();
     }
 
+    // 링크 Tx 파워 상승 스텝. 1스텝 = 25mV. 연결 직후 특수 명령(0x59) 옵션 11로 읽어온다.
+    private final MutableLiveData<Integer> mTxStepUp = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataTxStepUp() {
+        return mTxStepUp;
+    }
+
+    public void setValueTxStepUp(int value) {
+        mTxStepUp.setValue(value);
+    }
+
+    public int getValueTxStepUp() {
+        if (mTxStepUp.getValue() == null) {
+            mTxStepUp.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mTxStepUp.getValue();
+    }
+
     // 링크 백텔 주기. 100msec 단위. 연결 직후 특수 명령(0x59) 옵션 4로 읽어온다.
     private final MutableLiveData<Integer> mBacktelPeriod = new MutableLiveData<>();
 
