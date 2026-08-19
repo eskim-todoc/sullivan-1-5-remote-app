@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,6 +37,13 @@ import todoc.cochlear.remoteapp.ota.Ota;
 import todoc.cochlear.remoteapp.params.PacketInfo;
 import todoc.cochlear.remoteapp.params.Status;
 import todoc.cochlear.remoteapp.view_model.StatusViewModel;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
+import android.graphics.Typeface;
+import android.util.TypedValue;
+import android.widget.LinearLayout;
+import android.graphics.Paint;
 
 public class RemoteControlFragment extends Fragment
 {
@@ -116,7 +124,6 @@ public class RemoteControlFragment extends Fragment
         mOta = Ota.getInstance();
 
         mRemoteControlBinding.slotRadioButtonGroup.setOnCheckedChangeListener(onChecked_radioGroup);
-        mRemoteControlBinding.fileRadioButtonGroup.setOnCheckedChangeListener(onChecked_radioGroup);
 
         mRemoteControlBinding.otaInfoButton.setOnClickListener(onClick_infoButton);
         mRemoteControlBinding.otaCollectButton.setOnClickListener(onClick_collectButton);
@@ -143,24 +150,34 @@ public class RemoteControlFragment extends Fragment
         mRemoteControlBinding.otaMappingPmicButton.setOnClickListener(onClick_mappingPmicButton);
         mRemoteControlBinding.otaBtSelectButton.setOnClickListener(onClick_btSelectButton);
         mRemoteControlBinding.otaLinkStepButton.setOnClickListener(onClick_linkStepButton);
+        mRemoteControlBinding.otaFixedPmicButton.setOnClickListener(onClick_fixedPmicButton);
+        mRemoteControlBinding.otaOneCoinButton.setOnClickListener(onClick_oneCoinButton);
+        mRemoteControlBinding.otaCtrlModeButton.setOnClickListener(onClick_ctrlModeButton);
+        mRemoteControlBinding.otaAccelButton.setOnClickListener(onClick_accelButton);
+
+        mRemoteControlBinding.otaNopStandbyButton.setOnClickListener(onClick_nopStandbyButton);
+
+        /* 아직 연결 전이라 세대가 미상이다. 잠긴 상태로 시작한다.
+         * 옵저버는 값이 «바뀔 때» 만 오므로 첫 상태는 여기서 직접 맞춰야 한다. */
+        applyFwRelease();
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Runnable - collect
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /* MFST 부터 APP2 까지 순서대로 읽는다.
+     *
+     * 예전에는 화면에서 파일을 하나 골라 그것만 읽었다. 네 개를 다 올리려면 고르고
+     * 누르기를 네 번 반복해야 했고, 하나를 빠뜨리면 전송 때가 되어서야 알았다.
+     *
+     * 없는 파일은 건너뛴다. 슬롯에 따라 APP 이 세 개가 아닐 수 있고, 그것이 오류는 아니다. */
+    static private final int[] OTA_FILE_ORDER = {Ota.FILE_NUM_MFST, Ota.FILE_NUM_APP0, Ota.FILE_NUM_APP1, Ota.FILE_NUM_APP2};
+
     Runnable collectRunnable = new Runnable()
     {
         @Override
         public void run()
         {
-            int         slotNum;
-            int         fileNum;
-            Ota.OtaFile otaFile;
-            String      filePath;
-            File        objFile;
-            TextView    collectSizeTv;
-            TextView    collectPercentTv;
-
             if (mOta.threadState == Ota.THREAD_STATE_BUSY)
             {
                 Log.d(TAG, "[OTA][THREAD] BUSY 상태라서 collectThread 동작 실패");
@@ -169,196 +186,366 @@ public class RemoteControlFragment extends Fragment
 
             mOta.threadState = Ota.THREAD_STATE_BUSY;
 
-            slotNum = mOta.currentSlotNum;
-            fileNum = mOta.currentFileNum;
-            otaFile = Ota.getFile(slotNum, fileNum);
-            filePath = makePath(slotNum, fileNum);
-            objFile = new File(filePath);
+            int slotNum = mOta.currentSlotNum;
+            int found   = 0;
 
-            Log.d(TAG, "[OTA][THREAD] 파일 " + filePath + "의 상태 초기화");
-
-            otaFile.collectSize = 0;
-            otaFile.collectPercent = 0;
-            otaFile.writeSize = 0;
-            otaFile.writePercent = 0;
-            otaFile.totalBytes = 0;
-
-            switch (fileNum)
+            for (int fileNum : OTA_FILE_ORDER)
             {
-                case Ota.FILE_NUM_MFST:
-                    collectSizeTv = mRemoteControlBinding.mfstCollectSizeTextview;
-                    collectPercentTv = mRemoteControlBinding.mfstCollectPercentTextview;
-                    break;
-
-                case Ota.FILE_NUM_APP0:
-                    collectSizeTv = mRemoteControlBinding.app0CollectSizeTextview;
-                    collectPercentTv = mRemoteControlBinding.app0CollectPercentTextview;
-                    break;
-
-                case Ota.FILE_NUM_APP1:
-                    collectSizeTv = mRemoteControlBinding.app1CollectSizeTextview;
-                    collectPercentTv = mRemoteControlBinding.app1CollectPercentTextview;
-                    break;
-
-                case Ota.FILE_NUM_APP2:
-                    collectSizeTv = mRemoteControlBinding.app2CollectSizeTextview;
-                    collectPercentTv = mRemoteControlBinding.app2CollectPercentTextview;
-                    break;
-
-                default:
-                    Log.d(TAG, "[OTA][THREAD] 유효 하지 않은 FILE 번호 (" + fileNum + ")");
-                    mOta.threadState = Ota.THREAD_STATE_IDLE;
-                    return;
+                if (collectOneFile(slotNum, fileNum))
+                {
+                    found++;
+                }
             }
 
-            if (!objFile.exists())
-            {
-                new Handler(Looper.getMainLooper()).post(() ->
-                {
-                    collectSizeTv.setText(otaFile.collectSize + "");
-                    collectPercentTv.setText(otaFile.collectPercent + "%");
-                });
+            Log.d(TAG, "[OTA][THREAD] 순차 수집 완료 : 슬롯 " + slotNum + ", 읽은 파일 " + found + "개");
 
-                mOta.threadState = Ota.THREAD_STATE_IDLE;
+            final int foundCount = found;
 
-                Log.d(TAG, "파일 없음 : " + filePath);
-            }
-            else
-            {
-                otaFile.totalBytes = (int) objFile.length();
+            new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(requireContext(), //
+                                                                         "수집 완료 : " + foundCount + "개 파일", //
+                                                                         Toast.LENGTH_SHORT).show());
 
-                Log.d(TAG, "[OTA][THREAD] 파일 찾음 : " + filePath + ", " + otaFile.totalBytes + " bytes");
-
-                if (otaFile.buffer == null)
-                {
-                    otaFile.buffer = new byte[otaFile.totalBytes];
-                }
-                else if (otaFile.buffer.length < otaFile.totalBytes)
-                {
-                    otaFile.buffer = new byte[otaFile.totalBytes];
-                }
-
-                for (int i = 0; i < otaFile.totalBytes; i++)
-                {
-                    otaFile.buffer[i] = 0;
-                }
-
-                try (FileInputStream fis = new FileInputStream(objFile))
-                {
-                    int b;
-                    int lastPercent = -1;
-
-                    while ((b = fis.read()) != -1)
-                    {
-                        otaFile.buffer[otaFile.collectSize++] = (byte) (b & 0xFF);
-                        otaFile.collectPercent = (int) ((otaFile.collectSize * 100) / otaFile.totalBytes);
-
-                        // 100%는 항상 마지막이므로 99%->100%가 될 때, 항상 이 구문을 수행할 수 밖에 없음
-                        if (otaFile.collectPercent != lastPercent)
-                        {
-                            lastPercent = otaFile.collectPercent;
-
-                            new Handler(Looper.getMainLooper()).post(() ->
-                            {
-                                collectSizeTv.setText(otaFile.collectSize + "");
-                                collectPercentTv.setText(otaFile.collectPercent + "%");
-                            });
-                        }
-                    }
-
-                    fis.close();
-                }
-                catch (IOException e)
-                {
-                    Log.d(TAG, "[OTA][THREAD] 익셉션 발생.");
-
-                    collectSizeTv.setText(otaFile.collectSize + "");
-                    collectPercentTv.setText(otaFile.collectPercent + "%");
-                    e.printStackTrace();
-                }
-
-                printBuffer(0, null);
-
-                mOta.threadState = Ota.THREAD_STATE_IDLE;
-            }
+            mOta.threadState = Ota.THREAD_STATE_IDLE;
         }
     };
+
+    /* 파일 하나를 버퍼로 읽는다. 읽었으면 true, 파일이 없으면 false 다.
+     * 호출하는 쪽이 이미 스레드이므로 여기서 스레드 상태를 건드리지 않는다. */
+    private boolean collectOneFile(int slotNum, int fileNum)
+    {
+        Ota.OtaFile otaFile  = Ota.getFile(slotNum, fileNum);
+        String      filePath = makePath(slotNum, fileNum);
+        File        objFile  = new File(filePath);
+
+        TextView collectSizeTv;
+        TextView collectPercentTv;
+
+        switch (fileNum)
+        {
+            case Ota.FILE_NUM_MFST:
+                collectSizeTv = mRemoteControlBinding.mfstCollectSizeTextview;
+                collectPercentTv = mRemoteControlBinding.mfstCollectPercentTextview;
+                break;
+
+            case Ota.FILE_NUM_APP0:
+                collectSizeTv = mRemoteControlBinding.app0CollectSizeTextview;
+                collectPercentTv = mRemoteControlBinding.app0CollectPercentTextview;
+                break;
+
+            case Ota.FILE_NUM_APP1:
+                collectSizeTv = mRemoteControlBinding.app1CollectSizeTextview;
+                collectPercentTv = mRemoteControlBinding.app1CollectPercentTextview;
+                break;
+
+            case Ota.FILE_NUM_APP2:
+                collectSizeTv = mRemoteControlBinding.app2CollectSizeTextview;
+                collectPercentTv = mRemoteControlBinding.app2CollectPercentTextview;
+                break;
+
+            default:
+                Log.d(TAG, "[OTA][THREAD] 유효 하지 않은 FILE 번호 (" + fileNum + ")");
+                return false;
+        }
+
+        Log.d(TAG, "[OTA][THREAD] 파일 " + filePath + "의 상태 초기화");
+
+        otaFile.collectSize = 0;
+        otaFile.collectPercent = 0;
+        otaFile.writeSize = 0;
+        otaFile.writePercent = 0;
+        otaFile.totalBytes = 0;
+
+        if (!objFile.exists())
+        {
+            new Handler(Looper.getMainLooper()).post(() ->
+            {
+                collectSizeTv.setText(otaFile.collectSize + "");
+                collectPercentTv.setText(otaFile.collectPercent + "%");
+            });
+
+            Log.d(TAG, "파일 없음 : " + filePath);
+            return false;
+        }
+
+        otaFile.totalBytes = (int) objFile.length();
+
+        Log.d(TAG, "[OTA][THREAD] 파일 찾음 : " + filePath + ", " + otaFile.totalBytes + " bytes");
+
+        if (otaFile.buffer == null || otaFile.buffer.length < otaFile.totalBytes)
+        {
+            otaFile.buffer = new byte[otaFile.totalBytes];
+        }
+
+        for (int i = 0; i < otaFile.totalBytes; i++)
+        {
+            otaFile.buffer[i] = 0;
+        }
+
+        try (FileInputStream fis = new FileInputStream(objFile))
+        {
+            int b;
+            int lastPercent = -1;
+
+            while ((b = fis.read()) != -1)
+            {
+                otaFile.buffer[otaFile.collectSize++] = (byte) (b & 0xFF);
+                otaFile.collectPercent = (int) ((otaFile.collectSize * 100) / otaFile.totalBytes);
+
+                // 100%는 항상 마지막이므로 99%->100%가 될 때, 항상 이 구문을 수행할 수 밖에 없음
+                if (otaFile.collectPercent != lastPercent)
+                {
+                    lastPercent = otaFile.collectPercent;
+
+                    new Handler(Looper.getMainLooper()).post(() ->
+                    {
+                        collectSizeTv.setText(otaFile.collectSize + "");
+                        collectPercentTv.setText(otaFile.collectPercent + "%");
+                    });
+                }
+            }
+
+            fis.close();
+        }
+        catch (IOException e)
+        {
+            Log.d(TAG, "[OTA][THREAD] 익셉션 발생.");
+
+            new Handler(Looper.getMainLooper()).post(() ->
+            {
+                collectSizeTv.setText(otaFile.collectSize + "");
+                collectPercentTv.setText(otaFile.collectPercent + "%");
+            });
+
+            e.printStackTrace();
+            return false;
+        }
+
+        printBuffer(0, null);
+
+        return (otaFile.collectPercent == 100);
+    }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Runnable - write
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /* MFST 부터 APP2 까지 순서대로 전송한다.
+     *
+     * 무선 전송은 응답을 받아 가며 이어지는 비동기 동작이라, 한 파일이 끝난 자리에서
+     * 다음 파일을 시작하는 방식으로 잇는다. 네 개를 한꺼번에 밀어 넣을 수는 없다.
+     *
+     * 수집되지 않은 파일은 건너뛴다. 슬롯에 APP 이 세 개가 아닐 수 있기 때문이다. */
+    private int mWriteOrderIndex = -1; // -1 = 순차 전송 중이 아님
+    private int mWriteDoneCount  = 0;
+
+    /* 전송을 시작하기 전에 매핑 연결(0x60) 응답을 기다리는 중인지.
+     *
+     * 사운드처리기는 매핑 프로그램이 붙은 상태에서만 이미지를 받는다. 그래서 Write 는
+     * 0x60 을 먼저 보내고, 그 응답을 받은 자리에서 실제 전송을 시작한다.
+     * 응답을 안 기다리고 바로 보내면 사운드처리기가 아직 준비되지 않은 상태다. */
+    private boolean mWaitingMappingConnect = false;
+
     Runnable writeRunnable = new Runnable()
     {
         @Override
         public void run()
         {
-            Ota.OtaFile otaFile = Ota.getFile(mOta.currentSlotNum, mOta.currentFileNum);
-
-            if (otaFile.collectPercent != 100)
-            {
-                Log.d(TAG, "[OTA] 아직 " + Ota.getFileName(mOta.currentFileNum) + " 파일 읽기가 완료 되지 않았음");
-                return;
-            }
-
             if (mOta.commState != Ota.COMM_STATE_IDLE)
             {
                 Log.d(TAG, "[OTA] 무선 전송 상태가 IDLE이 아님");
                 return;
             }
 
-            mOta.commState = Ota.COMM_STATE_PREPARE_COMMAND;
-
-            mOta.commDataIndex = 0;
-            mOta.commSlotNum = mOta.currentSlotNum;
-            mOta.commFileNum = mOta.currentFileNum;
-            mOta.commOption = 1;
-            mOta.commTotalByte = otaFile.totalBytes;
-            // 마지막 인덱스를 아래와 같이 계산하면, 계산 오류로 데이터 인덱스가 1 적게 계산되는 경우를 방지할 수 있다.
-            mOta.commEndDataIndexNum = (otaFile.totalBytes + PacketInfo.PACKET_SIZE_OTA_SEND_DATA_UNIT - 1) / PacketInfo.PACKET_SIZE_OTA_SEND_DATA_UNIT;
-            mOta.commEndDataIndexByte = otaFile.totalBytes % PacketInfo.PACKET_SIZE_OTA_SEND_DATA_UNIT;
-            mOta.commBufferIndex = 0;
-            mOta.commBuffer = otaFile.buffer;
-
-            // 마지막 인덱스의 데이터 크기가 0이면, 나머지 연산 결과가 0인 것이다. 이는 곧, 마지막 인덱스에 최대 크기 바이트로 전송해야 한다는 것을 의미한다.
-            if (mOta.commEndDataIndexByte == 0)
+            if (mWaitingMappingConnect)
             {
-                mOta.commEndDataIndexByte = PacketInfo.PACKET_SIZE_OTA_SEND_DATA_UNIT;
+                Log.d(TAG, "[OTA] 이미 매핑 연결 응답을 기다리는 중입니다.");
+                return;
             }
 
-            byte[] packet = new byte[18];
+            // 보낼 것이 하나도 없으면 매핑 연결부터 할 이유가 없다.
+            if (!hasCollectedFile())
+            {
+                Log.d(TAG, "[OTA] 전송할 파일이 없습니다. 먼저 Collect 를 하세요.");
 
-            packet[0] = PacketInfo.HEADER_OTA; // Header
+                Toast.makeText(requireContext(), //
+                               "전송할 파일이 없습니다.\n먼저 Collect 를 눌러 주세요.", //
+                               Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            packet[1] = (byte) ((mOta.commDataIndex >> 16) & 0xFF);
-            packet[2] = (byte) ((mOta.commDataIndex >> 8) & 0xFF);
-            packet[3] = (byte) (mOta.commDataIndex & 0xFF);
+            Log.d(TAG, "[OTA] 매핑 연결(0x60) 요청 후 전송을 시작합니다.");
 
-            packet[4] = (byte) (mOta.commSlotNum & 0xFF);
+            mWaitingMappingConnect = true;
 
-            packet[5] = (byte) ((mOta.commFileNum >> 8) & 0xFF);
-            packet[6] = (byte) (mOta.commFileNum & 0xFF);
+            byte[] packet = new byte[PacketInfo.PACKET_SIZE_MAPPING_CONNECT_SEND];
 
-            packet[7] = (byte) (mOta.commOption & 0xFF);
+            packet[0] = PacketInfo.HEADER_MAPPING_CONNECT;
 
-            packet[8] = (byte) ((mOta.commTotalByte >> 24) & 0xFF);
-            packet[9] = (byte) ((mOta.commTotalByte >> 16) & 0xFF);
-            packet[10] = (byte) ((mOta.commTotalByte >> 8) & 0xFF);
-            packet[11] = (byte) (mOta.commTotalByte);
-
-            packet[12] = (byte) ((mOta.commEndDataIndexNum >> 24) & 0xFF);
-            packet[13] = (byte) ((mOta.commEndDataIndexNum >> 16) & 0xFF);
-            packet[14] = (byte) ((mOta.commEndDataIndexNum >> 8) & 0xFF);
-            packet[15] = (byte) (mOta.commEndDataIndexNum);
-
-            packet[16] = (byte) ((mOta.commEndDataIndexByte >> 8) & 0xFF);
-            packet[17] = (byte) (mOta.commEndDataIndexByte);
-
-            mMainActivity.mCheckBatteryHandler.removeCallbacks(mMainActivity.mCheckBatteryRunner);
             mMainActivity.sendPacket(packet);
-
-            mOta.commState = Ota.COMM_STATE_WAIT_RESP_COMMAND;
         }
     };
+
+    /* 연결이 끊겼을 때 액티비티가 부른다. 진행 중이던 전송 순서와 대기를 모두 접는다. */
+    public void onDisconnectedForOta()
+    {
+        if (mWaitingMappingConnect || mWriteOrderIndex >= 0)
+        {
+            Log.d(TAG, "[OTA] 연결이 끊겨 전송을 접습니다.");
+        }
+
+        mWaitingMappingConnect = false;
+        mWriteOrderIndex = -1;
+    }
+
+    // 수집이 끝난 파일이 하나라도 있는지.
+    private boolean hasCollectedFile()
+    {
+        for (int fileNum : OTA_FILE_ORDER)
+        {
+            if (Ota.getFile(mOta.currentSlotNum, fileNum).collectPercent == 100)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /* 매핑 연결 응답을 받은 자리. 여기서부터가 원래의 Write 동작이다.
+     * 액티비티의 수신 분기가 호출한다. */
+    public void onMappingConnected()
+    {
+        if (!mWaitingMappingConnect)
+        {
+            Log.d(TAG, "[OTA] 전송 대기 중이 아닌데 매핑 연결 응답이 왔습니다. 무시합니다.");
+            return;
+        }
+
+        mWaitingMappingConnect = false;
+
+        if (mOta.commState != Ota.COMM_STATE_IDLE)
+        {
+            Log.d(TAG, "[OTA] 매핑 연결은 되었으나 무선 전송 상태가 IDLE이 아님");
+            return;
+        }
+
+        mWriteOrderIndex = -1;
+        mWriteDoneCount = 0;
+
+        if (!startNextWriteFile())
+        {
+            Log.d(TAG, "[OTA] 매핑 연결 후에도 전송할 파일이 없습니다.");
+
+            Toast.makeText(requireContext(), //
+                           "전송할 파일이 없습니다.\n먼저 Collect 를 눌러 주세요.", //
+                           Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /* 다음으로 전송할 파일을 찾아 시작한다. 시작했으면 true, 남은 것이 없으면 false 다.
+     * 수집이 끝나지 않은(100%가 아닌) 파일은 그 자리에서 건너뛴다. */
+    private boolean startNextWriteFile()
+    {
+        while (true)
+        {
+            mWriteOrderIndex++;
+
+            if (mWriteOrderIndex >= OTA_FILE_ORDER.length)
+            {
+                mWriteOrderIndex = -1;
+                return false;
+            }
+
+            int         fileNum = OTA_FILE_ORDER[mWriteOrderIndex];
+            Ota.OtaFile otaFile = Ota.getFile(mOta.currentSlotNum, fileNum);
+
+            if (otaFile.collectPercent != 100)
+            {
+                Log.d(TAG, "[OTA] " + Ota.getFileName(fileNum) + " 는 수집되지 않아 건너뜁니다.");
+                continue;
+            }
+
+            startWriteFile(fileNum, otaFile);
+            return true;
+        }
+    }
+
+    // 파일 하나의 전송을 시작한다. 첫 커맨드 패킷을 보내는 데까지가 여기다.
+    private void startWriteFile(int fileNum, Ota.OtaFile otaFile)
+    {
+        Log.d(TAG, "[OTA] 전송 시작 : 슬롯 " + mOta.currentSlotNum + ", " + Ota.getFileName(fileNum) + ", " + otaFile.totalBytes + " bytes");
+
+        /* 진행률 표시가 mOta.currentFileNum 을 보고 칸을 고르므로 여기서 맞춰 둔다.
+         * 파일 라디오 버튼이 없어진 뒤로 이 값을 정하는 곳은 여기뿐이다. */
+        mOta.currentFileNum = fileNum;
+
+        mOta.commState = Ota.COMM_STATE_PREPARE_COMMAND;
+
+        mOta.commDataIndex = 0;
+        mOta.commSlotNum = mOta.currentSlotNum;
+        mOta.commFileNum = fileNum;
+        mOta.commOption = 1;
+        mOta.commTotalByte = otaFile.totalBytes;
+        // 마지막 인덱스를 아래와 같이 계산하면, 계산 오류로 데이터 인덱스가 1 적게 계산되는 경우를 방지할 수 있다.
+        mOta.commEndDataIndexNum = (otaFile.totalBytes + PacketInfo.PACKET_SIZE_OTA_SEND_DATA_UNIT - 1) / PacketInfo.PACKET_SIZE_OTA_SEND_DATA_UNIT;
+        mOta.commEndDataIndexByte = otaFile.totalBytes % PacketInfo.PACKET_SIZE_OTA_SEND_DATA_UNIT;
+        mOta.commBufferIndex = 0;
+        mOta.commBuffer = otaFile.buffer;
+
+        // 마지막 인덱스의 데이터 크기가 0이면, 나머지 연산 결과가 0인 것이다. 이는 곧, 마지막 인덱스에 최대 크기 바이트로 전송해야 한다는 것을 의미한다.
+        if (mOta.commEndDataIndexByte == 0)
+        {
+            mOta.commEndDataIndexByte = PacketInfo.PACKET_SIZE_OTA_SEND_DATA_UNIT;
+        }
+
+        byte[] packet = new byte[18];
+
+        packet[0] = PacketInfo.HEADER_OTA; // Header
+
+        packet[1] = (byte) ((mOta.commDataIndex >> 16) & 0xFF);
+        packet[2] = (byte) ((mOta.commDataIndex >> 8) & 0xFF);
+        packet[3] = (byte) (mOta.commDataIndex & 0xFF);
+
+        packet[4] = (byte) (mOta.commSlotNum & 0xFF);
+
+        packet[5] = (byte) ((mOta.commFileNum >> 8) & 0xFF);
+        packet[6] = (byte) (mOta.commFileNum & 0xFF);
+
+        packet[7] = (byte) (mOta.commOption & 0xFF);
+
+        packet[8] = (byte) ((mOta.commTotalByte >> 24) & 0xFF);
+        packet[9] = (byte) ((mOta.commTotalByte >> 16) & 0xFF);
+        packet[10] = (byte) ((mOta.commTotalByte >> 8) & 0xFF);
+        packet[11] = (byte) (mOta.commTotalByte);
+
+        packet[12] = (byte) ((mOta.commEndDataIndexNum >> 24) & 0xFF);
+        packet[13] = (byte) ((mOta.commEndDataIndexNum >> 16) & 0xFF);
+        packet[14] = (byte) ((mOta.commEndDataIndexNum >> 8) & 0xFF);
+        packet[15] = (byte) (mOta.commEndDataIndexNum);
+
+        packet[16] = (byte) ((mOta.commEndDataIndexByte >> 8) & 0xFF);
+        packet[17] = (byte) (mOta.commEndDataIndexByte);
+
+        /* 예전에는 여기서 배터리 조회 타이머를 직접 껐다.
+         * 지금은 링크 감시 러너가 mOta.commState 를 보고 전송 중에는 스스로 쉬므로
+         * 따로 끌 필요가 없다. 전송이 끝나면 다음 주기부터 저절로 재개된다. */
+        mMainActivity.sendPacket(packet);
+
+        mOta.commState = Ota.COMM_STATE_WAIT_RESP_COMMAND;
+    }
+
+    // 전송이 중간에 실패했을 때 남은 순서를 접는다.
+    private void abortSequentialWrite()
+    {
+        if (mWriteOrderIndex < 0)
+        {
+            return;
+        }
+
+        Log.d(TAG, "[OTA] 순차 전송을 중단합니다. (완료 " + mWriteDoneCount + "개)");
+
+        mWriteOrderIndex = -1;
+        mWaitingMappingConnect = false;
+    }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// Handle - resp data packet
@@ -386,6 +573,7 @@ public class RemoteControlFragment extends Fragment
         {
             Log.d(TAG, "[BLE] OTA 데이터 인덱스 에러, 예상 인덱스 = " + mOta.commDataIndex + ", 받은 인덱스 = " + dataIndex);
             mOta.commState = Ota.COMM_STATE_IDLE;
+            abortSequentialWrite();
             makeDialog_invalidDataIndex();
             return;
         }
@@ -394,6 +582,7 @@ public class RemoteControlFragment extends Fragment
         {
             Log.d(TAG, "[BLE] OTA 패킷 결과가 성공이 아님, 결과 = " + result);
             mOta.commState = Ota.COMM_STATE_IDLE;
+            abortSequentialWrite();
             makeDialog_invalidResult();
             return;
         }
@@ -408,9 +597,21 @@ public class RemoteControlFragment extends Fragment
 
             if (mOta.commDataIndex == mOta.commEndDataIndexNum)
             {
-                Log.d(TAG, "[BLE] OTA 패킷 전송 완료");
+                Log.d(TAG, "[BLE] OTA 패킷 전송 완료 : " + Ota.getFileName(mOta.currentFileNum));
+
                 mOta.commState = Ota.COMM_STATE_IDLE;
-                makeDialog_finishOTA();
+                mWriteDoneCount++;
+
+                /* 한 파일이 끝난 자리에서 다음 파일을 시작한다.
+                 * 남은 것이 없을 때만 완료를 알린다. */
+                if (startNextWriteFile())
+                {
+                    return;
+                }
+
+                Log.d(TAG, "[BLE] OTA 순차 전송 완료 : " + mWriteDoneCount + "개");
+
+                makeDialog_finishOTA(mWriteDoneCount);
                 return;
             }
             else
@@ -493,6 +694,7 @@ public class RemoteControlFragment extends Fragment
         {
             Log.d(TAG, "[BLE] OTA 데이터 인덱스 에러, 예상 인덱스 = " + mOta.commDataIndex + ", 받은 인덱스 = " + dataIndex);
             mOta.commState = Ota.COMM_STATE_IDLE;
+            abortSequentialWrite();
             makeDialog_invalidDataIndex();
             return;
         }
@@ -501,6 +703,7 @@ public class RemoteControlFragment extends Fragment
         {
             Log.d(TAG, "[BLE] OTA 패킷 결과가 성공이 아님, 결과 = " + result);
             mOta.commState = Ota.COMM_STATE_IDLE;
+            abortSequentialWrite();
             makeDialog_invalidResult();
             return;
         }
@@ -628,27 +831,6 @@ public class RemoteControlFragment extends Fragment
                 getCollectPercentTextView(Ota.FILE_NUM_APP2).setText(app2File.collectPercent + "%");
                 getWriteSizeTextView(Ota.FILE_NUM_APP2).setText(app2File.writeSize + "");
                 getWritePercentTextView(Ota.FILE_NUM_APP2).setText(app2File.writePercent + "%");
-            }
-            // File radio group
-            else if (checkedId == mRemoteControlBinding.fileMfstRadioButton.getId())
-            {
-                mOta.currentFileNum = Ota.FILE_NUM_MFST;
-                Log.d(TAG, "fileNum = " + mOta.currentFileNum);
-            }
-            else if (checkedId == mRemoteControlBinding.fileApp0RadioButton.getId())
-            {
-                mOta.currentFileNum = Ota.FILE_NUM_APP0;
-                Log.d(TAG, "fileNum = " + mOta.currentFileNum);
-            }
-            else if (checkedId == mRemoteControlBinding.fileApp1RadioButton.getId())
-            {
-                mOta.currentFileNum = Ota.FILE_NUM_APP1;
-                Log.d(TAG, "fileNum = " + mOta.currentFileNum);
-            }
-            else if (checkedId == mRemoteControlBinding.fileApp2RadioButton.getId())
-            {
-                mOta.currentFileNum = Ota.FILE_NUM_APP2;
-                Log.d(TAG, "fileNum = " + mOta.currentFileNum);
             }
         }
     };
@@ -924,7 +1106,7 @@ public class RemoteControlFragment extends Fragment
         @Override
         public void onClick(View v)
         {
-            int state = (mStatusViewModel.getValueGatingState() == PacketInfo.GATING_ENABLE) ? PacketInfo.GATING_DISABLE : PacketInfo.GATING_ENABLE;
+            int state = (mStatusViewModel.getValueGatingState() == PacketInfo.MUTE_ENABLE) ? PacketInfo.MUTE_DISABLE : PacketInfo.MUTE_ENABLE;
 
             sendGatingPacket(state);
         }
@@ -956,8 +1138,8 @@ public class RemoteControlFragment extends Fragment
             return;
         }
 
-        final int minLevel = PacketInfo.MIN_TX_PWR_LEVEL_SELECT_MIN;
-        final int maxLevel = PacketInfo.MIN_TX_PWR_LEVEL_SELECT_MAX;
+        final int minLevel = PacketInfo.MIN_TX_PWR_SELECT_MIN;
+        final int maxLevel = PacketInfo.MIN_TX_PWR_SELECT_MAX;
         final int count    = (maxLevel - minLevel) + 1;
 
         String[] items = new String[count];
@@ -965,7 +1147,7 @@ public class RemoteControlFragment extends Fragment
         for (int i = 0; i < count; i++)
         {
             int level = minLevel + i;
-            items[i] = String.format("%.3f V  (레벨 %d)", (level * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV) / 1000.0f, level);
+            items[i] = String.format("%.3f V  (레벨 %d)", (level * PacketInfo.TX_PWR_LEVEL_STEP_MV) / 1000.0f, level);
         }
 
         // 현재 값을 미리 선택해 둔다. 아직 못 읽었으면 기본값 위치를 가리킨다.
@@ -973,7 +1155,7 @@ public class RemoteControlFragment extends Fragment
 
         if (currentLevel < minLevel || maxLevel < currentLevel)
         {
-            currentLevel = PacketInfo.MIN_TX_PWR_LEVEL_DEFAULT;
+            currentLevel = PacketInfo.MIN_TX_PWR_DEFAULT;
         }
 
         final int checkedIndex = currentLevel - minLevel;
@@ -985,7 +1167,7 @@ public class RemoteControlFragment extends Fragment
                     sendMinTxPowerPacket(minLevel + which);
                     dialogInterface.dismiss();
                 }) //
-                .setNegativeButton("Default", (dialogInterface, i) -> sendMinTxPowerPacket(PacketInfo.MIN_TX_PWR_LEVEL_DEFAULT)) //
+                .setNegativeButton("Default", (dialogInterface, i) -> sendMinTxPowerPacket(PacketInfo.MIN_TX_PWR_DEFAULT)) //
                 .create();
 
         mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
@@ -1020,6 +1202,27 @@ public class RemoteControlFragment extends Fragment
         }
     };
 
+    View.OnClickListener onClick_nopStandbyButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            /* 목록은 «지금» 패킷 수로 만들어야 한다. 맵이 바뀌면 패킷 수가 달라지고
+             * 쓸 수 있는 값도 통째로 바뀌기 때문이다. 그래서 먼저 읽고, 응답을 받은
+             * 자리에서 목록을 만든다. */
+            if (!mMainActivity.requestLinkParamsForNopDialog())
+            {
+                makeDialog_nopStandbySelect();
+            }
+        }
+    };
+
+    // 링크 파라미터를 다시 읽어 온 자리. 액티비티가 부른다.
+    public void onLinkParamsRefreshedForNop()
+    {
+        makeDialog_nopStandbySelect();
+    }
+
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// func - 매핑 전용 Tx 파워 하한 선택 다이얼로그
     ///
@@ -1033,8 +1236,8 @@ public class RemoteControlFragment extends Fragment
             return;
         }
 
-        final int minLevel = PacketInfo.MIN_TX_PWR_LEVEL_SELECT_MIN;
-        final int maxLevel = PacketInfo.MIN_TX_PWR_LEVEL_SELECT_MAX;
+        final int minLevel = PacketInfo.MIN_TX_PWR_SELECT_MIN;
+        final int maxLevel = PacketInfo.MIN_TX_PWR_SELECT_MAX;
         final int count    = (maxLevel - minLevel) + 1;
 
         String[] items = new String[count];
@@ -1042,14 +1245,14 @@ public class RemoteControlFragment extends Fragment
         for (int i = 0; i < count; i++)
         {
             int level = minLevel + i;
-            items[i] = String.format("%.3f V  (레벨 %d)", (level * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV) / 1000.0f, level);
+            items[i] = String.format("%.3f V  (레벨 %d)", (level * PacketInfo.TX_PWR_LEVEL_STEP_MV) / 1000.0f, level);
         }
 
         int currentLevel = mStatusViewModel.getValueMappingTxPowerLevel();
 
         if (currentLevel < minLevel || maxLevel < currentLevel)
         {
-            currentLevel = PacketInfo.MAPPING_TX_PWR_LEVEL_DEFAULT;
+            currentLevel = PacketInfo.MAPPING_TX_PWR_DEFAULT;
         }
 
         final int checkedIndex = currentLevel - minLevel;
@@ -1061,7 +1264,7 @@ public class RemoteControlFragment extends Fragment
                     sendMappingTxPowerPacket(minLevel + which);
                     dialogInterface.dismiss();
                 }) //
-                .setNegativeButton("Default", (dialogInterface, i) -> sendMappingTxPowerPacket(PacketInfo.MAPPING_TX_PWR_LEVEL_DEFAULT)) //
+                .setNegativeButton("Default", (dialogInterface, i) -> sendMappingTxPowerPacket(PacketInfo.MAPPING_TX_PWR_DEFAULT)) //
                 .create();
 
         mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
@@ -1074,16 +1277,216 @@ public class RemoteControlFragment extends Fragment
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private void sendMappingTxPowerPacket(int level)
     {
-        byte[] packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_MAPPING_TX_PWR_WRITE];
+        mMainActivity.sendLinkParam(PacketInfo.RC_LINK_IDX_MAPPING_MIN_POWER, level);
+    }
 
-        packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
-        packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MAPPING_TX_PWR_WRITE;
-        packet[2] = (byte) (level & 0xFF);
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // OnClickListener - Fixed PMIC 버튼 (모드와 무관하게 PMIC 레벨 고정)
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    View.OnClickListener onClick_fixedPmicButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            makeDialog_fixedTxPowerSelect();
+        }
+    };
 
-        Log.d(TAG, "[PMIC] 매핑 Tx 파워 하한 설정 요청 : " + level + " (" + (level * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV) + "mV)");
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // OnClickListener - Coin 버튼 (백텔 재시도 모드 선택)
+    ///
+    /// 사운드처리기에는 one coin 과 infinite coin 두 값이 있고 infinite 가 우선한다.
+    /// 화면에서는 그 조합을 세 모드로 정리해 하나만 고르게 한다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // OnClickListener - Ctrl Mode 토글 버튼 (링크 제어 모드)
+    ///
+    /// 0 = ISD (내부기 전원 상태로 판정), 1 = BT (백텔 수신 여부로 판정).
+    /// 현재 상태의 반대 값을 보낸다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    View.OnClickListener onClick_ctrlModeButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            int value = (mStatusViewModel.getValueLinkCtrlMode() == PacketInfo.LINK_CTRL_MODE_BACKTEL) //
+                        ? PacketInfo.LINK_CTRL_MODE_POWER_STATE //
+                        : PacketInfo.LINK_CTRL_MODE_BACKTEL;
 
-        mMainActivity.longTimeIdleHandlerUpdate(true);
-        mMainActivity.sendPacket(packet);
+            mMainActivity.sendLinkParam(PacketInfo.RC_LINK_IDX_CTRL_MODE, value);
+        }
+    };
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // OnClickListener - Accel 토글 버튼 (Tx 파워 상승 가속)
+    ///
+    /// 연속 미수신 시 상승 폭을 키운다. 현재 상태의 반대 값을 보낸다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    View.OnClickListener onClick_accelButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            int value = (mStatusViewModel.getValueTxPowerAccel() == PacketInfo.LINK_FLAG_ENABLE) //
+                        ? PacketInfo.LINK_FLAG_DISABLE //
+                        : PacketInfo.LINK_FLAG_ENABLE;
+
+            mMainActivity.sendLinkParam(PacketInfo.RC_LINK_IDX_TX_POWER_ACCEL, value);
+        }
+    };
+
+    View.OnClickListener onClick_oneCoinButton = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            makeDialog_coinModeSelect();
+        }
+    };
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - 백텔 재시도 모드 선택 다이얼로그
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void makeDialog_coinModeSelect()
+    {
+        if (mDialog != null)
+        {
+            Log.d(TAG, "[LINK] 이미 다이얼로그가 표시 중이라서 코인 모드 목록을 띄우지 않습니다.");
+            return;
+        }
+
+        /* infinite coin 은 one coin 보다 뒤에 생겼다. 그것을 모르는 펌웨어에서는
+         * 목록에 아예 올리지 않는다. 골라 봐야 거절당할 선택지를 보여 주면
+         * 눌러 보고 나서야 안 된다는 것을 알게 된다. */
+        boolean hasInfinite = mMainActivity.isLinkParamSupported(PacketInfo.RC_LINK_IDX_INFINITE_COIN);
+
+        final int[] modes = hasInfinite //
+                            ? new int[]{PacketInfo.COIN_MODE_DISABLE, PacketInfo.COIN_MODE_ENABLE, PacketInfo.COIN_MODE_INFINITE} //
+                            : new int[]{PacketInfo.COIN_MODE_DISABLE, PacketInfo.COIN_MODE_ENABLE};
+
+        String[] items = hasInfinite //
+                         ? new String[]{ //
+                                 "Disable  (첫 실패에서 바로 끊김)", //
+                                 "Enable  (1회 실패까지 견딤)", //
+                                 "Infinite " + COIN_INFINITE_MARK + "  (끊김 판정 안 함)" //
+                         } //
+                         : new String[]{ //
+                                 "Disable  (첫 실패에서 바로 끊김)", //
+                                 "Enable  (1회 실패까지 견딤)" //
+                         };
+
+        int checkedIndexValue = getCurrentCoinModeIndex();
+
+        // 목록에서 빠진 항목이 선택 상태로 남지 않게 한다.
+        if (checkedIndexValue >= modes.length)
+        {
+            checkedIndexValue = -1;
+        }
+
+        final int checkedIndex = checkedIndexValue;
+
+        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+                .setTitle("백텔 재시도 모드") //
+                .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
+                {
+                    mMainActivity.sendCoinMode(modes[which]);
+                    dialogInterface.dismiss();
+                }) //
+                .setNegativeButton("취소", null) //
+                .create();
+
+        mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
+
+        mDialog.show();
+    }
+
+    // 현재 코인 모드를 목록 위치로 바꾼다. 아직 못 읽었으면 아무것도 선택하지 않는다.
+    private int getCurrentCoinModeIndex()
+    {
+        int infinite = mStatusViewModel.getValueInfiniteCoin();
+        int oneCoin  = mStatusViewModel.getValueOneCoin();
+
+        if (infinite == PacketInfo.LINK_FLAG_ENABLE)
+        {
+            return PacketInfo.COIN_MODE_INFINITE;
+        }
+
+        if (infinite == PacketInfo.LINK_VALUE_UNKNOWN || oneCoin == PacketInfo.LINK_VALUE_UNKNOWN)
+        {
+            return -1; // 선택 없음
+        }
+
+        return (oneCoin == PacketInfo.LINK_FLAG_ENABLE) ? PacketInfo.COIN_MODE_ENABLE : PacketInfo.COIN_MODE_DISABLE;
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - 고정 PMIC 선택 다이얼로그
+    ///
+    /// 목록에서 전압을 고르면 노말 / 매핑 어느 모드인지와 무관하게 그 값으로 고정한다.
+    /// 아래 '해제' 를 누르면 고정을 풀고 원래대로 모드별 하한을 따르게 한다.
+    ///
+    /// 상한이 Normal PMIC(213)보다 1 스텝 높은 214 다. 하한 계열의 213 제한은 제어가
+    /// 멈추는 것을 막으려는 값인데, 강제 고정은 멈추는 것이 목적이라 해당하지 않는다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void makeDialog_fixedTxPowerSelect()
+    {
+        if (mDialog != null)
+        {
+            Log.d(TAG, "[PMIC] 이미 다이얼로그가 표시 중이라서 고정 PMIC 목록을 띄우지 않습니다.");
+            return;
+        }
+
+        final int minLevel = PacketInfo.FORCE_TX_PWR_SELECT_MIN;
+        final int maxLevel = PacketInfo.FORCE_TX_PWR_SELECT_MAX;
+        final int count    = (maxLevel - minLevel) + 1;
+
+        String[] items = new String[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            int level = minLevel + i;
+            items[i] = String.format("%.3f V  (레벨 %d)", (level * PacketInfo.TX_PWR_LEVEL_STEP_MV) / 1000.0f, level);
+        }
+
+        /* 이미 고정 중이면 그 값을, 해제 상태면 상시 동작 하한을 기준점으로 삼아
+         * 목록이 그 위치에서 열리게 한다. */
+        int baseLevel = mStatusViewModel.getValueForceTxPowerLevel();
+
+        if (baseLevel < minLevel || maxLevel < baseLevel)
+        {
+            baseLevel = mStatusViewModel.getValueMinTxPowerLevel();
+        }
+
+        if (baseLevel < minLevel || maxLevel < baseLevel)
+        {
+            baseLevel = PacketInfo.MIN_TX_PWR_DEFAULT;
+        }
+
+        final int checkedIndex = baseLevel - minLevel;
+
+        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+                .setTitle("고정 PMIC 선택") //
+                .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
+                {
+                    sendForceTxPowerPacket(minLevel + which);
+                    dialogInterface.dismiss();
+                }) //
+                .setNegativeButton("해제", (dialogInterface, i) -> sendForceTxPowerPacket(PacketInfo.FORCE_TX_PWR_RELEASE)) //
+                .create();
+
+        mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
+
+        mDialog.show();
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - 고정 PMIC 설정 / 해제 패킷 전송
+    ///
+    /// 레벨 0 이 해제 센티널이라 설정과 해제가 같은 옵션(14)을 쓴다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void sendForceTxPowerPacket(int level)
+    {
+        mMainActivity.sendLinkParam(PacketInfo.RC_LINK_IDX_FORCE_TX_POWER, level);
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1109,7 +1512,7 @@ public class RemoteControlFragment extends Fragment
         for (int i = 0; i < count; i++)
         {
             int step = minStep + i;
-            items[i] = String.format("%d 스텝  (%d mV)", step, (step * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV));
+            items[i] = String.format("%d 스텝  (%d mV)", step, (step * PacketInfo.TX_PWR_LEVEL_STEP_MV));
         }
 
         int currentStep = mStatusViewModel.getValueTxStepUp();
@@ -1141,16 +1544,256 @@ public class RemoteControlFragment extends Fragment
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private void sendTxStepUpPacket(int step)
     {
-        byte[] packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_TX_STEP_UP_WRITE];
+        mMainActivity.sendLinkParam(PacketInfo.RC_LINK_IDX_TX_POWER_STEP_UP, step);
+    }
 
-        packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
-        packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_TX_STEP_UP_WRITE;
-        packet[2] = (byte) (step & 0xFF);
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - 전원 안정용 NopStandby 개수 선택 다이얼로그
+    ///
+    /// 백텔을 «읽기 직전» 에 넣는 NopStandby 의 개수다. 읽기 «뒤» 의 NopBacktel 3개는
+    /// FPGA 가 요구하는 물리 수신 시간이라 고정이며 여기서 건드리는 대상이 아니다.
+    ///
+    /// 아무 값이나 고르게 하지 않는다. 자리 맞추기가 0 이 되는 값만 FIFO 24 슬롯을
+    /// 버리지 않으므로, 지금 패킷 수에서 «쓸 수 있는» 값만 목록에 올린다.
+    /// 표는 패킷 수(인덱스 13)로 찾는다. 펄스폭으로 찾으면 nOFm 에서 틀린다.
+    ///
+    /// 각 값이 자극을 얼마나 끊는지 함께 보여 준다. 개수를 늘리면 전원은 안정되지만
+    /// 그만큼 자극이 비므로, 고르는 사람이 그 대가를 보고 정할 수 있어야 한다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void makeDialog_nopStandbySelect()
+    {
+        if (mDialog != null)
+        {
+            Log.d(TAG, "[LINK] 이미 다이얼로그가 표시 중이라서 Nop 개수 목록을 띄우지 않습니다.");
+            return;
+        }
 
-        Log.d(TAG, "[PMIC] 링크 상승 스텝 설정 요청 : " + step + " (" + (step * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV) + "mV)");
+        int frameNum = mStatusViewModel.getValueFrameNum();
 
-        mMainActivity.longTimeIdleHandlerUpdate(true);
-        mMainActivity.sendPacket(packet);
+        /* 패킷 수를 모르면 표를 찾을 수 없다. 구형 펌웨어(4.2 미만)이거나 아직 못 읽은 상태다.
+         * 그때는 예전처럼 0 ~ 19 를 전부 올린다. */
+        if (!PacketInfo.isNopFrameNumUsable(frameNum))
+        {
+            makeDialog_nopStandbyPlain(frameNum);
+            return;
+        }
+
+        final int[] values     = PacketInfo.getNopUsableValues(frameNum);
+        final int   defaultNop = PacketInfo.getNopDefaultByFrame(frameNum);
+
+        String[] items = new String[values.length];
+
+        for (int i = 0; i < values.length; i++)
+        {
+            int gapUs = PacketInfo.getNopGapUs(frameNum, i);
+            int nop   = values[i];
+
+            StringBuilder sb = new StringBuilder();
+
+            sb.append(nop).append(" 개");
+
+            if (0 < gapUs)
+            {
+                sb.append("   자극 공백 ").append(gapUs).append("us");
+            }
+
+            if (nop == defaultNop)
+            {
+                sb.append("   (기본)");
+            }
+
+            // 자극이 1msec 나 비는 지점은 눈에 띄게 표시한다.
+            if (PacketInfo.NOP_GAP_WARN_US <= gapUs)
+            {
+                sb.append("  [주의]");
+            }
+
+            items[i] = sb.toString();
+        }
+
+        int currentNop   = mStatusViewModel.getValueNopStandbyCount();
+        int checkedIndex = -1;
+
+        for (int i = 0; i < values.length; i++)
+        {
+            if (values[i] == currentNop)
+            {
+                checkedIndex = i;
+                break;
+            }
+        }
+
+        final int selected = checkedIndex;
+
+        /* setMessage 와 setSingleChoiceItems 를 같이 주면 안 된다.
+         * 둘이 같은 자리를 쓰는 탓에 메시지가 목록을 밀어내 «고를 것이 없는» 화면이 된다.
+         * 안내는 제목 자리에 직접 그려 넣는다. */
+        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+                .setCustomTitle(makeDialogTitleView("전원 안정 Nop 선택", makeNopDialogMessage(frameNum))) //
+                .setSingleChoiceItems(items, selected, (dialogInterface, which) ->
+                {
+                    sendNopStandbyPacket(values[which]);
+                    dialogInterface.dismiss();
+                }) //
+                .setNegativeButton("기본값", (dialogInterface, i) -> mMainActivity.sendNopStandbyDefault()) //
+                .create();
+
+        mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
+
+        mDialog.show();
+    }
+
+    /* 패킷 수를 모를 때 쓰는 예전 방식 목록. 어느 값이 자리 맞춤에 맞는지 알 수 없으므로
+     * 0 ~ 19 를 그대로 올린다. */
+    private void makeDialog_nopStandbyPlain(int frameNum)
+    {
+        final int minCount = PacketInfo.NOP_STANDBY_SELECT_MIN;
+        final int maxCount = PacketInfo.NOP_STANDBY_SELECT_MAX;
+        final int count    = (maxCount - minCount) + 1;
+
+        String[] items = new String[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            int nop = minCount + i;
+
+            items[i] = (nop == 0) ? "0 개  (Nop 없음)" : (nop + " 개");
+        }
+
+        int currentCount = mStatusViewModel.getValueNopStandbyCount();
+
+        if (currentCount < minCount || maxCount < currentCount)
+        {
+            currentCount = PacketInfo.NOP_STANDBY_DEFAULT;
+        }
+
+        final int checkedIndex = currentCount - minCount;
+
+        String message = (frameNum == PacketInfo.LINK_VALUE_UNKNOWN) //
+                         ? "패킷 수를 읽지 못해 쓸 수 있는 값을 가릴 수 없습니다." //
+                         : ("패킷 수 " + frameNum + " 은 백텔이 나가지 않는 구간입니다.");
+
+        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+                .setCustomTitle(makeDialogTitleView("전원 안정 Nop 선택", message)) //
+                .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
+                {
+                    sendNopStandbyPacket(minCount + which);
+                    dialogInterface.dismiss();
+                }) //
+                .setNegativeButton("기본값", (dialogInterface, i) -> mMainActivity.sendNopStandbyDefault()) //
+                .create();
+
+        mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
+
+        mDialog.show();
+    }
+
+    /* 다이얼로그 머리말. 지금 맵이 어떤 상태인지와, 펄스폭과 패킷 수가 어긋난다면 그 이유를 적는다. */
+    private String makeNopDialogMessage(int frameNum)
+    {
+        int pulseWidth = mStatusViewModel.getValuePulseWidth();
+        int strategy   = mStatusViewModel.getValueStimStrategy();
+        int nopEnable  = mStatusViewModel.getValueNopEnable();
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("패킷 수 ").append(frameNum);
+
+        if (pulseWidth != PacketInfo.LINK_VALUE_UNKNOWN)
+        {
+            sb.append(" · 펄스폭 ").append(pulseWidth).append("us");
+        }
+
+        if (strategy != PacketInfo.LINK_VALUE_UNKNOWN)
+        {
+            sb.append(" · ").append(makeStimStrategyName(strategy));
+        }
+
+        sb.append("\n지금 값은 ");
+        sb.append((nopEnable == PacketInfo.NOP_ENABLE_MANUAL) ? "리모콘이 정한 값" : "패킷 수별 기본값");
+        sb.append("입니다.");
+
+        /* nOFm 은 밴드 16 이상이면 패킷 수를 3 으로 고정한다. 펄스폭과 어긋나 보이는 것이
+         * 정상이라는 뜻이라, 그 사실을 적어 두지 않으면 고장으로 오해한다. */
+        if (strategy == PacketInfo.STIM_STRATEGY_NOFM)
+        {
+            sb.append("\n\nnOFm 은 패킷 수를 3 으로 고정하므로 펄스폭과 어긋나 보입니다.");
+
+            if (pulseWidth != PacketInfo.LINK_VALUE_UNKNOWN //
+                && (pulseWidth < PacketInfo.NOFM_PULSE_WIDTH_MIN || PacketInfo.NOFM_PULSE_WIDTH_MAX < pulseWidth))
+            {
+                sb.append("\n[주의] 펄스폭이 ") //
+                  .append(PacketInfo.NOFM_PULSE_WIDTH_MIN).append(" ~ ").append(PacketInfo.NOFM_PULSE_WIDTH_MAX) //
+                  .append("us 밖입니다. 3프레임 고정 전제를 벗어난 상태로, 계측된 바 없습니다.");
+            }
+        }
+        else if (strategy == PacketInfo.STIM_STRATEGY_MEDIUM)
+        {
+            sb.append("\n\n[주의] medium 은 자극 PCM 이 채워지지 않습니다.");
+        }
+
+        return sb.toString();
+    }
+
+    /* 제목과 안내를 한 덩어리로 그린 뷰.
+     *
+     * AlertDialog 는 메시지와 선택 목록이 같은 자리를 쓴다. 둘 다 주면 목록이 사라지므로
+     * 안내가 필요할 때는 제목 자리에 넣는다. */
+    private View makeDialogTitleView(String title, String message)
+    {
+        int padding = (int) (16 * getResources().getDisplayMetrics().density);
+
+        LinearLayout box = new LinearLayout(requireContext());
+
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(padding, padding, padding, padding / 2);
+
+        TextView titleView = new TextView(requireContext());
+
+        titleView.setText(title);
+        titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        titleView.setTypeface(null, Typeface.BOLD);
+
+        box.addView(titleView);
+
+        if (message != null && !message.isEmpty())
+        {
+            TextView messageView = new TextView(requireContext());
+
+            messageView.setText(message);
+            messageView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+            messageView.setPadding(0, padding / 3, 0, 0);
+
+            box.addView(messageView);
+        }
+
+        return box;
+    }
+
+    private String makeStimStrategyName(int strategy)
+    {
+        switch (strategy)
+        {
+            case PacketInfo.STIM_STRATEGY_CIS:
+                return "CIS";
+
+            case PacketInfo.STIM_STRATEGY_NOFM:
+                return "nOFm";
+
+            case PacketInfo.STIM_STRATEGY_MEDIUM:
+                return "medium";
+
+            default:
+                return "전략 ?";
+        }
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - 전원 안정용 NopStandby 개수 설정 패킷 전송
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void sendNopStandbyPacket(int nopCount)
+    {
+        mMainActivity.sendLinkParam(PacketInfo.RC_LINK_IDX_POWER_STABLE_NOP, nopCount);
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1158,16 +1801,7 @@ public class RemoteControlFragment extends Fragment
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private void sendMinTxPowerPacket(int level)
     {
-        byte[] packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_MIN_TX_PWR_WRITE];
-
-        packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
-        packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MIN_TX_PWR_WRITE;
-        packet[2] = (byte) (level & 0xFF);
-
-        Log.d(TAG, "[PMIC] 링크 Tx 파워 하한 설정 요청 : " + level + " (" + (level * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV) + "mV)");
-
-        mMainActivity.longTimeIdleHandlerUpdate(true);
-        mMainActivity.sendPacket(packet);
+        mMainActivity.sendLinkParam(PacketInfo.RC_LINK_IDX_MIN_TX_POWER, level);
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1195,8 +1829,8 @@ public class RemoteControlFragment extends Fragment
             return;
         }
 
-        final int minPeriod = PacketInfo.BACKTEL_PERIOD_SELECT_MIN_100MS;
-        final int maxPeriod = PacketInfo.BACKTEL_PERIOD_SELECT_MAX_100MS;
+        final int minPeriod = PacketInfo.BACKTEL_PERIOD_SELECT_MIN;
+        final int maxPeriod = PacketInfo.BACKTEL_PERIOD_SELECT_MAX;
         final int count     = (maxPeriod - minPeriod) + 1;
 
         String[] items = new String[count];
@@ -1235,16 +1869,7 @@ public class RemoteControlFragment extends Fragment
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private void sendBacktelPeriodPacket(int period100ms)
     {
-        byte[] packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_BACKTEL_PERIOD];
-
-        packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
-        packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_BACKTEL_PERIOD;
-        packet[2] = (byte) (period100ms & 0xFF);
-
-        Log.d(TAG, "[BACKTEL] 백텔 주기 설정 요청 : " + period100ms + " (" + (period100ms * PacketInfo.BACKTEL_PERIOD_UNIT_MS) + "msec)");
-
-        mMainActivity.longTimeIdleHandlerUpdate(true);
-        mMainActivity.sendPacket(packet);
+        mMainActivity.sendLinkParam(PacketInfo.RC_LINK_IDX_BACKTEL_PERIOD, period100ms);
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1255,17 +1880,22 @@ public class RemoteControlFragment extends Fragment
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private void sendGatingPacket(int enableState)
     {
-        int offset = PacketInfo.GATING_T_LEVEL_OFFSET_DEFAULT;
+        /* 묵음은 릴리즈 2~3 유산이라 이 명령만 구형 포맷을 쓴다.
+         * [커맨드, 옵션 2, 세부1, 세부2, T레벨 오프셋]
+         *
+         * 비활성화일 때 펌웨어는 오프셋을 N/A 로 무시하고 기존 값을 유지하므로,
+         * 여기서 실어 보내는 오프셋은 활성화일 때만 실제로 반영된다. */
+        int offset = PacketInfo.MUTE_T_LEVEL_OFFSET_DEFAULT;
 
-        byte[] packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_GATING_WRITE];
+        byte[] packet = new byte[PacketInfo.RC_REQ_LEN_MUTE_WRITE];
 
         packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
-        packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_GATING_WRITE;
-        packet[2] = (byte) PacketInfo.GATING_SUB_OPT_NORMAL_MODE;
+        packet[1] = (byte) PacketInfo.RC_OPT_MUTE_WRITE;
+        packet[2] = (byte) PacketInfo.MUTE_SUB_OPT_NORMAL_MODE;
         packet[3] = (byte) (enableState & 0xFF);
         packet[4] = (byte) (offset & 0xFF);
 
-        Log.d(TAG, "[GATING] 게이팅 설정 요청 : " + ((enableState == PacketInfo.GATING_ENABLE) ? "활성화" : "비활성화") + ", 오프셋 " + offset);
+        Log.d(TAG, "[GATING] 게이팅 설정 요청 : " + ((enableState == PacketInfo.MUTE_ENABLE) ? "활성화" : "비활성화") + ", 오프셋 " + offset);
 
         mMainActivity.longTimeIdleHandlerUpdate(true);
         mMainActivity.sendPacket(packet);
@@ -1302,16 +1932,12 @@ public class RemoteControlFragment extends Fragment
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private void sendMapInitPacket(int mapInitType, String mapInitName)
     {
-        byte[] packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_MAP_INIT];
-
-        packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
-        packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MAP_INIT;
-        packet[2] = (byte) (mapInitType & 0xFF);
-
-        Log.d(TAG, "[MAP INIT] 맵 초기화 패킷 전송 : " + mapInitName + " (type=" + String.format("%02X", mapInitType) + ")");
+        /* 맵 초기화는 자극 도메인(0x21) 인덱스 1 의 쓰기다. 돌려받을 값이 없는 쓰기 전용이다.
+         * 사운드처리기는 응답을 먼저 보내고 초기화를 시작하므로 응답 = 완료가 아니다. */
+        Log.d(TAG, "[MAP INIT] 맵 초기화 요청 : " + mapInitName + " (type=" + String.format("%02X", mapInitType) + ")");
 
         mMainActivity.longTimeIdleHandlerUpdate(true);
-        mMainActivity.sendPacket(packet);
+        mMainActivity.sendMapInit(mapInitType);
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1451,24 +2077,155 @@ public class RemoteControlFragment extends Fragment
             mRemoteControlBinding.otaAlarmTextview.setText("Alarm " + ((value == PacketInfo.NOTIFICATION_ON) ? "On" : "Off"));
         });
 
-        // 링크 Tx 파워 하한(PMIC). 레벨 1스텝 = 25mV 이므로 볼트로 환산해 표시한다.
+        // 상시 동작 Tx 파워 하한(PMIC).
         mStatusViewModel.getLiveDataMinTxPowerLevel().observe(getViewLifecycleOwner(), o ->
         {
-            int    level = mStatusViewModel.getValueMinTxPowerLevel();
+            int level = mStatusViewModel.getValueMinTxPowerLevel();
+            mRemoteControlBinding.otaPmicTextview.setText(makeVoltageText("PMIC", level));
+        });
+
+        // 현재 Tx 파워(관찰값). 설정값이 아니라 지금 PMIC 에 실제로 쓰인 값이다.
+        mStatusViewModel.getLiveDataCurTxPowerLevel().observe(getViewLifecycleOwner(), o ->
+        {
+            int level = mStatusViewModel.getValueCurTxPowerLevel();
+            mRemoteControlBinding.otaCurPmicTextview.setText(makeVoltageText("Cur", level));
+        });
+
+        // 매핑(피팅) 전용 Tx 파워 하한.
+        mStatusViewModel.getLiveDataMappingTxPowerLevel().observe(getViewLifecycleOwner(), o ->
+        {
+            int level = mStatusViewModel.getValueMappingTxPowerLevel();
+            mRemoteControlBinding.otaMappingPmicTextview.setText(makeVoltageText("Map", level));
+        });
+
+        // Tx 파워 강제 고정. 0 이면 해제 상태다.
+        mStatusViewModel.getLiveDataForceTxPowerLevel().observe(getViewLifecycleOwner(), o ->
+        {
+            int    level = mStatusViewModel.getValueForceTxPowerLevel();
             String text;
 
             if (level == PacketInfo.LINK_VALUE_UNKNOWN)
             {
-                text = "PMIC -";
+                text = "Fix -";
+            }
+            else if (level == PacketInfo.FORCE_TX_PWR_RELEASE)
+            {
+                text = "Fix Off";
             }
             else
             {
-                text = String.format("PMIC %.1fV", (level * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV) / 1000.0f);
+                text = makeVoltageText("Fix", level);
             }
 
-            Log.v(TAG, "옵저버 : PMIC 하한 -> " + level);
-            mRemoteControlBinding.otaPmicTextview.setText(text);
+            mRemoteControlBinding.otaForcePmicTextview.setText(text);
         });
+
+        // Tx 파워 상승 스텝.
+        mStatusViewModel.getLiveDataTxStepUp().observe(getViewLifecycleOwner(), o ->
+        {
+            int step = mStatusViewModel.getValueTxStepUp();
+            mRemoteControlBinding.otaStepUpTextview.setText((step == PacketInfo.LINK_VALUE_UNKNOWN) ? "Step -" : ("Step " + step));
+        });
+
+        /* 백텔 재시도 상태. one coin 과 infinite coin 두 값을 합쳐 한 칸에 보여준다.
+         * infinite 가 우선하므로 켜져 있으면 one coin 값과 무관하게 무한대로 표시한다.
+         * 두 값이 따로 도착하므로 옵저버도 둘 다 걸어 어느 쪽이 바뀌어도 갱신되게 한다. */
+        mStatusViewModel.getLiveDataOneCoin().observe(getViewLifecycleOwner(), o -> updateCoinText());
+        mStatusViewModel.getLiveDataInfiniteCoin().observe(getViewLifecycleOwner(), o -> updateCoinText());
+
+        // 링크 제어 모드. 0 = 전원 상태 기준, 1 = 백텔 수신 기준.
+        mStatusViewModel.getLiveDataLinkCtrlMode().observe(getViewLifecycleOwner(), o ->
+        {
+            int    value = mStatusViewModel.getValueLinkCtrlMode();
+            String text;
+
+            if (value == PacketInfo.LINK_VALUE_UNKNOWN)
+            {
+                text = "Mode -";
+            }
+            else
+            {
+                /* 사운드처리기가 쓰는 이름을 그대로 줄인 것이다.
+                 * isd_interface.c 의 tdc_get_link_ctrl_mode_name() 이
+                 * "ISD POWER STATE" 와 "BACKTEL PRESENCE" 를 돌려준다.
+                 *
+                 * ISD = 내부기가 보고한 전원 상태를 보고 판정한다 (기존 동작)
+                 * BT  = 백텔이 왔는지 안 왔는지만 보고 판정한다 */
+                text = "Mode " + ((value == PacketInfo.LINK_CTRL_MODE_BACKTEL) ? "BT" : "ISD");
+            }
+
+            mRemoteControlBinding.otaCtrlModeTextview.setText(text);
+        });
+
+        // Tx 파워 상승 가속.
+        mStatusViewModel.getLiveDataTxPowerAccel().observe(getViewLifecycleOwner(), o ->
+        {
+            int    value = mStatusViewModel.getValueTxPowerAccel();
+            String text;
+
+            if (value == PacketInfo.LINK_VALUE_UNKNOWN)
+            {
+                text = "Accel -";
+            }
+            else
+            {
+                text = "Accel " + ((value == PacketInfo.LINK_FLAG_ENABLE) ? "On" : "Off");
+            }
+
+            mRemoteControlBinding.otaAccelTextview.setText(text);
+        });
+
+        /* 전원 안정용 NopStandby 개수.
+         * 되읽은 값과 실제 동작 개수가 다를 수 있다. 펌웨어가 채널당 프레임 수에 맞춰
+         * 매 백텔 사이클마다 다시 잘라내기 때문이다. 여기 보이는 값은 «설정값» 이다. */
+        mStatusViewModel.getLiveDataNopStandbyCount().observe(getViewLifecycleOwner(), o -> updateNopText());
+
+        /* 개수와 «어디서 온 값인지» 가 따로 도착하므로 둘 다 걸어 어느 쪽이 바뀌어도 갱신되게 한다. */
+        mStatusViewModel.getLiveDataNopEnable().observe(getViewLifecycleOwner(), o -> updateNopText());
+
+        // 자극 전략. 펄스폭과 패킷 수가 어긋나는 이유가 이 값에 있다.
+        mStatusViewModel.getLiveDataStimStrategy().observe(getViewLifecycleOwner(), o ->
+        {
+            int    value = mStatusViewModel.getValueStimStrategy();
+            String text  = (value == PacketInfo.LINK_VALUE_UNKNOWN) ? "Strat -" : makeStimStrategyName(value);
+
+            mRemoteControlBinding.otaStrategyTextview.setText(text);
+        });
+
+        // 현재 맵의 자극 펄스폭.
+        mStatusViewModel.getLiveDataPulseWidth().observe(getViewLifecycleOwner(), o ->
+        {
+            int    value = mStatusViewModel.getValuePulseWidth();
+            String text  = (value == PacketInfo.LINK_VALUE_UNKNOWN) ? "PW -" : ("PW " + value + "us");
+
+            mRemoteControlBinding.otaPulseWidthTextview.setText(text);
+        });
+
+        /* 패킷 수. 쓸 수 있는 Nop 표를 찾는 근거이자, 10 이상이면 백텔이 아예 나가지 않는다.
+         * 그 구간은 눈에 띄게 표시한다. */
+        mStatusViewModel.getLiveDataFrameNum().observe(getViewLifecycleOwner(), o ->
+        {
+            int    value = mStatusViewModel.getValueFrameNum();
+            String text;
+
+            if (value == PacketInfo.LINK_VALUE_UNKNOWN)
+            {
+                text = "Frm -";
+            }
+            else if (PacketInfo.NOP_FRAME_NUM_MAX < value)
+            {
+                text = "Frm " + value + "!";
+            }
+            else
+            {
+                text = "Frm " + value;
+            }
+
+            mRemoteControlBinding.otaFrameNumTextview.setText(text);
+        });
+
+        /* 판별된 펌웨어 세대. 배지 글자와 색을 바꾸고, 그 세대가 모르는 버튼을 잠근다. */
+        mStatusViewModel.getLiveDataFwRelease().observe(getViewLifecycleOwner(), o -> applyFwRelease());
 
         // 링크 백텔 주기. 100msec 단위로 받아 밀리초로 환산해 표시한다.
         mStatusViewModel.getLiveDataBacktelPeriod().observe(getViewLifecycleOwner(), o ->
@@ -1495,11 +2252,11 @@ public class RemoteControlFragment extends Fragment
             int    state = mStatusViewModel.getValueGatingState();
             String text;
 
-            if (state == PacketInfo.GATING_ENABLE)
+            if (state == PacketInfo.MUTE_ENABLE)
             {
                 text = "Gating On";
             }
-            else if (state == PacketInfo.GATING_DISABLE)
+            else if (state == PacketInfo.MUTE_DISABLE)
             {
                 text = "Gating Off";
             }
@@ -1511,6 +2268,203 @@ public class RemoteControlFragment extends Fragment
             Log.v(TAG, "옵저버 : 게이팅 상태 -> " + state);
             mRemoteControlBinding.otaGatingTextview.setText(text);
         });
+    }
+
+    // 무한 재시도 상태를 나타내는 기호. On / Off 와 한눈에 구분되도록 무한대 문자를 쓴다.
+    static final private String COIN_INFINITE_MARK = "∞";
+
+    // 백텔 재시도 상태를 한 칸에 표시한다. infinite 가 one coin 보다 우선한다.
+    /* 전원 안정 Nop 표시.
+     *
+     * 값 뒤의 별표는 «리모콘이 정한 값» 이라는 뜻이다. 별표가 없으면 사운드처리기가
+     * 패킷 수에 맞춰 넣은 기본값이다. 맵이 바뀌면 기본값으로 돌아가므로 이 구분이 필요하다. */
+    private void updateNopText()
+    {
+        int value  = mStatusViewModel.getValueNopStandbyCount();
+        int enable = mStatusViewModel.getValueNopEnable();
+
+        String text;
+
+        if (value == PacketInfo.LINK_VALUE_UNKNOWN)
+        {
+            text = "Nop -";
+        }
+        else if (enable == PacketInfo.NOP_ENABLE_MANUAL)
+        {
+            text = "Nop " + value + "*";
+        }
+        else
+        {
+            text = "Nop " + value;
+        }
+
+        mRemoteControlBinding.otaNopStandbyTextview.setText(text);
+    }
+
+    private void updateCoinText()
+    {
+        int    infinite = mStatusViewModel.getValueInfiniteCoin();
+        int    oneCoin  = mStatusViewModel.getValueOneCoin();
+        String text;
+
+        /* infinite coin 이 없는 세대에서는 그 값을 «못 읽은 것» 으로 보면 안 된다.
+         * 그러면 one coin 을 멀쩡히 읽고도 화면이 «Coin -» 로 남는다.
+         * 표시의 근거는 one coin 이고, infinite 는 그것을 덮어쓰는 값일 뿐이다. */
+        boolean hasInfinite = (mMainActivity != null) //
+                              && mMainActivity.isLinkParamSupported(PacketInfo.RC_LINK_IDX_INFINITE_COIN);
+
+        if (hasInfinite && infinite == PacketInfo.LINK_FLAG_ENABLE)
+        {
+            text = "Coin " + COIN_INFINITE_MARK;
+        }
+        else if (oneCoin == PacketInfo.LINK_VALUE_UNKNOWN //
+                 || (hasInfinite && infinite == PacketInfo.LINK_VALUE_UNKNOWN))
+        {
+            text = "Coin -";
+        }
+        else
+        {
+            text = "Coin " + ((oneCoin == PacketInfo.LINK_FLAG_ENABLE) ? "On" : "Off");
+        }
+
+        mRemoteControlBinding.otaOneCoinTextview.setText(text);
+    }
+
+    // Tx 파워 레벨(1스텝 = 25mV)을 "이름 4.2V" 형태로 만든다. 아직 못 읽었으면 "이름 -" 이다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - 판별된 펌웨어 세대를 화면에 반영
+    ///
+    /// 세대마다 사운드처리기가 아는 0x59 옵션이 다르다. 모르는 옵션을 보내면 에러로
+    /// 응답하거나 아예 응답하지 않아 연결이 끊기므로, 애초에 누를 수 없게 잠근다.
+    ///
+    /// 숨기지 않고 잠그는 이유는 화면의 자리 배치를 흔들지 않기 위해서다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void applyFwRelease()
+    {
+        if (mRemoteControlBinding == null || mMainActivity == null)
+        {
+            return;
+        }
+
+        int fwRelease = mStatusViewModel.getValueFwRelease();
+
+        // 배지
+        String label;
+        int    badgeColor;
+
+        switch (fwRelease)
+        {
+            case Status.FW_RELEASE_3:
+                label = "REL3";
+                badgeColor = 0xFFFF7043; // 주황 - 되는 기능이 가장 적다
+                break;
+
+            case Status.FW_RELEASE_4:
+                label = "REL4";
+                badgeColor = 0xFFFFD54F; // 노랑
+                break;
+
+            case Status.FW_RELEASE_4_PLUS:
+                label = "REL4+";
+                badgeColor = 0xFF00E676; // 초록 - 전부 된다
+                break;
+
+            default:
+                label = "";
+                badgeColor = 0;
+                break;
+        }
+
+        TextView badge = mRemoteControlBinding.otaFwReleaseTextview;
+
+        badge.setText(label);
+        badge.setVisibility(label.isEmpty() ? View.INVISIBLE : View.VISIBLE);
+
+        if (badgeColor != 0)
+        {
+            /* 배지 바탕은 모든 세대가 같은 drawable 을 공유한다.
+             * mutate() 없이 색을 바꾸면 같은 drawable 을 쓰는 다른 뷰까지 물든다. */
+            Drawable background = badge.getBackground();
+
+            if (background != null)
+            {
+                background = background.mutate();
+                background.setColorFilter(new PorterDuffColorFilter(badgeColor, PorterDuff.Mode.SRC_IN));
+                badge.setBackground(background);
+            }
+        }
+
+        // 링크 파라미터 버튼. 세대가 그 인덱스를 아는지 액티비티에 물어본다.
+        setButtonEnabled(mRemoteControlBinding.otaPmicSelectButton, mMainActivity.isLinkParamSupported(PacketInfo.RC_LINK_IDX_MIN_TX_POWER));
+        setButtonEnabled(mRemoteControlBinding.otaMappingPmicButton, mMainActivity.isLinkParamSupported(PacketInfo.RC_LINK_IDX_MAPPING_MIN_POWER));
+        setButtonEnabled(mRemoteControlBinding.otaBtSelectButton, mMainActivity.isLinkParamSupported(PacketInfo.RC_LINK_IDX_BACKTEL_PERIOD));
+        setButtonEnabled(mRemoteControlBinding.otaLinkStepButton, mMainActivity.isLinkParamSupported(PacketInfo.RC_LINK_IDX_TX_POWER_STEP_UP));
+        setButtonEnabled(mRemoteControlBinding.otaFixedPmicButton, mMainActivity.isLinkParamSupported(PacketInfo.RC_LINK_IDX_FORCE_TX_POWER));
+        setButtonEnabled(mRemoteControlBinding.otaOneCoinButton, mMainActivity.isLinkParamSupported(PacketInfo.RC_LINK_IDX_ONE_COIN));
+        setButtonEnabled(mRemoteControlBinding.otaCtrlModeButton, mMainActivity.isLinkParamSupported(PacketInfo.RC_LINK_IDX_CTRL_MODE));
+        setButtonEnabled(mRemoteControlBinding.otaAccelButton, mMainActivity.isLinkParamSupported(PacketInfo.RC_LINK_IDX_TX_POWER_ACCEL));
+        setButtonEnabled(mRemoteControlBinding.otaNopStandbyButton, mMainActivity.isLinkParamSupported(PacketInfo.RC_LINK_IDX_POWER_STABLE_NOP));
+
+        // 맵 초기화는 REL4 부터, 게이팅은 REL3 부터 있다.
+        setButtonEnabled(mRemoteControlBinding.otaMapSelectButton, mMainActivity.isMapInitSupported());
+        setButtonEnabled(mRemoteControlBinding.otaMapInitDefaultButton, mMainActivity.isMapInitSupported());
+        setButtonEnabled(mRemoteControlBinding.otaGatingButton, mMainActivity.isGatingSupported());
+
+        /* 이 세대에 «없는» 상태 항목은 취소선으로 그어 둔다.
+         *
+         * 값이 «-» 이면 아직 못 읽은 것인지 원래 없는 것인지 알 수 없다. 둘은 전혀 다른
+         * 이야기다. 못 읽은 것은 기다리면 되지만, 없는 것은 기다려도 오지 않는다.
+         * 그래서 없는 항목은 그어서 «이 기기에는 해당 없음» 으로 읽히게 한다.
+         *
+         * 자리는 비우지 않는다. 격자의 칸이 옮겨 다니면 눈이 위치를 다시 익혀야 한다. */
+        markUnsupported(mRemoteControlBinding.otaCtrlModeTextview, PacketInfo.RC_LINK_IDX_CTRL_MODE);
+        markUnsupported(mRemoteControlBinding.otaAccelTextview, PacketInfo.RC_LINK_IDX_TX_POWER_ACCEL);
+        markUnsupported(mRemoteControlBinding.otaNopStandbyTextview, PacketInfo.RC_LINK_IDX_POWER_STABLE_NOP);
+        markUnsupported(mRemoteControlBinding.otaPulseWidthTextview, PacketInfo.RC_LINK_IDX_PULSE_WIDTH);
+        markUnsupported(mRemoteControlBinding.otaFrameNumTextview, PacketInfo.RC_LINK_IDX_FRAME_NUM);
+        markUnsupported(mRemoteControlBinding.otaStrategyTextview, PacketInfo.RC_LINK_IDX_STIM_STRATEGY);
+
+        Log.d(TAG, "[LINK] 화면에 펌웨어 세대를 반영했습니다 -> " + (label.isEmpty() ? "판별 전" : label));
+    }
+
+    /* 상태 칸 하나에 «이 세대엔 없음» 표시를 켜거나 끈다.
+     *
+     * 판별 전(세대 미상)에는 긋지 않는다. 아직 모르는 것이지 없는 것이 아니다. */
+    private void markUnsupported(TextView view, int linkIndex)
+    {
+        boolean unknownYet  = (mStatusViewModel.getValueFwRelease() == Status.FW_RELEASE_UNKNOWN);
+        boolean unsupported = !unknownYet && !mMainActivity.isLinkParamSupported(linkIndex);
+
+        int flags = view.getPaintFlags();
+
+        if (unsupported)
+        {
+            flags |= Paint.STRIKE_THRU_TEXT_FLAG;
+        }
+        else
+        {
+            flags &= ~Paint.STRIKE_THRU_TEXT_FLAG;
+        }
+
+        view.setPaintFlags(flags);
+        view.setAlpha(unsupported ? 0.4f : 1.0f);
+    }
+
+    // 잠긴 버튼은 눌리지 않고 흐리게 보인다. 자리는 그대로 차지한다.
+    private void setButtonEnabled(View button, boolean enabled)
+    {
+        button.setEnabled(enabled);
+        button.setAlpha(enabled ? 1.0f : 0.35f);
+    }
+
+    private String makeVoltageText(String label, int level)
+    {
+        if (level == PacketInfo.LINK_VALUE_UNKNOWN)
+        {
+            return label + " -";
+        }
+
+        return String.format("%s %.1fV", label, (level * PacketInfo.TX_PWR_LEVEL_STEP_MV) / 1000.0f);
     }
 
     public void checkRegisteredList_userAndDevice()
@@ -1567,16 +2521,23 @@ public class RemoteControlFragment extends Fragment
         }
     }
 
-    public void makeDialog_finishOTA()
+    /* 아래 안내 다이얼로그들은 모두 «닫히면 mDialog 를 비운다».
+     *
+     * 예전에는 그 처리가 없어서 한 번 뜨고 나면 mDialog 가 계속 남았다. 그러면 다른
+     * 버튼(Coin · PMIC · Nop 등)이 «이미 다이얼로그가 표시 중» 으로 막혀 아무것도
+     * 뜨지 않는다. 화면을 나갔다 오면 프래그먼트가 다시 만들어져 풀리던 것이 그 증상이다. */
+    public void makeDialog_finishOTA(int fileCount)
     {
         if (mDialog == null)
         {
             mDialog = new MaterialAlertDialogBuilder(requireContext()) //
                     .setTitle("안내") //
-                    .setMessage("OTA 이미지 전송이 완료되었습니다.") //
+                    .setMessage("OTA 이미지 전송이 완료되었습니다.\n전송한 파일 " + fileCount + "개") //
                     .setPositiveButton("확인", null) //
                     .setCancelable(false) //
                     .create();
+
+            mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
             mDialog.show();
         }
@@ -1592,6 +2553,8 @@ public class RemoteControlFragment extends Fragment
                     .setPositiveButton("확인", null) //
                     .setCancelable(false) //
                     .create();
+
+            mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
             mDialog.show();
         }
@@ -1609,6 +2572,8 @@ public class RemoteControlFragment extends Fragment
                     .setCancelable(false) //
                     .create();
 
+            mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
+
             mDialog.show();
         }
     }
@@ -1624,6 +2589,8 @@ public class RemoteControlFragment extends Fragment
                     .setPositiveButton("확인", null) //
                     .setCancelable(false) //
                     .create();
+
+            mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
             mDialog.show();
         }
@@ -1641,6 +2608,8 @@ public class RemoteControlFragment extends Fragment
                     .setCancelable(false) //
                     .create();
 
+            mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
+
             mDialog.show();
         }
     }
@@ -1656,6 +2625,8 @@ public class RemoteControlFragment extends Fragment
                     .setPositiveButton("확인", null) //
                     .setCancelable(false) //
                     .create();
+
+            mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
             mDialog.show();
         }
@@ -1673,6 +2644,8 @@ public class RemoteControlFragment extends Fragment
                     .setCancelable(false) //
                     .create();
 
+            mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
+
             mDialog.show();
         }
     }
@@ -1688,6 +2661,8 @@ public class RemoteControlFragment extends Fragment
                     .setPositiveButton("확인", null) //
                     .setCancelable(false) //
                     .create();
+
+            mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
             mDialog.show();
         }
@@ -1708,6 +2683,8 @@ public class RemoteControlFragment extends Fragment
                 ((MainActivity) requireActivity()).replaceFragment(Status.TypeOfFragment.USER_ADD);
             }).setCancelable(false).create();
 
+            mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
+
             mDialog.show();
         }
     }
@@ -1726,6 +2703,8 @@ public class RemoteControlFragment extends Fragment
                 mDialog = null;
                 ((MainActivity) requireActivity()).replaceFragment(Status.TypeOfFragment.DEVICE_ADD);
             }).setCancelable(false).create();
+
+            mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
             mDialog.show();
         }

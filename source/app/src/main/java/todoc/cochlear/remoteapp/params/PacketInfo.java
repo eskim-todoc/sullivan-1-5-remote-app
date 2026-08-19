@@ -22,6 +22,13 @@ public class PacketInfo
     static public final byte HEADER_MAP_RESET_DEFAULT      = (byte) (0x50 & 0xff);
     static public final byte HEADER_SOUND_PROCESSING_PARAM = (byte) (0x52 & 0xff); // 0x52로 바뀜
     static public final byte HEADER_SPECIFIC_CMD           = (byte) (0x59 & 0xff); // 특수 시스템 동작 설정
+    /* 매핑 연결 · 해제.
+     *
+     * 요청은 헤더 한 바이트뿐이고 응답은 [헤더, 1] 두 바이트다.
+     * 사운드처리기 mappingControl.c 가 이 명령을 받으면 mappingProgramConnected 를 세워
+     * 매핑 프로그램이 붙은 것으로 취급한다. OTA 전송은 그 상태에서 해야 한다. */
+    static public final byte HEADER_MAPPING_CONNECT        = (byte) (0x60 & 0xff);
+    static public final byte HEADER_MAPPING_DISCONNECT     = (byte) (0x61 & 0xff);
     /* 부트(슬롯 상태 읽기 / 슬롯 선택)와 OTA 헤더.
      *
      * 사운드처리기 ble_communication.c 의 수신 분기가 아래 값으로 갈라진다.
@@ -37,6 +44,8 @@ public class PacketInfo
     static public final byte HEADER_ERROR                  = (byte) (0xf0 & 0xff);
 
     // 응답 패킷별 사이즈 정보
+    static public final int PACKET_SIZE_MAPPING_CONNECT_SEND               = 1; // 헤더만
+    static public final int PACKET_SIZE_MAPPING_CONNECT_RESP               = 2; // [헤더, 1]
     static public final int PACKET_SIZE_PASSWORD                          = 2;
     static public final int PACKET_SIZE_PROCESSOR_INFO                    = 15;//9;
     static public final int PACKET_SIZE_MAP_DATA_INFO                     = 7;
@@ -50,7 +59,16 @@ public class PacketInfo
     static public final int PACKET_SIZE_AUDIO_INPUT_MAX_READ              = 15;
     static public final int PACKET_SIZE_SYSTEM_WARNING                    = 1;
     static public final int PACKET_SIZE_ISD_ID                            = 5;
-    static public final int PACKET_SIZE_ERROR                             = 3;
+    /* 에러 응답 [0xF0, 커맨드, 주에러, 부에러, 라인 상위, 라인 하위] 여섯 바이트.
+     *
+     * 사운드처리기 error.c 의 sendErrorToApp() 이 이 형태로 보낸다.
+     * 예전에는 세 바이트로 알고 있었는데 실제로는 라인 번호까지 실려 온다.
+     *
+     * 앱이 쓰는 것은 앞의 세 바이트뿐이므로 그만큼만 있으면 해석할 수 있다.
+     * 길이가 달라도 «에러 응답» 자체는 정상적인 응답이라 연결을 끊으면 안 된다.
+     * 끊었더니 옵션 하나 거절당할 때마다 연결과 해제가 반복됐다. */
+    static public final int PACKET_SIZE_ERROR                             = 6;
+    static public final int PACKET_SIZE_ERROR_MIN                         = 3;
     static public final int PACKET_SIZE_READ_ISD_ID_AND_USER_DATA_INDEX_1 = 20;
     static public final int PACKET_SIZE_READ_ISD_ID_AND_USER_DATA_INDEX_2 = 20;
     static public final int PACKET_SIZE_READ_ISD_ID_AND_USER_DATA_INDEX_3 = 12;
@@ -101,137 +119,473 @@ public class PacketInfo
     static public final int PACKET_SIZE_OTA_SEND_DATA_UNIT = 16;
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// 특수 시스템 동작 설정 (HEADER_SPECIFIC_CMD) - 게이팅(묵음) 제어
+    /// 특수 시스템 동작 설정 (0x59) 프로토콜 — 릴리즈 4
     ///
-    /// 사운드처리기 remoteControl.c 의 case 1(읽기) / case 2(쓰기) 규격
-    /// 쓰기 : [헤더, 2, 세부옵션1, 세부옵션2, T레벨 오프셋] => 5바이트
-    ///        세부옵션1 = 1 (일반 모드), 세부옵션2 = 1(활성화) / 2(비활성화)
-    /// 주의 : 비활성화(2) 일 때 펌웨어는 오프셋 값을 N/A 로 무시하고 기존 값을 유지한다.
-    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static public final int TX_PKT_OPT_SPECIFIC_CMD_GATING_READ  = 1;
-    static public final int TX_PKT_OPT_SPECIFIC_CMD_GATING_WRITE = 2;
-    static public final int TX_PKT_LEN_SPECIFIC_CMD_GATING_READ  = 2;
-    static public final int TX_PKT_LEN_SPECIFIC_CMD_GATING_WRITE = 5;
-    static public final int PACKET_SIZE_SPECIFIC_CMD_GATING      = 5;
-
-    static public final int GATING_SUB_OPT_NORMAL_MODE = 1; // 세부옵션1 : 일반 모드
-    static public final int GATING_ENABLE              = 1; // 세부옵션2 : 묵음 처리 활성화
-    static public final int GATING_DISABLE             = 2; // 세부옵션2 : 묵음 처리 비활성화
-
-    // 펌웨어 ci_stim_mute.h 의 CI_STIM_MUTE_T_LEVEL_OFFSET_DEFAULT 와 동일 (허용 범위 0~255)
-    static public final int GATING_T_LEVEL_OFFSET_DEFAULT = 2;
-
-    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// 특수 시스템 동작 설정 (HEADER_SPECIFIC_CMD) - 링크 백텔 주기
+    /// 사운드처리기 tdc_rc_protocol.h 와 docs/참고/리모콘 프로토콜/0x59 프로토콜 규격.md 가 정본이다.
     ///
-    /// 사운드처리기 remoteControl.c 의 case 4 규격
-    /// [헤더, 4, 주기] => 3바이트. 주기 0 = 읽기, 1~255 = 100msec 단위 설정
+    /// 파라미터마다 옵션 번호를 하나씩 쓰던 방식을 버리고, 도메인 하나에 옵션 하나를 두고
+    /// 값은 데이터 인덱스로 고르는 구조로 바뀌었다. 파라미터가 늘어도 옵션 번호는 늘지 않는다.
+    ///
+    ///   요청 : [0x59, 옵션, 액세스, 인덱스, 값?]
+    ///   응답 : [0x59, 옵션, 액세스, 인덱스, 값의 바이트 수 L, 값 L바이트]
+    ///
+    /// 응답 [4]가 개수가 아니라 바이트 수인 점에 주의한다. 링크 파라미터는 전부 1바이트라
+    /// 둘이 같지만 배터리 텔레메트리는 인덱스 하나가 8바이트다.
+    ///
+    /// 쓰기 응답은 요청한 값이 아니라 반영된 값이다. 클램프나 정규화 결과가 돌아온다.
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static public final int TX_PKT_OPT_SPECIFIC_CMD_BACKTEL_PERIOD = 4;
-    static public final int TX_PKT_LEN_SPECIFIC_CMD_BACKTEL_PERIOD = 3;
-    static public final int PACKET_SIZE_SPECIFIC_CMD_BACKTEL       = 3;
 
-    // 기본 백텔 주기 300msec (100msec 단위이므로 3)
-    static public final int BACKTEL_PERIOD_DEFAULT_100MS = 3;
+    // 옵션 (요청 [1])
+    static public final int RC_OPT_MUTE_READ  = 1;    // 묵음 읽기 — 구형 포맷
+    static public final int RC_OPT_MUTE_WRITE = 2;    // 묵음 쓰기 — 구형 포맷
+    static public final int RC_OPT_LINK       = 0x20; // 32 : 링크 파라미터
+    static public final int RC_OPT_STIM       = 0x21; // 33 : 자극 제어
+    static public final int RC_OPT_BATTERY    = 0x22; // 34 : 배터리
+    static public final int RC_OPT_VERSION    = 0xFF; // 255 : 프로토콜 버전 (읽기 전용)
+
+    /* 폐기 대역 3~23. 릴리즈 4 개발 중 쓰이다 없어졌고 영구 재사용 금지다.
+     * 이 번호를 보내면 사운드처리기가 에러로 답한다. */
+    static public final int RC_OPT_RETIRED_LOW  = 3;
+    static public final int RC_OPT_RETIRED_HIGH = 23;
+
+    // 액세스 (요청 [2])
+    static public final int RC_ACCESS_READ  = 0;
+    static public final int RC_ACCESS_WRITE = 1;
+
+    // 요청 패킷 오프셋과 길이
+    static public final int RC_REQ_OFS_OPTION = 1;
+    static public final int RC_REQ_OFS_ACCESS = 2;
+    static public final int RC_REQ_OFS_INDEX  = 3;
+    static public final int RC_REQ_OFS_VALUE  = 4;
+
+    static public final int RC_REQ_LEN_READ  = 4; // 커맨드, 옵션, 액세스, 인덱스
+    static public final int RC_REQ_LEN_WRITE = 5; // + 값 1바이트
+
+    // 응답 패킷 오프셋
+    static public final int RC_RSP_OFS_OPTION = 1;
+    static public final int RC_RSP_OFS_ACCESS = 2;
+    static public final int RC_RSP_OFS_INDEX  = 3;
+    static public final int RC_RSP_OFS_LENGTH = 4;
+    static public final int RC_RSP_OFS_VALUE  = 5;
+
+    static public final int RC_RSP_HEADER_SIZE = 5;
+
+    // 인덱스 0 은 모든 도메인에서 전체를 뜻한다. 읽기 전용이다.
+    static public final int RC_IDX_ALL = 0;
+
+    /* 링크 도메인 인덱스. 인덱스는 반드시 뒤에만 추가되므로 앞부분의 의미는 절대 바뀌지 않는다.
+     * 그래서 전체 읽기 응답이 아는 것보다 길어도 뒤쪽만 무시하면 된다. */
+    static public final int RC_LINK_IDX_CUR_TX_POWER      = 1;  // 현재 Tx 파워 (관찰값, 읽기 전용)
+    static public final int RC_LINK_IDX_BACKTEL_PERIOD    = 2;  // 백텔 주기 (100msec 단위)
+    static public final int RC_LINK_IDX_MIN_TX_POWER      = 3;  // 상시 Tx 파워 하한
+    static public final int RC_LINK_IDX_MAPPING_MIN_POWER = 4;  // 매핑 전용 Tx 파워 하한
+    static public final int RC_LINK_IDX_TX_POWER_STEP_UP  = 5;  // Tx 파워 상승 스텝
+    static public final int RC_LINK_IDX_FORCE_TX_POWER    = 6;  // Tx 파워 강제 고정 (0 = 해제, 휘발)
+    static public final int RC_LINK_IDX_ONE_COIN          = 7;  // 백텔 1회 실패 재시도
+    static public final int RC_LINK_IDX_INFINITE_COIN     = 8;  // 백텔 무한 재시도 (휘발)
+    static public final int RC_LINK_IDX_CTRL_MODE         = 9;  // 링크 제어 모드
+    static public final int RC_LINK_IDX_TX_POWER_ACCEL    = 10; // 상승 가속
+    static public final int RC_LINK_IDX_POWER_STABLE_NOP  = 11; // 백텔 읽기 직전 전원 안정용 NopStandby 개수
+    static public final int RC_LINK_IDX_PULSE_WIDTH       = 12; // 현재 맵의 펄스폭 (usec, 읽기 전용)
+    static public final int RC_LINK_IDX_FRAME_NUM         = 13; // 패킷 수 = 채널당 프레임 수 (읽기 전용)
+    static public final int RC_LINK_IDX_NOP_ENABLE        = 14; // 인덱스 11 을 리모콘이 정했는지 (0 을 쓰면 기본값 복귀)
+    static public final int RC_LINK_IDX_STIM_STRATEGY     = 15; // 자극 전략 (읽기 전용)
+
+    static public final int RC_LINK_IDX_MAX = 15; // 이 앱이 아는 마지막 인덱스
+
+    /* REL4 세대가 최소한 아는 마지막 인덱스.
+     *
+     * REL4 는 시기마다 아는 범위가 다르다. 일괄 읽기(구 옵션 17)가 처음 생겼을 때는
+     * one coin 까지 값 7개였고, 뒤에 infinite coin 이 붙어 8개, 다시 제어 모드와
+     * 상승 가속이 붙어 10개가 됐다.
+     *
+     * 그래서 실제 상한은 일괄 읽기 응답의 값 개수로 «관찰» 한다 (Status.rel4LinkIndexMax).
+     * 이 상수는 아직 읽기 전에 쓰는 보수적인 기본값이다. one coin 까지는 어느 REL4 에나 있다. */
+    static public final int RC_LINK_IDX_REL4_MIN = 7;
+
+    // 자극 도메인 인덱스
+    static public final int RC_STIM_IDX_MAP_INIT = 1; // 맵 강제 초기화 (쓰기 전용)
+
+    // 배터리 도메인 인덱스
+    static public final int RC_BATTERY_IDX_TELEMETRY = 1; // 텔레메트리 8바이트 (읽기 전용)
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// 옵션 255 — 프로토콜 버전
+    ///
+    /// 요청 : [0x59, 0xFF, 0]  (3바이트. 규격서 예제가 이 형태다)
+    /// 응답 : [0x59, 0xFF, 0, 0, 10, major, minor, 비트맵 8바이트]
+    ///
+    /// 응답이 없거나 에러면 릴리즈 2~3 이하이며 묵음(옵션 1, 2)만 쓸 수 있다.
+    /// 이 버전은 0x59 만 나타낸다. 펌웨어 전체 버전이 아니다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static public final int RC_REQ_LEN_VERSION      = 3;
+    static public final int RC_VERSION_VALUE_LEN    = 10; // major 1 + minor 1 + 비트맵 8
+    static public final int RC_VERSION_BITMAP_BYTES = 8;
+
+    static public final int RC_VERSION_OFS_MAJOR  = RC_RSP_OFS_VALUE;     // [5]
+    static public final int RC_VERSION_OFS_MINOR  = RC_RSP_OFS_VALUE + 1; // [6]
+    static public final int RC_VERSION_OFS_BITMAP = RC_RSP_OFS_VALUE + 2; // [7]
+
+    // 이 앱이 요구하는 최소 프로토콜 세대. 이보다 낮으면 링크 도메인을 쓰지 않는다.
+    static public final int RC_PROTOCOL_MAJOR_REQUIRED = 4;
+
+    // 전원 안정 Nop(링크 인덱스 11)이 생긴 버전. 4.1 미만에는 그 인덱스가 없다.
+    static public final int RC_PROTOCOL_MINOR_NOP = 1;
+
+    /* 4.2 : 펄스폭(12) · 패킷 수(13) · Nop enable(14) 신설.
+     *       이때부터 인덱스 11 이 «패킷 수별 기본값» 을 갖고 휘발성이 된다.
+     * 4.3 : 자극 전략(15) 신설. */
+    static public final int RC_PROTOCOL_MINOR_NOP_TABLE = 2;
+    static public final int RC_PROTOCOL_MINOR_STRATEGY  = 3;
+
+    // 옵션 n 의 지원 여부는 비트맵[n / 8] 의 비트 n % 8 이다. 비트맵은 옵션 0~63 만 표현한다.
+    static public boolean isOptionSupported(byte[] bitmap, int option)
+    {
+        int byteIndex = option >> 3;
+
+        if (bitmap == null || byteIndex < 0 || bitmap.length <= byteIndex)
+        {
+            return false;
+        }
+
+        return ((bitmap[byteIndex] & (1 << (option & 0x07))) != 0);
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// 묵음(게이팅) — 옵션 1, 2. 릴리즈 2~3 유산이라 이 둘만 구형 포맷을 쓴다.
+    ///
+    /// 읽기 : [0x59, 1]                                   응답 5바이트
+    /// 쓰기 : [0x59, 2, 세부1, 세부2, T레벨 오프셋]        응답 5바이트
+    ///        세부1 = 1(일반 모드), 세부2 = 1(활성화) / 2(비활성화)
+    ///
+    /// 새 체계로 옮기면 필드의 구형 앱이 깨지므로 통합하면 안 된다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static public final int RC_REQ_LEN_MUTE_READ  = 2;
+    static public final int RC_REQ_LEN_MUTE_WRITE = 5;
+    static public final int RC_RSP_LEN_MUTE       = 5;
+
+    static public final int MUTE_SUB_OPT_NORMAL_MODE = 1; // 세부1 : 일반 모드
+    static public final int MUTE_ENABLE              = 1; // 세부2 : 묵음 처리 활성화
+    static public final int MUTE_DISABLE             = 2; // 세부2 : 묵음 처리 비활성화
+
+    static public final int MUTE_RSP_OFS_STATE  = 3; // 응답의 활성화 상태 위치
+    static public final int MUTE_RSP_OFS_OFFSET = 4; // 응답의 T레벨 오프셋 위치
+
+    // 펌웨어 ci_stim_mute.h 의 CI_STIM_MUTE_T_LEVEL_OFFSET_DEFAULT (허용 범위 0~255)
+    static public final int MUTE_T_LEVEL_OFFSET_DEFAULT = 2;
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// 구 프로토콜 (릴리즈 3) — 파라미터 하나에 옵션 번호 하나
+    ///
+    /// 릴리즈 4 가 이 옵션들(3~23)을 폐기하고 도메인 구조로 갈아엎었다. 그래서 이 정의는
+    /// 릴리즈 4 «이전» 펌웨어에만 쓴다. 필드에 그 세대가 남아 있어 앱이 둘 다 말할 줄 알아야 한다.
+    ///
+    ///   읽기 요청 : [0x59, 옵션]           쓰기 요청 : [0x59, 옵션, 값]
+    ///   응답      : [0x59, 옵션, 값]       (3바이트. 쓰기 응답의 옵션은 쓰기 옵션 번호다)
+    ///
+    /// 일괄 읽기(옵션 17)만 응답이 길다.
+    ///   [0x59, 17, 값 10개]  (총 12바이트)
+    ///
+    /// 그 값 10개의 순서는 릴리즈 4 링크 인덱스 1~10 과 정확히 같다. 릴리즈 4 가 그렇게
+    /// 맞춰 설계했다. 덕분에 파싱을 applyLinkParam() 하나로 공유할 수 있다.
+    ///
+    /// 다만 세대마다 길이가 다르다. one coin 까지면 9, infinite 까지면 10, 제어 모드와
+    /// 가속까지면 12바이트다. 뒤에만 늘어났으므로 받은 만큼만 읽으면 된다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static public final int LEGACY_OPT_NONE = -1; // 이 세대에 없는 파라미터
+
+    /* 응답을 구형 포맷으로 읽어야 하는지.
+     *
+     * 구 옵션은 3 ~ 23 이고 릴리즈 4 도메인은 0x20 부터라 두 대역이 겹치지 않는다.
+     * 그래서 옵션 번호 하나로 포맷이 정해진다. 판별이 끝나기 전(세대 미상)에도
+     * 옳게 갈리므로, 세대 값을 보고 판단하면 안 된다.
+     *
+     * 실제로 그렇게 했다가, 버전 응답이 오는 시점에는 아직 세대가 미상이라
+     * 버전 응답을 구형으로 읽어 버리는 문제가 있었다. */
+    static public boolean isLegacyFormatOption(int option)
+    {
+        return (option < RC_OPT_LINK);
+    }
+
+    static public final int LEGACY_OPT_READ_ALL   = 17; // 링크 파라미터 일괄 읽기
+    static public final int LEGACY_OPT_MAP_INIT   = 8;  // 맵 강제 초기화 (쓰기 전용)
+
+    static public final int LEGACY_REQ_LEN_READ  = 2;
+    static public final int LEGACY_REQ_LEN_WRITE = 3;
+
+    static public final int LEGACY_RSP_OFS_OPTION = 1;
+    static public final int LEGACY_RSP_OFS_VALUE  = 2;
+    static public final int LEGACY_RSP_LEN_SINGLE = 3;
+
+    // 일괄 읽기 응답에서 값이 시작하는 위치와, 이 앱이 아는 값의 최대 개수
+    static public final int LEGACY_ALL_OFS_VALUE = 2;
+    static public final int LEGACY_ALL_MAX_COUNT = 10;
+
+    // 맵 초기화 요청은 [0x59, 8, 채널수] 3바이트다.
+    static public final int LEGACY_REQ_LEN_MAP_INIT = 3;
+
+    /* 릴리즈 4 링크 인덱스 -> 구 옵션 번호 대응표.
+     *
+     * 배열의 자리가 곧 인덱스다. 0번 자리(전체)는 옵션 17 이 따로 있으므로 비워 둔다.
+     * 백텔 주기(인덱스 2)만 읽기와 쓰기가 옵션 4 하나를 공유한다. 값 0 을 보내면 읽기다.
+     * 현재 Tx 파워(인덱스 1)는 관찰값이라 쓰기가 없다.
+     * 전원 안정 Nop(인덱스 11)은 릴리즈 4.1 에서 생겨 구 옵션이 아예 없다. */
+    static private final int[] LEGACY_READ_OPTION = {
+            LEGACY_OPT_NONE, //  0 전체 (옵션 17 을 따로 쓴다)
+            3,               //  1 현재 Tx 파워
+            4,               //  2 백텔 주기 (값 0 = 읽기)
+            5,               //  3 상시 Tx 파워 하한
+            9,               //  4 매핑 Tx 파워 하한
+            11,              //  5 Tx 파워 상승 스텝
+            13,              //  6 Tx 파워 강제 고정
+            15,              //  7 one coin
+            18,              //  8 infinite coin
+            20,              //  9 링크 제어 모드
+            22,              // 10 상승 가속
+            LEGACY_OPT_NONE, // 11 전원 안정 Nop (릴리즈 4.1 신설)
+    };
+
+    static private final int[] LEGACY_WRITE_OPTION = {
+            LEGACY_OPT_NONE, //  0 전체는 읽기 전용
+            LEGACY_OPT_NONE, //  1 현재 Tx 파워는 관찰값이라 쓰기가 없다
+            4,               //  2 백텔 주기 (읽기와 같은 옵션)
+            6,               //  3 상시 Tx 파워 하한
+            10,              //  4 매핑 Tx 파워 하한
+            12,              //  5 Tx 파워 상승 스텝
+            14,              //  6 Tx 파워 강제 고정
+            16,              //  7 one coin
+            19,              //  8 infinite coin
+            21,              //  9 링크 제어 모드
+            23,              // 10 상승 가속
+            LEGACY_OPT_NONE, // 11 전원 안정 Nop (릴리즈 4.1 신설)
+    };
+
+    // 릴리즈 4 링크 인덱스에 대응하는 구 옵션 번호. 없으면 LEGACY_OPT_NONE 이다.
+    static public int getLegacyReadOption(int linkIndex)
+    {
+        return (linkIndex < 0 || LEGACY_READ_OPTION.length <= linkIndex) ? LEGACY_OPT_NONE : LEGACY_READ_OPTION[linkIndex];
+    }
+
+    static public int getLegacyWriteOption(int linkIndex)
+    {
+        return (linkIndex < 0 || LEGACY_WRITE_OPTION.length <= linkIndex) ? LEGACY_OPT_NONE : LEGACY_WRITE_OPTION[linkIndex];
+    }
+
+    /* 구 옵션 번호 -> 릴리즈 4 링크 인덱스. 응답을 받았을 때 쓴다.
+     * 읽기 옵션과 쓰기 옵션 둘 다 같은 인덱스로 돌려준다. 응답이 어느 쪽이든 값의 의미는 같다. */
+    static public int getLinkIndexFromLegacyOption(int legacyOption)
+    {
+        /* 대응표의 빈칸도 LEGACY_OPT_NONE 이라, 이 검사가 없으면 빈칸에 걸려
+         * 엉뚱한 인덱스를 돌려준다. */
+        if (legacyOption == LEGACY_OPT_NONE)
+        {
+            return LEGACY_OPT_NONE;
+        }
+
+        for (int index = 0; index < LEGACY_READ_OPTION.length; index++)
+        {
+            if (LEGACY_READ_OPTION[index] == legacyOption || LEGACY_WRITE_OPTION[index] == legacyOption)
+            {
+                return index;
+            }
+        }
+
+        return LEGACY_OPT_NONE;
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// 링크 파라미터 값의 범위와 기본값
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // 레벨 1스텝당 전압(mV). Tx 파워 계열 공통이다.
+    static public final int TX_PWR_LEVEL_STEP_MV = 25;
+
+    // 상시 · 매핑 하한 (72 = 1.800V ~ 213 = 5.325V)
+    static public final int MIN_TX_PWR_SELECT_MIN = 72;
+    static public final int MIN_TX_PWR_SELECT_MAX = 213;
+
+    static public final int MIN_TX_PWR_DEFAULT     = 160; // 4.000V
+    static public final int MAPPING_TX_PWR_DEFAULT = 200; // 5.000V
+
+    /* 강제 고정만 상한이 한 스텝 높은 214다. 하한 계열의 213 제한은 하한과 상한이 같으면
+     * 증감 조건이 모두 거짓이 되어 제어가 멈추는 것을 막으려는 값인데,
+     * 강제 고정은 제어를 멈추는 것이 목적이라 그 제약을 받지 않는다. */
+    static public final int FORCE_TX_PWR_SELECT_MIN = 72;
+    static public final int FORCE_TX_PWR_SELECT_MAX = 214;
+    static public final int FORCE_TX_PWR_RELEASE    = 0; // 유효 범위 밖이라 해제 센티널로 쓴다
+
+    // 백텔 주기 (100msec 단위). 직접 선택은 100 ~ 1000msec 범위로 둔다.
     static public final int BACKTEL_PERIOD_UNIT_MS       = 100;
+    static public final int BACKTEL_PERIOD_DEFAULT_100MS = 3; // 300msec
+    static public final int BACKTEL_PERIOD_SELECT_MIN    = 1;
+    static public final int BACKTEL_PERIOD_SELECT_MAX    = 10;
 
-    // 주기 값 0 을 실어 보내면 설정하지 않고 현재 값을 읽어온다.
-    static public final int BACKTEL_PERIOD_READ = 0;
+    // Tx 파워 상승 스텝 (1 = 25mV ~ 40 = 1.0V)
+    static public final int TX_STEP_UP_SELECT_MIN = 1;
+    static public final int TX_STEP_UP_SELECT_MAX = 40;
+    static public final int TX_STEP_UP_DEFAULT    = 1;
 
-    /* 직접 선택(BT Select) 시 고를 수 있는 범위 : 100 ~ 1000msec.
-     * 프로토콜 단위가 100msec 이므로 100msec 간격으로 고른다.
-     * 펌웨어 자체 허용 범위는 1~255 (100msec ~ 25.5초) 로 더 넓다. */
-    static public final int BACKTEL_PERIOD_SELECT_MIN_100MS = 1;
-    static public final int BACKTEL_PERIOD_SELECT_MAX_100MS = 10;
+    /* 백텔 읽기 «직전» 전원 안정용 NopStandby 개수.
+     *
+     * 펌웨어의 검사 범위는 0 ~ 19 다 (isd_interface.c 의 tdc_is_valid_power_stable_nop_count).
+     * 하한 0 은 의도된 값이다. 이 Nop 을 넣기 이전 배치를 재현해 효과를 비교하려는 것이다.
+     *
+     * 주의 : 되읽은 값과 실제 동작 개수가 다를 수 있다. 채널당 프레임 수가 크면 24슬롯 FIFO 에
+     * 다 들어가지 않아 펌웨어가 매 백텔 사이클마다 다시 잘라내기 때문이다.
+     * 백텔 읽기 «뒤» 의 NopBacktel 3개는 FPGA 요구라 고정이며 설정 대상이 아니다. */
+    static public final int NOP_STANDBY_SELECT_MIN = 0;
+    static public final int NOP_STANDBY_SELECT_MAX = 19;
+    static public final int NOP_STANDBY_DEFAULT    = 3;
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// 패킷 수별로 «쓸 수 있는» 전원 안정 Nop
+    ///
+    /// 아무 값이나 넣으면 자리 맞추기가 낭비된다. 자리 맞추기가 0 이 되는 값만 골라야
+    /// FIFO 24 슬롯을 버리지 않는다. 그 값들이 패킷 수마다 정해져 있다.
+    ///
+    /// 표의 출처는 사운드처리기 docs/참고/백텔 링크 체크/예상 백텔 패턴 문서다.
+    /// 실측으로 채운 값이라 앱이 계산해서 만들지 않는다.
+    ///
+    /// 배열의 자리가 패킷 수다. 0번은 쓰지 않는다.
+    /// 패킷 수 10 이상이면 백텔이 나가지 않으므로 표에 없다.
+    ///
+    /// 주의 : 표를 찾을 때는 펄스폭(인덱스 12)이 아니라 «패킷 수»(인덱스 13)를 써야 한다.
+    ///        nOFm 자극 방식은 패킷 수를 3 으로 고정해 펄스폭과 어긋난다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    static public final int NOP_FRAME_NUM_MAX = 9; // 이보다 크면 백텔이 나가지 않는다
+
+    // 패킷 수별 기본값. 맵 계산 시점에 사운드처리기가 자동으로 넣는 값이다.
+    static private final int[] NOP_DEFAULT_BY_FRAME = {3, 3, 3, 3, 2, 4, 6, 1, 2, 3};
+
+    /* 자극 공백은 «슬롯 수» 로 정해진다. 한 블록이 24 슬롯이고 그것이 1000usec 다.
+     *
+     * 패킷 수 1 은 0 ~ 19 를 다 쓸 수 있다. 기본 배치가 FW · BT · b 세 개로 5 슬롯이고
+     * [S] 한 개마다 한 슬롯씩 늘어난다.
+     *
+     * 문서에는 "한 개에 42usec 씩" 이라고 적혀 있는데 그것은 반올림한 값이다.
+     * 그대로 곱하면 S=19 에서 1006usec 가 나와 문서의 끝값 1000 과 어긋난다.
+     * 슬롯으로 계산하면 양 끝(208 · 1000)이 정확히 맞는다. */
+    static private final int NOP_BLOCK_SLOT_COUNT = 24;
+    static private final int NOP_BLOCK_US         = 1000;
+    static private final int NOP_FRAME1_BASE_SLOT = 5; // FW BT b×3
+
+    // 패킷 수 2 이상에서 쓸 수 있는 값과, 그때 자극이 끊기는 시간(usec)
+    static private final int[][] NOP_USABLE_BY_FRAME = { //
+            {}, // 0 : 쓰지 않음
+            {}, // 1 : 아래 함수가 0 ~ 19 로 만든다
+            {1, 3, 5, 7, 9, 11, 13, 15, 17}, //
+            {0, 3, 6, 9, 12, 15}, //
+            {2, 6, 10, 14}, //
+            {4, 9}, //
+            {0, 6, 12}, //
+            {1, 8}, //
+            {2, 10}, //
+            {3} //
+    };
+
+    static private final int[][] NOP_GAP_BY_FRAME = { //
+            {}, //
+            {}, //
+            {333, 417, 500, 583, 667, 750, 833, 917, 1000}, //
+            {375, 500, 625, 750, 875, 1000}, //
+            {500, 667, 833, 1000}, //
+            {625, 1000}, //
+            {500, 750, 1000}, //
+            {583, 1000}, //
+            {667, 1000}, //
+            {1000} //
+    };
+
+    // 자극이 이만큼 끊기면 경고한다. 표에서 ⚠ 로 표시된 지점이다.
+    static public final int NOP_GAP_WARN_US = 1000;
+
+    // 패킷 수를 알 수 있는지. 0 이나 범위 밖이면 표를 찾을 수 없다.
+    static public boolean isNopFrameNumUsable(int frameNum)
+    {
+        return (frameNum >= 1 && frameNum <= NOP_FRAME_NUM_MAX);
+    }
+
+    static public int getNopDefaultByFrame(int frameNum)
+    {
+        return isNopFrameNumUsable(frameNum) ? NOP_DEFAULT_BY_FRAME[frameNum] : NOP_STANDBY_DEFAULT;
+    }
+
+    // 이 패킷 수에서 쓸 수 있는 [S] 값들. 패킷 수를 모르면 빈 배열이다.
+    static public int[] getNopUsableValues(int frameNum)
+    {
+        if (!isNopFrameNumUsable(frameNum))
+        {
+            return new int[0];
+        }
+
+        if (frameNum == 1)
+        {
+            int[] values = new int[NOP_STANDBY_SELECT_MAX - NOP_STANDBY_SELECT_MIN + 1];
+
+            for (int i = 0; i < values.length; i++)
+            {
+                values[i] = NOP_STANDBY_SELECT_MIN + i;
+            }
+
+            return values;
+        }
+
+        return NOP_USABLE_BY_FRAME[frameNum];
+    }
+
+    // 위 배열의 n번째 값을 골랐을 때 자극이 끊기는 시간(usec)
+    static public int getNopGapUs(int frameNum, int valueIndex)
+    {
+        if (!isNopFrameNumUsable(frameNum) || valueIndex < 0)
+        {
+            return 0;
+        }
+
+        if (frameNum == 1)
+        {
+            // 패킷 수 1 은 값이 0 부터 1씩 늘어나므로 valueIndex 가 곧 [S] 다.
+            return ((NOP_FRAME1_BASE_SLOT + valueIndex) * NOP_BLOCK_US) / NOP_BLOCK_SLOT_COUNT;
+        }
+
+        int[] gaps = NOP_GAP_BY_FRAME[frameNum];
+
+        return (valueIndex < gaps.length) ? gaps[valueIndex] : 0;
+    }
+
+    // 전원 안정 Nop 을 리모콘이 정했는지
+    static public final int NOP_ENABLE_DEFAULT = 0; // 패킷 수별 기본값이 들어 있다
+    static public final int NOP_ENABLE_MANUAL  = 1; // 리모콘이 준 값이 들어 있다
+
+    // 자극 전략 (인덱스 15)
+    static public final int STIM_STRATEGY_CIS    = 1;
+    static public final int STIM_STRATEGY_NOFM   = 2;
+    static public final int STIM_STRATEGY_MEDIUM = 3;
+
+    /* nOFm 은 밴드 16 이상이면 패킷 수를 3 으로 고정한다. 그때의 펄스폭은 34 ~ 54usec 다.
+     * 그 밖이면 «3프레임 고정» 전제를 벗어난 것이라 계측된 바 없는 상태다. */
+    static public final int NOFM_PULSE_WIDTH_MIN = 34;
+    static public final int NOFM_PULSE_WIDTH_MAX = 54;
+
+    // 불리언 파라미터 (one coin, infinite coin, 상승 가속)
+    static public final int LINK_FLAG_DISABLE = 0;
+    static public final int LINK_FLAG_ENABLE  = 1;
+
+    // 링크 제어 모드
+    static public final int LINK_CTRL_MODE_POWER_STATE = 0; // 전원 상태 기준
+    static public final int LINK_CTRL_MODE_BACKTEL     = 1; // 백텔 수신 기준
+
+    /* 화면에서 고르는 코인 모드. 실제로는 one coin 과 infinite coin 두 값의 조합이다.
+     * infinite 가 one coin 보다 우선하므로 세 모드로 정리된다. */
+    static public final int COIN_MODE_DISABLE  = 0; // one coin 0, infinite 0
+    static public final int COIN_MODE_ENABLE   = 1; // one coin 1, infinite 0
+    static public final int COIN_MODE_INFINITE = 2; // one coin 1, infinite 1
 
     // 연결 직후 읽어오기 전의 미확인 상태
     static public final int LINK_VALUE_UNKNOWN = -1;
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// 특수 시스템 동작 설정 (HEADER_SPECIFIC_CMD) - 링크 Tx 파워 하한(PMIC)
-    ///
-    /// 사운드처리기 remoteControl.c 의 case 5(읽기) / case 6(쓰기) 규격
-    /// 쓰기 : [헤더, 6, 레벨] => 3바이트. 레벨 1스텝 = 25mV
-    /// 펌웨어 허용 범위는 72(1.800V) ~ 213(5.325V) 이다. (isd_interface.c)
+    /// 자극 제어 — 맵 강제 초기화 (옵션 0x21, 인덱스 1, 쓰기 전용)
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static public final int TX_PKT_OPT_SPECIFIC_CMD_MIN_TX_PWR_READ  = 5;
-    static public final int TX_PKT_OPT_SPECIFIC_CMD_MIN_TX_PWR_WRITE = 6;
-    static public final int TX_PKT_LEN_SPECIFIC_CMD_MIN_TX_PWR_READ  = 2;
-    static public final int TX_PKT_LEN_SPECIFIC_CMD_MIN_TX_PWR_WRITE = 3;
-    static public final int PACKET_SIZE_SPECIFIC_CMD_MIN_TX_PWR      = 3;
-
-    // 레벨 1스텝당 전압(mV). 표시용 환산에 쓴다.
-    static public final int MIN_TX_PWR_LEVEL_STEP_MV = 25;
-
-    /* 기본 링크 Tx 파워 하한 = 4.000V (25mV x 160)
-     *
-     * 참고: 펌웨어 driver_REN_ISL9122.h 의 부팅 기본값 MinTxPowerValue 는 164(4.100V)이며,
-     *       그 주석("0.025*160=4V")은 값과 맞지 않는 오기다. 여기서는 4V 를 그대로 따른다. */
-    static public final int MIN_TX_PWR_LEVEL_DEFAULT = 160;
-
-    /* 직접 선택(PMIC Select) 시 고를 수 있는 레벨 범위.
-     * 사운드처리기 isd_interface.c 의 tdc_is_valid_min_tx_power_level() 허용 범위와 같다.
-     *   하한 72  = 25mV x 72  = 1.800V (ISL9122 VoltageSet 레지스터 하한)
-     *   상한 213 = 25mV x 213 = 5.325V (MaxVoltageControlValue(214) - 1)
-     * 이 범위를 벗어나면 펌웨어가 en__OutOfDataRange 에러로 거부한다. */
-    static public final int MIN_TX_PWR_LEVEL_SELECT_MIN = 72;
-    static public final int MIN_TX_PWR_LEVEL_SELECT_MAX = 213;
-
-    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// 특수 시스템 동작 설정 (HEADER_SPECIFIC_CMD) - 매핑(피팅) 전용 Tx 파워 하한
-    ///
-    /// 사운드처리기 remoteControl.c 의 case 9(읽기) / case 10(쓰기) 규격
-    /// 쓰기 : [헤더, 10, 레벨] => 3바이트. 단위와 허용 범위는 상시 동작 하한과 같다.
-    ///
-    /// 매핑 중에는 임피던스나 ECAP 측정이 안정된 전력에서 이뤄져야 하므로,
-    /// 상시 동작 하한과 무관하게 이 값 아래로는 내려가지 않는다.
-    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static public final int TX_PKT_OPT_SPECIFIC_CMD_MAPPING_TX_PWR_READ  = 9;
-    static public final int TX_PKT_OPT_SPECIFIC_CMD_MAPPING_TX_PWR_WRITE = 10;
-    static public final int TX_PKT_LEN_SPECIFIC_CMD_MAPPING_TX_PWR_READ  = 2;
-    static public final int TX_PKT_LEN_SPECIFIC_CMD_MAPPING_TX_PWR_WRITE = 3;
-    static public final int PACKET_SIZE_SPECIFIC_CMD_MAPPING_TX_PWR      = 3;
-
-    /* 기본 매핑 Tx 파워 하한 = 5.000V (25mV x 200)
-     * 사운드처리기 isd_interface.c 의 TDC_MAPPING_MIN_TX_POWER_LEVEL_DEFAULT 와 같다. */
-    static public final int MAPPING_TX_PWR_LEVEL_DEFAULT = 200;
-
-    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// 특수 시스템 동작 설정 (HEADER_SPECIFIC_CMD) - 링크 Tx 파워 상승 스텝
-    ///
-    /// 사운드처리기 remoteControl.c 의 case 11(읽기) / case 12(쓰기) 규격
-    /// 쓰기 : [헤더, 12, 스텝] => 3바이트. 1 스텝 = 25mV.
-    ///
-    /// 내부기 전원이 모자랄 때(Low 판정) 한 번에 올리는 폭이다.
-    /// 하강은 1 스텝 고정이라 값을 키우면 회복은 빨라지지만 경계에서의 진동 폭이 커진다.
-    /// 하한 계열(72 ~ 213)과 유효 범위가 달라 사운드처리기도 검사 함수를 따로 둔다.
-    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static public final int TX_PKT_OPT_SPECIFIC_CMD_TX_STEP_UP_READ  = 11;
-    static public final int TX_PKT_OPT_SPECIFIC_CMD_TX_STEP_UP_WRITE = 12;
-    static public final int TX_PKT_LEN_SPECIFIC_CMD_TX_STEP_UP_READ  = 2;
-    static public final int TX_PKT_LEN_SPECIFIC_CMD_TX_STEP_UP_WRITE = 3;
-    static public final int PACKET_SIZE_SPECIFIC_CMD_TX_STEP_UP      = 3;
-
-    /* 허용 범위 1 ~ 40 (isd_interface.c 의 TDC_TX_POWER_STEP_UP_LOWER / UPPER)
-     *   하한 1  : 0 이면 Low 판정에서 파워가 올라가지 않아 제어가 멈춘다.
-     *   상한 40 : 1.0V. 그 이상은 상한 클램프에 걸려 의미가 없다. */
-    static public final int TX_STEP_UP_SELECT_MIN = 1;
-    static public final int TX_STEP_UP_SELECT_MAX = 40;
-
-    // 부팅 기본값 (isd_interface.c 의 TDC_TX_POWER_STEP_UP_DEFAULT)
-    static public final int TX_STEP_UP_DEFAULT = 1;
-
-    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// 특수 시스템 동작 설정 (HEADER_SPECIFIC_CMD) - 맵 데이터 강제 초기화
-    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // 송신 : Header=1, Option=1, Type=1 => 3 bytes
-    static public final int TX_PKT_OPT_SPECIFIC_CMD_MAP_INIT = 8;
-    static public final int TX_PKT_LEN_SPECIFIC_CMD_MAP_INIT = 3;
-
-    // 응답 : Header=1, Option=1, Type=1, MaxNumUser=1 => 4 bytes
-    static public final int PACKET_SIZE_SPECIFIC_CMD_MAP_INIT = 4;
-
-    // 맵 초기화 종류 (사운드처리기 remoteControl.c 의 case 8 규격)
     static public final int MAP_INIT_TYPE_MRI_16CH = 16;
     static public final int MAP_INIT_TYPE_MRI_32CH = 32;
     static public final int MAP_INIT_TYPE_DEFAULT  = 0xFF;

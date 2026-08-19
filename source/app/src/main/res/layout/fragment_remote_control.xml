@@ -29,22 +29,48 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <!--
-            상태 표시는 4열 2행 격자로 고정한다.
+            상태 표시는 4열 4행 격자로 고정한다.
 
             각 칸을 layout_width="0dp" + layout_weight="1" 로 두면 칸의 폭이 화면 폭으로만
             정해지고 글자 길이와 무관해진다. On <-> Off 처럼 글자 수가 달라져도 그 칸 안에서만
             바뀌므로 뒤따르는 항목들의 위치가 밀리지 않는다.
-            두 행의 열 수가 같아 세로로도 열이 맞는다.
+
+            항목이 19개라 4열 5행이고 마지막 한 칸이 빈다. 자리는 색으로 묶은 순서를 따른다.
+            읽는 순서대로 같은 색이 이어지므로 어느 분류인지 위치와 색이 함께 알려 준다.
+
+              진한 주황빛 노랑 : 현재 Tx 파워 (관찰값. 유일하게 «지금 그런» 값이라 혼자 뗀다)
+              노랑             : PMIC 전압 레벨 설정값 (상시 하한 · 매핑 하한 · 강제 고정)
+              하늘             : 링크 타이밍과 재시도 (백텔 주기 · 상승 스텝 · 코인)
+              보라             : 링크 제어 방식 (상승 가속)
+              형광 연두        : 지금 시험 중인 두 항목 (전원 안정 Nop · 링크 제어 모드)
+                                 나란히 두고 격자에서 이 색을 여기만 써서 한눈에 찾게 한다
+              분홍             : 맵과 자극 (자극 전략 · 펄스폭 · 패킷 수)
+              초록             : 기기 상태 (게이팅 · LED · 알람 · 프로그램 · 볼륨 · 최대출력)
             -->
 
-            <!-- 1행 : PMIC / BT / Gating / LED -->
+            <!-- 1행 : Cur / PMIC / Map / Fix — Tx 파워 전압 (Cur 만 진한 색) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:baselineAligned="true"
                 android:orientation="horizontal">
 
-                <!-- 현재 링크 Tx 파워 하한(PMIC) : 연결 직후 읽어온다 -->
+                <!-- 현재 Tx 파워 (관찰값). 설정값이 아니라 지금 PMIC 에 쓰인 값이라 혼자 다른 색이다 -->
+                <TextView
+                    android:id="@+id/ota_cur_pmic_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Cur -"
+                    android:textColor="#FF9100"
+                    android:textSize="11dp"
+                    android:textStyle="bold"
+                    tools:text="Cur 4.2V" />
+
+                <!-- 상시 동작 Tx 파워 하한 -->
                 <TextView
                     android:id="@+id/ota_pmic_textview"
                     android:layout_width="0dp"
@@ -54,12 +80,51 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:maxLines="1"
                     android:text="PMIC -"
-                    android:textColor="#BBDEFB"
-                    android:textSize="12dp"
+                    android:textColor="#FFD54F"
+                    android:textSize="11dp"
                     android:textStyle="bold"
                     tools:text="PMIC 4.0V" />
 
-                <!-- 현재 링크 백텔 주기 : 연결 직후 읽어온다 -->
+                <!-- 매핑 전용 Tx 파워 하한 -->
+                <TextView
+                    android:id="@+id/ota_mapping_pmic_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Map -"
+                    android:textColor="#FFD54F"
+                    android:textSize="11dp"
+                    android:textStyle="bold"
+                    tools:text="Map 5.0V" />
+
+                <!-- Tx 파워 강제 고정 (0 이면 해제) -->
+                <TextView
+                    android:id="@+id/ota_force_pmic_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Fix -"
+                    android:textColor="#FFD54F"
+                    android:textSize="11dp"
+                    android:textStyle="bold"
+                    tools:text="Fix Off" />
+            </LinearLayout>
+
+            <!-- 2행 : BT / Step / Coin / Accel — 링크 타이밍과 재시도 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:baselineAligned="true"
+                android:orientation="horizontal">
+
+                <!-- 링크 백텔 주기 -->
                 <TextView
                     android:id="@+id/ota_backtel_textview"
                     android:layout_width="0dp"
@@ -69,12 +134,151 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:maxLines="1"
                     android:text="BT -"
-                    android:textColor="#BBDEFB"
-                    android:textSize="12dp"
+                    android:textColor="#4DD0E1"
+                    android:textSize="11dp"
                     android:textStyle="bold"
                     tools:text="BT 300ms" />
 
-                <!-- 현재 게이팅(묵음) 상태 : 연결 직후 읽어온다 -->
+                <!-- Tx 파워 상승 스텝 -->
+                <TextView
+                    android:id="@+id/ota_step_up_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Step -"
+                    android:textColor="#4DD0E1"
+                    android:textSize="11dp"
+                    android:textStyle="bold"
+                    tools:text="Step 4" />
+
+                <!-- 백텔 재시도 (one coin · infinite coin 을 합쳐 표시) -->
+                <TextView
+                    android:id="@+id/ota_one_coin_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Coin -"
+                    android:textColor="#4DD0E1"
+                    android:textSize="11dp"
+                    android:textStyle="bold"
+                    tools:text="Coin On" />
+
+                <!-- Tx 파워 상승 가속 -->
+                <TextView
+                    android:id="@+id/ota_accel_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Accel -"
+                    android:textColor="#CE93D8"
+                    android:textSize="11dp"
+                    android:textStyle="bold"
+                    tools:text="Accel On" />
+            </LinearLayout>
+
+            <!-- 3행 : Nop / Mode — 지금 시험 중인 두 항목이라 나란히 두고 형광색으로 뗀다.
+                 이어서 맵과 자극 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:baselineAligned="true"
+                android:orientation="horizontal">
+
+                <!-- 전원 안정 Nop 개수. 별표는 리모콘이 정한 값이라는 뜻이다 (없으면 패킷 수별 기본값) -->
+                <TextView
+                    android:id="@+id/ota_nop_standby_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Nop -"
+                    android:textColor="#C6FF00"
+                    android:textSize="11dp"
+                    android:textStyle="bold"
+                    tools:text="Nop 3*" />
+
+                <!-- 링크 제어 모드. ISD = 내부기 전원 상태를 본다, BT = 백텔이 왔는지만 본다 -->
+                <TextView
+                    android:id="@+id/ota_ctrl_mode_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Mode -"
+                    android:textColor="#C6FF00"
+                    android:textSize="11dp"
+                    android:textStyle="bold"
+                    tools:text="Mode BT" />
+
+                <!-- 자극 전략. 펄스폭과 패킷 수가 어긋나는 이유를 이 값이 설명한다 -->
+                <TextView
+                    android:id="@+id/ota_strategy_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Strat -"
+                    android:textColor="#F06292"
+                    android:textSize="11dp"
+                    android:textStyle="bold"
+                    tools:text="nOFm" />
+
+                <!-- 현재 맵의 자극 펄스폭 -->
+                <TextView
+                    android:id="@+id/ota_pulse_width_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="PW -"
+                    android:textColor="#F06292"
+                    android:textSize="11dp"
+                    android:textStyle="bold"
+                    tools:text="PW 40us" />
+            </LinearLayout>
+
+            <!-- 4행 : Frm — 맵과 자극, 이어서 기기 상태 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:baselineAligned="true"
+                android:orientation="horizontal">
+
+                <!-- 패킷 수 = 채널당 프레임 수. 앱은 이 값으로 쓸 수 있는 Nop 표를 찾는다 -->
+                <TextView
+                    android:id="@+id/ota_frame_num_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Frm -"
+                    android:textColor="#F06292"
+                    android:textSize="11dp"
+                    android:textStyle="bold"
+                    tools:text="Frm 3" />
+
+                <!-- 게이팅(묵음) 상태 -->
                 <TextView
                     android:id="@+id/ota_gating_textview"
                     android:layout_width="0dp"
@@ -84,12 +288,12 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:maxLines="1"
                     android:text="Gating -"
-                    android:textColor="#BBDEFB"
-                    android:textSize="12dp"
+                    android:textColor="#81C784"
+                    android:textSize="11dp"
                     android:textStyle="bold"
                     tools:text="Gating On" />
 
-                <!-- 현재 LED 상태 -->
+                <!-- LED 상태 -->
                 <TextView
                     android:id="@+id/ota_led_textview"
                     android:layout_width="0dp"
@@ -99,21 +303,12 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:maxLines="1"
                     android:text="LED -"
-                    android:textColor="#BBDEFB"
-                    android:textSize="12dp"
+                    android:textColor="#81C784"
+                    android:textSize="11dp"
                     android:textStyle="bold"
                     tools:text="LED On" />
-            </LinearLayout>
 
-            <!-- 2행 : Alarm / Vol / Out / Prog -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:baselineAligned="true"
-                android:orientation="horizontal">
-
-                <!-- 현재 자극알림 상태 -->
+                <!-- 자극알림 상태 -->
                 <TextView
                     android:id="@+id/ota_alarm_textview"
                     android:layout_width="0dp"
@@ -123,10 +318,34 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:maxLines="1"
                     android:text="Alarm -"
-                    android:textColor="#BBDEFB"
-                    android:textSize="12dp"
+                    android:textColor="#81C784"
+                    android:textSize="11dp"
                     android:textStyle="bold"
                     tools:text="Alarm On" />
+            </LinearLayout>
+
+            <!-- 5행 : Prog / Vol / Out — 기기 상태 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:baselineAligned="true"
+                android:orientation="horizontal">
+
+                <!-- 현재 프로그램 번호 -->
+                <TextView
+                    android:id="@+id/ota_program_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Prog -"
+                    android:textColor="#81C784"
+                    android:textSize="11dp"
+                    android:textStyle="bold"
+                    tools:text="Prog 1" />
 
                 <!-- 현재 볼륨 -->
                 <TextView
@@ -138,8 +357,8 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:maxLines="1"
                     android:text="Vol -"
-                    android:textColor="#BBDEFB"
-                    android:textSize="12dp"
+                    android:textColor="#81C784"
+                    android:textSize="11dp"
                     android:textStyle="bold"
                     tools:text="Vol 5" />
 
@@ -153,65 +372,100 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:maxLines="1"
                     android:text="Out -"
-                    android:textColor="#BBDEFB"
-                    android:textSize="12dp"
+                    android:textColor="#81C784"
+                    android:textSize="11dp"
                     android:textStyle="bold"
                     tools:text="Out 2" />
 
-                <!-- 현재 프로그램 번호 (Remote 꼭지의 Program-, Program+ 버튼으로 변경) -->
-                <TextView
-                    android:id="@+id/ota_program_textview"
+                <!-- 자리 맞춤. 항목이 19개라 마지막 칸이 빈다 -->
+                <Space
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Prog -"
-                    android:textColor="#00E676"
-                    android:textSize="12dp"
-                    android:textStyle="bold"
-                    tools:text="Prog 1" />
+                    android:layout_weight="1" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- 내부기 시리얼 · 사용자 이름 묶음 -->
+        <!-- 사용자 이름 · 내부기 제조번호 묶음 (왼쪽 절반 · 오른쪽 절반) -->
         <LinearLayout
             android:id="@+id/ota_id_box"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:baselineAligned="false"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
             app:layout_constraintBottom_toTopOf="@id/ota_slot_box"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ota_status_info_box">
 
-            <!-- 내부기 시리얼 -->
-            <TextView
-                android:id="@+id/remote_control_connection_isd_id_textview"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/roboto_mono_regular_variable"
-                android:letterSpacing="0.14"
-                android:text=""
-                android:textAlignment="viewStart"
-                android:textColor="#66BB6A"
-                android:textSize="14dp"
-                android:textStyle="italic|bold"
-                tools:text="#16210001" />
-
-            <!-- 사용자 이름 -->
+            <!-- 사용자 이름 · 착용부위 -->
             <TextView
                 android:id="@+id/remote_control_connection_user_name_textview"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text=""
                 android:textAlignment="textStart"
                 android:textColor="@color/white_100"
                 android:textSize="18dp"
                 android:textStyle="bold"
-                tools:text="사용자 이름" />
+                tools:text="사용자 이름 (오른쪽)" />
+
+            <!--
+            내부기 제조번호와 펌웨어 세대 배지.
+
+            배지는 제조번호의 «우 상단» 에 붙는다. 가로 묶음 안에서 layout_gravity 를
+            top 으로 두면 행의 위쪽에 걸리는데, 행의 높이는 왼쪽 사용자 이름(18dp)이
+            정하므로 배지(10dp)를 넣어도 행이 높아지지 않는다.
+            -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <!-- 내부기 제조번호 -->
+                <TextView
+                    android:id="@+id/remote_control_connection_isd_id_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/roboto_mono_regular_variable"
+                    android:letterSpacing="0.14"
+                    android:maxLines="1"
+                    android:text=""
+                    android:textAlignment="textStart"
+                    android:textColor="#66BB6A"
+                    android:textSize="14dp"
+                    android:textStyle="italic|bold"
+                    tools:text="#16210001" />
+
+                <!-- 사운드처리기 펌웨어 세대. 연결 직후 판별한 결과다. -->
+                <TextView
+                    android:id="@+id/ota_fw_release_textview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top"
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/fw_release_badge_background"
+                    android:maxLines="1"
+                    android:paddingStart="5dp"
+                    android:paddingTop="1dp"
+                    android:paddingEnd="5dp"
+                    android:paddingBottom="1dp"
+                    android:text=""
+                    android:textColor="#1A1A1A"
+                    android:textSize="10dp"
+                    android:textStyle="bold"
+                    tools:text="REL4+" />
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -220,19 +474,39 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@id/ota_file_box"
+            app:layout_constraintBottom_toTopOf="@id/ota_status_box"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ota_id_box">
-            <!-- List of slots -->
-            <TextView
+            <!--
+            헤더도 아래 내용과 같은 2:2 로 나눈다.
+            왼쪽 절반이 슬롯 선택, 오른쪽 절반이 슬롯 정보다.
+            -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/nanum_gothic_regular"
-                android:text="List of slots"
-                android:textColor="#FFA000"
-                android:textSize="12dp"
-                android:textStyle="bold" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="List of slots"
+                    android:textColor="#FFA000"
+                    android:textSize="12dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="Slot information"
+                    android:textColor="#FFA000"
+                    android:textSize="12dp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <!-- Radio group for list of slots -->
             <RadioGroup
@@ -268,96 +542,61 @@
                     android:textSize="12dp" />
 
                 <!--
-                자리 차지용 빈 칸.
+                예전에는 자리 차지용 빈 칸이었다. 슬롯 정보를 여기로 올려 세로를 아꼈다.
 
-                슬롯 행의 가중치 합(1+1+2)을 아래 파일 행(1+1+1+1)과 같은 4로 맞춰,
-                슬롯 1 · 2 가 아래 MFST · APP0 과 같은 너비·위치에 오도록 한다.
-                이 칸을 빼면 슬롯 버튼이 화면 절반씩 차지해 두 행이 어긋난다.
+                슬롯 행의 가중치 합(1+1+2)과 아래 파일 행(1+1+1+1)이 모두 4라서,
+                슬롯 1 · 2 는 MFST · APP0 과, 이 칸은 APP1 · APP2 와 열이 맞는다.
                 -->
-                <Space
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2" />
-            </RadioGroup>
-        </LinearLayout>
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="2"
+                    android:baselineAligned="true"
+                    android:orientation="horizontal">
 
-        <LinearLayout
-            android:id="@+id/ota_file_box"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@id/ota_status_box"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ota_slot_box">
-            <!-- List of files -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/nanum_gothic_regular"
-                android:text="List of files"
-                android:textColor="#FFA000"
-                android:textSize="12dp"
-                android:textStyle="bold" />
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Curr"
+                        android:textColor="#BBDEFB"
+                        android:textSize="12dp"
+                        android:textStyle="bold" />
 
-            <!-- Radio group for list of files -->
-            <RadioGroup
-                android:id="@+id/file_radio_button_group"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/curr_slot_text_view"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="FF"
+                        android:textColor="#00E676"
+                        android:textSize="12dp"
+                        android:textStyle="bold" />
 
-                <com.google.android.material.radiobutton.MaterialRadioButton
-                    android:id="@+id/file_mfst_radio_button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="MFST"
-                    android:minHeight="0dp"
-                    android:paddingTop="0dp"
-                    android:paddingBottom="0dp"
-                    android:textColor="@color/white_100"
-                    android:textSize="12dp" />
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Last"
+                        android:textColor="#BBDEFB"
+                        android:textSize="12dp"
+                        android:textStyle="bold" />
 
-                <com.google.android.material.radiobutton.MaterialRadioButton
-                    android:id="@+id/file_app0_radio_button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="APP0"
-                    android:minHeight="0dp"
-                    android:paddingTop="0dp"
-                    android:paddingBottom="0dp"
-                    android:textColor="@color/white_100"
-                    android:textSize="12dp" />
-
-                <com.google.android.material.radiobutton.MaterialRadioButton
-                    android:id="@+id/file_app1_radio_button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="APP1"
-                    android:minHeight="0dp"
-                    android:paddingTop="0dp"
-                    android:paddingBottom="0dp"
-                    android:textColor="@color/white_100"
-                    android:textSize="12dp" />
-
-                <com.google.android.material.radiobutton.MaterialRadioButton
-                    android:id="@+id/file_app2_radio_button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="APP2"
-                    android:minHeight="0dp"
-                    android:paddingTop="0dp"
-                    android:paddingBottom="0dp"
-                    android:textColor="@color/white_100"
-                    android:textSize="12dp" />
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/last_slot_text_view"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="FF"
+                        android:textColor="#00E676"
+                        android:textSize="12dp"
+                        android:textStyle="bold" />
+                </LinearLayout>
             </RadioGroup>
         </LinearLayout>
 
@@ -366,10 +605,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@id/ota_slotinfo_box"
+            app:layout_constraintBottom_toTopOf="@id/ota_button_box"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ota_file_box">
+            app:layout_constraintTop_toBottomOf="@id/ota_slot_box">
             <!-- Status of files -->
             <TextView
                 android:layout_width="match_parent"
@@ -380,7 +619,7 @@
                 android:textSize="12dp"
                 android:textStyle="bold" />
 
-            <!-- Table top -->
+            <!-- Table top : 데이터 행과 같은 5열 1줄 구성 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -390,102 +629,62 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:layout_weight="1"
+                    android:ellipsize="end"
                     android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
                     android:text="Name"
                     android:textColor="#BBDEFB"
                     android:textSize="12dp"
                     android:textStyle="bold" />
 
-                <LinearLayout
+                <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:orientation="vertical">
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="R size"
+                    android:textColor="#BBDEFB"
+                    android:textSize="12dp"
+                    android:textStyle="bold" />
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/nanum_gothic_regular"
-                        android:text="Collect"
-                        android:textColor="#BBDEFB"
-                        android:textSize="12dp"
-                        android:textStyle="bold" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:fontFamily="@font/nanum_gothic_regular"
-                            android:text="Size"
-                            android:textColor="#BBDEFB"
-                            android:textSize="12dp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:fontFamily="@font/nanum_gothic_regular"
-                            android:text="Percent"
-                            android:textColor="#BBDEFB"
-                            android:textSize="12dp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </LinearLayout>
-
-
-                <LinearLayout
+                <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:orientation="vertical">
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Percent"
+                    android:textColor="#BBDEFB"
+                    android:textSize="12dp"
+                    android:textStyle="bold" />
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/nanum_gothic_regular"
-                        android:text="Write"
-                        android:textColor="#BBDEFB"
-                        android:textSize="12dp"
-                        android:textStyle="bold" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="W size"
+                    android:textColor="#BBDEFB"
+                    android:textSize="12dp"
+                    android:textStyle="bold" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:fontFamily="@font/nanum_gothic_regular"
-                            android:text="Size"
-                            android:textColor="#BBDEFB"
-                            android:textSize="12dp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:fontFamily="@font/nanum_gothic_regular"
-                            android:text="Percent"
-                            android:textColor="#BBDEFB"
-                            android:textSize="12dp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </LinearLayout>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Percent"
+                    android:textColor="#BBDEFB"
+                    android:textSize="12dp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <!-- Table MANIFEST -->
@@ -758,90 +957,6 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/ota_slotinfo_box"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@id/ota_button_box"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ota_status_box">
-            <!-- Slot information -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/nanum_gothic_regular"
-                android:text="Slot information"
-                android:textColor="#FFA000"
-                android:textSize="12dp"
-                android:textStyle="bold" />
-
-            <!-- Values for slot information -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:text="Curr slot"
-                        android:textColor="#BBDEFB"
-                        android:textSize="12dp"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:text="Last slot"
-                        android:textColor="#BBDEFB"
-                        android:textSize="12dp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/curr_slot_text_view"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:text="FF"
-                        android:textColor="#00E676"
-                        android:textSize="14dp"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/last_slot_text_view"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:text="FF"
-                        android:textColor="#00E676"
-                        android:textSize="14dp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
             android:id="@+id/ota_button_box"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -849,7 +964,7 @@
             app:layout_constraintBottom_toTopOf="@id/ota_caution_box"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ota_slotinfo_box">
+            app:layout_constraintTop_toBottomOf="@id/ota_status_box">
             <!-- Buttons -->
             <TextView
                 android:layout_width="match_parent"
@@ -860,7 +975,7 @@
                 android:textSize="12dp"
                 android:textStyle="bold" />
 
-            <!-- Button 1행 : Info / Collect -->
+            <!-- Button 1행 : Info / Collect / Write / Select -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -899,13 +1014,6 @@
                     android:textSize="11dp"
                     app:backgroundTint="#00796B"
                     app:cornerRadius="4dp" />
-            </LinearLayout>
-
-            <!-- Button 2행 : Write / Select -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
 
                 <!-- Button : Write -->
                 <com.google.android.material.button.MaterialButton
@@ -913,6 +1021,7 @@
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
                     android:layout_height="30dp"
+                    android:layout_marginStart="4dp"
                     android:layout_weight="1"
                     android:text="Write"
                     android:insetTop="2dp"
@@ -1306,9 +1415,9 @@
             </LinearLayout>
 
             <!--
-            Etc 2행 : BT Period / Link Step
+            Etc 2행 : BT Period / Link Step / Fixed PMIC
 
-            버튼이 2개뿐이라 오른쪽 두 칸은 Space 로 비워 둔다.
+            버튼이 3개라 오른쪽 한 칸은 Space 로 비워 둔다.
             윗줄과 같은 4열 격자를 유지해야 열이 맞기 때문이다.
             -->
             <LinearLayout
@@ -1355,12 +1464,109 @@
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
 
-                <!-- 자리 맞춤용 빈 칸 2개 (윗줄과 열을 맞춘다) -->
-                <Space
+                <!-- Button : 모드와 무관하게 PMIC 레벨을 고정 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_fixed_pmic_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="30dp"
                     android:layout_marginStart="4dp"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="Fixed PMIC"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#AD1457"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+
+                <!-- Button : 백텔 1회 실패 재시도(one coin) 켜기 / 끄기 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_one_coin_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="Coin"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#00796B"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+            </LinearLayout>
+
+            <!-- Etc 3행 : Ctrl Mode / Accel / Nop Standby (마지막 칸은 자리 맞춤용) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_ctrl_mode_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="Ctrl Mode"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#37474F"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_accel_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="Accel"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#546E7A"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+
+                <!-- Button : 백텔 읽기 직전 전원 안정용 NopStandby 개수를 선택 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_nop_standby_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:insetTop="2dp"
+                    android:insetBottom="2dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="Nop Standby"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="11dp"
+                    app:backgroundTint="#455A64"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
 
                 <Space
                     android:layout_width="0dp"

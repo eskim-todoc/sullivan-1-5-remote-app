@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import todoc.cochlear.remoteapp.params.PacketInfo;
+import todoc.cochlear.remoteapp.params.Status;
 
 public class StatusViewModel extends ViewModel {
     // BLE 연결 상태 관련
@@ -279,6 +280,271 @@ public class StatusViewModel extends ViewModel {
         }
 
         return mTxStepUp.getValue();
+    }
+
+    // 링크 Tx 파워 강제 고정 값. 0 이면 해제 상태. 연결 직후 특수 명령(0x59) 옵션 13으로 읽어온다.
+    private final MutableLiveData<Integer> mForceTxPowerLevel = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataForceTxPowerLevel() {
+        return mForceTxPowerLevel;
+    }
+
+    public void setValueForceTxPowerLevel(int value) {
+        mForceTxPowerLevel.setValue(value);
+    }
+
+    public int getValueForceTxPowerLevel() {
+        if (mForceTxPowerLevel.getValue() == null) {
+            mForceTxPowerLevel.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mForceTxPowerLevel.getValue();
+    }
+
+    // 현재 Tx 파워(관찰값). 지금 PMIC 에 실제로 쓰인 값이라 설정값들과 성격이 다르다.
+    private final MutableLiveData<Integer> mCurTxPowerLevel = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataCurTxPowerLevel() {
+        return mCurTxPowerLevel;
+    }
+
+    public void setValueCurTxPowerLevel(int value) {
+        mCurTxPowerLevel.setValue(value);
+    }
+
+    public int getValueCurTxPowerLevel() {
+        if (mCurTxPowerLevel.getValue() == null) {
+            mCurTxPowerLevel.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mCurTxPowerLevel.getValue();
+    }
+
+    // 백텔 1회 실패 재시도(one coin) 사용 여부. 0 = 미사용, 1 = 사용.
+    private final MutableLiveData<Integer> mOneCoin = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataOneCoin() {
+        return mOneCoin;
+    }
+
+    public void setValueOneCoin(int value) {
+        mOneCoin.setValue(value);
+    }
+
+    public int getValueOneCoin() {
+        if (mOneCoin.getValue() == null) {
+            mOneCoin.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mOneCoin.getValue();
+    }
+
+    // 백텔 무한 재시도(infinite coin) 사용 여부. one coin 보다 우선한다. 0 = 미사용, 1 = 사용.
+    private final MutableLiveData<Integer> mInfiniteCoin = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataInfiniteCoin() {
+        return mInfiniteCoin;
+    }
+
+    public void setValueInfiniteCoin(int value) {
+        mInfiniteCoin.setValue(value);
+    }
+
+    public int getValueInfiniteCoin() {
+        if (mInfiniteCoin.getValue() == null) {
+            mInfiniteCoin.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mInfiniteCoin.getValue();
+    }
+
+    // 사운드처리기 0x59 프로토콜 버전. 연결 직후 옵션 255 로 읽어온다.
+    private final MutableLiveData<Integer> mRcProtocolMajor = new MutableLiveData<>();
+    private final MutableLiveData<Integer> mRcProtocolMinor = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataRcProtocolMajor() {
+        return mRcProtocolMajor;
+    }
+
+    public void setValueRcProtocolMajor(int value) {
+        mRcProtocolMajor.setValue(value);
+    }
+
+    public int getValueRcProtocolMajor() {
+        if (mRcProtocolMajor.getValue() == null) {
+            mRcProtocolMajor.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mRcProtocolMajor.getValue();
+    }
+
+    public void setValueRcProtocolMinor(int value) {
+        mRcProtocolMinor.setValue(value);
+    }
+
+    public int getValueRcProtocolMinor() {
+        if (mRcProtocolMinor.getValue() == null) {
+            mRcProtocolMinor.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mRcProtocolMinor.getValue();
+    }
+
+    // 링크 제어 모드. 0 = 전원 상태 기준, 1 = 백텔 수신 기준.
+    private final MutableLiveData<Integer> mLinkCtrlMode = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataLinkCtrlMode() {
+        return mLinkCtrlMode;
+    }
+
+    public void setValueLinkCtrlMode(int value) {
+        mLinkCtrlMode.setValue(value);
+    }
+
+    public int getValueLinkCtrlMode() {
+        if (mLinkCtrlMode.getValue() == null) {
+            mLinkCtrlMode.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mLinkCtrlMode.getValue();
+    }
+
+    // Tx 파워 상승 가속. 연속 미수신 시 상승 폭을 키운다. 0 = 미사용, 1 = 사용.
+    private final MutableLiveData<Integer> mTxPowerAccel = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataTxPowerAccel() {
+        return mTxPowerAccel;
+    }
+
+    public void setValueTxPowerAccel(int value) {
+        mTxPowerAccel.setValue(value);
+    }
+
+    public int getValueTxPowerAccel() {
+        if (mTxPowerAccel.getValue() == null) {
+            mTxPowerAccel.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mTxPowerAccel.getValue();
+    }
+
+    /* 백텔 읽기 직전 전원 안정용 NopStandby 개수. 0 ~ 19.
+     * 되읽은 값과 실제 동작 개수가 다를 수 있다. 펌웨어가 프레임 수에 맞춰 매 사이클 잘라내기 때문이다. */
+    private final MutableLiveData<Integer> mNopStandbyCount = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataNopStandbyCount() {
+        return mNopStandbyCount;
+    }
+
+    public void setValueNopStandbyCount(int value) {
+        mNopStandbyCount.setValue(value);
+    }
+
+    public int getValueNopStandbyCount() {
+        if (mNopStandbyCount.getValue() == null) {
+            mNopStandbyCount.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mNopStandbyCount.getValue();
+    }
+
+    /* 현재 맵의 펄스폭(usec)과 패킷 수(채널당 프레임 수). 둘 다 읽기 전용이다.
+     *
+     * 앱은 «패킷 수» 로 쓸 수 있는 Nop 표를 찾는다. 펄스폭으로 찾으면 안 된다.
+     * nOFm 자극 방식은 패킷 수를 3 으로 고정해 펄스폭과 어긋나기 때문이다. */
+    private final MutableLiveData<Integer> mPulseWidth = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataPulseWidth() {
+        return mPulseWidth;
+    }
+
+    public void setValuePulseWidth(int value) {
+        mPulseWidth.setValue(value);
+    }
+
+    public int getValuePulseWidth() {
+        if (mPulseWidth.getValue() == null) {
+            mPulseWidth.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mPulseWidth.getValue();
+    }
+
+    private final MutableLiveData<Integer> mFrameNum = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataFrameNum() {
+        return mFrameNum;
+    }
+
+    public void setValueFrameNum(int value) {
+        mFrameNum.setValue(value);
+    }
+
+    public int getValueFrameNum() {
+        if (mFrameNum.getValue() == null) {
+            mFrameNum.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mFrameNum.getValue();
+    }
+
+    /* 전원 안정 Nop 의 값이 어디서 왔는지. 0 = 패킷 수별 기본값, 1 = 리모콘이 정한 값.
+     * 맵이 바뀌어 계산이 다시 돌면 사운드처리기가 0 으로 되돌린다. */
+    private final MutableLiveData<Integer> mNopEnable = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataNopEnable() {
+        return mNopEnable;
+    }
+
+    public void setValueNopEnable(int value) {
+        mNopEnable.setValue(value);
+    }
+
+    public int getValueNopEnable() {
+        if (mNopEnable.getValue() == null) {
+            mNopEnable.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mNopEnable.getValue();
+    }
+
+    // 자극 전략. 펄스폭과 패킷 수가 어긋나는 이유를 설명하는 데 쓴다.
+    private final MutableLiveData<Integer> mStimStrategy = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataStimStrategy() {
+        return mStimStrategy;
+    }
+
+    public void setValueStimStrategy(int value) {
+        mStimStrategy.setValue(value);
+    }
+
+    public int getValueStimStrategy() {
+        if (mStimStrategy.getValue() == null) {
+            mStimStrategy.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mStimStrategy.getValue();
+    }
+
+    /* 판별된 사운드처리기 펌웨어 세대. Status.FW_RELEASE_* 값이다.
+     * 화면은 이 값을 보고 세대가 모르는 버튼을 잠그고 배지 글자를 바꾼다. */
+    private final MutableLiveData<Integer> mFwRelease = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataFwRelease() {
+        return mFwRelease;
+    }
+
+    public void setValueFwRelease(int value) {
+        mFwRelease.setValue(value);
+    }
+
+    public int getValueFwRelease() {
+        if (mFwRelease.getValue() == null) {
+            mFwRelease.setValue(Status.FW_RELEASE_UNKNOWN);
+        }
+
+        return mFwRelease.getValue();
     }
 
     // 링크 백텔 주기. 100msec 단위. 연결 직후 특수 명령(0x59) 옵션 4로 읽어온다.

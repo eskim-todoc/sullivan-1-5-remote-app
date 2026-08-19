@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  펌웨어 세대 배지의 바탕.
+  글자가 작아서 배경이 없으면 눈에 띄지 않는다. 색은 코드에서 세대별로 바꾼다.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <solid android:color="#FFD54F" />
+
+    <corners android:radius="3dp" />
+</shape>

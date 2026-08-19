@@ -32,6 +32,7 @@ import android.os.ParcelUuid;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -98,7 +99,12 @@ public class MainActivity extends AppCompatActivity
     static private final int DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT = 1000;
 
     static private final int LONG_TIME_IDLE_TIMEOUT_IN_MS    = 3600000; // 1시간
-    static public final  int CHECK_BATTERY_DELAY_IN_MS       = 30000;
+    // 링크 감시 주기. 현재 Tx 파워는 매 주기, 기기 상태 정보는 15주기(30초)마다 읽는다.
+    static public final  int LINK_MONITOR_PERIOD_IN_MS       = 2000;
+    static public final  int LINK_MONITOR_STATUS_TICK_COUNT  = 15;
+
+    // 링크 파라미터 전체 읽기를 하는 주기 위치. 기기 상태(0주기)와 겹치지 않게 떨어뜨린다.
+    static public final  int LINK_MONITOR_PARAM_TICK      = 8;
     static public final  int DISCOVER_SERVICES_TIMEOUT_IN_MS = 2000;
     static public final  int CCCD_TIMEOUT_IN_MS              = 2000;
     static public final  int PASSWORD_TIMEOUT_IN_MS          = 1000;
@@ -264,7 +270,7 @@ public class MainActivity extends AppCompatActivity
         // 모든 핸들러 제거하기
         mLongTimeIdleHandler.removeCallbacks(mLongTimeIdleRunner); // 장시간 미사용 감지 핸들러 제거
         mScanHandler.removeCallbacks(mScanRunner); // 스캔 핸들러 제거
-        mCheckBatteryHandler.removeCallbacks(mCheckBatteryRunner); // 배터리 체크 패킷 핸들러 제거
+        stopLinkMonitor(); // 링크 감시 타이머 제거
         mDiscoverServicesHandler.removeCallbacks(mDiscoverServicesRunner); // 서비스 검색 핸들러 제거
         mCCCDHandler.removeCallbacks(mCCCDRunner); // CCCD 설정 핸들러 제거
         mPasswordHandler.removeCallbacks(mPasswordRunner); // 보안코드 인증 핸들러 제거
@@ -613,66 +619,479 @@ public class MainActivity extends AppCompatActivity
     }
 
     //
-    // 연결 직후 링크 설정 값 순차 읽기
+    // 0x59 요청 만들기 (릴리즈 4 공통 포맷)
     //
-    // 특수 명령(0x59)의 읽기 옵션 3개를 차례로 보낸다.
-    // sendPacket() 은 응답을 받기 전에는 다음 패킷을 버리므로 한 번에 보낼 수 없다.
-    // 그래서 각 응답을 받은 자리에서 다음 항목을 이어 보내는 방식으로 연결한다.
+    // 요청 : [0x59, 옵션, 액세스, 인덱스, 값?]
+    // 도메인이 무엇이든 같은 모양이라 이 두 함수로 전부 만든다.
     //
-    static private final int LINK_INFO_READ_STEP_IDLE        = 0;
-    static private final int LINK_INFO_READ_STEP_PMIC        = 1;
-    static private final int LINK_INFO_READ_STEP_MAPPING_PMIC = 2;
-    static private final int LINK_INFO_READ_STEP_STEP_UP     = 3;
-    static private final int LINK_INFO_READ_STEP_BACKTEL     = 4;
-    static private final int LINK_INFO_READ_STEP_GATING      = 5;
-    static private final int LINK_INFO_READ_STEP_DONE        = 6;
+    public byte[] makeRcReadPacket(int option, int index)
+    {
+        byte[] packet = new byte[PacketInfo.RC_REQ_LEN_READ];
 
-    private int mLinkInfoReadStep = LINK_INFO_READ_STEP_IDLE;
+        packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
+        packet[PacketInfo.RC_REQ_OFS_OPTION] = (byte) (option & 0xFF);
+        packet[PacketInfo.RC_REQ_OFS_ACCESS] = (byte) PacketInfo.RC_ACCESS_READ;
+        packet[PacketInfo.RC_REQ_OFS_INDEX] = (byte) (index & 0xFF);
+
+        return packet;
+    }
+
+    public byte[] makeRcWritePacket(int option, int index, int value)
+    {
+        byte[] packet = new byte[PacketInfo.RC_REQ_LEN_WRITE];
+
+        packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
+        packet[PacketInfo.RC_REQ_OFS_OPTION] = (byte) (option & 0xFF);
+        packet[PacketInfo.RC_REQ_OFS_ACCESS] = (byte) PacketInfo.RC_ACCESS_WRITE;
+        packet[PacketInfo.RC_REQ_OFS_INDEX] = (byte) (index & 0xFF);
+        packet[PacketInfo.RC_REQ_OFS_VALUE] = (byte) (value & 0xFF);
+
+        return packet;
+    }
+
+    //
+    // 구 프로토콜(릴리즈 3) 패킷
+    //
+    //   읽기 : [0x59, 옵션]        쓰기 : [0x59, 옵션, 값]
+    //
+    // 백텔 주기(구 옵션 4)만 읽기와 쓰기가 옵션 하나를 공유한다. 값 0 이 읽기라서
+    // 읽기도 세 바이트로 보내야 하므로 makeLegacyWritePacket(4, 0) 을 쓴다.
+    //
+    public byte[] makeLegacyReadPacket(int legacyOption)
+    {
+        byte[] packet = new byte[PacketInfo.LEGACY_REQ_LEN_READ];
+
+        packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
+        packet[PacketInfo.LEGACY_RSP_OFS_OPTION] = (byte) (legacyOption & 0xFF);
+
+        return packet;
+    }
+
+    public byte[] makeLegacyWritePacket(int legacyOption, int value)
+    {
+        byte[] packet = new byte[PacketInfo.LEGACY_REQ_LEN_WRITE];
+
+        packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
+        packet[PacketInfo.LEGACY_RSP_OFS_OPTION] = (byte) (legacyOption & 0xFF);
+        packet[PacketInfo.LEGACY_RSP_OFS_VALUE] = (byte) (value & 0xFF);
+
+        return packet;
+    }
+
+    // 링크 파라미터 하나를 읽는다. 판별된 세대에 맞는 포맷으로 보낸다.
+    public void sendLinkParamRead(int index)
+    {
+        if (mStatus.fwRelease >= Status.FW_RELEASE_4_PLUS)
+        {
+            sendPacket(makeRcReadPacket(PacketInfo.RC_OPT_LINK, index));
+            return;
+        }
+
+        /* 전체 읽기는 구 프로토콜에서 옵션 17 이다. 인덱스 대응표에는 자리가 없으므로
+         * 여기서 따로 잡아 준다. */
+        if (index == PacketInfo.RC_IDX_ALL)
+        {
+            sendPacket(makeLegacyReadPacket(PacketInfo.LEGACY_OPT_READ_ALL));
+            return;
+        }
+
+        int legacyOption = PacketInfo.getLegacyReadOption(index);
+
+        if (legacyOption == PacketInfo.LEGACY_OPT_NONE)
+        {
+            Log.d(TAG, "[LINK] 이 세대에는 인덱스 " + index + " 읽기가 없습니다.");
+            return;
+        }
+
+        /* 백텔 주기만 읽기와 쓰기가 같은 옵션이다. 값 0 을 실어야 읽기로 처리된다. */
+        sendPacket((legacyOption == PacketInfo.getLegacyWriteOption(index)) //
+                   ? makeLegacyWritePacket(legacyOption, 0) //
+                   : makeLegacyReadPacket(legacyOption));
+    }
+
+    /* 링크 파라미터 하나를 쓴다. 화면의 각 버튼이 이 함수를 쓴다.
+     *
+     * 연결 타입이 정한 포맷으로 보낸다. 그 타입이 모르는 파라미터면 보내지 않고 알린다.
+     * 모르는 옵션을 보내면 사운드처리기가 에러로 응답하거나 아예 응답하지 않아
+     * 연결이 끊기기 때문이다. */
+    public boolean sendLinkParam(int index, int value)
+    {
+        if (!isLinkParamSupported(index))
+        {
+            Log.d(TAG, "[LINK] 세대 " + mStatus.fwRelease + " 는 인덱스 " + index + " 쓰기를 모릅니다.");
+
+            Toast.makeText(getApplicationContext(), //
+                           "이 펌웨어(" + fwReleaseName() + ")에는 없는 설정입니다.", //
+                           Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        Log.d(TAG, "[LINK] 쓰기 요청 : 인덱스=" + index + ", 값=" + value);
+
+        longTimeIdleHandlerUpdate(true);
+
+        if (mStatus.fwRelease >= Status.FW_RELEASE_4_PLUS)
+        {
+            sendPacket(makeRcWritePacket(PacketInfo.RC_OPT_LINK, index, value));
+            return true;
+        }
+
+        sendPacket(makeLegacyWritePacket(PacketInfo.getLegacyWriteOption(index), value));
+
+        return true;
+    }
+
+    /* 맵 강제 초기화. REL4+ 는 자극 도메인(0x21), REL4 는 구 옵션 8 이다.
+     * REL3 에는 이 기능 자체가 없다. 잘못 보내면 맵이 날아가므로 세대를 확인하고 보낸다. */
+    public void sendMapInit(int mapInitType)
+    {
+        if (!isMapInitSupported())
+        {
+            Log.d(TAG, "[STIM] 세대 " + mStatus.fwRelease + " 는 맵 초기화를 모릅니다.");
+
+            Toast.makeText(getApplicationContext(), //
+                           "이 펌웨어(" + fwReleaseName() + ")에는 없는 기능입니다.", //
+                           Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        longTimeIdleHandlerUpdate(true);
+
+        sendPacket((mStatus.fwRelease >= Status.FW_RELEASE_4_PLUS) //
+                   ? makeRcWritePacket(PacketInfo.RC_OPT_STIM, PacketInfo.RC_STIM_IDX_MAP_INIT, mapInitType) //
+                   : makeLegacyWritePacket(PacketInfo.LEGACY_OPT_MAP_INIT, mapInitType));
+    }
+
+    //
+    // 세대별 기능 지원 여부
+    //
+    // 화면의 버튼 활성화와 전송 차단이 같은 판단을 써야 어긋나지 않는다.
+    //
+    public String fwReleaseName()
+    {
+        switch (mStatus.fwRelease)
+        {
+            case Status.FW_RELEASE_3:
+                return "REL3";
+
+            case Status.FW_RELEASE_4:
+                return "REL4";
+
+            case Status.FW_RELEASE_4_PLUS:
+                return "REL4+";
+
+            default:
+                return "REL?";
+        }
+    }
+
+    /* 링크 파라미터 하나를 이 세대가 아는지.
+     *
+     * REL4+ 는 도메인 구조라 인덱스를 그대로 쓴다. 다만 전원 안정 Nop(인덱스 11)은
+     * 프로토콜 4.1 에서 생겼으므로 버전을 함께 본다. 버전 관리가 되는 세대라
+     * 그 위로는 버전만 보면 되고 세대를 더 쪼갤 필요가 없다.
+     *
+     * REL4 는 인덱스 1~8 까지다. 링크 제어 모드(9)와 상승 가속(10)은 그 뒤에 생겼다.
+     * 구 옵션 대응표에 자리가 있어도 이 경계를 넘으면 그 세대에는 없는 것이다.
+     *
+     * REL3 는 링크 파라미터가 아예 없다. */
+    public boolean isLinkParamSupported(int index)
+    {
+        if (mStatus.fwRelease >= Status.FW_RELEASE_4_PLUS)
+        {
+            /* 인덱스는 프로토콜 버전이 올라가면서 뒤에 붙었다. 어느 버전에서 생겼는지를
+             * 보고 가른다. 세대(REL4+)만으로는 4.0 인지 4.3 인지 알 수 없다. */
+            switch (index)
+            {
+                case PacketInfo.RC_LINK_IDX_POWER_STABLE_NOP:
+                    return isProtocolAtLeast(PacketInfo.RC_PROTOCOL_MAJOR_REQUIRED, PacketInfo.RC_PROTOCOL_MINOR_NOP);
+
+                case PacketInfo.RC_LINK_IDX_PULSE_WIDTH:
+                case PacketInfo.RC_LINK_IDX_FRAME_NUM:
+                case PacketInfo.RC_LINK_IDX_NOP_ENABLE:
+                    return isProtocolAtLeast(PacketInfo.RC_PROTOCOL_MAJOR_REQUIRED, PacketInfo.RC_PROTOCOL_MINOR_NOP_TABLE);
+
+                case PacketInfo.RC_LINK_IDX_STIM_STRATEGY:
+                    return isProtocolAtLeast(PacketInfo.RC_PROTOCOL_MAJOR_REQUIRED, PacketInfo.RC_PROTOCOL_MINOR_STRATEGY);
+
+                default:
+                    return (index <= PacketInfo.RC_LINK_IDX_MAX);
+            }
+        }
+
+        if (mStatus.fwRelease == Status.FW_RELEASE_4)
+        {
+            /* 상한은 일괄 읽기 응답에서 «관찰한» 값이다. 상수로 못박으면 초기 REL4
+             * (infinite 가 없던 시기)에서 없는 옵션을 보내게 된다.
+             * 아직 못 읽었으면 알려진 최소 구성으로 본다. */
+            int observedMax = (mStatus.rel4LinkIndexMax > 0) //
+                              ? mStatus.rel4LinkIndexMax //
+                              : PacketInfo.RC_LINK_IDX_REL4_MIN;
+
+            return (index <= observedMax) //
+                   && (PacketInfo.getLegacyWriteOption(index) != PacketInfo.LEGACY_OPT_NONE);
+        }
+
+        return false;
+    }
+
+    /* Nop 다이얼로그를 띄우기 전에 링크 파라미터를 다시 읽는다.
+     *
+     * 쓸 수 있는 값의 목록은 «지금» 패킷 수로 정해진다. 맵이 바뀌면 패킷 수가 달라져
+     * 목록 자체가 바뀌므로, 화면에 남아 있던 값으로 목록을 만들면 틀린 것을 보여 준다.
+     *
+     * 읽기를 보냈으면 true 다. 그때는 응답을 받은 자리에서 다이얼로그가 열린다.
+     * 보내지 못했으면 false 이고, 부른 쪽이 지금 아는 값으로 바로 연다. */
+    private boolean mNopDialogPending  = false;
+    private int     mNopDialogRetryLeft = 0;
+
+    private final Handler mLinkParamRefreshHandler = new Handler();
+
+    /* 전송 중이면 조금 기다렸다 다시 시도한다.
+     *
+     * 감시 타이머가 2초마다 현재 Tx 파워를 읽으므로, 버튼을 누른 순간이 그 응답을
+     * 기다리는 중일 확률이 낮지 않다. 예전에는 그때 그냥 포기하고 화면에 남아 있던
+     * 값으로 목록을 만들었는데, 그러면 프로그램을 바꾼 직후에 «이전 프로그램의
+     * 펄스폭 기준» 목록이 뜬다. */
+    static private final int NOP_DIALOG_RETRY_MAX      = 20;  // 100ms 씩 최대 2초
+    static private final int NOP_DIALOG_RETRY_DELAY_MS = 100;
+
+    public boolean requestLinkParamsForNopDialog()
+    {
+        if (mStatus.connectionState != Status.CONNECTION_STATE_CONNECTED //
+            || mStatus.fwRelease == Status.FW_RELEASE_UNKNOWN)
+        {
+            Log.d(TAG, "[LINK] 연결되지 않아 링크 파라미터를 읽을 수 없습니다. 아는 값으로 목록을 만듭니다.");
+            return false;
+        }
+
+        Log.d(TAG, "[LINK] Nop 목록을 만들기 전에 링크 파라미터를 다시 읽습니다.");
+
+        mNopDialogPending = true;
+        mNopDialogRetryLeft = NOP_DIALOG_RETRY_MAX;
+
+        tryNopDialogLinkRead();
+
+        return true;
+    }
+
+    private void tryNopDialogLinkRead()
+    {
+        if (!mNopDialogPending)
+        {
+            return;
+        }
+
+        if (mStatus.transferState == Status.TRANSFER_STATE_IDLE)
+        {
+            longTimeIdleHandlerUpdate(true);
+            sendLinkParamRead(PacketInfo.RC_IDX_ALL);
+            return;
+        }
+
+        mNopDialogRetryLeft--;
+
+        if (mNopDialogRetryLeft <= 0)
+        {
+            /* 끝내 못 읽었다. 목록을 못 띄우는 것보다는 아는 값으로라도 여는 편이 낫다.
+             * 그 값이 오래됐을 수 있다는 것은 다이얼로그 머리말이 알려 준다. */
+            Log.d(TAG, "[LINK] 링크 파라미터를 읽지 못했습니다. 아는 값으로 목록을 만듭니다.");
+
+            notifyLinkParamsRefreshed();
+            return;
+        }
+
+        mLinkParamRefreshHandler.postDelayed(this::tryNopDialogLinkRead, NOP_DIALOG_RETRY_DELAY_MS);
+    }
+
+    /* 맵이 바뀌었을 만한 일이 생겼을 때 링크 파라미터를 다시 읽는다.
+     *
+     * 프로그램을 바꾸면 맵이 바뀌고, 그에 따라 펄스폭 · 패킷 수 · 자극 전략이 달라진다.
+     * 사운드처리기는 그 시점에 전원 안정 Nop 도 패킷 수별 기본값으로 다시 넣는다.
+     * 그런데 앱은 30초짜리 감시 주기가 돌아올 때까지 그 사실을 몰랐다.
+     * 그래서 Nop 목록을 이전 프로그램의 펄스폭 기준으로 만들어 버렸다.
+     *
+     * 맵 계산이 끝난 뒤라야 새 값이 나오므로 조금 뒤에 읽는다. */
+    static private final int LINK_PARAM_REFRESH_DELAY_MS = 500;
+
+    public void requestLinkParamRefresh(String reason)
+    {
+        if (mStatus.fwRelease < Status.FW_RELEASE_4)
+        {
+            return; // 링크 파라미터가 없는 세대다
+        }
+
+        Log.d(TAG, "[LINK] " + reason + " -> 링크 파라미터를 다시 읽습니다.");
+
+        mLinkParamRefreshHandler.removeCallbacks(mLinkParamRefreshRunner);
+        mLinkParamRefreshHandler.postDelayed(mLinkParamRefreshRunner, LINK_PARAM_REFRESH_DELAY_MS);
+    }
+
+    private final Runnable mLinkParamRefreshRunner = new Runnable()
+    {
+        @Override
+        public void run()
+        {
+            if (mBluetoothGatt == null || mStatus.connectionState != Status.CONNECTION_STATE_CONNECTED)
+            {
+                return;
+            }
+
+            /* 연결 직후 세대 판별이 도는 중이면 끼어들지 않는다.
+             * 판별이 끝나면 그 자체가 링크 파라미터를 다 읽어 오므로 따로 읽을 필요도 없다. */
+            if (!isLinkInfoReadIdle())
+            {
+                return;
+            }
+
+            // 다른 패킷이 응답을 기다리는 중이면 조금 더 기다린다.
+            if (mStatus.transferState != Status.TRANSFER_STATE_IDLE)
+            {
+                mLinkParamRefreshHandler.postDelayed(this, NOP_DIALOG_RETRY_DELAY_MS);
+                return;
+            }
+
+            if (mOta != null && mOta.commState != Ota.COMM_STATE_IDLE)
+            {
+                return; // OTA 전송 중에는 끼어들지 않는다
+            }
+
+            sendLinkParamRead(PacketInfo.RC_IDX_ALL);
+        }
+    };
+
+    /* 전체 읽기 응답을 다 반영한 자리에서 부른다. 기다리던 다이얼로그가 있으면 연다. */
+    private void notifyLinkParamsRefreshed()
+    {
+        if (!mNopDialogPending)
+        {
+            return;
+        }
+
+        mNopDialogPending = false;
+
+        Fragment fragment = getSupportFragmentManager().findFragmentById(mBinding.frame.getId());
+
+        if (fragment instanceof RemoteControlFragment)
+        {
+            ((RemoteControlFragment) fragment).onLinkParamsRefreshedForNop();
+        }
+    }
+
+    /* 전원 안정 Nop 을 패킷 수별 기본값으로 되돌린다. 인덱스 14 에 0 을 쓰면 된다.
+     * 개수(인덱스 11)를 직접 쓰는 것과 달리 «어느 값이 맞는지» 를 사운드처리기가 정한다. */
+    public void sendNopStandbyDefault()
+    {
+        sendLinkParam(PacketInfo.RC_LINK_IDX_NOP_ENABLE, PacketInfo.NOP_ENABLE_DEFAULT);
+    }
+
+    public boolean isMapInitSupported()
+    {
+        return (mStatus.fwRelease >= Status.FW_RELEASE_4);
+    }
+
+    // 게이팅(묵음)은 세대를 가리지 않는다. 판별이 끝나 연결이 살아 있기만 하면 된다.
+    public boolean isGatingSupported()
+    {
+        return (mStatus.fwRelease >= Status.FW_RELEASE_3);
+    }
+
+    // 읽어 온 0x59 프로토콜 버전이 기준 이상인지.
+    public boolean isProtocolAtLeast(int major, int minor)
+    {
+        if (mStatus.rcProtocolMajor == PacketInfo.LINK_VALUE_UNKNOWN)
+        {
+            return false;
+        }
+
+        if (mStatus.rcProtocolMajor != major)
+        {
+            return (mStatus.rcProtocolMajor > major);
+        }
+
+        return (mStatus.rcProtocolMinor >= minor);
+    }
+
+    //
+    // 연결 직후 상태 읽기
+    //
+    // 연결 직후 세대 판별 및 상태 읽기
+    //
+    // 사람이 고르게 하지 않고 «되는 것» 을 찾을 때까지 위에서부터 물어본다.
+    //
+    //   1) 버전 조회 (옵션 255)   응답 O -> REL4+ . 이어서 링크 도메인 전체를 읽는다
+    //                            응답 X -> 2 로
+    //   2) 링크 일괄 읽기 (구 17)  응답 O -> REL4  . 값 10개를 바로 받는다
+    //                            응답 X -> 3 으로
+    //   3) 게이팅 읽기 (옵션 1)    응답 O -> REL3
+    //                            응답 X -> UNKNOWN
+    //
+    // 판별과 상태 읽기가 같은 패킷으로 이뤄진다. 세대를 알아내려고 따로 왕복하지 않는다.
+    //
+    // sendPacket() 은 응답을 받기 전에는 다음 패킷을 버리므로 한 번에 보낼 수 없다.
+    // 각 응답을 받은 자리에서 다음 단계를 이어 보낸다.
+    //
+    static private final int PROBE_STEP_NONE       = 0;
+    static private final int PROBE_STEP_VERSION    = 1;
+    static private final int PROBE_STEP_LINK_ALL   = 2;
+    static private final int PROBE_STEP_LEGACY_ALL = 3;
+    static private final int PROBE_STEP_GATING     = 4;
+
+    private int mProbeStep = PROBE_STEP_NONE;
+
+    public void resetLinkInfoRead()
+    {
+        mProbeStep = PROBE_STEP_NONE;
+        mNopDialogPending = false;
+
+        mLinkParamRefreshHandler.removeCallbacksAndMessages(null);
+    }
 
     // 연결이 끝난 직후 호출한다.
     public void startLinkInfoRead()
     {
-        Log.d(TAG, "[LINK] 연결 직후 링크 설정 읽기를 시작합니다.");
+        mStatus.fwRelease = Status.FW_RELEASE_UNKNOWN;
+        mStatus.rel4LinkIndexMax = 0;
+        mStatus.rcProtocolMajor = PacketInfo.LINK_VALUE_UNKNOWN;
+        mStatus.rcProtocolMinor = PacketInfo.LINK_VALUE_UNKNOWN;
+        mStatus.rcOptionBitmap = null;
 
-        mLinkInfoReadStep = LINK_INFO_READ_STEP_PMIC;
-        sendLinkInfoReadPacket();
+        publishFwRelease();
+
+        Log.d(TAG, "[LINK] 연결 직후 세대 판별을 시작합니다. (버전 조회부터)");
+
+        mProbeStep = PROBE_STEP_VERSION;
+        sendProbePacket();
     }
 
-    private void sendLinkInfoReadPacket()
+    private void sendProbePacket()
     {
         byte[] packet;
 
-        switch (mLinkInfoReadStep)
+        switch (mProbeStep)
         {
-            case LINK_INFO_READ_STEP_PMIC: // 링크 Tx 파워 하한(PMIC) 읽기
-                packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_MIN_TX_PWR_READ];
+            case PROBE_STEP_VERSION:
+                /* 버전 조회만 3바이트다. 인덱스가 없다.
+                 * 규격서 예제가 "59 FF 00" 이므로 그대로 따른다. */
+                packet = new byte[PacketInfo.RC_REQ_LEN_VERSION];
                 packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
-                packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MIN_TX_PWR_READ;
+                packet[PacketInfo.RC_REQ_OFS_OPTION] = (byte) PacketInfo.RC_OPT_VERSION;
+                packet[PacketInfo.RC_REQ_OFS_ACCESS] = (byte) PacketInfo.RC_ACCESS_READ;
                 break;
 
-            case LINK_INFO_READ_STEP_MAPPING_PMIC: // 매핑 전용 Tx 파워 하한 읽기
-                packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_MAPPING_TX_PWR_READ];
-                packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
-                packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MAPPING_TX_PWR_READ;
+            case PROBE_STEP_LINK_ALL:
+                packet = makeRcReadPacket(PacketInfo.RC_OPT_LINK, PacketInfo.RC_IDX_ALL);
                 break;
 
-            case LINK_INFO_READ_STEP_STEP_UP: // 링크 Tx 파워 상승 스텝 읽기
-                packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_TX_STEP_UP_READ];
-                packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
-                packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_TX_STEP_UP_READ;
+            case PROBE_STEP_LEGACY_ALL:
+                packet = makeLegacyReadPacket(PacketInfo.LEGACY_OPT_READ_ALL);
                 break;
 
-            case LINK_INFO_READ_STEP_BACKTEL: // 백텔 주기 읽기 (값 0 이 읽기 요청이다)
-                packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_BACKTEL_PERIOD];
+            case PROBE_STEP_GATING:
+                // 게이팅은 구형 포맷이라 [커맨드, 옵션] 두 바이트뿐이다.
+                packet = new byte[PacketInfo.RC_REQ_LEN_MUTE_READ];
                 packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
-                packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_BACKTEL_PERIOD;
-                packet[2] = (byte) PacketInfo.BACKTEL_PERIOD_READ;
-                break;
-
-            case LINK_INFO_READ_STEP_GATING: // 게이팅(묵음) 상태 읽기
-                packet = new byte[PacketInfo.TX_PKT_LEN_SPECIFIC_CMD_GATING_READ];
-                packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
-                packet[1] = (byte) PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_GATING_READ;
+                packet[PacketInfo.RC_REQ_OFS_OPTION] = (byte) PacketInfo.RC_OPT_MUTE_READ;
                 break;
 
             default:
@@ -682,51 +1101,206 @@ public class MainActivity extends AppCompatActivity
         sendPacket(packet);
     }
 
-    // 특수 명령 응답을 받을 때마다 호출한다. 순차 읽기 중일 때만 다음 항목으로 넘어간다.
+    // 지금 단계가 기다리는 옵션 번호.
+    private int expectedProbeOption()
+    {
+        switch (mProbeStep)
+        {
+            case PROBE_STEP_VERSION:
+                return PacketInfo.RC_OPT_VERSION;
+
+            case PROBE_STEP_LINK_ALL:
+                return PacketInfo.RC_OPT_LINK;
+
+            case PROBE_STEP_LEGACY_ALL:
+                return PacketInfo.LEGACY_OPT_READ_ALL;
+
+            case PROBE_STEP_GATING:
+                return PacketInfo.RC_OPT_MUTE_READ;
+
+            default:
+                return PacketInfo.LEGACY_OPT_NONE;
+        }
+    }
+
+    // 응답을 받을 때마다 호출한다. 기다리던 옵션일 때만 다음 단계로 넘어간다.
     private void advanceLinkInfoRead(int option)
     {
-        int expectedOption;
+        int expected = expectedProbeOption();
 
-        switch (mLinkInfoReadStep)
+        if (expected == PacketInfo.LEGACY_OPT_NONE) // 판별 중이 아니다. (버튼으로 개별 조작한 경우)
         {
-            case LINK_INFO_READ_STEP_PMIC:
-                expectedOption = PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MIN_TX_PWR_READ;
+            return;
+        }
+
+        if (option != expected) // 기다리던 응답이 아니면 순서를 넘기지 않는다.
+        {
+            return;
+        }
+
+        switch (mProbeStep)
+        {
+            case PROBE_STEP_VERSION:
+                /* 버전이 읽혔다. 다만 링크 도메인을 실제로 지원하는지는 비트맵으로 확인한다.
+                 * 버전만 있고 링크가 없는 조합도 규격상 가능하기 때문이다. */
+                setFwRelease(Status.FW_RELEASE_4_PLUS);
+
+                if (!isLinkDomainSupported())
+                {
+                    Log.d(TAG, "[LINK] 버전은 읽혔지만 링크 도메인이 없습니다. 게이팅만 읽습니다.");
+
+                    mProbeStep = PROBE_STEP_GATING;
+                }
+                else
+                {
+                    mProbeStep = PROBE_STEP_LINK_ALL;
+                }
                 break;
 
-            case LINK_INFO_READ_STEP_MAPPING_PMIC:
-                expectedOption = PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MAPPING_TX_PWR_READ;
+            case PROBE_STEP_LEGACY_ALL:
+                // 버전은 못 읽었는데 구 옵션 17 이 응답했다. 그 세대다.
+                /* 일괄 읽기 응답은 이 자리에 오기 «전» 에 해석된다.
+                 * 그래서 여기서는 이미 rel4LinkIndexMax 가 잡혀 있다. */
+                setFwRelease(Status.FW_RELEASE_4);
+                applyRel4FixedValues();
+
+                mProbeStep = PROBE_STEP_GATING;
                 break;
 
-            case LINK_INFO_READ_STEP_STEP_UP:
-                expectedOption = PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_TX_STEP_UP_READ;
+            case PROBE_STEP_LINK_ALL:
+                mProbeStep = PROBE_STEP_GATING;
                 break;
 
-            case LINK_INFO_READ_STEP_BACKTEL:
-                expectedOption = PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_BACKTEL_PERIOD;
-                break;
+            case PROBE_STEP_GATING:
+                /* 게이팅까지 왔는데 아직 세대가 안 잡혔으면, 앞의 둘이 모두 거절된 것이다.
+                 * 게이팅만 사는 세대다. */
+                if (mStatus.fwRelease == Status.FW_RELEASE_UNKNOWN)
+                {
+                    setFwRelease(Status.FW_RELEASE_3);
+                }
 
-            case LINK_INFO_READ_STEP_GATING:
-                expectedOption = PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_GATING_READ;
-                break;
+                mProbeStep = PROBE_STEP_NONE;
 
-            default: // 순차 읽기 중이 아니다. (버튼으로 개별 조작한 경우)
+                Log.d(TAG, "[LINK] 세대 판별과 상태 읽기를 완료했습니다. -> " + fwReleaseName());
+                UtilLog.instance.writeLog("펌웨어 세대 판별->" + fwReleaseName());
+                return;
+
+            default:
                 return;
         }
 
-        if (option != expectedOption) // 기다리던 응답이 아니면 순서를 넘기지 않는다.
+        sendProbePacket();
+    }
+
+    /* 판별 중 거절당했을 때 호출한다. 그 세대가 모르는 옵션이라는 뜻이므로 다음 후보로 내려간다.
+     * 에러 응답도 판별의 정상적인 결과다. */
+    public void onLinkInfoReadFailed(int option)
+    {
+        switch (mProbeStep)
+        {
+            case PROBE_STEP_VERSION:
+                Log.d(TAG, "[LINK] 버전 조회가 거절되었습니다. 구 옵션 17 을 시도합니다.");
+                UtilLog.instance.writeLog("0x59 버전 조회 실패 : REL4 이하로 판단");
+
+                mProbeStep = PROBE_STEP_LEGACY_ALL;
+                break;
+
+            case PROBE_STEP_LEGACY_ALL:
+                Log.d(TAG, "[LINK] 구 옵션 17 도 거절되었습니다. 게이팅만 확인합니다.");
+                UtilLog.instance.writeLog("0x59 구 옵션 17 실패 : REL3 이하로 판단");
+
+                mProbeStep = PROBE_STEP_GATING;
+                break;
+
+            case PROBE_STEP_LINK_ALL:
+                /* 버전은 읽혔는데 링크 전체 읽기가 거절됐다. 세대는 REL4+ 가 맞지만
+                 * 링크 값은 못 읽은 상태로 남는다. 게이팅으로 넘어간다. */
+                Log.d(TAG, "[LINK] 링크 전체 읽기가 거절되었습니다. 게이팅으로 넘어갑니다.");
+
+                mProbeStep = PROBE_STEP_GATING;
+                break;
+
+            case PROBE_STEP_GATING:
+                Log.d(TAG, "[LINK] 게이팅 읽기까지 거절되었습니다. 세대를 판별하지 못했습니다.");
+                UtilLog.instance.writeLog("펌웨어 세대 판별 실패");
+
+                mProbeStep = PROBE_STEP_NONE;
+                publishFwRelease();
+                return;
+
+            default:
+                return;
+        }
+
+        sendProbePacket();
+    }
+
+    /* REL4 에는 링크 제어 모드와 상승 가속이 없다. 없다는 것은 곧 동작이 정해져 있다는
+     * 뜻이다. 제어 모드는 전원 상태 기준 하나뿐이었고 가속은 쓰지 않았다.
+     * 화면에 «-» 로 두면 못 읽은 것인지 없는 것인지 구분이 안 되므로 그 값으로 채운다.
+     *
+     * 다만 이미 읽힌 값이 있으면 건드리지 않는다. 같은 REL4 라도 막바지 펌웨어는
+     * 일괄 읽기에 두 값을 실어 보내기 때문이다. */
+    private void applyRel4FixedValues()
+    {
+        if (mStatusViewModel == null)
         {
             return;
         }
 
-        mLinkInfoReadStep++;
-
-        if (mLinkInfoReadStep == LINK_INFO_READ_STEP_DONE)
+        if (mStatusViewModel.getValueLinkCtrlMode() == PacketInfo.LINK_VALUE_UNKNOWN)
         {
-            Log.d(TAG, "[LINK] 연결 직후 링크 설정 읽기를 완료했습니다.");
-            return;
+            mStatusViewModel.setValueLinkCtrlMode(PacketInfo.LINK_CTRL_MODE_POWER_STATE);
         }
 
-        sendLinkInfoReadPacket();
+        if (mStatusViewModel.getValueTxPowerAccel() == PacketInfo.LINK_VALUE_UNKNOWN)
+        {
+            mStatusViewModel.setValueTxPowerAccel(PacketInfo.LINK_FLAG_DISABLE);
+        }
+
+        /* infinite coin 이 없는 시기의 REL4 도 있다. 기능이 없다는 것은 곧 «꺼진 것»
+         * 과 같으므로 그렇게 채운다. 이것을 미상으로 두면 one coin 값을 멀쩡히 읽고도
+         * 화면이 «Coin -» 로 남는다. */
+        if (!isLinkParamSupported(PacketInfo.RC_LINK_IDX_INFINITE_COIN) //
+            && mStatusViewModel.getValueInfiniteCoin() == PacketInfo.LINK_VALUE_UNKNOWN)
+        {
+            mStatusViewModel.setValueInfiniteCoin(PacketInfo.LINK_FLAG_DISABLE);
+        }
+    }
+
+    private void setFwRelease(int fwRelease)
+    {
+        mStatus.fwRelease = fwRelease;
+
+        Log.i(TAG, "[LINK] 펌웨어 세대 -> " + fwReleaseName());
+
+        publishFwRelease();
+    }
+
+    // 화면이 세대에 맞춰 버튼과 배지를 갱신하도록 알린다.
+    private void publishFwRelease()
+    {
+        if (mStatusViewModel != null)
+        {
+            mStatusViewModel.setValueFwRelease(mStatus.fwRelease);
+        }
+    }
+
+    // 연결 직후 판별 중이 아닌지. 그때는 Toast 를 띄우지 않는다.
+    private boolean isLinkInfoReadIdle()
+    {
+        return (mProbeStep == PROBE_STEP_NONE);
+    }
+
+    // 링크 도메인(옵션 0x20)을 쓸 수 있는 기기인지. 버전 응답의 비트맵으로 판단한다.
+    public boolean isLinkDomainSupported()
+    {
+        if (mStatus.rcProtocolMajor < PacketInfo.RC_PROTOCOL_MAJOR_REQUIRED)
+        {
+            return false;
+        }
+
+        return PacketInfo.isOptionSupported(mStatus.rcOptionBitmap, PacketInfo.RC_OPT_LINK);
     }
 
     //
@@ -1348,19 +1922,492 @@ public class MainActivity extends AppCompatActivity
     }; // scanCallback
 
     //
-    // 배터리 체크 패킷 전송 핸들러
+    // 링크 감시 타이머 (현재 Tx 파워 + 기기 상태)
     //
-    public Handler  mCheckBatteryHandler = new Handler();
-    public Runnable mCheckBatteryRunner  = () ->
-    {
-        Log.d(TAG, "연결된 사운드처리기의 배터리 정보를 업데이트 하기 위해 상태정보 획득 패킷을 전송합니다.");
+    // 두 가지를 주기적으로 읽어야 하는데, 각자 타이머를 두면 반드시 충돌한다.
+    // sendPacket() 은 앞 패킷의 응답을 받기 전에는 다음 패킷을 조용히 버리기 때문이다.
+    //
+    // 그래서 타이머를 하나만 두고 한 주기에 패킷을 하나만 보낸다.
+    //   매 주기(2초)     : 현재 Tx 파워 읽기 (0x59. 포맷은 세대가 정한다)
+    //   15주기마다(30초) : 기기 상태 정보 읽기 (0x43, 배터리 · 볼륨 · LED 등)
+    //   15주기마다(30초) : 링크 파라미터 전체 읽기 (Nop · 패킷 수 · 자극 전략 등)
+    //
+    // 뒤의 둘은 같은 30초 주기지만 8주기 어긋나게 두어 같은 주기에 겹치지 않는다.
+    // 한 주기에 한 발이므로 셋이 부딪칠 수가 없다.
+    //
+    // 링크 파라미터를 주기적으로 다시 읽는 이유는, 맵이 바뀌면 사운드처리기가 패킷 수와
+    // 전원 안정 Nop 을 스스로 새로 정하기 때문이다. 연결할 때 한 번만 읽으면 그 변화를 놓친다.
+    //
+    private int mLinkMonitorTick = 0;
 
-        if (mBluetoothGatt != null && mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED)
+    public final Handler mLinkMonitorHandler = new Handler();
+
+    public final Runnable mLinkMonitorRunner = new Runnable()
+    {
+        @Override
+        public void run()
         {
-            sendPacket(packetMaker(PacketInfo.HEADER_SOUND_PROCESSOR_STATUS, null, 1));
-            mCheckBatteryHandler.postDelayed(MainActivity.this.mCheckBatteryRunner, CHECK_BATTERY_DELAY_IN_MS);
+            // 어느 경로로 빠져나가든 감시가 끊기지 않도록 다음 주기를 먼저 예약한다.
+            mLinkMonitorHandler.postDelayed(this, LINK_MONITOR_PERIOD_IN_MS);
+
+            if (mBluetoothGatt == null || mStatus.connectionState != Status.CONNECTION_STATE_CONNECTED)
+            {
+                return;
+            }
+
+            /* 세대 판별이 끝나기 전에는 끼어들지 않는다.
+             * 판별용 패킷과 겹치면 sendPacket() 이 한쪽을 버려 판별이 멈춘다. */
+            if (mStatus.fwRelease == Status.FW_RELEASE_UNKNOWN)
+            {
+                return;
+            }
+
+            /* OTA 전송 중에는 쉰다. 이 패킷이 끼어들면 OTA 쪽 sendPacket() 이 버려져
+             * 전송이 멈춘다. 전송이 끝나면 다음 주기부터 저절로 재개된다. */
+            if (mOta != null && mOta.commState != Ota.COMM_STATE_IDLE)
+            {
+                return;
+            }
+
+            // 다른 패킷이 응답을 기다리는 중이면 이번 주기는 건너뛴다.
+            if (mStatus.transferState != Status.TRANSFER_STATE_IDLE)
+            {
+                return;
+            }
+
+            mLinkMonitorTick++;
+
+            if (mLinkMonitorTick >= LINK_MONITOR_STATUS_TICK_COUNT)
+            {
+                mLinkMonitorTick = 0;
+
+                Log.v(TAG, "[LINK] 감시 : 기기 상태 정보 읽기");
+                sendPacket(packetMaker(PacketInfo.HEADER_SOUND_PROCESSOR_STATUS, null, 1));
+            }
+            else if (mLinkMonitorTick == LINK_MONITOR_PARAM_TICK && Status.FW_RELEASE_4 <= mStatus.fwRelease)
+            {
+                /* 맵이 바뀌면 패킷 수와 전원 안정 Nop 이 사운드처리기 쪽에서 새로 정해진다.
+                 * 전체 읽기 한 번이면 그 값들이 모두 따라온다. */
+                Log.v(TAG, "[LINK] 감시 : 링크 파라미터 전체 읽기");
+                sendLinkParamRead(PacketInfo.RC_IDX_ALL);
+            }
+            else
+            {
+                /* REL3 은 링크 파라미터가 없다. 읽을 것이 없으므로 이번 주기는 쉰다.
+                 * 기기 상태 정보(30초)는 세대와 무관하게 그대로 돈다. */
+                if (mStatus.fwRelease < Status.FW_RELEASE_4)
+                {
+                    return;
+                }
+
+                Log.v(TAG, "[LINK] 감시 : 현재 Tx 파워 읽기");
+                sendLinkParamRead(PacketInfo.RC_LINK_IDX_CUR_TX_POWER);
+            }
         }
     };
+
+    //
+    // 코인 모드 설정 (one coin + infinite coin 두 값의 조합)
+    //
+    // 화면에서는 한 번에 고르지만 패킷은 둘로 나뉜다. sendPacket() 이 응답 전에는 다음
+    // 패킷을 버리므로, infinite(옵션 19)를 먼저 보내고 그 응답을 받은 자리에서
+    // one coin(옵션 16)을 이어 보낸다.
+    //
+    private int mPendingOneCoinValue = PacketInfo.LINK_VALUE_UNKNOWN;
+
+    public void sendCoinMode(int coinMode)
+    {
+        int infinite = (coinMode == PacketInfo.COIN_MODE_INFINITE) //
+                       ? PacketInfo.LINK_FLAG_ENABLE //
+                       : PacketInfo.LINK_FLAG_DISABLE;
+
+        /* infinite 를 끄고 나면 one coin 값이 그대로 드러나므로 모드마다 확정해 둔다.
+         * 무한을 골랐을 때 one coin 을 켜 두면 무한 해제 시 자연스럽게 사용 으로 떨어진다. */
+        mPendingOneCoinValue = (coinMode == PacketInfo.COIN_MODE_DISABLE) //
+                               ? PacketInfo.LINK_FLAG_DISABLE //
+                               : PacketInfo.LINK_FLAG_ENABLE;
+
+        Log.d(TAG, "[LINK] 코인 모드 설정 요청 : 모드=" + coinMode + ", infinite=" + infinite + ", one coin=" + mPendingOneCoinValue);
+
+        /* infinite coin 이 없는 세대에서는 그 패킷을 건너뛰고 one coin 만 보낸다.
+         *
+         * 예전에는 무조건 infinite 부터 보냈는데, 그것을 모르는 펌웨어에서는 거절당하고
+         * 그 응답을 못 받으니 뒤이어 나가야 할 one coin 도 영영 안 나갔다.
+         * one coin 은 REL4 전 구간에 있는 기능이라 반드시 설정할 수 있어야 한다. */
+        if (!isLinkParamSupported(PacketInfo.RC_LINK_IDX_INFINITE_COIN))
+        {
+            int oneCoin = mPendingOneCoinValue;
+
+            mPendingOneCoinValue = PacketInfo.LINK_VALUE_UNKNOWN;
+
+            Log.d(TAG, "[LINK] 이 세대에는 infinite coin 이 없습니다. one coin 만 보냅니다.");
+
+            sendLinkParam(PacketInfo.RC_LINK_IDX_ONE_COIN, oneCoin);
+            return;
+        }
+
+        /* 보내지 못했으면 대기 중인 one coin 도 취소한다.
+         * 그대로 두면 다음에 엉뚱한 응답을 받았을 때 튀어나간다. */
+        if (!sendLinkParam(PacketInfo.RC_LINK_IDX_INFINITE_COIN, infinite))
+        {
+            mPendingOneCoinValue = PacketInfo.LINK_VALUE_UNKNOWN;
+        }
+    }
+
+    // infinite 응답을 받은 자리에서 호출한다. 대기 중인 값이 없으면 아무것도 하지 않는다.
+    private void sendPendingOneCoinPacket()
+    {
+        if (mPendingOneCoinValue == PacketInfo.LINK_VALUE_UNKNOWN)
+        {
+            return;
+        }
+
+        int value = mPendingOneCoinValue;
+
+        mPendingOneCoinValue = PacketInfo.LINK_VALUE_UNKNOWN;
+
+        sendLinkParam(PacketInfo.RC_LINK_IDX_ONE_COIN, value);
+    }
+
+    //
+    // 옵션 255 — 프로토콜 버전 응답
+    //
+    // [5] major, [6] minor, [7..14] 지원 옵션 비트맵 8바이트
+    //
+    private void handleRcVersionResponse(byte[] responsePacket, int valueLen)
+    {
+        if (valueLen < PacketInfo.RC_VERSION_VALUE_LEN)
+        {
+            Log.d(TAG, "[LINK] 버전 응답의 값이 짧습니다 : L = " + valueLen);
+            return;
+        }
+
+        mStatus.rcProtocolMajor = responsePacket[PacketInfo.RC_VERSION_OFS_MAJOR] & 0xFF;
+        mStatus.rcProtocolMinor = responsePacket[PacketInfo.RC_VERSION_OFS_MINOR] & 0xFF;
+
+        byte[] bitmap = new byte[PacketInfo.RC_VERSION_BITMAP_BYTES];
+
+        System.arraycopy(responsePacket, PacketInfo.RC_VERSION_OFS_BITMAP, bitmap, 0, PacketInfo.RC_VERSION_BITMAP_BYTES);
+
+        mStatus.rcOptionBitmap = bitmap;
+
+        StringBuilder sb = new StringBuilder();
+
+        for (byte b : bitmap)
+        {
+            sb.append(String.format("%02X ", (b & 0xFF)));
+        }
+
+        Log.i(TAG, "[LINK] 0x59 프로토콜 버전 " + mStatus.rcProtocolMajor + "." + mStatus.rcProtocolMinor //
+        + ", 지원 옵션 비트맵 " + sb.toString().trim() //
+        + " (링크=" + PacketInfo.isOptionSupported(bitmap, PacketInfo.RC_OPT_LINK) //
+        + ", 자극=" + PacketInfo.isOptionSupported(bitmap, PacketInfo.RC_OPT_STIM) //
+        + ", 배터리=" + PacketInfo.isOptionSupported(bitmap, PacketInfo.RC_OPT_BATTERY) + ")");
+
+        UtilLog.instance.writeLog("패킷 수신 : 0x59 프로토콜 버전->" + mStatus.rcProtocolMajor + "." + mStatus.rcProtocolMinor);
+
+        mStatusViewModel.setValueRcProtocolMajor(mStatus.rcProtocolMajor);
+        mStatusViewModel.setValueRcProtocolMinor(mStatus.rcProtocolMinor);
+    }
+
+    //
+    // 구 프로토콜(릴리즈 3) 응답 처리
+    //
+    //   일괄 읽기 : [0x59, 17, 값 10개]   개별 : [0x59, 옵션, 값]
+    //
+    // 일괄 읽기의 값 순서는 릴리즈 4 링크 인덱스 1~10 과 같으므로 파싱을 공유한다.
+    //
+    private void handleLegacyResponse(byte[] responsePacket, int packetSize, int option)
+    {
+        if (option == PacketInfo.LEGACY_OPT_READ_ALL)
+        {
+            /* 일괄 읽기 응답의 길이는 펌웨어 시기마다 다르다. one coin 까지면 9,
+             * infinite 까지면 10, 제어 모드와 가속까지면 12바이트다. 값은 뒤에만
+             * 늘어났으므로 받은 만큼만 읽는다. */
+            int count = packetSize - PacketInfo.LEGACY_ALL_OFS_VALUE;
+
+            if (count < 1)
+            {
+                Log.d(TAG, "[LEGACY] 일괄 읽기 응답에 값이 없습니다 : 사이즈 = " + packetSize);
+                return;
+            }
+
+            if (PacketInfo.LEGACY_ALL_MAX_COUNT < count)
+            {
+                Log.d(TAG, "[LEGACY] 일괄 읽기에 이 앱이 모르는 값이 " + (count - PacketInfo.LEGACY_ALL_MAX_COUNT) + "개 더 있습니다. 무시합니다.");
+
+                count = PacketInfo.LEGACY_ALL_MAX_COUNT;
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                applyLinkParam(i + 1, responsePacket[PacketInfo.LEGACY_ALL_OFS_VALUE + i] & 0xFF);
+            }
+
+            /* 받은 값 개수가 곧 그 기기가 아는 인덱스 범위다. 화면의 버튼 잠금과
+             * 전송 차단이 이 값을 쓴다. 잘라 낸 개수가 아니라 실제로 받은 개수를 쓴다. */
+            mStatus.rel4LinkIndexMax = packetSize - PacketInfo.LEGACY_ALL_OFS_VALUE;
+
+            Log.i(TAG, "[LEGACY] 링크 파라미터 일괄 읽기 완료 : " + count + "개 반영, 이 기기가 아는 인덱스 1~" + mStatus.rel4LinkIndexMax);
+            UtilLog.instance.writeLog("패킷 수신 : 구 옵션 17 일괄 읽기->" + count + "개 (인덱스 1~" + mStatus.rel4LinkIndexMax + ")");
+
+            notifyLinkParamsRefreshed();
+            return;
+        }
+
+        if (option == PacketInfo.LEGACY_OPT_MAP_INIT)
+        {
+            Log.i(TAG, "[LEGACY] 맵 초기화 응답");
+            UtilLog.instance.writeLog("패킷 수신 : 구 옵션 8 맵 초기화");
+
+            Toast.makeText(getApplicationContext(), "맵 초기화 시작\n완료까지 수 초 이상 걸립니다.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (packetSize < PacketInfo.LEGACY_RSP_LEN_SINGLE)
+        {
+            Log.d(TAG, "[LEGACY] 응답이 짧습니다 : 옵션 = " + option + ", 사이즈 = " + packetSize);
+            return;
+        }
+
+        int index = PacketInfo.getLinkIndexFromLegacyOption(option);
+
+        if (index == PacketInfo.LEGACY_OPT_NONE)
+        {
+            Log.d(TAG, "[LEGACY] 이 앱이 모르는 구 옵션 수신 : " + option);
+            return;
+        }
+
+        int value = responsePacket[PacketInfo.LEGACY_RSP_OFS_VALUE] & 0xFF;
+
+        applyLinkParam(index, value);
+
+        // 버튼으로 개별 조작한 결과만 알린다. 연결 직후 읽기나 감시 주기에는 띄우지 않는다.
+        if (isLinkInfoReadIdle() && index != PacketInfo.RC_LINK_IDX_CUR_TX_POWER)
+        {
+            Toast.makeText(getApplicationContext(), makeLinkParamText(index, value), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    //
+    // 옵션 0x20 — 링크 파라미터 응답
+    //
+    // 인덱스 0(전체)이면 값이 인덱스 1부터 순서대로 이어진다.
+    // 그 외에는 해당 인덱스의 값 하나다.
+    //
+    private void handleRcLinkResponse(byte[] responsePacket, int index, int valueLen)
+    {
+        if (index == PacketInfo.RC_IDX_ALL)
+        {
+            /* 전체 읽기의 값 개수는 펌웨어 버전마다 다르다. 인덱스는 뒤에만 추가되므로
+             * 앞부분의 의미는 바뀌지 않는다. 이 앱이 아는 만큼만 읽고 나머지는 무시한다. */
+            int count = Math.min(valueLen, PacketInfo.RC_LINK_IDX_MAX);
+
+            for (int i = 0; i < count; i++)
+            {
+                applyLinkParam(i + 1, responsePacket[PacketInfo.RC_RSP_OFS_VALUE + i] & 0xFF);
+            }
+
+            if (PacketInfo.RC_LINK_IDX_MAX < valueLen)
+            {
+                Log.d(TAG, "[LINK] 전체 읽기에 이 앱이 모르는 인덱스가 " + (valueLen - PacketInfo.RC_LINK_IDX_MAX) + "개 더 있습니다. 무시합니다.");
+            }
+
+            Log.i(TAG, "[LINK] 전체 읽기 완료 : " + count + "개");
+
+            notifyLinkParamsRefreshed();
+            return;
+        }
+
+        if (valueLen < 1)
+        {
+            Log.d(TAG, "[LINK] 인덱스 " + index + " 응답에 값이 없습니다.");
+            return;
+        }
+
+        int value = responsePacket[PacketInfo.RC_RSP_OFS_VALUE] & 0xFF;
+
+        applyLinkParam(index, value);
+
+        // 버튼으로 개별 조작한 결과만 알린다. 연결 직후 읽기나 감시 주기에는 띄우지 않는다.
+        if (isLinkInfoReadIdle() && index != PacketInfo.RC_LINK_IDX_CUR_TX_POWER)
+        {
+            Toast.makeText(getApplicationContext(), makeLinkParamText(index, value), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // 링크 파라미터 하나를 뷰모델에 반영한다.
+    private void applyLinkParam(int index, int value)
+    {
+        switch (index)
+        {
+            case PacketInfo.RC_LINK_IDX_CUR_TX_POWER:
+                mStatusViewModel.setValueCurTxPowerLevel(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_BACKTEL_PERIOD:
+                mStatusViewModel.setValueBacktelPeriod(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_MIN_TX_POWER:
+                mStatusViewModel.setValueMinTxPowerLevel(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_MAPPING_MIN_POWER:
+                mStatusViewModel.setValueMappingTxPowerLevel(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_TX_POWER_STEP_UP:
+                mStatusViewModel.setValueTxStepUp(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_FORCE_TX_POWER:
+                mStatusViewModel.setValueForceTxPowerLevel(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_ONE_COIN:
+                mStatusViewModel.setValueOneCoin(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_INFINITE_COIN:
+                mStatusViewModel.setValueInfiniteCoin(value);
+
+                // 코인 모드 설정의 두 번째 패킷(one coin)이 대기 중이면 이어서 보낸다.
+                sendPendingOneCoinPacket();
+                break;
+
+            case PacketInfo.RC_LINK_IDX_CTRL_MODE:
+                mStatusViewModel.setValueLinkCtrlMode(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_TX_POWER_ACCEL:
+                mStatusViewModel.setValueTxPowerAccel(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_POWER_STABLE_NOP:
+                mStatusViewModel.setValueNopStandbyCount(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_PULSE_WIDTH:
+                mStatusViewModel.setValuePulseWidth(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_FRAME_NUM:
+                mStatusViewModel.setValueFrameNum(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_NOP_ENABLE:
+                mStatusViewModel.setValueNopEnable(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_STIM_STRATEGY:
+                mStatusViewModel.setValueStimStrategy(value);
+                break;
+
+            default:
+                Log.d(TAG, "[LINK] 이 앱이 모르는 인덱스 " + index + " 는 무시합니다.");
+                break;
+        }
+    }
+
+    // 조작 결과를 알릴 때 쓰는 문구.
+    private String makeLinkParamText(int index, int value)
+    {
+        switch (index)
+        {
+            case PacketInfo.RC_LINK_IDX_BACKTEL_PERIOD:
+                return "백텔 주기 " + (value * PacketInfo.BACKTEL_PERIOD_UNIT_MS) + "msec";
+
+            case PacketInfo.RC_LINK_IDX_MIN_TX_POWER:
+                return String.format("PMIC 하한 %d (%.3fV)", value, (value * PacketInfo.TX_PWR_LEVEL_STEP_MV / 1000.0f));
+
+            case PacketInfo.RC_LINK_IDX_MAPPING_MIN_POWER:
+                return String.format("매핑 PMIC 하한 %d (%.3fV)", value, (value * PacketInfo.TX_PWR_LEVEL_STEP_MV / 1000.0f));
+
+            case PacketInfo.RC_LINK_IDX_TX_POWER_STEP_UP:
+                return "상승 스텝 " + value + " (" + (value * PacketInfo.TX_PWR_LEVEL_STEP_MV) + "mV)";
+
+            case PacketInfo.RC_LINK_IDX_FORCE_TX_POWER:
+                return (value == PacketInfo.FORCE_TX_PWR_RELEASE) //
+                       ? "고정 PMIC 해제됨 (링크 제어 재개)" //
+                       : String.format("고정 PMIC %d (%.3fV)", value, (value * PacketInfo.TX_PWR_LEVEL_STEP_MV / 1000.0f));
+
+            case PacketInfo.RC_LINK_IDX_ONE_COIN:
+                return "One Coin " + ((value == PacketInfo.LINK_FLAG_DISABLE) ? "Off" : "On");
+
+            case PacketInfo.RC_LINK_IDX_INFINITE_COIN:
+                return "Infinite Coin " + ((value == PacketInfo.LINK_FLAG_DISABLE) ? "Off" : "On");
+
+            case PacketInfo.RC_LINK_IDX_CTRL_MODE:
+                return "링크 제어 모드 : " + ((value == PacketInfo.LINK_CTRL_MODE_BACKTEL) //
+                                            ? "BT — 백텔 수신 여부로 판정" //
+                                            : "ISD — 내부기 전원 상태로 판정");
+
+            case PacketInfo.RC_LINK_IDX_TX_POWER_ACCEL:
+                return "상승 가속 " + ((value == PacketInfo.LINK_FLAG_DISABLE) ? "Off" : "On");
+
+            case PacketInfo.RC_LINK_IDX_POWER_STABLE_NOP:
+                /* 펌웨어가 프레임 수에 맞춰 매 사이클 다시 잘라내므로 되읽은 값이 실제 동작
+                 * 개수와 다를 수 있다. 그래서 «설정» 이라고만 적고 단정하지 않는다. */
+                return "전원 안정 Nop " + value + "개 설정";
+
+            case PacketInfo.RC_LINK_IDX_NOP_ENABLE:
+                return (value == PacketInfo.NOP_ENABLE_DEFAULT) //
+                       ? "전원 안정 Nop 을 패킷 수별 기본값으로 되돌렸습니다" //
+                       : "전원 안정 Nop 을 리모콘 값으로 씁니다";
+
+            default:
+                return "링크 인덱스 " + index + " = " + value;
+        }
+    }
+
+    //
+    // 옵션 0x22 — 배터리 텔레메트리 응답 (값 8바이트)
+    //
+    //   +0 전압(mV) 2바이트, +2 잔량(%), +3 TX PMIC 레벨, +4 시스템 타이머 4바이트
+    //   다중 바이트는 상위 바이트를 먼저 싣는다.
+    //
+    private void handleRcBatteryResponse(byte[] responsePacket, int valueLen)
+    {
+        if (valueLen < 8)
+        {
+            Log.d(TAG, "[BATTERY] 텔레메트리 값이 짧습니다 : L = " + valueLen);
+            return;
+        }
+
+        int ofs = PacketInfo.RC_RSP_OFS_VALUE;
+
+        int mv      = ((responsePacket[ofs] & 0xFF) << 8) | (responsePacket[ofs + 1] & 0xFF);
+        int percent = responsePacket[ofs + 2] & 0xFF;
+        int pmic    = responsePacket[ofs + 3] & 0xFF;
+        int tick    = ((responsePacket[ofs + 4] & 0xFF) << 24) //
+                      | ((responsePacket[ofs + 5] & 0xFF) << 16) //
+                      | ((responsePacket[ofs + 6] & 0xFF) << 8) //
+                      | (responsePacket[ofs + 7] & 0xFF);
+
+        // 전압이 0 이면 보드 교정값이 로드되지 않은 것이다. 정상 범위는 3000~4200mV 다.
+        Log.i(TAG, "[BATTERY] 텔레메트리 : " + mv + "mV, " + percent + "%, PMIC " + pmic + ", 타이머 " + tick);
+        UtilLog.instance.writeLog("패킷 수신 : 배터리 텔레메트리->" + mv + "mV, " + percent + "%");
+
+        mStatusViewModel.setValueBatteryLevel(percent);
+        mStatusViewModel.setValueCurTxPowerLevel(pmic);
+    }
+
+    // 연결이 끝난 뒤 호출한다.
+    public void startLinkMonitor()
+    {
+        stopLinkMonitor();
+
+        mLinkMonitorTick = 0;
+        mLinkMonitorHandler.postDelayed(mLinkMonitorRunner, LINK_MONITOR_PERIOD_IN_MS);
+
+        Log.d(TAG, "[LINK] 링크 감시를 시작합니다.");
+    }
+
+    public void stopLinkMonitor()
+    {
+        mLinkMonitorHandler.removeCallbacks(mLinkMonitorRunner);
+    }
 
     //
     // Discover services 시간초과 처리 핸들러
@@ -1503,21 +2550,42 @@ public class MainActivity extends AppCompatActivity
 
                     mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner);
                     mPacketSendHandler.removeCallbacks(mPacketSendRunner);
-                    mCheckBatteryHandler.removeCallbacks(mCheckBatteryRunner);
+                    stopLinkMonitor();
                     mStatusHandler.removeCallbacks(mStatusRunner);
                     mDeviceAndMapInfoHandler.removeCallbacks(mDeviceAndMapInfoRunner);
                     mPasswordHandler.removeCallbacks(mPasswordRunner);
                     mCCCDHandler.removeCallbacks(mCCCDRunner);
                     mDiscoverServicesHandler.removeCallbacks(mDiscoverServicesRunner);
 
-                    // 연결이 끊겼으므로 링크 설정 순차 읽기도 중단한다.
-                    mLinkInfoReadStep = LINK_INFO_READ_STEP_IDLE;
+                    /* 연결이 끊겼으므로 세대 판별도 중단하고 결과를 지운다.
+                     * 다음에 붙는 기기가 다른 세대일 수 있어 그대로 두면 안 된다. */
+                    resetLinkInfoRead();
+
+                    mStatus.fwRelease = Status.FW_RELEASE_UNKNOWN;
+                    mStatus.rel4LinkIndexMax = 0;
+                    publishFwRelease();
+
+                    /* 매핑 연결 응답을 기다리던 중이었으면 그 대기도 푼다.
+                     * 안 풀면 다시 붙은 뒤 Write 를 눌러도 «기다리는 중» 이라며 막힌다. */
+                    Fragment otaFragment = getSupportFragmentManager().findFragmentById(mBinding.frame.getId());
+
+                    if (otaFragment instanceof RemoteControlFragment)
+                    {
+                        ((RemoteControlFragment) otaFragment).onDisconnectedForOta();
+                    }
 
                     if (mStatusViewModel != null)
                     {
                         mStatusViewModel.setValueMinTxPowerLevel(PacketInfo.LINK_VALUE_UNKNOWN);
                         mStatusViewModel.setValueMappingTxPowerLevel(PacketInfo.LINK_VALUE_UNKNOWN);
                         mStatusViewModel.setValueTxStepUp(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueForceTxPowerLevel(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueCurTxPowerLevel(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueOneCoin(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueInfiniteCoin(PacketInfo.LINK_VALUE_UNKNOWN);
+
+                        // 연결이 끊겼으므로 코인 모드 두 번째 패킷도 취소한다.
+                        mPendingOneCoinValue = PacketInfo.LINK_VALUE_UNKNOWN;
                         mStatusViewModel.setValueBacktelPeriod(PacketInfo.LINK_VALUE_UNKNOWN);
                         mStatusViewModel.setValueGatingState(PacketInfo.LINK_VALUE_UNKNOWN);
 
@@ -1986,6 +3054,13 @@ public class MainActivity extends AppCompatActivity
                     mStatusViewModel.setValueTelecoil(packetInfo.telecoil);
                     mStatusViewModel.setValueMaxOutput(packetInfo.maxOutput);
                     mStatusViewModel.setValueVolume(packetInfo.volume);
+                    /* 기기에서 직접 프로그램을 바꿨을 수도 있다. 앱이 아는 값과 다르면
+                     * 맵이 바뀐 것이므로 링크 파라미터를 다시 읽는다. */
+                    if (mStatusViewModel.getValueProgram() != packetInfo.program)
+                    {
+                        requestLinkParamRefresh("기기 상태에서 프로그램 변경 감지");
+                    }
+
                     mStatusViewModel.setValueProgram(packetInfo.program);
 
                     Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
@@ -2005,7 +3080,6 @@ public class MainActivity extends AppCompatActivity
 
                         Log.d(TAG, "사운드처리기와 BLE 통신이 온전하게 연결되었습니다.");
                         mStatus.connectionState = Status.CONNECTION_STATE_CONNECTED;
-                        //mCheckBatteryHandler.postDelayed(mCheckBatteryRunner, CHECK_BATTERY_DELAY_IN_MS);
 
                         // 리모컨 화면의 옵저버를 위해 뷰모델 값을 업데이트한다.
                         mStatusViewModel.setConnectionState(StatusViewModel.CONNECTION_STATE_CONNECTED);
@@ -2013,6 +3087,10 @@ public class MainActivity extends AppCompatActivity
                         /* 연결 과정의 마지막 단계다. 이어서 링크 설정 값(PMIC 하한, 백텔 주기,
                          * 게이팅 상태)을 차례로 읽어와 화면 상단에 표시한다. */
                         startLinkInfoRead();
+
+                        /* 현재 Tx 파워와 기기 상태를 주기적으로 갱신한다.
+                         * OTA 전용 모드나 OTA 전송 중에는 러너가 스스로 쉰다. */
+                        startLinkMonitor();
                     }
                 }
                 break;
@@ -2092,6 +3170,10 @@ public class MainActivity extends AppCompatActivity
                     int value = responsePacket[1];
                     mStatusViewModel.setValueProgram(value);
                     UtilLog.instance.writeLog("패킷 수신 : 프로그램->" + value);
+
+                    /* 프로그램이 바뀌면 맵이 바뀐다. 펄스폭 · 패킷 수 · 자극 전략이 따라
+                     * 달라지고 전원 안정 Nop 도 기본값으로 다시 잡히므로 곧바로 다시 읽는다. */
+                    requestLinkParamRefresh("프로그램 변경");
 
                 }
                 break;
@@ -2178,183 +3260,140 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
 
-                // 특수 시스템 동작 설정
+                // 특수 시스템 동작 설정 (릴리즈 4 프로토콜)
                 case PacketInfo.HEADER_SPECIFIC_CMD:
                 {
-                    // 옵션 바이트를 읽기 전에 최소 길이를 먼저 확인한다.
+                    /* 옵션 바이트를 읽기 전에 최소 길이를 먼저 확인한다. */
                     if (packetSize < 2)
                     {
-                        Log.d(TAG, "BLE 특성 변경 감지 -> 특수 시스템 동작 설정 응답에 옵션이 없습니다 : 사이즈 = " + packetSize);
-                        UtilLog.instance.writeLog("패킷 에러 : 특수 시스템 동작 설정 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+                        Log.d(TAG, "BLE 특성 변경 감지 -> 0x59 응답에 옵션이 없습니다 : 사이즈 = " + packetSize);
+                        UtilLog.instance.writeLog("패킷 에러 : 0x59 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
 
                         packetSizeErrorDialog();
                         break;
                     }
 
-                    // 맵 데이터 강제 초기화
-                    if (responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MAP_INIT)
+                    int option = responsePacket[PacketInfo.RC_RSP_OFS_OPTION] & 0xFF;
+
+                    /* 묵음(옵션 1, 2)만 구형 포맷이다. 도메인 · 인덱스 구조가 아니라
+                     * [커맨드, 옵션, 세부1, 상태, 오프셋] 다섯 바이트로 온다. */
+                    if (option == PacketInfo.RC_OPT_MUTE_READ || option == PacketInfo.RC_OPT_MUTE_WRITE)
                     {
-                        if (packetSize != PacketInfo.PACKET_SIZE_SPECIFIC_CMD_MAP_INIT)
+                        if (packetSize != PacketInfo.RC_RSP_LEN_MUTE)
                         {
-                            Log.d(TAG, "BLE 특성 변경 감지 -> 맵 초기화 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
-                            UtilLog.instance.writeLog("패킷 에러 : 맵 초기화 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 묵음 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : 묵음 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
 
                             packetSizeErrorDialog();
                             break;
                         }
 
-                        int    mapInitType = responsePacket[2] & 0xFF;
-                        int    isdCount    = responsePacket[3] & 0xFF;
-                        String mapInitName = PacketInfo.mapInitTypeName(mapInitType);
+                        int    state     = responsePacket[PacketInfo.MUTE_RSP_OFS_STATE] & 0xFF;
+                        int    offset    = responsePacket[PacketInfo.MUTE_RSP_OFS_OFFSET] & 0xFF;
+                        String stateName = (state == PacketInfo.MUTE_ENABLE) ? "On" : "Off";
 
-                        /* 사운드처리기는 초기화를 시작하기 직전에 이 응답을 먼저 보낸다.
-                         * 실제 초기화는 ISD 개수만큼 맵 파일을 쓰기 때문에 수 초 이상 걸리므로,
-                         * '완료'가 아니라 '시작'을 알리는 안내로 표시한다. */
-                        Log.i(TAG, "[MAP INIT] 맵 초기화 시작 : " + mapInitName + ", ISD 1 ~ " + isdCount);
-                        UtilLog.instance.writeLog("패킷 수신 : 맵 초기화 시작->" + mapInitName + " (ISD 1~" + isdCount + ")");
-
-                        Toast.makeText(getApplicationContext(), "맵 초기화 시작 : " + mapInitName + " (ISD 1~" + isdCount + ")\n완료까지 수 초 이상 걸립니다.", Toast.LENGTH_LONG).show();
-                    }
-                    // 게이팅(묵음) 읽기 / 쓰기 : [헤더, 옵션, 세부1, 활성화 상태, 오프셋]
-                    else if (responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_GATING_READ //
-                             || responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_GATING_WRITE)
-                    {
-                        if (packetSize != PacketInfo.PACKET_SIZE_SPECIFIC_CMD_GATING)
-                        {
-                            Log.d(TAG, "BLE 특성 변경 감지 -> 게이팅 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
-                            UtilLog.instance.writeLog("패킷 에러 : 게이팅 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
-
-                            packetSizeErrorDialog();
-                            break;
-                        }
-
-                        int    enableState = responsePacket[3] & 0xFF;
-                        int    offset      = responsePacket[4] & 0xFF;
-                        String stateName   = (enableState == PacketInfo.GATING_ENABLE) ? "On" : "Off";
-
-                        Log.i(TAG, "[GATING] 게이팅 설정 결과 : " + stateName + ", 오프셋 " + offset);
+                        Log.i(TAG, "[GATING] 게이팅 : " + stateName + ", 오프셋 " + offset);
                         UtilLog.instance.writeLog("패킷 수신 : 게이팅->" + stateName + " (오프셋 " + offset + ")");
 
-                        mStatusViewModel.setValueGatingState(enableState);
+                        mStatusViewModel.setValueGatingState(state);
 
-                        // 연결 직후 순차 읽기 중에는 Toast 를 띄우지 않는다. (버튼 조작 결과만 알린다)
-                        if (mLinkInfoReadStep == LINK_INFO_READ_STEP_IDLE || mLinkInfoReadStep == LINK_INFO_READ_STEP_DONE)
+                        if (isLinkInfoReadIdle())
                         {
                             Toast.makeText(getApplicationContext(), "게이팅 " + stateName + " (T레벨 오프셋 " + offset + ")", Toast.LENGTH_SHORT).show();
                         }
+
+                        advanceLinkInfoRead(option);
+                        break;
                     }
-                    // 링크 백텔 주기 : [헤더, 4, 100msec 단위 주기]
-                    else if (responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_BACKTEL_PERIOD)
+
+                    /* 구 옵션(3~23)과 릴리즈 4 도메인(0x20~)은 번호 대역이 겹치지 않는다.
+                     * 그래서 옵션 번호만으로 포맷이 갈린다. 세대 판별이 끝나기 전에 오는
+                     * 응답도 옳게 갈리므로 세대 값에 기대지 않는다. */
+                    if (PacketInfo.isLegacyFormatOption(option))
                     {
-                        if (packetSize != PacketInfo.PACKET_SIZE_SPECIFIC_CMD_BACKTEL)
-                        {
-                            Log.d(TAG, "BLE 특성 변경 감지 -> 백텔 주기 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
-                            UtilLog.instance.writeLog("패킷 에러 : 백텔 주기 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+                        handleLegacyResponse(responsePacket, packetSize, option);
 
-                            packetSizeErrorDialog();
-                            break;
-                        }
-
-                        int period100ms = responsePacket[2] & 0xFF;
-                        int periodMs    = period100ms * PacketInfo.BACKTEL_PERIOD_UNIT_MS;
-
-                        Log.i(TAG, "[BACKTEL] 현재 백텔 주기 : " + period100ms + " (" + periodMs + "msec)");
-                        UtilLog.instance.writeLog("패킷 수신 : 백텔 주기->" + periodMs + "msec");
-
-                        mStatusViewModel.setValueBacktelPeriod(period100ms);
-
-                        if (mLinkInfoReadStep == LINK_INFO_READ_STEP_IDLE || mLinkInfoReadStep == LINK_INFO_READ_STEP_DONE)
-                        {
-                            Toast.makeText(getApplicationContext(), "백텔 주기 " + periodMs + "msec", Toast.LENGTH_SHORT).show();
-                        }
+                        advanceLinkInfoRead(option);
+                        break;
                     }
-                    // 링크 Tx 파워 하한(PMIC) 읽기 / 쓰기 : [헤더, 옵션, 레벨]
-                    else if (responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MIN_TX_PWR_READ //
-                             || responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MIN_TX_PWR_WRITE)
+
+                    /* 여기부터는 릴리즈 4 공통 포맷이다.
+                     * [커맨드, 옵션, 액세스, 인덱스, 값의 바이트 수 L, 값 L바이트] */
+                    if (packetSize < PacketInfo.RC_RSP_HEADER_SIZE)
                     {
-                        if (packetSize != PacketInfo.PACKET_SIZE_SPECIFIC_CMD_MIN_TX_PWR)
-                        {
-                            Log.d(TAG, "BLE 특성 변경 감지 -> 링크 Tx 파워 하한 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
-                            UtilLog.instance.writeLog("패킷 에러 : 링크 Tx 파워 하한 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
+                        Log.d(TAG, "BLE 특성 변경 감지 -> 0x59 응답 헤더가 짧습니다 : 사이즈 = " + packetSize);
+                        UtilLog.instance.writeLog("패킷 에러 : 0x59 응답 헤더 사이즈 에러 (사이즈->" + packetSize + ")");
 
-                            packetSizeErrorDialog();
-                            break;
-                        }
-
-                        int level = responsePacket[2] & 0xFF;
-                        int mv    = level * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV;
-
-                        Log.i(TAG, "[PMIC] 현재 링크 Tx 파워 하한 : " + level + " (" + mv + "mV)");
-                        UtilLog.instance.writeLog("패킷 수신 : 링크 Tx 파워 하한->" + level + " (" + mv + "mV)");
-
-                        mStatusViewModel.setValueMinTxPowerLevel(level);
-
-                        if (mLinkInfoReadStep == LINK_INFO_READ_STEP_IDLE || mLinkInfoReadStep == LINK_INFO_READ_STEP_DONE)
-                        {
-                            Toast.makeText(getApplicationContext(), String.format("PMIC 하한 %d (%.3fV)", level, (mv / 1000.0f)), Toast.LENGTH_SHORT).show();
-                        }
+                        packetSizeErrorDialog();
+                        break;
                     }
-                    // 매핑(피팅) 전용 Tx 파워 하한 읽기 / 쓰기 : [헤더, 옵션, 레벨]
-                    else if (responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MAPPING_TX_PWR_READ //
-                             || responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_MAPPING_TX_PWR_WRITE)
+
+                    int index     = responsePacket[PacketInfo.RC_RSP_OFS_INDEX] & 0xFF;
+                    int valueLen  = responsePacket[PacketInfo.RC_RSP_OFS_LENGTH] & 0xFF;
+
+                    // 값의 바이트 수가 실제 패킷 길이와 맞는지 확인한다.
+                    if (packetSize < PacketInfo.RC_RSP_HEADER_SIZE + valueLen)
                     {
-                        if (packetSize != PacketInfo.PACKET_SIZE_SPECIFIC_CMD_MAPPING_TX_PWR)
+                        Log.d(TAG, "BLE 특성 변경 감지 -> 0x59 응답 값 길이 불일치 : 사이즈 = " + packetSize + ", L = " + valueLen);
+                        UtilLog.instance.writeLog("패킷 에러 : 0x59 응답 값 길이 불일치 (사이즈->" + packetSize + ", L->" + valueLen + ")");
+
+                        packetSizeErrorDialog();
+                        break;
+                    }
+
+                    if (option == PacketInfo.RC_OPT_VERSION)
+                    {
+                        handleRcVersionResponse(responsePacket, valueLen);
+                    }
+                    else if (option == PacketInfo.RC_OPT_LINK)
+                    {
+                        handleRcLinkResponse(responsePacket, index, valueLen);
+                    }
+                    else if (option == PacketInfo.RC_OPT_STIM)
+                    {
+                        // 맵 초기화는 쓰기 전용이라 돌려받을 값이 없다. 수락되었다는 뜻이다.
+                        Log.i(TAG, "[STIM] 자극 제어 응답 : 인덱스 " + index);
+                        UtilLog.instance.writeLog("패킷 수신 : 자극 제어 인덱스 " + index);
+
+                        if (index == PacketInfo.RC_STIM_IDX_MAP_INIT)
                         {
-                            Log.d(TAG, "BLE 특성 변경 감지 -> 매핑 Tx 파워 하한 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
-                            UtilLog.instance.writeLog("패킷 에러 : 매핑 Tx 파워 하한 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
-
-                            packetSizeErrorDialog();
-                            break;
-                        }
-
-                        int level = responsePacket[2] & 0xFF;
-                        int mv    = level * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV;
-
-                        Log.i(TAG, "[PMIC] 현재 매핑 Tx 파워 하한 : " + level + " (" + mv + "mV)");
-                        UtilLog.instance.writeLog("패킷 수신 : 매핑 Tx 파워 하한->" + level + " (" + mv + "mV)");
-
-                        mStatusViewModel.setValueMappingTxPowerLevel(level);
-
-                        if (mLinkInfoReadStep == LINK_INFO_READ_STEP_IDLE || mLinkInfoReadStep == LINK_INFO_READ_STEP_DONE)
-                        {
-                            Toast.makeText(getApplicationContext(), String.format("매핑 PMIC 하한 %d (%.3fV)", level, (mv / 1000.0f)), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "맵 초기화 시작\n완료까지 수 초 이상 걸립니다.", Toast.LENGTH_LONG).show();
                         }
                     }
-                    // 링크 Tx 파워 상승 스텝 읽기 / 쓰기 : [헤더, 옵션, 스텝]
-                    else if (responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_TX_STEP_UP_READ //
-                             || responsePacket[1] == PacketInfo.TX_PKT_OPT_SPECIFIC_CMD_TX_STEP_UP_WRITE)
+                    else if (option == PacketInfo.RC_OPT_BATTERY)
                     {
-                        if (packetSize != PacketInfo.PACKET_SIZE_SPECIFIC_CMD_TX_STEP_UP)
-                        {
-                            Log.d(TAG, "BLE 특성 변경 감지 -> 링크 상승 스텝 응답 패킷 사이즈 에러 : 사이즈 = " + packetSize);
-                            UtilLog.instance.writeLog("패킷 에러 : 링크 상승 스텝 응답 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
-
-                            packetSizeErrorDialog();
-                            break;
-                        }
-
-                        int step = responsePacket[2] & 0xFF;
-                        int mv   = step * PacketInfo.MIN_TX_PWR_LEVEL_STEP_MV;
-
-                        Log.i(TAG, "[PMIC] 현재 링크 상승 스텝 : " + step + " (" + mv + "mV)");
-                        UtilLog.instance.writeLog("패킷 수신 : 링크 상승 스텝->" + step + " (" + mv + "mV)");
-
-                        mStatusViewModel.setValueTxStepUp(step);
-
-                        if (mLinkInfoReadStep == LINK_INFO_READ_STEP_IDLE || mLinkInfoReadStep == LINK_INFO_READ_STEP_DONE)
-                        {
-                            Toast.makeText(getApplicationContext(), "링크 상승 스텝 " + step + " (" + mv + "mV)", Toast.LENGTH_SHORT).show();
-                        }
+                        handleRcBatteryResponse(responsePacket, valueLen);
                     }
                     else
                     {
-                        Log.d(TAG, "[SPECIFIC] 처리하지 않는 특수 시스템 동작 설정 옵션 수신 : " + (responsePacket[1] & 0xFF));
+                        Log.d(TAG, "[SPECIFIC] 처리하지 않는 0x59 옵션 수신 : " + option);
                     }
 
-                    // 연결 직후 순차 읽기 중이라면 다음 항목을 이어서 읽는다.
-                    advanceLinkInfoRead(responsePacket[1] & 0xFF);
+                    advanceLinkInfoRead(option);
                 }
                 break; // PacketInfo.HEADER_SPECIFIC_CMD
+
+                // 매핑 연결 응답 : OTA 전송 직전에 보내는 0x60 의 짝이다.
+                case PacketInfo.HEADER_MAPPING_CONNECT:
+                {
+                    if (packetSize < PacketInfo.PACKET_SIZE_MAPPING_CONNECT_RESP)
+                    {
+                        Log.d(TAG, "BLE 특성 변경 감지 -> 매핑 연결 응답이 짧습니다 : 사이즈 = " + packetSize);
+                        UtilLog.instance.writeLog("패킷 에러 : 매핑 연결 응답 사이즈 에러 (사이즈->" + packetSize + ")");
+                        break;
+                    }
+
+                    Log.i(TAG, "[OTA] 매핑 연결 응답 수신");
+                    UtilLog.instance.writeLog("패킷 수신 : 매핑 연결");
+
+                    Fragment mappingFragment = getSupportFragmentManager().findFragmentById(mBinding.frame.getId());
+
+                    if (mappingFragment instanceof RemoteControlFragment)
+                    {
+                        ((RemoteControlFragment) mappingFragment).onMappingConnected();
+                    }
+                }
+                break; // PacketInfo.HEADER_MAPPING_CONNECT
 
                 case PacketInfo.HEADER_OTA:
                 {
@@ -2411,23 +3450,43 @@ public class MainActivity extends AppCompatActivity
                     }
                     else
                     {
-                        if (packetSize != PacketInfo.PACKET_SIZE_ERROR)
+                        /* 에러 응답은 «정상적인 응답» 이다. 거절당했다는 뜻이지 프레임이
+                         * 깨졌다는 뜻이 아니다. 그래서 여기서 연결을 끊지 않는다.
+                         *
+                         * 앱이 읽는 것은 앞의 세 바이트(헤더 · 커맨드 · 주에러)뿐이라
+                         * 그만큼만 있으면 해석할 수 있다. */
+                        if (packetSize < PacketInfo.PACKET_SIZE_ERROR_MIN)
                         {
-                            Log.d(TAG, "BLE 특성 변경 감지 -> 에러 패킷 사이즈 에러 : 사이즈 = " + packetSize);
-                            UtilLog.instance.writeLog("패킷 에러 : 에러 패킷 사이즈 에러 (사이즈->" + packetSize + ")");
-
-                            // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
-                            packetSizeErrorDialog();
+                            Log.d(TAG, "BLE 특성 변경 감지 -> 에러 패킷이 너무 짧습니다 : 사이즈 = " + packetSize);
+                            UtilLog.instance.writeLog("패킷 에러 : 에러 패킷 사이즈 부족 (사이즈->" + packetSize + ")");
                             break;
                         }
 
+                        if (packetSize != PacketInfo.PACKET_SIZE_ERROR)
+                        {
+                            Log.d(TAG, "[BLE] 에러 패킷 길이가 규격과 다릅니다 : 사이즈 = " + packetSize + " (규격 " + PacketInfo.PACKET_SIZE_ERROR + ")");
+                        }
+
                         byte errorType = byteExtractor(responsePacket[2]);
+                        byte failedCmd = byteExtractor(responsePacket[1]);
+
+                        /* 세대 판별 중에 0x59 가 거절되는 것은 «정상» 이다. 그 세대가 모르는
+                         * 옵션을 일부러 보내 보는 중이기 때문이다. 다음 후보로 내려가고
+                         * 사용자에게는 알리지 않는다. */
+                        if (failedCmd == PacketInfo.HEADER_SPECIFIC_CMD && !isLinkInfoReadIdle())
+                        {
+                            Log.d(TAG, "[LINK] 판별 중 0x59 거절 (에러 " + errorType + "). 다음 후보로 넘어갑니다.");
+
+                            onLinkInfoReadFailed(errorType);
+                            break;
+                        }
 
                         switch (errorType)
                         {
                             case 1: // 없는 명령
                             case 2: // 데이터 범위 이탈
-                                Log.d(TAG, "패킷 위반 에러를 수신했습니다.");
+                            case 8: // BLE 프로토콜 에러 (사운드처리기 en__EN__BLE_PROTOCOL_ERROR)
+                                Log.d(TAG, "패킷 위반 에러를 수신했습니다. (에러 " + errorType + ", 커맨드 0x" + String.format("%02X", failedCmd) + ")");
 
                                 if (!mStatus.isEnabledInvalidPacketToast)
                                 {
@@ -2557,6 +3616,20 @@ public class MainActivity extends AppCompatActivity
         if ((mBluetoothGatt == null) || (mStatus.connectionState != Status.CONNECTION_STATE_CONNECTED))
         {
             Log.e(TAG, "[BLE] 패킷 전송 실패 → 'GATT == null' 또는 '연결 상태 아님'.");
+            return;
+        }
+
+        /* 세대 판별 중에는 «응답이 없는 것» 도 답이다. 그 세대가 모르는 옵션을 일부러
+         * 보내 보는 중인데, 에러조차 안 주고 무시하는 펌웨어가 있다.
+         *
+         * 여기서 재전송하고 끊어 버리면 연결과 해제가 끝없이 반복된다. 같은 패킷을
+         * 다시 보내 봐야 결과가 같으므로 재전송도 하지 않고 다음 후보로 내려간다. */
+        if (!isLinkInfoReadIdle())
+        {
+            Log.d(TAG, "[LINK] 판별 중 응답이 없습니다. 다음 후보로 넘어갑니다.");
+
+            mStatus.transferState = Status.TRANSFER_STATE_IDLE;
+            onLinkInfoReadFailed(PacketInfo.LEGACY_OPT_NONE);
             return;
         }
 
@@ -2719,6 +3792,8 @@ public class MainActivity extends AppCompatActivity
         mBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(true);
         mBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(true);
         mBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
+
+        // OTA 전용 연결 모드 아이콘을 현재 상태에 맞춘다.
 
         // 툴바의 네비게이션 및 메뉴 버튼 이벤트 리스너 등록
         mBinding.toolbar.setNavigationOnClickListener(mToolBarNavigationClickListener);
