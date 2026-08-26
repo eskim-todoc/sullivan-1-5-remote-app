@@ -25,6 +25,15 @@ public class Ota
     static public final int SLOT_NUM_1 = 1;
     static public final int SLOT_NUM_2 = 2;
 
+    /* 수집한 파일을 담아 두는 자리.
+     *
+     * 예전에는 «슬롯 1 폴더에서 읽어 슬롯 1 에 쓴다» 였다. 그래서 파일 버퍼도 슬롯마다
+     * 따로 있었다. 지금은 어느 폴더에서 읽든 어느 슬롯에도 쓸 수 있으므로 그 묶임을 끊었다.
+     *
+     * 읽은 것은 슬롯과 무관한 이 한 벌에 담고, 쓸 때 목표 슬롯만 갈아 끼운다.
+     * 슬롯 번호와 겹치지 않게 0 을 쓴다. */
+    static public final int SLOT_NUM_COLLECT = 0;
+
     static public final int COMM_STATE_IDLE              = 0;
     static public final int COMM_STATE_PREPARE_COMMAND   = 1;
     static public final int COMM_STATE_WAIT_RESP_COMMAND = 2;
@@ -42,6 +51,10 @@ public class Ota
 
     public int currentSlotNum;
     public int currentFileNum;
+
+    /* 마지막으로 수집한 폴더의 이름. BASE_FOLDER 아래의 한 칸이다.
+     * 비어 있으면 아직 아무것도 수집하지 않은 상태다. */
+    public String collectFolderName;
 
     // Members
     public static ArrayList<OtaFile> fileList;
@@ -67,6 +80,8 @@ public class Ota
 
         currentSlotNum = -1;
         currentFileNum = -1;
+
+        collectFolderName = "";
 
         commState = COMM_STATE_IDLE;
 

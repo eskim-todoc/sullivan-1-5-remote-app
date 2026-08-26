@@ -17,6 +17,12 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import todoc.cochlear.remoteapp.activity.R;
+import androidx.core.content.ContextCompat;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.Spanned;
+import android.text.SpannableString;
 
 public class UtilUser {
     static private final String TAG = "TODOC_" + UtilUser.class.getSimpleName();
@@ -213,6 +219,55 @@ public class UtilUser {
     static public String getNameOnly(String nameWithEar) {
         return nameWithEar.substring(0, nameWithEar.length() - (EntityUser.EAR_LEFT.length() + EntityUser.DELIMITER.length()));
     }
+
+    // 화면에 보일 사용자 표기를 만든다 - "토닥 - 왼쪽" 처럼 이름 뒤에 착용 위치를 붙인다.
+    //
+    // 별명이 있으면 별명을, 없으면 이름을 쓴다. 어느 쪽이든 착용 위치는 붙는다.
+    // 예전에는 별명이 있을 때 착용 위치를 빼먹어, 같은 사람의 좌/우 기기를 화면에서
+    // 구분할 수 없었다.
+    //
+    // 이름이 주고 착용 위치는 딸린 정보다. 그 관계가 보이도록 " - " 부터 끝까지를
+    // 한 단계 작게, 한 톤 어둡게 칠한다. 한 TextView 안에서 부분만 다르게 그리는 것이라
+    // Spannable 로 만든다.
+    static public CharSequence makeDisplayName(Context context, EntityUser user) {
+        if (user == null) {
+            return "";
+        }
+
+        String base = (user.nickname != null && !user.nickname.isEmpty()) //
+                      ? user.nickname //
+                      : getNameOnly(user.name);
+
+        if (base == null) {
+            base = "";
+        }
+
+        String ear = getEarKorean(user.ear);
+
+        if (ear == null || ear.isEmpty()) {
+            return base;
+        }
+
+        String tail = EAR_SEPARATOR + ear;
+
+        SpannableString span = new SpannableString(base + tail);
+
+        int from = base.length();
+        int to   = span.length();
+
+        if (context != null) {
+            int size = context.getResources().getDimensionPixelSize(R.dimen.tdc_text_size_ear);
+
+            span.setSpan(new AbsoluteSizeSpan(size), from, to, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            span.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context, R.color.white_70)), //
+                         from, to, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+        return span;
+    }
+
+    // 이름과 착용 위치 사이의 구분자. Spannable 의 시작 위치를 이 길이로 잡는다.
+    static public final String EAR_SEPARATOR = " - ";
 
     // 착용 위치에 대한 한글 문자열 얻어오기
     //

@@ -1,29 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+큰 태블릿(가장 작은 변 900dp 이상)의 치수. 폰의 2배다.
+
+이 값은 계산이 아니라 실측에서 나왔다. Galaxy Tab A8 10.5(SM-X205N, sw901dp, tvdpi)에
+1.6 배(values-sw720dp)를 올려 재 보니 두 열이 가용 높이 761dp 중 445dp 만 쓰고
+약 245dp 가 빈 띠로 남았다. 내용이 화면의 68% 만 채우고 있었다.
+
+버튼 64dp 는 권장 최소 터치 타깃 48dp 를 넉넉히 넘는다. 시험용으로 팔 길이에서
+누르는 화면이라 큰 편이 낫다.
+-->
 <resources>
-    <dimen name="share_category_height_dp">42dp</dimen>
+    <dimen name="tdc_text_size_tiny">14dp</dimen>
+    <dimen name="tdc_text_size_small">16dp</dimen>
+    <dimen name="tdc_text_size_normal">18dp</dimen>
+    <dimen name="tdc_text_size_large">20dp</dimen>
+    <dimen name="tdc_text_size_title">26dp</dimen>
 
-    <!--
-    리모콘 화면의 글자·버튼 치수.
-
-    폰 값이 기준이고 태블릿에서만 values-sw600dp / values-sw720dp 가 덮어쓴다.
-    이름을 값 기준으로 붙인 것은 87곳을 기계 치환해야 해서다. 역할 기준이 이상적이나
-    사람이 하나씩 분류하면 오분류가 생기고, 화면으로는 그것을 알아채기 어렵다.
-
-    태블릿에서 남는 공간을 «여백» 이 아니라 «내용» 이 먹게 하려는 것이다.
-    가로 고정 태블릿에서 smallestScreenWidthDp 는 곧 화면 높이라, 한정자가 기기 높이를
-    따라가고 배율도 그에 맞춰 정해진다.
-    -->
-    <dimen name="tdc_text_size_tiny">10dp</dimen>
-    <dimen name="tdc_text_size_small">11dp</dimen>
-    <dimen name="tdc_text_size_normal">12dp</dimen>
-    <dimen name="tdc_text_size_large">14dp</dimen>
-    <dimen name="tdc_text_size_title">18dp</dimen>
-
-    <dimen name="tdc_button_height">30dp</dimen>
+    <dimen name="tdc_button_height">48dp</dimen>
 
     <!-- 화면 가장자리 여백. 태블릿에서는 내용이 화면 끝에 붙지 않도록 넉넉히 준다. -->
-    <dimen name="tdc_screen_padding_h">8dp</dimen>
-    <dimen name="tdc_screen_padding_v">6dp</dimen>
+    <dimen name="tdc_screen_padding_h">24dp</dimen>
+    <dimen name="tdc_screen_padding_v">16dp</dimen>
 
     <!--
     버튼 사이 간격.
@@ -32,7 +29,7 @@
     (코드가 절반씩 나눠 양쪽에 준다). 두 간격이 같아야 화면이 한 격자로 읽히는데,
     값을 두 곳에 따로 적으면 반드시 어긋난다.
     -->
-    <dimen name="tdc_button_gap">4dp</dimen>
+    <dimen name="tdc_button_gap">12dp</dimen>
 
     <!--
     상태 격자와 Status of files 의 «한 줄» 높이. 두 격자가 같은 값을 쓴다.
@@ -41,7 +38,7 @@
     (Cur-Status of files, BT-Name, Nop-MFST, Frm-APP0, Prog-APP1).
     글자 크기가 서로 달라 wrap_content 로 두면 아래로 갈수록 어긋난다.
     -->
-    <dimen name="tdc_status_row_height">19dp</dimen>
+    <dimen name="tdc_status_row_height">26dp</dimen>
 
     <!--
     내부기 제조번호 전용 크기.
@@ -50,7 +47,7 @@
     예전에는 연결 화면 제목과 같은 값을 썼는데, 그러면 한쪽을 줄이면
     다른 쪽도 같이 줄어든다.
     -->
-    <dimen name="tdc_text_size_isd_id">14dp</dimen>
+    <dimen name="tdc_text_size_isd_id">18dp</dimen>
 
     <!--
     착용 위치(" - 왼쪽")의 크기. 사용자 이름보다 한 단계 작다.
@@ -58,5 +55,5 @@
     같은 줄에 있지만 이름이 주가 되고 착용 위치는 딸린 정보다.
     크기와 색을 함께 낮춰 그 관계를 보이게 한다.
     -->
-    <dimen name="tdc_text_size_ear">16dp</dimen>
+    <dimen name="tdc_text_size_ear">22dp</dimen>
 </resources>

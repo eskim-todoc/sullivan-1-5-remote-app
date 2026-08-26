@@ -238,6 +238,13 @@ public class PacketInfo
     static public final int RC_PROTOCOL_MINOR_NOP_TABLE = 2;
     static public final int RC_PROTOCOL_MINOR_STRATEGY  = 3;
 
+    /* 4.4 : 재시도 코인(인덱스 7)이 «켜고 끄는 스위치» 에서 «개수» 가 됐다.
+     *
+     * 인덱스가 새로 생긴 것이 아니라 «뜻» 이 넓어진 것이라 위의 것들과 성격이 다르다.
+     * 그래서 isLinkParamSupported() 의 인덱스 게이트가 아니라 별도 판정으로 쓴다.
+     * 0 과 1 의 해석은 그대로 보존되므로 구버전 앱이 쓰던 값이 같은 동작을 낸다. */
+    static public final int RC_PROTOCOL_MINOR_COIN_COUNT = 4;
+
     // 옵션 n 의 지원 여부는 비트맵[n / 8] 의 비트 n % 8 이다. 비트맵은 옵션 0~63 만 표현한다.
     static public boolean isOptionSupported(byte[] bitmap, int option)
     {
@@ -499,6 +506,53 @@ public class PacketInfo
     // 자극이 이만큼 끊기면 경고한다. 표에서 ⚠ 로 표시된 지점이다.
     static public final int NOP_GAP_WARN_US = 1000;
 
+    /* 패킷 수가 이 값 이상이면 백텔이 아예 나가지 않는다.
+     *
+     * 그러면 링크 판정 블록에 진입조차 못 해 링크 제어 전체가 멈춘다. 그런데 로그도
+     * 에러도 나지 않는다. 리모콘으로 무엇을 설정하든 반영되지 않으므로 앱이 알려 줘야 한다.
+     * 사운드처리기 docs 의 «설정 의존성과 앱 UI 규칙» 이 가장 조용한 함정이라고 부르는 상태다. */
+    static public final int LINK_FRAME_NUM_FROZEN = 10;
+
+    /* [S] 의 «실상한». 인덱스 11 은 0 ~ 19 를 받아 주지만 CFX 가 FIFO 잔여 슬롯으로
+     * 한 번 더 자른다. 큰 값을 써도 거부되지 않고 조용히 이 값으로 줄어든다.
+     *
+     *   패킷 수 <= 3 : 24 - (패킷 수 x 2) - 3
+     *   패킷 수 >= 4 : 24 - 패킷 수 - 6 */
+    static public int getNopHardLimit(int frameNum)
+    {
+        if (!isNopFrameNumUsable(frameNum))
+        {
+            return NOP_STANDBY_SELECT_MAX;
+        }
+
+        int limit = (frameNum <= 3) //
+                    ? (24 - (frameNum * 2) - 3) //
+                    : (24 - frameNum - 6);
+
+        return Math.min(NOP_STANDBY_SELECT_MAX, limit);
+    }
+
+    /* [S] 가 이 값을 넘으면 그 백텔 사이클의 자극이 «한 채널도» 나가지 않는다.
+     *
+     * 실상한과는 다른 이야기다. 실상한까지는 써지지만 그 자리는 아홉 패킷 수 모두 자극 0 이다.
+     * 자극이 어차피 0 인 구간도 쓸 이유는 있다 - 자극 공백은 더 늘지 않으면서 전원 회복
+     * 시간만 길어지기 때문이다. 그래서 막지 않고 알리기만 한다.
+     *
+     * 딱 맞는 값을 훑어야 나오는 값이라 식으로 만들지 않고 표를 그대로 옮겼다.
+     * 패킷 수 9 는 어떤 값을 넣어도 자극이 남지 않아 -1 이다. */
+    static private final int[] NOP_STIM_MAX_BY_FRAME = {-1, 18, 15, 12, 10, 4, 6, 1, 2, -1};
+
+    static public int getNopStimMax(int frameNum)
+    {
+        return isNopFrameNumUsable(frameNum) ? NOP_STIM_MAX_BY_FRAME[frameNum] : -1;
+    }
+
+    // 이 패킷 수는 어떤 [S] 로도 자극을 남길 수 없다.
+    static public boolean isNopStimAlwaysZero(int frameNum)
+    {
+        return (getNopStimMax(frameNum) < 0);
+    }
+
     // 패킷 수를 알 수 있는지. 0 이나 범위 밖이면 표를 찾을 수 없다.
     static public boolean isNopFrameNumUsable(int frameNum)
     {
@@ -579,6 +633,26 @@ public class PacketInfo
     static public final int COIN_MODE_DISABLE  = 0; // one coin 0, infinite 0
     static public final int COIN_MODE_ENABLE   = 1; // one coin 1, infinite 0
     static public final int COIN_MODE_INFINITE = 2; // one coin 1, infinite 1
+
+    /* 프로토콜 4.4 부터 링크 인덱스 7 이 받는 값.
+     *
+     *   0        : 비활성 — 백텔 1회 실패에 바로 끊는다
+     *   1 ~ 100  : 개수   — 그 횟수만큼 견딘다 (파일에 남는다)
+     *   255      : 무한   — 끊김 판정을 하지 않는다 (시험 전용, 전원을 껐다 켜면 풀린다)
+     *
+     * 101 ~ 254 는 사운드처리기가 거부한다. 앱은 그 값을 만들지 않는다.
+     *
+     * 255 는 인덱스 8(infinite coin)의 1 과 «같은 내부 플래그» 다. 어느 쪽으로 켜도
+     * 나머지 하나가 따라 읽힌다. 그래서 신규 앱은 인덱스 7 만 쓰면 된다. */
+    static public final int COIN_COUNT_DISABLE  = 0;
+    static public final int COIN_COUNT_MIN      = 1;
+    static public final int COIN_COUNT_MAX      = 100;
+    static public final int COIN_COUNT_INFINITE = 255;
+
+    /* 코인 재시도 때의 Tx 파워 상향이 4.4 부터 «2 스텝 고정» 이 아니라 인덱스 5(상승 스텝)를
+     * 따른다. 스텝이 크면 재시도 한 번에 파워가 크게 뛴다 — 스텝 40 이면 1.0V 다.
+     * 무력화가 아니라 «동반 효과» 라 막지 않고 알리기만 한다. 이 값(0.5V)부터 알린다. */
+    static public final int COIN_STEP_UP_WARN_LEVEL = 20;
 
     // 연결 직후 읽어오기 전의 미확인 상태
     static public final int LINK_VALUE_UNKNOWN = -1;

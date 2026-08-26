@@ -82,6 +82,8 @@ import todoc.cochlear.remoteapp.service.ExitCaptureService;
 import todoc.cochlear.remoteapp.shared_preferences.LockScreen;
 import todoc.cochlear.remoteapp.shared_preferences.ManualScreen;
 import todoc.cochlear.remoteapp.view_model.StatusViewModel;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -300,6 +302,141 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    //
+    // 화면 방향 — 폰이면 세로, 태블릿이면 가로로 «실행할 때» 정해 고정한다
+    //
+    // 안드로이드에는 «이 기기가 태블릿인가» 를 알려 주는 API 가 없다. 가장 작은 변의 길이로
+    // 미루어 판정하는 것이 관례이고, 이 값은 방향을 돌려도 바뀌지 않아 기준으로 삼기 좋다.
+    //
+    // 600 은 res/values-sw600dp 폴더가 쓰는 경계와 같은 값이다. 둘이 어긋나면 방향은
+    // 태블릿으로 잡히는데 치수는 폰 것을 쓰는 상태가 된다.
+    //
+    static private final int TABLET_MIN_SMALLEST_WIDTH_DP = 600;
+
+    /* 실행할 때 정한 분류. 액티비티가 다시 만들어져도 같은 값을 쓰도록 프로세스에 남긴다.
+     * 폴더블을 접거나 펴도 이 값은 그대로다. 바꾸려면 앱을 다시 시작해야 한다. */
+    static private Boolean sIsTabletAtLaunch = null;
+
+    private boolean mScreenClassDialogShown = false;
+
+    static private boolean isTabletScreen(Configuration config)
+    {
+        return (TABLET_MIN_SMALLEST_WIDTH_DP <= config.smallestScreenWidthDp);
+    }
+
+    /* 실행 시점에 정한 화면 분류. 화면 구성이 이 값을 따라야 하므로 밖에서 읽을 수 있게 연다.
+     *
+     * 리소스 한정자(values-sw600dp)로 판정하지 않는 이유가 있다. 리소스는 구성이 바뀌면
+     * 즉시 다시 풀리지만 이 값은 실행 시점에 고정된다. 폴더블을 접었을 때 둘이 어긋난다.
+     * 방향 고정과 같은 근거를 써야 화면이 한 몸으로 움직인다. */
+    static public boolean isTabletAtLaunch()
+    {
+        return (sIsTabletAtLaunch != null && sIsTabletAtLaunch);
+    }
+
+    private void applyScreenOrientation()
+    {
+        if (sIsTabletAtLaunch == null)
+        {
+            sIsTabletAtLaunch = isTabletScreen(getResources().getConfiguration());
+        }
+
+        int orientation = sIsTabletAtLaunch //
+                          ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE //
+                          : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+
+        setRequestedOrientation(orientation);
+
+        Log.d(TAG, "[SCREEN] 가장 작은 변 " + getResources().getConfiguration().smallestScreenWidthDp + "dp" //
+                   + " -> " + (sIsTabletAtLaunch ? "태블릿, 가로 고정" : "폰, 세로 고정"));
+    }
+
+    /* 폴더블을 접거나 펴서 구성이 바뀌었을 때 불린다.
+     *
+     * 매니페스트에 configChanges 를 선언해 두었으므로 액티비티가 재생성되지 않는다.
+     * 크기 분류가 그대로면 아무것도 하지 않는다 - 쓰던 방향이 실행 중에 뒤집히지 않게 하려는 것이다.
+     * 분류가 바뀌었을 때만 이유를 알리고 다시 시작한다. */
+    @Override
+    public void onConfigurationChanged(Configuration newConfig)
+    {
+        super.onConfigurationChanged(newConfig);
+
+        boolean isTabletNow = isTabletScreen(newConfig);
+
+        if (sIsTabletAtLaunch != null && isTabletNow == sIsTabletAtLaunch)
+        {
+            return;
+        }
+
+        if (mScreenClassDialogShown)
+        {
+            return; // 이미 안내 중이다
+        }
+
+        mScreenClassDialogShown = true;
+
+        Log.d(TAG, "[SCREEN] 화면 분류가 바뀌었습니다 -> " + (isTabletNow ? "태블릿" : "폰"));
+
+        makeDialog_screenClassChanged(isTabletNow);
+    }
+
+    private void makeDialog_screenClassChanged(boolean isTabletNow)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("화면 크기가 ");
+        sb.append(sIsTabletAtLaunch ? "태블릿" : "폰");
+        sb.append("에서 ");
+        sb.append(isTabletNow ? "태블릿" : "폰");
+        sb.append("으로 바뀌었습니다.\n\n");
+        sb.append(isTabletNow ? "가로" : "세로");
+        sb.append(" 화면으로 앱을 다시 시작합니다.");
+
+        /* 전송 중이었으면 그 사실을 알린다. 다시 시작하면 이어지지 않는다. */
+        if (mOta != null && mOta.commState != Ota.COMM_STATE_IDLE)
+        {
+            sb.append("\n\n[주의] OTA 전송이 진행 중입니다. 다시 시작하면 전송이 중단됩니다.");
+        }
+
+        lastDialogDismiss();
+
+        mStatus.lastDialog = new MaterialAlertDialogBuilder(this) //
+                .setTitle("화면 방향 변경") //
+                .setMessage(sb.toString()) //
+                .setPositiveButton("다시 시작", (dialogInterface, i) -> restartForScreenClass()) //
+                .setCancelable(false) //
+                .create();
+
+        mStatus.lastDialog.show();
+    }
+
+    /* 앱을 처음부터 다시 띄운다.
+     *
+     * 방향은 액티비티가 만들어질 때 정해지므로 화면만 갈아 끼워서는 깔끔하게 바뀌지 않는다.
+     * 실행할 때 정한 분류도 프로세스에 남아 있어, 프로세스를 새로 띄우는 편이 확실하다. */
+    private void restartForScreenClass()
+    {
+        Intent intent = getPackageManager().getLaunchIntentForPackage(getPackageName());
+
+        if (intent == null)
+        {
+            Log.e(TAG, "[SCREEN] 실행 인텐트를 찾지 못했습니다. 다시 시작하지 못합니다.");
+
+            mScreenClassDialogShown = false;
+            return;
+        }
+
+        Log.d(TAG, "[SCREEN] 화면 분류가 바뀌어 앱을 다시 시작합니다.");
+        UtilLog.instance.writeLog("화면 분류 변경으로 앱 재시작");
+
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        startActivity(intent);
+        finish();
+
+        Runtime.getRuntime().exit(0);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -310,10 +447,12 @@ public class MainActivity extends AppCompatActivity
          * 이 앱은 화면을 복원해서 쓰지 않고 initMainActivity() 에서 항상 직접 만들어 붙이므로,
          * 복원 자체를 하지 않도록 null 을 넘긴다.
          *
-         * 참고: 화면 방향을 고정할 때는 onCreate 안에서 setRequestedOrientation() 을 호출하지 말고
-         * 매니페스트의 android:screenOrientation 으로 지정해야 한다. 여기서 호출하면 구성 변경이
-         * 생겨 액티비티가 즉시 재생성되고, 그 재생성 때마다 위의 복원 문제가 발생한다. */
+         * 참고: 화면 방향은 아래 applyScreenOrientation() 이 건다. 매니페스트로 고정하지 않는
+         * 이유는 폰이냐 태블릿이냐를 실행할 때 봐야 하기 때문이다. 매니페스트에 configChanges 를
+         * 선언해 두어 방향을 걸어도 액티비티가 재생성되지 않는다. */
         super.onCreate(null);
+
+        applyScreenOrientation();
 
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = mBinding.getRoot();
@@ -716,7 +855,7 @@ public class MainActivity extends AppCompatActivity
      * 연결이 끊기기 때문이다. */
     public boolean sendLinkParam(int index, int value)
     {
-        if (!isLinkParamSupported(index))
+        if (!isLinkSettingUsable(index))
         {
             Log.d(TAG, "[LINK] 세대 " + mStatus.fwRelease + " 는 인덱스 " + index + " 쓰기를 모릅니다.");
 
@@ -767,6 +906,13 @@ public class MainActivity extends AppCompatActivity
     //
     // 화면의 버튼 활성화와 전송 차단이 같은 판단을 써야 어긋나지 않는다.
     //
+    /* 화면과 로그에 쓰는 세대 이름.
+     *
+     * 버전 조회가 되는 세대는 «REL4+» 로 뭉뚱그리지 않고 읽어 온 major.minor 를 그대로
+     * 쓴다. 지금 최신이 4.3 이면 «REL4.3» 이다. 어느 인덱스까지 있는지가 minor 로
+     * 갈리므로, 화면에 그 숫자가 보여야 무엇이 되고 안 되는지 설명이 된다.
+     *
+     * 버전 조회가 없는 세대는 물어볼 방법이 없어 그대로 REL3 · REL4 다. */
     public String fwReleaseName()
     {
         switch (mStatus.fwRelease)
@@ -778,7 +924,15 @@ public class MainActivity extends AppCompatActivity
                 return "REL4";
 
             case Status.FW_RELEASE_4_PLUS:
-                return "REL4+";
+                /* 버전을 못 읽은 채 이 세대로 잡히는 경우는 없다. 버전 응답이 와야
+                 * REL4+ 가 되기 때문이다. 그래도 값이 비면 옛 표기로 물러난다. */
+                if (mStatus.rcProtocolMajor == PacketInfo.LINK_VALUE_UNKNOWN //
+                    || mStatus.rcProtocolMinor == PacketInfo.LINK_VALUE_UNKNOWN)
+                {
+                    return "REL4+";
+                }
+
+                return "REL" + mStatus.rcProtocolMajor + "." + mStatus.rcProtocolMinor;
 
             default:
                 return "REL?";
@@ -983,6 +1137,217 @@ public class MainActivity extends AppCompatActivity
     public void sendNopStandbyDefault()
     {
         sendLinkParam(PacketInfo.RC_LINK_IDX_NOP_ENABLE, PacketInfo.NOP_ENABLE_DEFAULT);
+    }
+
+    //
+    // 설정 사이의 의존성 — 이 세대가 «알긴 아는데» 지금 설정으로는 무의미해지는 것들
+    //
+    // 사운드처리기 docs 의 «설정 의존성과 앱 UI 규칙» §6.1 을 그대로 옮겼다.
+    // 펌웨어는 이런 조합을 «거부하지 않는다». 값은 정상으로 저장되고 응답도 성공으로
+    // 돌아오는데 동작에 반영되지 않을 뿐이라, 앱이 막지 않으면 사용자는 알 수 없다.
+    //
+    // 백텔이 안 나가는 상태. 이때는 링크 판정 블록에 진입조차 못 해 링크 제어가 통째로 멈춘다.
+    public boolean isLinkFrozen()
+    {
+        int frameNum = mStatusViewModel.getValueFrameNum();
+
+        if (frameNum == PacketInfo.LINK_VALUE_UNKNOWN)
+        {
+            return false; // 아직 모르면 막지 않는다
+        }
+
+        return (PacketInfo.LINK_FRAME_NUM_FROZEN <= frameNum);
+    }
+
+    // 링크 제어 모드가 «백텔 수신 기준» 인지.
+    public boolean isBacktelCtrlMode()
+    {
+        return (mStatusViewModel.getValueLinkCtrlMode() == PacketInfo.LINK_CTRL_MODE_BACKTEL);
+    }
+
+    /* 재시도 코인이 «개수» 인가 «켜고 끄는 스위치» 인가.
+     *
+     * 인덱스 7 자체는 REL4 전 구간에 있다. 있느냐가 아니라 «어떤 뜻이냐» 의 문제라
+     * isLinkParamSupported() 의 인덱스 게이트와 따로 둔다.
+     *
+     * 버전을 못 읽는 세대(REL4 · REL3)에서는 isProtocolAtLeast() 가 false 를 내므로
+     * 옛 기기가 자동으로 4.3 이하 경로를 탄다. 따로 막을 필요가 없다. */
+    public boolean isCoinCountSupported()
+    {
+        return isProtocolAtLeast(PacketInfo.RC_PROTOCOL_MAJOR_REQUIRED, //
+                                 PacketInfo.RC_PROTOCOL_MINOR_COIN_COUNT);
+    }
+
+    /* 지금 무한 재시도 상태인가.
+     *
+     * 인덱스 7 의 255 와 인덱스 8 의 1 은 «같은 상태» 를 가리킨다. 그런데 인덱스 7 을
+     * 먼저 보는 데는 이유가 있다 — 255 를 쓰면 인덱스 7 응답은 바로 반영되지만
+     * 인덱스 8 은 다음 전체 읽기까지 낡은 값(0)으로 남는다. 인덱스 8 만 보면 방금 켠
+     * 무한이 화면에 안 뜬다. */
+    public boolean isCoinInfinite()
+    {
+        if (mStatusViewModel.getValueOneCoin() == PacketInfo.COIN_COUNT_INFINITE)
+        {
+            return true;
+        }
+
+        return (mStatusViewModel.getValueInfiniteCoin() == PacketInfo.LINK_FLAG_ENABLE) //
+               && isLinkParamSupported(PacketInfo.RC_LINK_IDX_INFINITE_COIN);
+    }
+
+    /* 코인의 «개수 구간»(0 · 1~100)이 실제로 동작에 쓰이는가.
+     *
+     * 백텔 수신 기준 모드에는 코인 소모 분기가 아예 없어 개수가 무시된다.
+     * 다만 무한(255)은 그 모드에서도 유효하다 — 끊김 판정 자체를 막는 것이라
+     * 코인 소모 분기 밖에 있기 때문이다. 그래서 «설정할 수 있는가» 와 갈라 둔다. */
+    public boolean isCoinCountEffective()
+    {
+        return !isLinkFrozen() && !isBacktelCtrlMode();
+    }
+
+    /* 지금 코인 재시도가 실제로 일어나는 상태인가.
+     * 무한이거나, 개수가 1 이상이면서 그 개수가 쓰이는 모드일 때다. */
+    public boolean isCoinRetryActive()
+    {
+        if (isCoinInfinite())
+        {
+            return true;
+        }
+
+        int coin = mStatusViewModel.getValueOneCoin();
+
+        return (coin != PacketInfo.LINK_VALUE_UNKNOWN) //
+               && (PacketInfo.COIN_COUNT_MIN <= coin) //
+               && isCoinCountEffective();
+    }
+
+    /* 지금 이 설정을 «쓸 수 있는가». 세대가 아는가(isLinkParamSupported)에 더해
+     * 지금 설정 조합에서 의미가 있는가까지 본다. 화면의 잠금과 전송 차단이 같은 답을 쓴다. */
+    public boolean isLinkSettingUsable(int index)
+    {
+        if (!isLinkParamSupported(index))
+        {
+            return false;
+        }
+
+        switch (index)
+        {
+            case PacketInfo.RC_LINK_IDX_ONE_COIN:
+                /* 4.4 부터는 백텔 수신 기준 모드에서도 «무한»(255)이 유효하다.
+                 * 무시되는 것은 개수 구간(0 · 1~100)뿐이라 버튼 자체는 열어 둔다.
+                 * 개수가 쓰이는지는 isCoinCountEffective() 로 따로 보고 화면에 알린다.
+                 *
+                 * 4.3 이하는 코인이 켜고 끄는 스위치뿐이라 이 모드에서 통째로 무의미하다. */
+                if (isCoinCountSupported())
+                {
+                    return !isLinkFrozen();
+                }
+
+                return !isLinkFrozen() && !isBacktelCtrlMode();
+
+            case PacketInfo.RC_LINK_IDX_TX_POWER_ACCEL:
+                /* 가속 카운터는 백텔 수신 기준 제어 함수 안에만 있다. */
+                return !isLinkFrozen() && isBacktelCtrlMode();
+
+            case PacketInfo.RC_LINK_IDX_BACKTEL_PERIOD:
+            case PacketInfo.RC_LINK_IDX_MIN_TX_POWER:
+            case PacketInfo.RC_LINK_IDX_TX_POWER_STEP_UP:
+            case PacketInfo.RC_LINK_IDX_CTRL_MODE:
+            case PacketInfo.RC_LINK_IDX_POWER_STABLE_NOP:
+            case PacketInfo.RC_LINK_IDX_NOP_ENABLE:
+                return !isLinkFrozen();
+
+            default:
+                /* 강제 고정(6) · 매핑 하한(4) · infinite coin(8) 은 백텔이 멈춰도 그대로 둔다.
+                 * 문서의 무력화 목록에 없고, 시험 시나리오가 쓰는 값들이기 때문이다. */
+                return true;
+        }
+    }
+
+    /* 지금 조합에서 알려야 할 경고. 없으면 빈 문자열이다.
+     * 문서 §6.2 의 «켜 놓고 쓰되 알려 주는 것» 이다. 시험 중에는 의도된 상태라 막지 않는다. */
+    public String makeLinkWarningText()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        int force    = mStatusViewModel.getValueForceTxPowerLevel();
+        int infinite = mStatusViewModel.getValueInfiniteCoin();
+        int strategy = mStatusViewModel.getValueStimStrategy();
+        int pulse    = mStatusViewModel.getValuePulseWidth();
+        int mapping  = mStatusViewModel.getValueMappingTxPowerLevel();
+        int minPower = mStatusViewModel.getValueMinTxPowerLevel();
+        int nopEn    = mStatusViewModel.getValueNopEnable();
+        int stepUp   = mStatusViewModel.getValueTxStepUp();
+
+        if (isLinkFrozen())
+        {
+            append(sb, "백텔 미출력 — 링크 끊김을 감지하지 못합니다.");
+        }
+
+        if (force != PacketInfo.LINK_VALUE_UNKNOWN && force != PacketInfo.FORCE_TX_PWR_RELEASE)
+        {
+            if (isBacktelCtrlMode() && force != PacketInfo.FORCE_TX_PWR_SELECT_MAX)
+            {
+                append(sb, "강제 고정 중에는 끊김이 판정되지 않습니다.");
+            }
+            else
+            {
+                append(sb, "Tx 파워 강제 고정 중 — 백텔 판정이 파워에 반영되지 않습니다.");
+            }
+        }
+
+        if (isCoinInfinite())
+        {
+            append(sb, "무한 재시도 중 — 링크 에러가 표시되지 않습니다.");
+        }
+
+        /* 4.4 부터 코인 재시도 때의 Tx 파워 상향이 인덱스 5(상승 스텝)를 따른다.
+         * 무력화가 아니라 동반 효과라 막지 않고 알린다. 스텝이 작을 때는 소음이므로
+         * 0.5V 이상일 때만, 그리고 코인이 실제로 쓰이는 상태일 때만 띄운다. */
+        if (isCoinCountSupported() //
+            && stepUp != PacketInfo.LINK_VALUE_UNKNOWN //
+            && PacketInfo.COIN_STEP_UP_WARN_LEVEL <= stepUp //
+            && isCoinRetryActive())
+        {
+            append(sb, String.format("코인 재시도 한 번에 Tx 파워가 %.2fV 오릅니다.", //
+                                     (stepUp * PacketInfo.TX_PWR_LEVEL_STEP_MV) / 1000.0f));
+        }
+
+        if (strategy == PacketInfo.STIM_STRATEGY_NOFM //
+            && pulse != PacketInfo.LINK_VALUE_UNKNOWN //
+            && (pulse < PacketInfo.NOFM_PULSE_WIDTH_MIN || PacketInfo.NOFM_PULSE_WIDTH_MAX < pulse))
+        {
+            append(sb, "nOFm 3프레임 고정 전제를 벗어난 펄스폭입니다. (미계측 구간)");
+        }
+
+        if (strategy == PacketInfo.STIM_STRATEGY_MEDIUM)
+        {
+            append(sb, "medium 전략 — 자극 PCM 이 생성되지 않습니다.");
+        }
+
+        if (mapping != PacketInfo.LINK_VALUE_UNKNOWN //
+            && minPower != PacketInfo.LINK_VALUE_UNKNOWN //
+            && mapping < minPower)
+        {
+            append(sb, "매핑 하한이 상시 하한보다 낮습니다.");
+        }
+
+        if (nopEn == PacketInfo.NOP_ENABLE_MANUAL)
+        {
+            append(sb, "[S] 를 리모콘이 지정한 상태 — 맵이 바뀌면 기본값으로 돌아갑니다.");
+        }
+
+        return sb.toString();
+    }
+
+    private void append(StringBuilder sb, String line)
+    {
+        if (0 < sb.length())
+        {
+            sb.append("\n");
+        }
+
+        sb.append("· ").append(line);
     }
 
     public boolean isMapInitSupported()
@@ -1329,9 +1694,11 @@ public class MainActivity extends AppCompatActivity
             Log.d(TAG, "모든 파일 접근 권한을 획득했습니다.");
             UtilLog.instance.writeLog("모든 파일 접근 권한 획득됨.");
 
-            makeOtaFolders();
-
-            Toast.makeText(getApplicationContext(), "OTA 폴더 준비 완료\n" + Environment.getExternalStorageDirectory().getAbsolutePath() + Ota.BASE_FOLDER, Toast.LENGTH_LONG).show();
+            /* 폴더를 앱이 만들지는 않는다. 어느 폴더에서 읽을지는 Collect 에서 고르는 것이라,
+             * 쓰지도 않을 슬롯 번호 폴더를 미리 만들어 두면 목록만 지저분해진다. */
+            Toast.makeText(getApplicationContext(), //
+                           "OTA 이미지 폴더\n" + Environment.getExternalStorageDirectory().getAbsolutePath() + Ota.BASE_FOLDER, //
+                           Toast.LENGTH_LONG).show();
         }
         else
         {
@@ -1361,7 +1728,6 @@ public class MainActivity extends AppCompatActivity
     {
         if (isAllFilesAccessGranted())
         {
-            makeOtaFolders();
             return;
         }
 
@@ -1396,37 +1762,6 @@ public class MainActivity extends AppCompatActivity
         mAllFilesAccessDialog.setOnDismissListener(dialogInterface -> mAllFilesAccessDialog = null);
 
         mAllFilesAccessDialog.show();
-    }
-
-    //
-    // OTA 이미지를 넣을 폴더를 미리 만들어 둔다.
-    //
-    // 윈도우 탐색기(USB/MTP)로 연결했을 때 폴더가 이미 보이도록 하여,
-    // 사용자가 경로를 직접 만들지 않아도 파일을 복사해 넣을 수 있게 한다.
-    //
-    public void makeOtaFolders()
-    {
-        String basePath = Environment.getExternalStorageDirectory().getAbsolutePath() + Ota.BASE_FOLDER;
-
-        for (int slotNum = Ota.SLOT_NUM_1; slotNum <= Ota.SLOT_NUM_2; slotNum++)
-        {
-            File folder = new File(basePath + slotNum);
-
-            if (folder.exists())
-            {
-                Log.d(TAG, "[OTA] 폴더 확인 : " + folder.getAbsolutePath());
-                continue;
-            }
-
-            if (folder.mkdirs())
-            {
-                Log.d(TAG, "[OTA] 폴더 생성 : " + folder.getAbsolutePath());
-            }
-            else
-            {
-                Log.d(TAG, "[OTA] 폴더 생성 실패 : " + folder.getAbsolutePath());
-            }
-        }
     }
 
     //
@@ -2015,6 +2350,27 @@ public class MainActivity extends AppCompatActivity
     //
     private int mPendingOneCoinValue = PacketInfo.LINK_VALUE_UNKNOWN;
 
+    /* 재시도 코인을 «개수» 로 설정한다 (프로토콜 4.4 이상).
+     *
+     * 4.3 까지는 infinite(인덱스 8)를 먼저 보내고 그 응답 자리에서 one coin(인덱스 7)을
+     * 이어 보내야 했다. sendPacket() 이 응답 전 다음 패킷을 버리기 때문이다.
+     * 4.4 부터는 인덱스 7 하나가 0 · 1~100 · 255 를 모두 받으므로 그 대기 기계가 필요 없다.
+     *
+     * 인덱스 8 은 같은 내부 플래그라 따라 바뀐다. 굳이 보내지 않는다.
+     * 다만 앱이 아는 인덱스 8 값은 낡은 채로 남으므로 전체 읽기를 한 번 예약한다. */
+    public void sendCoinCount(int coinCount)
+    {
+        Log.d(TAG, "[LINK] 재시도 코인 설정 요청 : " + coinCount //
+                   + ((coinCount == PacketInfo.COIN_COUNT_INFINITE) ? " (무한)" : ""));
+
+        if (!sendLinkParam(PacketInfo.RC_LINK_IDX_ONE_COIN, coinCount))
+        {
+            return;
+        }
+
+        requestLinkParamRefresh("코인 설정");
+    }
+
     public void sendCoinMode(int coinMode)
     {
         int infinite = (coinMode == PacketInfo.COIN_MODE_INFINITE) //
@@ -2556,6 +2912,23 @@ public class MainActivity extends AppCompatActivity
                     mPasswordHandler.removeCallbacks(mPasswordRunner);
                     mCCCDHandler.removeCallbacks(mCCCDRunner);
                     mDiscoverServicesHandler.removeCallbacks(mDiscoverServicesRunner);
+
+                    /* OTA 전송 상태를 되돌린다.
+                     *
+                     * Ota 는 싱글턴이라 이 값이 액티비티는 물론 연결과 재연결을 넘어 살아남는다.
+                     * 전송이 응답을 기다리다 연결이 끊기면 IDLE 로 돌아갈 기회가 없어
+                     * commState 가 «전송 중» 인 채로 굳는다.
+                     *
+                     * 그러면 링크 감시 러너와 Write 버튼이 «OTA 전송 중» 으로 보고 매번 물러난다.
+                     * 다시 연결해도 풀리지 않아 주기적 읽기가 통째로 멈춘 것처럼 보인다.
+                     * 프로세스를 새로 띄워야만 풀렸다. */
+                    if (mOta != null && mOta.commState != Ota.COMM_STATE_IDLE)
+                    {
+                        Log.d(TAG, "[OTA] 연결이 끊겨 전송 상태를 되돌립니다. (이전 상태 " + mOta.commState + ")");
+                        UtilLog.instance.writeLog("OTA 전송 상태 초기화 : 연결 종료 (이전 " + mOta.commState + ")");
+
+                        mOta.commState = Ota.COMM_STATE_IDLE;
+                    }
 
                     /* 연결이 끊겼으므로 세대 판별도 중단하고 결과를 지운다.
                      * 다음에 붙는 기기가 다른 세대일 수 있어 그대로 두면 안 된다. */
@@ -3894,15 +4267,9 @@ public class MainActivity extends AppCompatActivity
 
                     if (fragment instanceof RemoteControlFragment)
                     {
-                        if (selectUser != null && selectUser.nickname != null && selectUser.nickname.length() > 0)
+                        if (selectUser != null)
                         {
-                            ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(selectUser.nickname);
-                        }
-                        else if (selectUser != null)
-                        {
-                            String name = UtilUser.getNameOnly(selectUser.name) + " (" + UtilUser.getEarKorean(selectUser.ear) + ")";
-
-                            ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(name);
+                            ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(UtilUser.makeDisplayName(MainActivity.this, selectUser));
                         }
                     }
 
@@ -3998,14 +4365,9 @@ public class MainActivity extends AppCompatActivity
 
                 if (fragment instanceof RemoteControlFragment)
                 {
-                    if (selectUser != null && selectUser.nickname != null && selectUser.nickname.length() > 0)
+                    if (selectUser != null)
                     {
-                        ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(selectUser.nickname);
-                    }
-                    else if (selectUser != null)
-                    {
-                        String name = UtilUser.getNameOnly(selectUser.name) + " (" + UtilUser.getEarKorean(selectUser.ear) + ")";
-                        ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(name);
+                        ((RemoteControlFragment) fragment).mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(UtilUser.makeDisplayName(MainActivity.this, selectUser));
                     }
                 }
 
@@ -4074,20 +4436,19 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "사운드처리기 " + device.serialNumber + "  삭제됨.");
             }
 
+            /* 암호만 지우고 잠금을 다시 켜지는 않는다.
+             *
+             * 시작 화면에서 잠금을 뺐으므로 초기화 직후만 다시 잠기면 앞뒤가 맞지 않는다.
+             * 지운 암호는 resume() 이 기본 암호로 채운다. 잠금은 설정 화면에서 켠다. */
             mLockScreen.erasePassword();
-            //mLockScreen.setEnable(this, true);
-            mLockScreen.setEnable(true);
             mLockScreen.resume();
-            mManualScreen.setEnable(true);
 
-            Bundle bundle = new Bundle();
-            bundle.putBoolean(ManualFragment.ARG_FIRST_SCREEN, true);
-                    /*
-                    ManualFragment manualFragment = new ManualFragment();
-                    manualFragment.setArguments(bundle);
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame, manualFragment).commitAllowingStateLoss();
-                    */
-            replaceFragment(Status.TypeOfFragment.MANUAL, bundle);
+            /* 전체 초기화 뒤에도 설명서를 되살리지 않는다.
+             *
+             * 예전에는 여기서 설명서 표시를 켜고 그 화면으로 보냈다. 시작 화면에서 설명서를
+             * 뺐으므로 초기화 직후만 다시 나오면 앞뒤가 맞지 않는다.
+             * 설명서는 설정 화면에 그대로 있다. */
+            replaceFragment(Status.TypeOfFragment.REMOTE_CONTROL);
         }).setNegativeButton(getString(R.string.lock_screen_dialog_negative), (dialogInterface, i) ->
         {
             // 장시간 미사용 핸들러 업데이트

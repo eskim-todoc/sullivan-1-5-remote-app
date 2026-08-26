@@ -6,10 +6,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white_10"
-        android:paddingStart="8dp"
-        android:paddingTop="6dp"
-        android:paddingEnd="8dp"
-        android:paddingBottom="6dp"
+        android:paddingStart="@dimen/tdc_screen_padding_h"
+        android:paddingTop="@dimen/tdc_screen_padding_v"
+        android:paddingEnd="@dimen/tdc_screen_padding_h"
+        android:paddingBottom="@dimen/tdc_screen_padding_v"
         tools:context="todoc.cochlear.remoteapp.fragment.RemoteControlFragment">
 
 
@@ -51,7 +51,8 @@
             <!-- 1행 : Cur / PMIC / Map / Fix — Tx 파워 전압 (Cur 만 진한 색) -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:layout_height="@dimen/tdc_status_row_height"
                 android:baselineAligned="true"
                 android:orientation="horizontal">
 
@@ -66,7 +67,7 @@
                     android:maxLines="1"
                     android:text="Cur -"
                     android:textColor="#FF9100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="Cur 4.2V" />
 
@@ -81,7 +82,7 @@
                     android:maxLines="1"
                     android:text="PMIC -"
                     android:textColor="#FFD54F"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="PMIC 4.0V" />
 
@@ -96,7 +97,7 @@
                     android:maxLines="1"
                     android:text="Map -"
                     android:textColor="#FFD54F"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="Map 5.0V" />
 
@@ -111,7 +112,7 @@
                     android:maxLines="1"
                     android:text="Fix -"
                     android:textColor="#FFD54F"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="Fix Off" />
             </LinearLayout>
@@ -119,8 +120,8 @@
             <!-- 2행 : BT / Step / Coin / Accel — 링크 타이밍과 재시도 -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:gravity="center_vertical"
+                android:layout_height="@dimen/tdc_status_row_height"
                 android:baselineAligned="true"
                 android:orientation="horizontal">
 
@@ -135,7 +136,7 @@
                     android:maxLines="1"
                     android:text="BT -"
                     android:textColor="#4DD0E1"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="BT 300ms" />
 
@@ -150,7 +151,7 @@
                     android:maxLines="1"
                     android:text="Step -"
                     android:textColor="#4DD0E1"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="Step 4" />
 
@@ -165,7 +166,7 @@
                     android:maxLines="1"
                     android:text="Coin -"
                     android:textColor="#4DD0E1"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="Coin On" />
 
@@ -180,7 +181,7 @@
                     android:maxLines="1"
                     android:text="Accel -"
                     android:textColor="#CE93D8"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="Accel On" />
             </LinearLayout>
@@ -189,8 +190,8 @@
                  이어서 맵과 자극 -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:gravity="center_vertical"
+                android:layout_height="@dimen/tdc_status_row_height"
                 android:baselineAligned="true"
                 android:orientation="horizontal">
 
@@ -205,7 +206,7 @@
                     android:maxLines="1"
                     android:text="Nop -"
                     android:textColor="#C6FF00"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="Nop 3*" />
 
@@ -220,7 +221,7 @@
                     android:maxLines="1"
                     android:text="Mode -"
                     android:textColor="#C6FF00"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="Mode BT" />
 
@@ -235,7 +236,7 @@
                     android:maxLines="1"
                     android:text="Strat -"
                     android:textColor="#F06292"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="nOFm" />
 
@@ -250,7 +251,7 @@
                     android:maxLines="1"
                     android:text="PW -"
                     android:textColor="#F06292"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="PW 40us" />
             </LinearLayout>
@@ -258,8 +259,8 @@
             <!-- 4행 : Frm — 맵과 자극, 이어서 기기 상태 -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:gravity="center_vertical"
+                android:layout_height="@dimen/tdc_status_row_height"
                 android:baselineAligned="true"
                 android:orientation="horizontal">
 
@@ -274,7 +275,7 @@
                     android:maxLines="1"
                     android:text="Frm -"
                     android:textColor="#F06292"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="Frm 3" />
 
@@ -289,7 +290,7 @@
                     android:maxLines="1"
                     android:text="Gating -"
                     android:textColor="#81C784"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="Gating On" />
 
@@ -304,7 +305,7 @@
                     android:maxLines="1"
                     android:text="LED -"
                     android:textColor="#81C784"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="LED On" />
 
@@ -319,7 +320,7 @@
                     android:maxLines="1"
                     android:text="Alarm -"
                     android:textColor="#81C784"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="Alarm On" />
             </LinearLayout>
@@ -327,8 +328,8 @@
             <!-- 5행 : Prog / Vol / Out — 기기 상태 -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:gravity="center_vertical"
+                android:layout_height="@dimen/tdc_status_row_height"
                 android:baselineAligned="true"
                 android:orientation="horizontal">
 
@@ -343,7 +344,7 @@
                     android:maxLines="1"
                     android:text="Prog -"
                     android:textColor="#81C784"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="Prog 1" />
 
@@ -358,7 +359,7 @@
                     android:maxLines="1"
                     android:text="Vol -"
                     android:textColor="#81C784"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="Vol 5" />
 
@@ -373,7 +374,7 @@
                     android:maxLines="1"
                     android:text="Out -"
                     android:textColor="#81C784"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="Out 2" />
 
@@ -393,79 +394,56 @@
             android:baselineAligned="false"
             android:gravity="center_vertical"
             android:orientation="horizontal"
+            android:paddingEnd="@dimen/tdc_button_gap"
             app:layout_constraintBottom_toTopOf="@id/ota_slot_box"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/ota_fw_release_textview"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ota_status_info_box">
+
+            <!--
+            연결된 기기가 무엇인가. 어느 일을 하든 늘 봐야 하는 정보라 화면 맨 위에 둔다.
+
+            셋을 한 줄에 나란히 놓되 폭을 나누지 않는다. 사용자 이름은 제 글자만큼만
+            차지하고, 제조번호가 그 뒤에 간격을 두고 바로 붙는다. 남는 폭은 제조번호가
+            먹으므로 세대 배지는 자연히 오른쪽 끝에 선다.
+
+            예전에는 이름과 «제조번호+배지» 가 화면을 절반씩 나눠 가졌다. 그러면 이름이
+            짧을 때 제조번호가 화면 한가운데에서 시작해 이름과 동떨어져 보인다.
+            -->
 
             <!-- 사용자 이름 · 착용부위 -->
             <TextView
                 android:id="@+id/remote_control_connection_user_name_textview"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text=""
                 android:textAlignment="textStart"
                 android:textColor="@color/white_100"
-                android:textSize="18dp"
+                android:textSize="@dimen/tdc_text_size_title"
                 android:textStyle="bold"
-                tools:text="사용자 이름 (오른쪽)" />
+                tools:text="사용자 이름" />
 
-            <!--
-            내부기 제조번호와 펌웨어 세대 배지.
-
-            배지는 제조번호의 «우 상단» 에 붙는다. 가로 묶음 안에서 layout_gravity 를
-            top 으로 두면 행의 위쪽에 걸리는데, 행의 높이는 왼쪽 사용자 이름(18dp)이
-            정하므로 배지(10dp)를 넣어도 행이 높아지지 않는다.
-            -->
-            <LinearLayout
+            <!-- 내부기 제조번호. 남는 폭을 먹어 배지를 오른쪽 끝으로 민다. -->
+            <TextView
+                android:id="@+id/remote_control_connection_isd_id_textview"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
+                android:layout_marginStart="@dimen/tdc_button_gap"
                 android:layout_weight="1"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
+                android:ellipsize="end"
+                android:fontFamily="@font/roboto_mono_regular_variable"
+                android:maxLines="1"
+                android:text=""
+                android:textAlignment="textStart"
+                android:textColor="#66BB6A"
+                android:textSize="@dimen/tdc_text_size_isd_id"
+                android:textStyle="italic|bold"
+                tools:text="#16210001" />
 
-                <!-- 내부기 제조번호 -->
-                <TextView
-                    android:id="@+id/remote_control_connection_isd_id_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/roboto_mono_regular_variable"
-                    android:letterSpacing="0.14"
-                    android:maxLines="1"
-                    android:text=""
-                    android:textAlignment="textStart"
-                    android:textColor="#66BB6A"
-                    android:textSize="14dp"
-                    android:textStyle="italic|bold"
-                    tools:text="#16210001" />
-
-                <!-- 사운드처리기 펌웨어 세대. 연결 직후 판별한 결과다. -->
-                <TextView
-                    android:id="@+id/ota_fw_release_textview"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top"
-                    android:layout_marginStart="4dp"
-                    android:background="@drawable/fw_release_badge_background"
-                    android:maxLines="1"
-                    android:paddingStart="5dp"
-                    android:paddingTop="1dp"
-                    android:paddingEnd="5dp"
-                    android:paddingBottom="1dp"
-                    android:text=""
-                    android:textColor="#1A1A1A"
-                    android:textSize="10dp"
-                    android:textStyle="bold"
-                    tools:text="REL4+" />
-            </LinearLayout>
 
         </LinearLayout>
 
@@ -494,7 +472,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="List of slots"
                     android:textColor="#FFA000"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold" />
 
                 <TextView
@@ -504,7 +482,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="Slot information"
                     android:textColor="#FFA000"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -526,7 +504,7 @@
                     android:paddingTop="0dp"
                     android:paddingBottom="0dp"
                     android:textColor="@color/white_100"
-                    android:textSize="12dp" />
+                    android:textSize="@dimen/tdc_text_size_normal" />
 
                 <com.google.android.material.radiobutton.MaterialRadioButton
                     android:id="@+id/slot_2_radio_button"
@@ -539,7 +517,7 @@
                     android:paddingTop="0dp"
                     android:paddingBottom="0dp"
                     android:textColor="@color/white_100"
-                    android:textSize="12dp" />
+                    android:textSize="@dimen/tdc_text_size_normal" />
 
                 <!--
                 예전에는 자리 차지용 빈 칸이었다. 슬롯 정보를 여기로 올려 세로를 아꼈다.
@@ -560,20 +538,20 @@
                         android:layout_height="wrap_content"
                         android:text="Curr"
                         android:textColor="#BBDEFB"
-                        android:textSize="12dp"
+                        android:textSize="@dimen/tdc_text_size_normal"
                         android:textStyle="bold" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/curr_slot_text_view"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
+                        android:layout_marginStart="@dimen/tdc_button_gap"
                         android:layout_weight="1"
                         android:ellipsize="end"
                         android:maxLines="1"
                         android:text="FF"
                         android:textColor="#00E676"
-                        android:textSize="12dp"
+                        android:textSize="@dimen/tdc_text_size_normal"
                         android:textStyle="bold" />
 
                     <com.google.android.material.textview.MaterialTextView
@@ -581,20 +559,20 @@
                         android:layout_height="wrap_content"
                         android:text="Last"
                         android:textColor="#BBDEFB"
-                        android:textSize="12dp"
+                        android:textSize="@dimen/tdc_text_size_normal"
                         android:textStyle="bold" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/last_slot_text_view"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
+                        android:layout_marginStart="@dimen/tdc_button_gap"
                         android:layout_weight="1"
                         android:ellipsize="end"
                         android:maxLines="1"
                         android:text="FF"
                         android:textColor="#00E676"
-                        android:textSize="12dp"
+                        android:textSize="@dimen/tdc_text_size_normal"
                         android:textStyle="bold" />
                 </LinearLayout>
             </RadioGroup>
@@ -609,21 +587,48 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ota_slot_box">
-            <!-- Status of files -->
-            <TextView
+            <!-- Status of files · 지금 수집한 폴더 -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/nanum_gothic_regular"
-                android:text="Status of files"
-                android:textColor="#FFA000"
-                android:textSize="12dp"
-                android:textStyle="bold" />
+                android:gravity="center_vertical"
+                android:layout_height="@dimen/tdc_status_row_height"
+                android:baselineAligned="true"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:text="Status of files"
+                    android:textColor="#FFA000"
+                    android:textSize="@dimen/tdc_text_size_normal"
+                    android:textStyle="bold" />
+
+                <!--
+                수집한 폴더. 슬롯 번호와 더는 묶이지 않으므로 어디서 읽어 온 것인지
+                따로 보여 주지 않으면 알 수 없다.
+                -->
+                <TextView
+                    android:id="@+id/ota_folder_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:ellipsize="start"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text=""
+                    android:textAlignment="textEnd"
+                    android:textColor="#BBDEFB"
+                    android:textSize="@dimen/tdc_text_size_small"
+                    tools:text="Folder: OTA/v1_5_240819" />
+            </LinearLayout>
 
             <!-- Table top : 데이터 행과 같은 5열 1줄 구성 -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:gravity="center_vertical"
+                android:layout_height="@dimen/tdc_status_row_height"
                 android:orientation="horizontal">
 
                 <TextView
@@ -635,7 +640,7 @@
                     android:maxLines="1"
                     android:text="Name"
                     android:textColor="#BBDEFB"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold" />
 
                 <TextView
@@ -647,7 +652,7 @@
                     android:maxLines="1"
                     android:text="R size"
                     android:textColor="#BBDEFB"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold" />
 
                 <TextView
@@ -659,7 +664,7 @@
                     android:maxLines="1"
                     android:text="Percent"
                     android:textColor="#BBDEFB"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold" />
 
                 <TextView
@@ -671,7 +676,7 @@
                     android:maxLines="1"
                     android:text="W size"
                     android:textColor="#BBDEFB"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold" />
 
                 <TextView
@@ -683,15 +688,15 @@
                     android:maxLines="1"
                     android:text="Percent"
                     android:textColor="#BBDEFB"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold" />
             </LinearLayout>
 
             <!-- Table MANIFEST -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:layout_height="@dimen/tdc_status_row_height"
                 android:orientation="horizontal">
 
                 <TextView
@@ -702,7 +707,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="MFST"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold" />
 
                 <TextView
@@ -713,7 +718,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="0"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold"
                     tools:text="1048576" />
 
@@ -725,7 +730,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="0%"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold"
                     tools:text="100%" />
 
@@ -737,7 +742,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="0"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold"
                     tools:text="1048576" />
 
@@ -749,7 +754,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="0%"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold"
                     tools:text="100%" />
             </LinearLayout>
@@ -757,8 +762,8 @@
             <!-- Table APP000 -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:layout_height="@dimen/tdc_status_row_height"
                 android:orientation="horizontal">
 
                 <TextView
@@ -769,7 +774,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="APP0"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold" />
 
                 <TextView
@@ -780,7 +785,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="0"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold"
                     tools:text="1048576" />
 
@@ -792,7 +797,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="0%"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold"
                     tools:text="100%" />
 
@@ -804,7 +809,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="0"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold"
                     tools:text="1048576" />
 
@@ -816,7 +821,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="0%"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold"
                     tools:text="100%" />
             </LinearLayout>
@@ -824,8 +829,8 @@
             <!-- Table APP001 -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:layout_height="@dimen/tdc_status_row_height"
                 android:orientation="horizontal">
 
                 <TextView
@@ -836,7 +841,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="APP1"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold" />
 
                 <TextView
@@ -847,7 +852,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="0"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold"
                     tools:text="1048576" />
 
@@ -859,7 +864,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="0%"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold"
                     tools:text="100%" />
 
@@ -871,7 +876,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="0"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold"
                     tools:text="1048576" />
 
@@ -883,7 +888,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="0%"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold"
                     tools:text="100%" />
             </LinearLayout>
@@ -891,8 +896,8 @@
             <!-- Table APP002 -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:layout_height="@dimen/tdc_status_row_height"
                 android:orientation="horizontal">
 
                 <TextView
@@ -903,7 +908,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="APP2"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold" />
 
                 <TextView
@@ -914,7 +919,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="0"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold"
                     tools:text="1048576" />
 
@@ -926,7 +931,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="0%"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold"
                     tools:text="100%" />
 
@@ -938,7 +943,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="0"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold"
                     tools:text="1048576" />
 
@@ -950,7 +955,7 @@
                     android:fontFamily="@font/nanum_gothic_regular"
                     android:text="0%"
                     android:textColor="#00E676"
-                    android:textSize="12dp"
+                    android:textSize="@dimen/tdc_text_size_normal"
                     android:textStyle="bold"
                     tools:text="100%" />
             </LinearLayout>
@@ -969,17 +974,18 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/tdc_button_gap"
                 android:fontFamily="@font/nanum_gothic_regular"
-                android:text="Buttons"
+                android:text="OTA Features"
                 android:textColor="#FFA000"
-                android:textSize="12dp"
+                android:textSize="@dimen/tdc_text_size_normal"
                 android:textStyle="bold" />
 
             <!-- Button 1행 : Info / Collect / Write / Select -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="@dimen/tdc_button_gap"
                 android:orientation="horizontal">
 
                 <!-- Button : Info -->
@@ -987,14 +993,14 @@
                     android:id="@+id/ota_info_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
+                    android:layout_height="@dimen/tdc_button_height"
                     android:layout_weight="1"
                     android:text="Info"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#1976D2"
                     app:cornerRadius="4dp" />
 
@@ -1003,15 +1009,15 @@
                     android:id="@+id/ota_collect_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1"
                     android:text="Collect"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#00796B"
                     app:cornerRadius="4dp" />
 
@@ -1020,15 +1026,15 @@
                     android:id="@+id/ota_write_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1"
                     android:text="Write"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#D84315"
                     app:cornerRadius="4dp" />
 
@@ -1037,15 +1043,15 @@
                     android:id="@+id/ota_select_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1"
                     android:text="Select"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#8E24AA"
                     app:cornerRadius="4dp" />
             </LinearLayout>
@@ -1065,17 +1071,18 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/tdc_button_gap"
                 android:fontFamily="@font/nanum_gothic_regular"
                 android:text="Caution"
                 android:textColor="#FFA000"
-                android:textSize="12dp"
+                android:textSize="@dimen/tdc_text_size_normal"
                 android:textStyle="bold" />
 
             <!-- Caution 1행 : Factory rollback / Map rollback (되돌릴 수 없는 동작) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="@dimen/tdc_button_gap"
                 android:orientation="horizontal">
 
                 <!-- Button : Factory reset -->
@@ -1083,14 +1090,14 @@
                     android:id="@+id/ota_factory_reset_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
+                    android:layout_height="@dimen/tdc_button_height"
                     android:layout_weight="1"
                     android:text="FW slot rollback"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:textAllCaps="false"
                     android:textColor="#FF8A80"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="italic"
                     app:backgroundTint="#5D1A1A"
                     app:cornerRadius="4dp" />
@@ -1100,15 +1107,15 @@
                     android:id="@+id/ota_map_init_default_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1"
                     android:text="Map rollback"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:textAllCaps="false"
                     android:textColor="#FF8A80"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="italic"
                     app:backgroundTint="#5D1A1A"
                     app:cornerRadius="4dp" />
@@ -1128,17 +1135,18 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/tdc_button_gap"
                 android:fontFamily="@font/nanum_gothic_regular"
                 android:text="Remote"
                 android:textColor="#FFA000"
-                android:textSize="12dp"
+                android:textSize="@dimen/tdc_text_size_normal"
                 android:textStyle="bold" />
 
             <!-- Remote 1행 : Program- / Program+ / Vol- / Vol+ -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="@dimen/tdc_button_gap"
                 android:orientation="horizontal">
 
                 <!-- Button : 이전 프로그램 -->
@@ -1146,16 +1154,16 @@
                     android:id="@+id/ota_program_down_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
+                    android:layout_height="@dimen/tdc_button_height"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="Program-"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#0277BD"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1165,17 +1173,17 @@
                     android:id="@+id/ota_program_up_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="Program+"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#0277BD"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1185,17 +1193,17 @@
                     android:id="@+id/ota_volume_down_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="Vol-"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#2E7D32"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1205,17 +1213,17 @@
                     android:id="@+id/ota_volume_up_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="Vol+"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#2E7D32"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1224,6 +1232,7 @@
             <!-- Remote 2행 : Out- / Out+ / LED / Alarm -->
             <LinearLayout
                 android:layout_width="match_parent"
+                android:layout_marginTop="@dimen/tdc_button_gap"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
@@ -1232,16 +1241,16 @@
                     android:id="@+id/ota_max_output_down_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
+                    android:layout_height="@dimen/tdc_button_height"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="Out-"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#BF360C"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1251,17 +1260,17 @@
                     android:id="@+id/ota_max_output_up_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="Out+"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#BF360C"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1271,17 +1280,17 @@
                     android:id="@+id/ota_led_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="LED"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#5E35B1"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1291,17 +1300,17 @@
                     android:id="@+id/ota_alarm_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="Alarm"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#AD1457"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1321,17 +1330,18 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/tdc_button_gap"
                 android:fontFamily="@font/nanum_gothic_regular"
                 android:text="Etc,..."
                 android:textColor="#FFA000"
-                android:textSize="12dp"
+                android:textSize="@dimen/tdc_text_size_normal"
                 android:textStyle="bold" />
 
             <!-- Etc 1행 : Map / Gating / Normal PMIC / BT PMIC -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="@dimen/tdc_button_gap"
                 android:orientation="horizontal">
 
                 <!-- Button : 맵 강제 초기화 종류를 선택 (32Ch / 16Ch) -->
@@ -1339,16 +1349,16 @@
                     android:id="@+id/ota_map_select_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
+                    android:layout_height="@dimen/tdc_button_height"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="Map"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#795548"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1358,17 +1368,17 @@
                     android:id="@+id/ota_gating_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="Gating"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#00838F"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1378,17 +1388,17 @@
                     android:id="@+id/ota_pmic_select_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="Normal PMIC"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#3F51B5"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1398,17 +1408,17 @@
                     android:id="@+id/ota_mapping_pmic_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="BT PMIC"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#00695C"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1422,6 +1432,7 @@
             -->
             <LinearLayout
                 android:layout_width="match_parent"
+                android:layout_marginTop="@dimen/tdc_button_gap"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
@@ -1430,16 +1441,16 @@
                     android:id="@+id/ota_bt_select_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
+                    android:layout_height="@dimen/tdc_button_height"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="BT Period"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#455A64"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1449,17 +1460,17 @@
                     android:id="@+id/ota_link_step_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="Link Step"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#6A1B9A"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1469,17 +1480,17 @@
                     android:id="@+id/ota_fixed_pmic_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="Fixed PMIC"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#AD1457"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1489,17 +1500,17 @@
                     android:id="@+id/ota_one_coin_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="Coin"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#00796B"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1508,6 +1519,7 @@
             <!-- Etc 3행 : Ctrl Mode / Accel / Nop Standby (마지막 칸은 자리 맞춤용) -->
             <LinearLayout
                 android:layout_width="match_parent"
+                android:layout_marginTop="@dimen/tdc_button_gap"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
@@ -1515,16 +1527,16 @@
                     android:id="@+id/ota_ctrl_mode_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
+                    android:layout_height="@dimen/tdc_button_height"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="Ctrl Mode"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#37474F"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1533,17 +1545,17 @@
                     android:id="@+id/ota_accel_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="Accel"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#546E7A"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1553,17 +1565,17 @@
                     android:id="@+id/ota_nop_standby_button"
                     style="@style/TextAppearance.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1"
-                    android:insetTop="2dp"
-                    android:insetBottom="2dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
                     android:paddingStart="0dp"
                     android:paddingEnd="0dp"
                     android:text="Nop Standby"
                     android:textAllCaps="false"
                     android:textColor="@color/white_100"
-                    android:textSize="11dp"
+                    android:textSize="@dimen/tdc_text_size_small"
                     app:backgroundTint="#455A64"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
@@ -1571,11 +1583,53 @@
                 <Space
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
                     android:layout_weight="1" />
             </LinearLayout>
         </LinearLayout>
         <!-- Connection -->
+        <!--
+        2단 배치의 열 경계.
+
+        태블릿에서만 ConstraintSet 이 이것을 참조한다. 폰에서는 아무 제약도 참조하지
+        않으므로 측정되지도 그려지지도 않는다 - 크기 0 의 가상 뷰다.
+
+        레이아웃 파일을 한 벌로 유지하려고 이렇게 한다. 태블릿용 XML 을 따로 만들면
+        위젯 정의가 두 벌이 되어 한쪽만 고쳐지는 일이 생긴다.
+        -->
+        <!--
+        사운드처리기 펌웨어 세대. 연결 직후 판별한 결과다.
+
+        ota_id_box 안이 아니라 루트의 직계로 둔다. 태블릿에서는 오른쪽 화면의 맨 왼쪽으로
+        옮겨야 하는데, 상자 안에 있으면 그 상자를 벗어날 수 없기 때문이다.
+        폰에서는 아래 제약대로 사용자 정보 줄의 오른쪽 끝에 선다.
+        -->
+        <TextView
+            android:id="@+id/ota_fw_release_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/fw_release_badge_background"
+            android:maxLines="1"
+            android:paddingStart="5dp"
+            android:paddingTop="1dp"
+            android:paddingEnd="5dp"
+            android:paddingBottom="1dp"
+            android:text=""
+            android:textColor="#1A1A1A"
+            android:textSize="@dimen/tdc_text_size_tiny"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/ota_id_box"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/ota_id_box"
+            tools:text="REL4.3" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/tdc_center_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/remote_control_connection_layout"
             android:layout_width="0dp"
@@ -1649,7 +1703,7 @@
                     android:text="외부기를 머리에 부착한 상태에서\n장치 연결을 진행하세요."
                     android:textAlignment="center"
                     android:textColor="@color/white_90"
-                    android:textSize="14dp"
+                    android:textSize="@dimen/tdc_text_size_large"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

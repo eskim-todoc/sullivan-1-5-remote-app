@@ -94,6 +94,8 @@ public class LockScreen {
     public void resume() {
         Log.v(TAG, "resume(" + mContext.toString() + ", " + mBinding.toString() + ") called.");
 
+        ensureDefaultPassword();
+
         bufferInit();
         stateInit();
         updateCircle(0);
@@ -132,8 +134,12 @@ public class LockScreen {
         }
     }
 
+    /* 잠금화면을 쓸지.
+     *
+     * 기본값이 «쓰지 않음» 이다. 예전에는 앱을 처음 켜면 잠금화면이 먼저 떠서 암호를
+     * 등록해야 넘어갈 수 있었다. 기능을 없애지는 않았다 - 설정 화면의 스위치로 언제든 켠다. */
     public boolean isEnabled() {
-        return mContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(KEY_FOR_ENABLE, true);
+        return mContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(KEY_FOR_ENABLE, false);
     }
 
     //public void setEnable(Context context, boolean enable)
@@ -141,6 +147,29 @@ public class LockScreen {
         //context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit().putBoolean(KEY_FOR_ENABLE, enable).apply();
         mContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit().putBoolean(KEY_FOR_ENABLE, enable).apply();
         Log.d(TAG, "Lock Screen Enable state = " + enable + ".");
+    }
+
+    /* 저장된 암호가 없으면 기본 암호를 넣어 둔다.
+     *
+     * 없는 채로 두면 잠금화면이 «암호 등록» 으로 열려, 나중에 설정에서 잠금을 켜는 순간
+     * 등록 절차부터 밟아야 한다. 미리 채워 두면 켜자마자 바로 쓸 수 있다.
+     *
+     * 값은 0 을 자릿수만큼 채운 것이다. 자릿수가 바뀌어도 따라간다.
+     * 전체 초기화로 암호를 지운 뒤에도 다음 resume 에서 이 값이 다시 들어간다. */
+    public void ensureDefaultPassword() {
+        if (readPassword() != null) {
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < VALUE_LENGTH; i++) {
+            sb.append('0');
+        }
+
+        Log.d(TAG, "저장된 암호가 없어 기본 암호를 넣습니다.");
+
+        writePassword(sb.toString());
     }
 
     public void erasePassword() {

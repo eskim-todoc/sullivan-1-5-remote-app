@@ -93,8 +93,17 @@
             android:foregroundServiceType="mediaPlayback"
             android:stopWithTask="false" />
 
+        <!--
+        화면 방향은 매니페스트로 고정하지 않는다. 폰이면 세로, 태블릿이면 가로로
+        «실행할 때» 정해야 하므로 코드에서 건다 (MainActivity.applyScreenOrientation).
+
+        configChanges 를 선언하는 이유는 두 가지다.
+          1) 방향을 코드로 걸 때 액티비티가 재생성되지 않는다
+          2) 폴더블을 접거나 펴도 재생성되지 않아, 바꿀지 말지를 앱이 직접 정할 수 있다
+        -->
         <activity
             android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:exported="true"
             android:launchMode="singleTask"
             android:windowSoftInputMode="stateAlwaysHidden|adjustResize">
