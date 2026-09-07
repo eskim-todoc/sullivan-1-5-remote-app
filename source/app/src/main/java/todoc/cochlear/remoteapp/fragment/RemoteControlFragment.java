@@ -345,6 +345,8 @@ public class RemoteControlFragment extends Fragment
         mRemoteControlBinding.otaAccelButton.setOnClickListener(onClick_accelButton);
 
         mRemoteControlBinding.otaNopStandbyButton.setOnClickListener(onClick_nopStandbyButton);
+        mRemoteControlBinding.otaMaxPmicButton.setOnClickListener(onClick_maxPmicButton);
+        mRemoteControlBinding.otaFfButton.setOnClickListener(onClick_ffButton);
 
         /* 아직 연결 전이라 세대가 미상이다. 잠긴 상태로 시작한다.
          * 옵저버는 값이 «바뀔 때» 만 오므로 첫 상태는 여기서 직접 맞춰야 한다. */
@@ -1439,7 +1441,7 @@ public class RemoteControlFragment extends Fragment
         }
 
         final int minLevel = PacketInfo.MIN_TX_PWR_SELECT_MIN;
-        final int maxLevel = PacketInfo.MIN_TX_PWR_SELECT_MAX;
+        final int maxLevel = makeMinTxPowerSelectMax();
         final int count    = (maxLevel - minLevel) + 1;
 
         String[] items = new String[count];
@@ -1458,7 +1460,8 @@ public class RemoteControlFragment extends Fragment
             currentLevel = PacketInfo.MIN_TX_PWR_DEFAULT;
         }
 
-        final int checkedIndex = currentLevel - minLevel;
+        // 상한이 낮아져 목록이 짧아졌으면 현재 값이 목록 밖일 수 있다. 인덱스를 범위로 묶는다.
+        final int checkedIndex = Math.max(0, Math.min(count - 1, currentLevel - minLevel));
 
         mDialog = new MaterialAlertDialogBuilder(requireContext()) //
                 .setTitle("PMIC 하한 선택") //
@@ -1537,7 +1540,7 @@ public class RemoteControlFragment extends Fragment
         }
 
         final int minLevel = PacketInfo.MIN_TX_PWR_SELECT_MIN;
-        final int maxLevel = PacketInfo.MIN_TX_PWR_SELECT_MAX;
+        final int maxLevel = makeMinTxPowerSelectMax();
         final int count    = (maxLevel - minLevel) + 1;
 
         String[] items = new String[count];
@@ -1555,7 +1558,8 @@ public class RemoteControlFragment extends Fragment
             currentLevel = PacketInfo.MAPPING_TX_PWR_DEFAULT;
         }
 
-        final int checkedIndex = currentLevel - minLevel;
+        // 상한이 낮아져 목록이 짧아졌으면 현재 값이 목록 밖일 수 있다. 인덱스를 범위로 묶는다.
+        final int checkedIndex = Math.max(0, Math.min(count - 1, currentLevel - minLevel));
 
         mDialog = new MaterialAlertDialogBuilder(requireContext()) //
                 .setTitle("매핑 PMIC 하한 선택") //
@@ -1846,6 +1850,344 @@ public class RemoteControlFragment extends Fragment
         }
 
         return (oneCoin == PacketInfo.LINK_FLAG_ENABLE) ? PacketInfo.COIN_MODE_ENABLE : PacketInfo.COIN_MODE_DISABLE;
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // OnClickListener - Max PMIC 버튼 (링크 제어가 올릴 수 있는 상한, 프로토콜 4.5 이상)
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private final View.OnClickListener onClick_maxPmicButton = view -> makeDialog_maxTxPowerSelect();
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// func - PMIC 상한 선택 다이얼로그
+    ///
+    /// 하한 3형제와 형태는 같지만 «목록의 시작점이 상수가 아니다». 펌웨어가 받는 값이
+    /// (상시 하한, 매핑 하한 중 큰 값) + 1 이상이고, 두 하한은 사용자가 바꾼다.
+    /// 그래서 열 때마다 다시 계산한다. 시작점 미만은 아예 목록에 넣지 않는다 —
+    /// 넣으면 사운드처리기가 거부할 값을 고르게 하는 것이다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private void makeDialog_maxTxPowerSelect()
+    {
+        if (mDialog != null)
+        {
+            Log.d(TAG, "[PMIC] 이미 다이얼로그가 표시 중이라서 상한 목록을 띄우지 않습니다.");
+            return;
+        }
+
+        int floor = PacketInfo.makeMaxTxPowerFloor(mStatusViewModel.getValueMinTxPowerLevel(), //
+                                                   mStatusViewModel.getValueMappingTxPowerLevel());
+
+        if (floor == PacketInfo.LINK_VALUE_UNKNOWN)
+        {
+            Toast.makeText(requireContext(), "하한 값을 아직 읽지 못해 상한 범위를 계산할 수 없습니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        final int minLevel = floor + 1;
+        final int maxLevel = PacketInfo.MAX_TX_PWR_SELECT_MAX;
+
+        if (maxLevel < minLevel)
+        {
+            Toast.makeText(requireContext(), "하한이 너무 높아 상한으로 고를 수 있는 값이 없습니다.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        final int count = (maxLevel - minLevel) + 1;
+
+        String[] items = new String[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            int level = minLevel + i;
+            items[i] = String.format("%.3f V  (레벨 %d)", (level * PacketInfo.TX_PWR_LEVEL_STEP_MV) / 1000.0f, level);
+        }
+
+        int currentLevel = mStatusViewModel.getValueMaxTxPowerLevel();
+
+        if (currentLevel < minLevel || maxLevel < currentLevel)
+        {
+            currentLevel = PacketInfo.MAX_TX_PWR_DEFAULT;
+        }
+
+        // 기본값(214)조차 범위 밖일 수는 없지만, 계산이 바뀌어도 인덱스가 음수가 되지 않게 묶어 둔다.
+        final int checkedIndex = Math.max(0, Math.min(count - 1, currentLevel - minLevel));
+
+        int    mappingLevel = mStatusViewModel.getValueMappingTxPowerLevel();
+        String who          = (mappingLevel > mStatusViewModel.getValueMinTxPowerLevel()) ? "매핑 하한" : "상시 하한";
+
+        /* setMessage 와 setSingleChoiceItems 를 같이 주면 안 된다.
+         * 둘이 같은 자리를 쓰는 탓에 메시지가 목록을 밀어내 «고를 것이 없는» 화면이 된다.
+         * Nop 선택 다이얼로그가 같은 이유로 setCustomTitle 을 쓴다 — 그 방식을 따른다. */
+        String guide = who + " " + floor + " 때문에 " + minLevel + " 이상만 고를 수 있습니다." //
+                       + System.lineSeparator() //
+                       + "지금보다 낮추면 현재 파워는 바로 내려가지 않습니다 - 올라가는 것만 막힙니다.";
+
+        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+                .setCustomTitle(makeDialogTitleView("PMIC 상한 선택", guide)) //
+                .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
+                {
+                    sendMaxTxPowerPacket(minLevel + which);
+                    dialogInterface.dismiss();
+                }) //
+                .setNegativeButton("Default", (dialogInterface, i) -> sendMaxTxPowerPacket(PacketInfo.MAX_TX_PWR_DEFAULT)) //
+                .create();
+
+        mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
+
+        mDialog.show();
+    }
+
+    /* 하한 다이얼로그가 고를 수 있는 최댓값.
+     *
+     * 펌웨어는 «하한 > 상한» 조합을 막지 않는다(isd_interface.c 의 tdc_is_valid_min_tx_power_level
+     * 이 상한을 보지 않는다). 그래서 앱이 막는다 — 상한을 180 으로 낮춰 둔 채 하한 210 을 쓰면
+     * 성립하지 않는 조합이 파일에 남는다.
+     *
+     * 상한을 아직 못 읽었거나 4.5 미만이면 기존 상한(213)을 그대로 쓴다.
+     * 여기서 막아 버리면 4.3·4.4 에서 되던 조작이 안 되는 퇴행이 된다. */
+    private int makeMinTxPowerSelectMax()
+    {
+        int maxLevel = mStatusViewModel.getValueMaxTxPowerLevel();
+
+        if (mMainActivity == null || !mMainActivity.isMaxTxPowerSupported() //
+            || maxLevel == PacketInfo.LINK_VALUE_UNKNOWN)
+        {
+            return PacketInfo.MIN_TX_PWR_SELECT_MAX;
+        }
+
+        return Math.min(PacketInfo.MIN_TX_PWR_SELECT_MAX, maxLevel - 1);
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // OnClickListener - FF 버튼 (자극 레벨 피드포워드, 프로토콜 4.5 이상)
+    ///
+    /// 설정이 7개라 버튼 하나로 묶었다. 여는 순간 관측값(24·25·26)을 읽어 제목에 얹는다 —
+    /// 계속 변하는 값이라 미리 읽어 두는 것이 의미가 없고, 상시 폴링은 백텔에 영향을 줄 수 있다.
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private final View.OnClickListener onClick_ffButton = view ->
+    {
+        mMainActivity.requestFfObservation();
+        makeDialog_ffSettings();
+    };
+
+    /* 피드포워드 항목 하나. 인덱스·이름·범위·기본값을 묶어 목록과 값 선택이 같은 것을 보게 한다. */
+    private static final class FfItem
+    {
+        final int    index;
+        final String name;
+        final int    min;
+        final int    max;
+        final int    def;
+        final String unit;
+
+        FfItem(int index, String name, int min, int max, int def, String unit)
+        {
+            this.index = index;
+            this.name  = name;
+            this.min   = min;
+            this.max   = max;
+            this.def   = def;
+            this.unit  = unit;
+        }
+    }
+
+    private FfItem[] makeFfItems()
+    {
+        return new FfItem[]{ //
+                new FfItem(PacketInfo.RC_LINK_IDX_FF_COOLDOWN, "쿨다운", //
+                           PacketInfo.FF_COOLDOWN_MIN, PacketInfo.FF_COOLDOWN_MAX, PacketInfo.FF_COOLDOWN_DEFAULT, " ms"), //
+                new FfItem(PacketInfo.RC_LINK_IDX_FF_STEP, "상승 스텝", //
+                           PacketInfo.FF_STEP_MIN, PacketInfo.FF_STEP_MAX, PacketInfo.FF_STEP_DEFAULT, ""), //
+                new FfItem(PacketInfo.RC_LINK_IDX_FF_RATIO_0, "비율 구간 0 (평균 0~63)", //
+                           PacketInfo.FF_RATIO_MIN, PacketInfo.FF_RATIO_MAX, PacketInfo.FF_RATIO_DEFAULT[0], " %"), //
+                new FfItem(PacketInfo.RC_LINK_IDX_FF_RATIO_1, "비율 구간 1 (64~127)", //
+                           PacketInfo.FF_RATIO_MIN, PacketInfo.FF_RATIO_MAX, PacketInfo.FF_RATIO_DEFAULT[1], " %"), //
+                new FfItem(PacketInfo.RC_LINK_IDX_FF_RATIO_2, "비율 구간 2 (128~191)", //
+                           PacketInfo.FF_RATIO_MIN, PacketInfo.FF_RATIO_MAX, PacketInfo.FF_RATIO_DEFAULT[2], " %"), //
+                new FfItem(PacketInfo.RC_LINK_IDX_FF_RATIO_3, "비율 구간 3 (192~255)", //
+                           PacketInfo.FF_RATIO_MIN, PacketInfo.FF_RATIO_MAX, PacketInfo.FF_RATIO_DEFAULT[3], " %")};
+    }
+
+    private int getFfValue(int index)
+    {
+        switch (index)
+        {
+            case PacketInfo.RC_LINK_IDX_FF_COOLDOWN: return mStatusViewModel.getValueFfCooldown();
+            case PacketInfo.RC_LINK_IDX_FF_STEP:     return mStatusViewModel.getValueFfStep();
+            case PacketInfo.RC_LINK_IDX_FF_RATIO_0:  return mStatusViewModel.getValueFfRatio0();
+            case PacketInfo.RC_LINK_IDX_FF_RATIO_1:  return mStatusViewModel.getValueFfRatio1();
+            case PacketInfo.RC_LINK_IDX_FF_RATIO_2:  return mStatusViewModel.getValueFfRatio2();
+            case PacketInfo.RC_LINK_IDX_FF_RATIO_3:  return mStatusViewModel.getValueFfRatio3();
+            default:                                 return PacketInfo.LINK_VALUE_UNKNOWN;
+        }
+    }
+
+    private static String makeFfValueText(int value, String unit)
+    {
+        return (value == PacketInfo.LINK_VALUE_UNKNOWN) ? "-" : (value + unit);
+    }
+
+    /* 다이얼로그 제목에 얹는 «지금 상태».
+     *
+     * 평균 amplitude(26)는 비율 구간 판정과 «같은 값» 이라 지금 어느 구간이 적용되는지를
+     * 그대로 알 수 있다. 세움(24) - 올림(25) 은 합쳐진 요청 수인데, 둘 다 하위 8비트라
+     * 차분을 mod 256 으로 봐야 한다. */
+    private String makeFfStatusText()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        int avg  = mStatusViewModel.getValueFfAvgAmp();
+        int band = PacketInfo.makeFfBandIndex(avg);
+
+        if (band == PacketInfo.LINK_VALUE_UNKNOWN)
+        {
+            sb.append("평균 amplitude -");
+        }
+        else
+        {
+            sb.append("평균 ").append(avg).append(" → 비율 구간 ").append(band).append(" 적용");
+        }
+
+        int raised  = mStatusViewModel.getValueFfRaised();
+        int applied = mStatusViewModel.getValueFfApplied();
+
+        if (raised != PacketInfo.LINK_VALUE_UNKNOWN && applied != PacketInfo.LINK_VALUE_UNKNOWN)
+        {
+            int merged = ((raised - applied) + 256) % 256; // 둘 다 하위 8비트다
+
+            sb.append(System.lineSeparator()) //
+              .append("세움 ").append(raised).append(" / 올림 ").append(applied);
+
+            if (merged > 0)
+            {
+                sb.append(" (").append(merged).append("건 합쳐짐)");
+            }
+        }
+
+        int rise = PacketInfo.makeFfRiseStepsPerSec(mStatusViewModel.getValueFfStep(), //
+                                                    mStatusViewModel.getValueFfCooldown());
+
+        if (rise != PacketInfo.LINK_VALUE_UNKNOWN)
+        {
+            sb.append(System.lineSeparator()) //
+              .append("초당 상승 ").append(rise).append("스텝 · 하강 약 3.3스텝");
+
+            if (rise > PacketInfo.FF_FALL_STEPS_PER_SEC)
+            {
+                sb.append("  [주의] 일정한 소리에서도 상한까지 올라갈 수 있습니다");
+            }
+        }
+
+        return sb.toString();
+    }
+
+    private void makeDialog_ffSettings()
+    {
+        if (mDialog != null)
+        {
+            Log.d(TAG, "[FF] 이미 다이얼로그가 표시 중이라서 피드포워드 목록을 띄우지 않습니다.");
+            return;
+        }
+
+        final FfItem[] ffItems = makeFfItems();
+
+        String[] items = new String[ffItems.length + 1];
+
+        int enable = mStatusViewModel.getValueFfEnable();
+
+        items[0] = "사용 : " + ((enable == PacketInfo.LINK_VALUE_UNKNOWN) //
+                                ? "-" //
+                                : ((enable == PacketInfo.LINK_FLAG_ENABLE) ? "켬" : "끔"));
+
+        for (int i = 0; i < ffItems.length; i++)
+        {
+            items[i + 1] = ffItems[i].name + " : " + makeFfValueText(getFfValue(ffItems[i].index), ffItems[i].unit);
+        }
+
+        /* setMessage 와 목록을 같이 주면 목록이 사라진다. 제목 자리에 직접 그린다. */
+        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+                .setCustomTitle(makeDialogTitleView("자극 레벨 피드포워드", makeFfStatusText())) //
+                .setItems(items, (dialogInterface, which) ->
+                {
+                    dialogInterface.dismiss();
+
+                    if (which == 0)
+                    {
+                        makeDialog_ffEnable();
+                    }
+                    else
+                    {
+                        makeDialog_ffValue(ffItems[which - 1]);
+                    }
+                }) //
+                .create();
+
+        mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
+
+        mDialog.show();
+    }
+
+    private void makeDialog_ffEnable()
+    {
+        String[] items = {"끔", "켬"};
+
+        int enable  = mStatusViewModel.getValueFfEnable();
+        int checked = (enable == PacketInfo.LINK_VALUE_UNKNOWN) ? -1 : enable;
+
+        // 켜도 동작하지 않는 조건이 넷이다. 켜는 자리에서 알려야 «켰는데 왜 안 되지» 가 안 생긴다.
+        String guide = mMainActivity.makeFeedForwardBlockText();
+
+        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+                .setCustomTitle(makeDialogTitleView("피드포워드 사용", guide)) //
+                .setSingleChoiceItems(items, checked, (dialogInterface, which) ->
+                {
+                    mMainActivity.sendFfParam(PacketInfo.RC_LINK_IDX_FF_ENABLE, which);
+                    dialogInterface.dismiss();
+                }) //
+                .create();
+
+        mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
+
+        mDialog.show();
+    }
+
+    private void makeDialog_ffValue(FfItem item)
+    {
+        final int count = (item.max - item.min) + 1;
+
+        String[] items = new String[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            items[i] = (item.min + i) + item.unit;
+        }
+
+        int current = getFfValue(item.index);
+
+        if (current < item.min || item.max < current)
+        {
+            current = item.def;
+        }
+
+        final int checkedIndex = Math.max(0, Math.min(count - 1, current - item.min));
+
+        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+                .setTitle(item.name) //
+                .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
+                {
+                    mMainActivity.sendFfParam(item.index, item.min + which);
+                    dialogInterface.dismiss();
+                }) //
+                .setNegativeButton("Default", (dialogInterface, i) -> mMainActivity.sendFfParam(item.index, item.def)) //
+                .create();
+
+        mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
+
+        mDialog.show();
+    }
+
+    private void sendMaxTxPowerPacket(int level)
+    {
+        mMainActivity.sendMaxTxPower(level);
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2543,6 +2885,7 @@ public class RemoteControlFragment extends Fragment
 
         // 상시 동작 Tx 파워 하한(PMIC).
         mStatusViewModel.getLiveDataMinTxPowerLevel().observe(getViewLifecycleOwner(), o -> updateMinPowerText());
+        mStatusViewModel.getLiveDataMaxTxPowerLevel().observe(getViewLifecycleOwner(), o -> updateMaxPowerText());
 
         // 현재 Tx 파워(관찰값). 설정값이 아니라 지금 PMIC 에 실제로 쓰인 값이다.
         mStatusViewModel.getLiveDataCurTxPowerLevel().observe(getViewLifecycleOwner(), o ->
@@ -2746,6 +3089,28 @@ public class RemoteControlFragment extends Fragment
 
         mRemoteControlBinding.otaPmicTextview.setText( //
                 makeLinkStatusText(PacketInfo.RC_LINK_IDX_MIN_TX_POWER, "PMIC", makeVoltageText("PMIC", level)));
+    }
+
+    /* 상한 표시. 4.5 미만이면 값이 없으므로 행 전체를 숨긴다 —
+     * «Max -» 를 계속 띄우면 있지도 않은 기능이 있는 것처럼 보인다. */
+    private void updateMaxPowerText()
+    {
+        boolean supported = (mMainActivity != null) && mMainActivity.isMaxTxPowerSupported();
+
+        mRemoteControlBinding.otaMaxPmicTextview.setVisibility(supported ? View.VISIBLE : View.INVISIBLE);
+        mRemoteControlBinding.otaMaxPmicButton.setVisibility(supported ? View.VISIBLE : View.INVISIBLE);
+
+        // 피드포워드도 4.5 에서 생겼다. 같은 게이트를 쓴다.
+        mRemoteControlBinding.otaFfButton.setVisibility(supported ? View.VISIBLE : View.INVISIBLE);
+
+        if (!supported)
+        {
+            return;
+        }
+
+        int level = mStatusViewModel.getValueMaxTxPowerLevel();
+
+        mRemoteControlBinding.otaMaxPmicTextview.setText(makeVoltageText("Max", level));
     }
 
     private void updateStepUpText()
@@ -2993,6 +3358,7 @@ public class RemoteControlFragment extends Fragment
         /* 무엇이 쓰이는지가 바뀌었으니 글자도 다시 만든다.
          * 옵저버는 그 «값» 이 바뀔 때만 오므로, 모드가 바뀌어 쓰임이 달라진 것은 여기서 반영한다. */
         updateMinPowerText();
+        updateMaxPowerText();
         updateStepUpText();
         updateBacktelText();
         updateCtrlModeText();

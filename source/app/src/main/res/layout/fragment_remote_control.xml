@@ -115,6 +115,21 @@
                     android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="Fix Off" />
+
+                <!-- 링크 제어가 올릴 수 있는 Tx 파워 상한 (프로토콜 4.5 이상, 미만이면 숨긴다) -->
+                <TextView
+                    android:id="@+id/ota_max_pmic_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/nanum_gothic_regular"
+                    android:maxLines="1"
+                    android:text="Max -"
+                    android:textColor="#FFD54F"
+                    android:textSize="@dimen/tdc_text_size_small"
+                    android:textStyle="bold"
+                    tools:text="Max 5.4V" />
             </LinearLayout>
 
             <!-- 2행 : BT / Step / Coin / Accel — 링크 타이밍과 재시도 -->
@@ -184,6 +199,12 @@
                     android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="Accel On" />
+
+                <!-- 자리 맞춤. 1행이 5열이 되어 모든 행을 5열로 맞춘다 -->
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
             </LinearLayout>
 
             <!-- 3행 : Nop / Mode — 지금 시험 중인 두 항목이라 나란히 두고 형광색으로 뗀다.
@@ -254,6 +275,12 @@
                     android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="PW 40us" />
+
+                <!-- 자리 맞춤. 1행이 5열이 되어 모든 행을 5열로 맞춘다 -->
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
             </LinearLayout>
 
             <!-- 4행 : Frm — 맵과 자극, 이어서 기기 상태 -->
@@ -323,6 +350,12 @@
                     android:textSize="@dimen/tdc_text_size_small"
                     android:textStyle="bold"
                     tools:text="Alarm On" />
+
+                <!-- 자리 맞춤. 1행이 5열이 되어 모든 행을 5열로 맞춘다 -->
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
             </LinearLayout>
 
             <!-- 5행 : Prog / Vol / Out — 기기 상태 -->
@@ -379,6 +412,12 @@
                     tools:text="Out 2" />
 
                 <!-- 자리 맞춤. 항목이 19개라 마지막 칸이 빈다 -->
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <!-- 자리 맞춤. 1행이 5열이 되어 모든 행을 5열로 맞춘다 -->
                 <Space
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -1579,6 +1618,67 @@
                     app:backgroundTint="#455A64"
                     app:cornerRadius="4dp"
                     app:minWidth="0dp" />
+
+                <!-- Button : 링크 제어가 올릴 수 있는 PMIC 상한을 선택 (프로토콜 4.5 이상)
+                     4.5 미만 기기에서는 코드가 숨긴다. 자리 맞춤용 Space 를 대신한다. -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_max_pmic_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
+                    android:layout_weight="1"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="Max PMIC"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="@dimen/tdc_text_size_small"
+                    app:backgroundTint="#455A64"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+            </LinearLayout>
+
+            <!-- Etc 4행 : FF (자극 레벨 피드포워드, 프로토콜 4.5 이상)
+                 설정이 7개 + 관측 3개라 버튼을 하나로 묶고 전용 다이얼로그에서 고른다.
+                 나머지 세 칸은 자리 맞춤이다 — 윗줄과 같은 4열 격자를 유지해야 열이 맞는다. -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_marginTop="@dimen/tdc_button_gap"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ota_ff_button"
+                    style="@style/TextAppearance.MaterialComponents.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/tdc_button_height"
+                    android:layout_weight="1"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="FF"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_100"
+                    android:textSize="@dimen/tdc_text_size_small"
+                    app:backgroundTint="#455A64"
+                    app:cornerRadius="4dp"
+                    app:minWidth="0dp" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
+                    android:layout_weight="1" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/tdc_button_gap"
+                    android:layout_weight="1" />
 
                 <Space
                     android:layout_width="0dp"

@@ -244,6 +244,221 @@ public class StatusViewModel extends ViewModel {
         return mMinTxPowerLevel.getValue();
     }
 
+    /* 링크 Tx 파워 상한(PMIC) 레벨. 1스텝 = 25mV. 프로토콜 4.5 의 인덱스 16 이다.
+     *
+     * 전체 읽기 응답에 실리지 않으므로 «판별이 끝난 뒤 개별 읽기» 로만 채워진다.
+     * 4.5 미만이거나 아직 못 읽었으면 LINK_VALUE_UNKNOWN 이고, 그때는 화면에서 숨긴다. */
+    private final MutableLiveData<Integer> mMaxTxPowerLevel = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataMaxTxPowerLevel() {
+        return mMaxTxPowerLevel;
+    }
+
+    public void setValueMaxTxPowerLevel(int value) {
+        mMaxTxPowerLevel.setValue(value);
+    }
+
+    public int getValueMaxTxPowerLevel() {
+        if (mMaxTxPowerLevel.getValue() == null) {
+            mMaxTxPowerLevel.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mMaxTxPowerLevel.getValue();
+    }
+
+
+    /* 자극 레벨 피드포워드 (프로토콜 4.5 후반). 전부 개별 읽기로만 채워진다. */
+
+    // 피드포워드 사용 (인덱스 17). 0 · 1
+    private final MutableLiveData<Integer> mFfEnable = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataFfEnable() {
+        return mFfEnable;
+    }
+
+    public void setValueFfEnable(int value) {
+        mFfEnable.setValue(value);
+    }
+
+    public int getValueFfEnable() {
+        if (mFfEnable.getValue() == null) {
+            mFfEnable.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mFfEnable.getValue();
+    }
+
+    // 피드포워드 쿨다운 msec (18)
+    private final MutableLiveData<Integer> mFfCooldown = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataFfCooldown() {
+        return mFfCooldown;
+    }
+
+    public void setValueFfCooldown(int value) {
+        mFfCooldown.setValue(value);
+    }
+
+    public int getValueFfCooldown() {
+        if (mFfCooldown.getValue() == null) {
+            mFfCooldown.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mFfCooldown.getValue();
+    }
+
+    // 피드포워드 상승 스텝 (19). 25mV 단위
+    private final MutableLiveData<Integer> mFfStep = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataFfStep() {
+        return mFfStep;
+    }
+
+    public void setValueFfStep(int value) {
+        mFfStep.setValue(value);
+    }
+
+    public int getValueFfStep() {
+        if (mFfStep.getValue() == null) {
+            mFfStep.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mFfStep.getValue();
+    }
+
+    // 비율 구간 0 % (20). 채널당 평균 0~63
+    private final MutableLiveData<Integer> mFfRatio0 = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataFfRatio0() {
+        return mFfRatio0;
+    }
+
+    public void setValueFfRatio0(int value) {
+        mFfRatio0.setValue(value);
+    }
+
+    public int getValueFfRatio0() {
+        if (mFfRatio0.getValue() == null) {
+            mFfRatio0.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mFfRatio0.getValue();
+    }
+
+    // 비율 구간 1 % (21). 64~127
+    private final MutableLiveData<Integer> mFfRatio1 = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataFfRatio1() {
+        return mFfRatio1;
+    }
+
+    public void setValueFfRatio1(int value) {
+        mFfRatio1.setValue(value);
+    }
+
+    public int getValueFfRatio1() {
+        if (mFfRatio1.getValue() == null) {
+            mFfRatio1.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mFfRatio1.getValue();
+    }
+
+    // 비율 구간 2 % (22). 128~191
+    private final MutableLiveData<Integer> mFfRatio2 = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataFfRatio2() {
+        return mFfRatio2;
+    }
+
+    public void setValueFfRatio2(int value) {
+        mFfRatio2.setValue(value);
+    }
+
+    public int getValueFfRatio2() {
+        if (mFfRatio2.getValue() == null) {
+            mFfRatio2.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mFfRatio2.getValue();
+    }
+
+    // 비율 구간 3 % (23). 192~255
+    private final MutableLiveData<Integer> mFfRatio3 = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataFfRatio3() {
+        return mFfRatio3;
+    }
+
+    public void setValueFfRatio3(int value) {
+        mFfRatio3.setValue(value);
+    }
+
+    public int getValueFfRatio3() {
+        if (mFfRatio3.getValue() == null) {
+            mFfRatio3.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mFfRatio3.getValue();
+    }
+
+    // CFX 가 플래그를 세운 횟수 (24). 하위 8비트라 차분을 mod 256 으로 본다
+    private final MutableLiveData<Integer> mFfRaised = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataFfRaised() {
+        return mFfRaised;
+    }
+
+    public void setValueFfRaised(int value) {
+        mFfRaised.setValue(value);
+    }
+
+    public int getValueFfRaised() {
+        if (mFfRaised.getValue() == null) {
+            mFfRaised.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mFfRaised.getValue();
+    }
+
+    // CM3 가 실제로 올린 횟수 (25). 24 - 25 가 합쳐진 요청이다
+    private final MutableLiveData<Integer> mFfApplied = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataFfApplied() {
+        return mFfApplied;
+    }
+
+    public void setValueFfApplied(int value) {
+        mFfApplied.setValue(value);
+    }
+
+    public int getValueFfApplied() {
+        if (mFfApplied.getValue() == null) {
+            mFfApplied.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mFfApplied.getValue();
+    }
+
+    // 현재 채널당 평균 amplitude (26). 비율 구간 판정과 같은 값이다
+    private final MutableLiveData<Integer> mFfAvgAmp = new MutableLiveData<>();
+
+    public MutableLiveData<Integer> getLiveDataFfAvgAmp() {
+        return mFfAvgAmp;
+    }
+
+    public void setValueFfAvgAmp(int value) {
+        mFfAvgAmp.setValue(value);
+    }
+
+    public int getValueFfAvgAmp() {
+        if (mFfAvgAmp.getValue() == null) {
+            mFfAvgAmp.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
+        }
+
+        return mFfAvgAmp.getValue();
+    }
+
     // 매핑(피팅) 전용 Tx 파워 하한 레벨. 1스텝 = 25mV. 연결 직후 특수 명령(0x59) 옵션 9로 읽어온다.
     private final MutableLiveData<Integer> mMappingTxPowerLevel = new MutableLiveData<>();
 

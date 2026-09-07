@@ -190,8 +190,33 @@ public class PacketInfo
     static public final int RC_LINK_IDX_FRAME_NUM         = 13; // 패킷 수 = 채널당 프레임 수 (읽기 전용)
     static public final int RC_LINK_IDX_NOP_ENABLE        = 14; // 인덱스 11 을 리모콘이 정했는지 (0 을 쓰면 기본값 복귀)
     static public final int RC_LINK_IDX_STIM_STRATEGY     = 15; // 자극 전략 (읽기 전용)
+    static public final int RC_LINK_IDX_MAX_TX_POWER      = 16; // Tx 파워 상한 (4.5+, 전체 읽기에 안 실린다)
 
-    static public final int RC_LINK_IDX_MAX = 15; // 이 앱이 아는 마지막 인덱스
+    /* 자극 레벨 피드포워드 (4.5 후반 추가). 전부 개별 읽기다.
+     *
+     * CFX 가 자극 레벨 합의 급증을 보면 플래그를 세우고 CM3 가 PMIC 를 올린다.
+     * 백텔(300 msec)보다 먼저 반응해 «조용하다 큰 소리» 에 내부기가 죽는 것을 막는다.
+     * 올리기만 하고 내리는 것은 백텔 High 판정에 맡긴다. */
+    static public final int RC_LINK_IDX_FF_ENABLE   = 17; // 사용 (0 · 1)
+    static public final int RC_LINK_IDX_FF_COOLDOWN = 18; // 쿨다운 (msec)
+    static public final int RC_LINK_IDX_FF_STEP     = 19; // 한 번에 올리는 스텝 (25mV 단위)
+    static public final int RC_LINK_IDX_FF_RATIO_0  = 20; // 비율 구간 0 — 채널당 평균 0~63
+    static public final int RC_LINK_IDX_FF_RATIO_1  = 21; //            1 — 64~127
+    static public final int RC_LINK_IDX_FF_RATIO_2  = 22; //            2 — 128~191
+    static public final int RC_LINK_IDX_FF_RATIO_3  = 23; //            3 — 192~255
+    static public final int RC_LINK_IDX_FF_RAISED   = 24; // (R) CFX 가 플래그를 세운 횟수, 하위 8비트
+    static public final int RC_LINK_IDX_FF_APPLIED  = 25; // (R) CM3 가 올린 횟수, 하위 8비트
+    static public final int RC_LINK_IDX_FF_AVG_AMP  = 26; // (R) 현재 채널당 평균 amplitude
+
+    /* 이 앱이 아는 마지막 인덱스.
+     *
+     * 전체 읽기 파서의 상한으로도 쓰이는데, 4.5 의 전체 읽기 응답은 여전히 «값 15개» 다
+     * (인덱스 16 은 20바이트 상한 때문에 개별 읽기 전용이다). 파서가 min(응답 길이, 이 값)
+     * 으로 자르므로 16 으로 올려도 전체 읽기 동작은 그대로다. */
+    static public final int RC_LINK_IDX_MAX = 26; // 이 앱이 아는 마지막 인덱스
+
+    /* 전체 읽기 응답에 실리는 마지막 인덱스. 인덱스 16 부터는 개별 읽기로만 온다. */
+    static public final int RC_LINK_IDX_ALL_READ_MAX = 15;
 
     /* REL4 세대가 최소한 아는 마지막 인덱스.
      *
@@ -244,6 +269,9 @@ public class PacketInfo
      * 그래서 isLinkParamSupported() 의 인덱스 게이트가 아니라 별도 판정으로 쓴다.
      * 0 과 1 의 해석은 그대로 보존되므로 구버전 앱이 쓰던 값이 같은 동작을 낸다. */
     static public final int RC_PROTOCOL_MINOR_COIN_COUNT = 4;
+
+    /* 4.5 — Tx 파워 상한(인덱스 16)이 생겼다. 포맷은 안 바뀌어 minor 만 올랐다. */
+    static public final int RC_PROTOCOL_MINOR_MAX_TX_POWER = 5;
 
     // 옵션 n 의 지원 여부는 비트맵[n / 8] 의 비트 n % 8 이다. 비트맵은 옵션 0~63 만 표현한다.
     static public boolean isOptionSupported(byte[] bitmap, int option)
@@ -420,6 +448,94 @@ public class PacketInfo
     static public final int FORCE_TX_PWR_SELECT_MIN = 72;
     static public final int FORCE_TX_PWR_SELECT_MAX = 214;
     static public final int FORCE_TX_PWR_RELEASE    = 0; // 유효 범위 밖이라 해제 센티널로 쓴다
+
+    /* 링크 Tx 파워 상한 (프로토콜 4.5, 인덱스 16).
+     *
+     * 링크 제어가 «올릴 수 있는» 최대이자 링크 초기화 램프업이 멈추는 지점이다.
+     * 낮추면 초기 전압이 그만큼 낮아진다 — 이 설정을 만든 이유가 그것이다.
+     *
+     * 상한의 «하한선» 은 상수가 아니다. (인덱스 3, 4 중 큰 값) + 1 이고 둘 다 사용자가 바꾼다.
+     * 그래서 MIN 상수를 두지 않고 makeMaxTxPowerFloor() 로 그때그때 계산한다. */
+    static public final int MAX_TX_PWR_SELECT_MAX = 214; // 5.350V — 펌웨어 MaxVoltageControlValue
+    static public final int MAX_TX_PWR_DEFAULT    = 214; // HW 상한이자 부팅 기본값
+
+    /* 피드포워드 설정의 범위와 기본값. 근거는 0x59 프로토콜 규격.md 의 인덱스 17~23 이다. */
+    static public final int FF_COOLDOWN_MIN     = 1;
+    static public final int FF_COOLDOWN_MAX     = 255;
+    static public final int FF_COOLDOWN_DEFAULT = 50; // msec
+
+    static public final int FF_STEP_MIN     = 1;
+    static public final int FF_STEP_MAX     = 40;
+    static public final int FF_STEP_DEFAULT = 1;
+
+    static public final int   FF_RATIO_MIN      = 1;
+    static public final int   FF_RATIO_MAX      = 100;
+    static public final int[] FF_RATIO_DEFAULT  = {5, 10, 15, 20};
+
+    /* 비율 구간의 경계. 채널당 평균 amplitude 를 4등분한 것이고,
+     * 인덱스 26 이 그 판정과 «같은 값» 이라 앱이 지금 구간을 그대로 안다. */
+    static public final int FF_BAND_SIZE  = 64;
+    static public final int FF_BAND_COUNT = 4;
+
+    /* 백텔이 내리는 속도. 주기 300 msec 에 1스텝이므로 초당 3.3 스텝이다.
+     * 상승이 이보다 크면 일정한 소리에서도 상한까지 올라간다 — 규격이 심각도 «높음» 으로 지정했다. */
+    static public final int FF_FALL_STEPS_PER_SEC = 3;
+
+    /** 초당 상승 스텝. 규격의 «19 × (1000 / 18)» 을 정수 손실 없이 계산한다. */
+    static public int makeFfRiseStepsPerSec(int step, int cooldownMs)
+    {
+        if (step == LINK_VALUE_UNKNOWN || cooldownMs == LINK_VALUE_UNKNOWN || cooldownMs <= 0)
+        {
+            return LINK_VALUE_UNKNOWN;
+        }
+
+        return (step * 1000) / cooldownMs;
+    }
+
+    /** 이 인덱스가 피드포워드 계열인가 (17 ~ 26). */
+    static public boolean isFfLinkIndex(int index)
+    {
+        return (RC_LINK_IDX_FF_ENABLE <= index) && (index <= RC_LINK_IDX_FF_AVG_AMP);
+    }
+
+    /** 평균 amplitude 가 속한 비율 구간 (0 ~ 3). 모르면 LINK_VALUE_UNKNOWN. */
+    static public int makeFfBandIndex(int avgAmplitude)
+    {
+        if (avgAmplitude == LINK_VALUE_UNKNOWN || avgAmplitude < 0)
+        {
+            return LINK_VALUE_UNKNOWN;
+        }
+
+        return Math.min(FF_BAND_COUNT - 1, avgAmplitude / FF_BAND_SIZE);
+    }
+
+    /** 상한이 «넘어야 하는» 바닥. 펌웨어 tdc_get_max_tx_power_level_floor() 와 같은 식이다.
+     *
+     *  두 하한 중 하나라도 못 읽었으면 읽은 쪽만 본다. 둘 다 모르면 LINK_VALUE_UNKNOWN 을 돌려
+     *  호출부가 «계산 불가» 로 다루게 한다 — 모르는 값을 0 으로 보고 목록을 72 부터 그리면
+     *  펌웨어가 거부할 값을 고르게 된다. */
+    static public int makeMaxTxPowerFloor(int minLevel, int mappingLevel)
+    {
+        boolean hasMin     = (minLevel != LINK_VALUE_UNKNOWN);
+        boolean hasMapping = (mappingLevel != LINK_VALUE_UNKNOWN);
+
+        if (!hasMin && !hasMapping)
+        {
+            return LINK_VALUE_UNKNOWN;
+        }
+
+        if (!hasMapping)
+        {
+            return minLevel;
+        }
+
+        if (!hasMin)
+        {
+            return mappingLevel;
+        }
+
+        return Math.max(minLevel, mappingLevel);
+    }
 
     // 백텔 주기 (100msec 단위). 직접 선택은 100 ~ 1000msec 범위로 둔다.
     static public final int BACKTEL_PERIOD_UNIT_MS       = 100;

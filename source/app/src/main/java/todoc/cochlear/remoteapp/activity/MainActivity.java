@@ -54,6 +54,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.File;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -968,6 +969,21 @@ public class MainActivity extends AppCompatActivity
                 case PacketInfo.RC_LINK_IDX_STIM_STRATEGY:
                     return isProtocolAtLeast(PacketInfo.RC_PROTOCOL_MAJOR_REQUIRED, PacketInfo.RC_PROTOCOL_MINOR_STRATEGY);
 
+                /* 4.5 에서 생겼다. default 로 떨어뜨리면 «index <= RC_LINK_IDX_MAX» 만 보므로
+                 * RC_LINK_IDX_MAX 를 16 으로 올린 순간 4.3·4.4 기기에서도 «지원» 이 되어 버린다. */
+                case PacketInfo.RC_LINK_IDX_MAX_TX_POWER:
+                case PacketInfo.RC_LINK_IDX_FF_ENABLE:
+                case PacketInfo.RC_LINK_IDX_FF_COOLDOWN:
+                case PacketInfo.RC_LINK_IDX_FF_STEP:
+                case PacketInfo.RC_LINK_IDX_FF_RATIO_0:
+                case PacketInfo.RC_LINK_IDX_FF_RATIO_1:
+                case PacketInfo.RC_LINK_IDX_FF_RATIO_2:
+                case PacketInfo.RC_LINK_IDX_FF_RATIO_3:
+                case PacketInfo.RC_LINK_IDX_FF_RAISED:
+                case PacketInfo.RC_LINK_IDX_FF_APPLIED:
+                case PacketInfo.RC_LINK_IDX_FF_AVG_AMP:
+                    return isProtocolAtLeast(PacketInfo.RC_PROTOCOL_MAJOR_REQUIRED, PacketInfo.RC_PROTOCOL_MINOR_MAX_TX_POWER);
+
                 default:
                     return (index <= PacketInfo.RC_LINK_IDX_MAX);
             }
@@ -1172,6 +1188,79 @@ public class MainActivity extends AppCompatActivity
      *
      * 버전을 못 읽는 세대(REL4 · REL3)에서는 isProtocolAtLeast() 가 false 를 내므로
      * 옛 기기가 자동으로 4.3 이하 경로를 탄다. 따로 막을 필요가 없다. */
+    /* Tx 파워 상한(인덱스 16)을 쓸 수 있는 기기인가.
+     *
+     * 인덱스 게이트(isLinkParamSupported)와 따로 두는 이유는 4.4 의 코인 개수와 같다 —
+     * 화면을 숨길지 말지는 «인덱스가 있나» 가 아니라 «이 기능을 쓸 수 있나» 로 정해야 한다. */
+    public boolean is45LinkFeatureSupported()
+    {
+        return isProtocolAtLeast(PacketInfo.RC_PROTOCOL_MAJOR_REQUIRED, //
+                                 PacketInfo.RC_PROTOCOL_MINOR_MAX_TX_POWER);
+    }
+
+    /* 4.5 는 «인덱스 16 + 17~26» 하나다. 중간 상태(16 만 있는 4.5)는 없는 것으로 본다
+     * (2026-09-01 은수님 - "기존 4.5를 하위호환하는건 없어도 되는거"). 그래서 게이트가 하나다. */
+    public boolean isMaxTxPowerSupported()
+    {
+        return is45LinkFeatureSupported();
+    }
+
+    /* 상한을 개별 읽기로 한 번 가져온다.
+     *
+     * 전체 읽기(인덱스 0)에는 실리지 않으므로 이 경로가 유일한 채움 수단이다.
+     * 사용자가 누른 것이 아니라 앱이 스스로 보내는 읽기라, 응답 토스트는 억제한다. */
+    public void requestMaxTxPowerRead(String reason)
+    {
+        if (!isMaxTxPowerSupported())
+        {
+            return;
+        }
+
+        Log.d(TAG, "[LINK] Tx 파워 상한을 개별로 읽습니다. (" + reason + ")");
+
+        mIsAutoMaxTxPowerRead = true;
+
+        enqueueLinkRead(PacketInfo.RC_LINK_IDX_MAX_TX_POWER);
+    }
+
+    /* 연결 직후 읽는 4.5 설정 묶음. 상한(16)과 피드포워드 설정(17~23)이다.
+     *
+     * 관측값(24·25·26)은 여기 넣지 않는다 — 계속 변하는 값이라 한 번 읽어 두는 것이
+     * 의미가 없고, 연결 초기화만 길어진다. FF 화면을 열 때 읽는다. */
+    public void requestLinkSettings45(String reason)
+    {
+        if (!is45LinkFeatureSupported())
+        {
+            return;
+        }
+
+        Log.d(TAG, "[LINK] 4.5 설정을 개별로 읽습니다. (" + reason + ")");
+
+        mIsAutoMaxTxPowerRead = true;
+
+        enqueueLinkRead(PacketInfo.RC_LINK_IDX_MAX_TX_POWER, //
+                        PacketInfo.RC_LINK_IDX_FF_ENABLE, //
+                        PacketInfo.RC_LINK_IDX_FF_COOLDOWN, //
+                        PacketInfo.RC_LINK_IDX_FF_STEP, //
+                        PacketInfo.RC_LINK_IDX_FF_RATIO_0, //
+                        PacketInfo.RC_LINK_IDX_FF_RATIO_1, //
+                        PacketInfo.RC_LINK_IDX_FF_RATIO_2, //
+                        PacketInfo.RC_LINK_IDX_FF_RATIO_3);
+    }
+
+    /* 피드포워드 관측값. FF 화면을 열 때만 읽는다. */
+    public void requestFfObservation()
+    {
+        if (!is45LinkFeatureSupported())
+        {
+            return;
+        }
+
+        enqueueLinkRead(PacketInfo.RC_LINK_IDX_FF_RAISED, //
+                        PacketInfo.RC_LINK_IDX_FF_APPLIED, //
+                        PacketInfo.RC_LINK_IDX_FF_AVG_AMP);
+    }
+
     public boolean isCoinCountSupported()
     {
         return isProtocolAtLeast(PacketInfo.RC_PROTOCOL_MAJOR_REQUIRED, //
@@ -1266,6 +1355,101 @@ public class MainActivity extends AppCompatActivity
 
     /* 지금 조합에서 알려야 할 경고. 없으면 빈 문자열이다.
      * 문서 §6.2 의 «켜 놓고 쓰되 알려 주는 것» 이다. 시험 중에는 의도된 상태라 막지 않는다. */
+    /* 피드포워드를 켰을 때의 경고.
+     *
+     * 규격(설정 의존성과 앱 UI 규칙)이 조건과 심각도를 지정했다. 넷 중 셋은 «켜도 동작하지
+     * 않는다» 이고, 마지막 하나는 «동작하지만 위험하다» 다. 켜지 않았으면 아무것도 알리지 않는다. */
+    private void appendFeedForwardWarnings(StringBuilder sb)
+    {
+        if (mStatusViewModel.getValueFfEnable() != PacketInfo.LINK_FLAG_ENABLE)
+        {
+            return;
+        }
+
+        if (isBacktelCtrlMode())
+        {
+            append(sb, "피드포워드는 제어 모드 1 에서 동작하지 않습니다.");
+        }
+
+        if (isLinkFrozen())
+        {
+            append(sb, "백텔 미출력 구간 — 피드포워드가 동작하지 않습니다.");
+        }
+
+        int force = mStatusViewModel.getValueForceTxPowerLevel();
+
+        if ((force != PacketInfo.LINK_VALUE_UNKNOWN && force != PacketInfo.FORCE_TX_PWR_RELEASE) //
+            || isCoinInfinite())
+        {
+            append(sb, "강제 고정/무한 재시도 중 — 피드포워드가 올리지 않습니다.");
+        }
+
+        /* 올라가는 속도가 내려오는 속도를 넘으면 «일정한 소리에서도 상한까지» 간다.
+         * 하강은 백텔 주기 300 msec 에 1스텝이라 초당 3.3 스텝뿐이다. */
+        int rise = PacketInfo.makeFfRiseStepsPerSec(mStatusViewModel.getValueFfStep(), //
+                                                    mStatusViewModel.getValueFfCooldown());
+
+        if (rise != PacketInfo.LINK_VALUE_UNKNOWN && rise > PacketInfo.FF_FALL_STEPS_PER_SEC)
+        {
+            append(sb, "초당 상승 " + rise + "스텝이 하강(약 3.3스텝)보다 큽니다" //
+                       + " — 일정한 소리에서도 상한까지 올라갈 수 있습니다.");
+        }
+    }
+
+    /* 지금 «켜도 올라가지 않는» 조건을 문장으로 만든다.
+     *
+     * 피드포워드를 켜는 자리에서 보여 준다. 켜 놓고 아무 일도 안 일어나는 것이 가장 헷갈리는데,
+     * 그 원인이 전부 «다른 설정» 이라 그 자리에서 말해 주지 않으면 찾기 어렵다. */
+    public String makeFeedForwardBlockText()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        if (isBacktelCtrlMode())
+        {
+            append(sb, "제어 모드가 1 이라 동작하지 않습니다.");
+        }
+
+        if (isLinkFrozen())
+        {
+            append(sb, "백텔 미출력 구간이라 동작하지 않습니다.");
+        }
+
+        int force = mStatusViewModel.getValueForceTxPowerLevel();
+
+        if ((force != PacketInfo.LINK_VALUE_UNKNOWN && force != PacketInfo.FORCE_TX_PWR_RELEASE) //
+            || isCoinInfinite())
+        {
+            append(sb, "강제 고정/무한 재시도 중이라 올리지 않습니다.");
+        }
+
+        if (sb.length() == 0)
+        {
+            return "지금 설정에서는 정상 동작합니다. Normal 모드에서만 올립니다.";
+        }
+
+        return sb.toString();
+    }
+
+    /* 피드포워드 설정을 쓴다. 범위 밖이면 상한과 같은 경로로 en__OutOfDataRange 가 온다.
+     * 쓰기 뒤 같은 인덱스를 다시 읽어 화면 값이 실제 값과 어긋나지 않게 한다. */
+    public void sendFfParam(int index, int value)
+    {
+        if (!is45LinkFeatureSupported() || !PacketInfo.isFfLinkIndex(index))
+        {
+            Log.d(TAG, "[LINK] 피드포워드 설정을 지원하지 않는 기기입니다. 보내지 않습니다.");
+            return;
+        }
+
+        Log.d(TAG, "[LINK] 피드포워드 설정 요청 : 인덱스 " + index + " = " + value);
+
+        if (!sendLinkParam(index, value))
+        {
+            return;
+        }
+
+        enqueueLinkRead(index);
+    }
+
     public String makeLinkWarningText()
     {
         StringBuilder sb = new StringBuilder();
@@ -1283,6 +1467,8 @@ public class MainActivity extends AppCompatActivity
         {
             append(sb, "백텔 미출력 — 링크 끊김을 감지하지 못합니다.");
         }
+
+        appendFeedForwardWarnings(sb);
 
         if (force != PacketInfo.LINK_VALUE_UNKNOWN && force != PacketInfo.FORCE_TX_PWR_RELEASE)
         {
@@ -1403,6 +1589,86 @@ public class MainActivity extends AppCompatActivity
     static private final int PROBE_STEP_GATING     = 4;
 
     private int mProbeStep = PROBE_STEP_NONE;
+
+    /* 링크 파라미터 개별 읽기 큐.
+     *
+     * sendPacket() 은 transferState 가 BUSY 면 로그만 남기고 «패킷을 버린다»(:4230 부근).
+     * 그래서 읽기를 연달아 늘어놓으면 첫 하나만 나가고 나머지가 사라진다. 인덱스 16 하나일
+     * 때는 드러나지 않았는데, 4.5 후반의 17~26 이 붙으면서 연결 직후 읽을 것이 8개가 됐다.
+     *
+     * 그래서 큐에 넣어 두고 «응답이 온 자리에서 다음 하나» 를 보낸다.
+     * 4.4 코인이 패킷 둘을 보내려고 만든 연쇄(mPendingOneCoinValue)의 일반화다.
+     *
+     * 거절이 와도 다음으로 넘어간다 — 하나에 막히면 뒤가 영영 안 읽힌다. */
+    private final ArrayDeque<Integer> mLinkReadQueue = new ArrayDeque<>();
+
+    /* 큐가 응답 유실로 멈추는 것을 막는 시한. 만료되면 큐를 비우고, 못 읽은 값은
+     * LINK_VALUE_UNKNOWN 으로 남아 화면에 «-» 로 보인다. */
+    static private final long LINK_READ_QUEUE_TIMEOUT_MS = 3500;
+
+    private final Handler  mLinkReadQueueHandler = new Handler(Looper.getMainLooper());
+    private final Runnable mLinkReadQueueTimeout = () ->
+    {
+        if (!mLinkReadQueue.isEmpty())
+        {
+            Log.d(TAG, "[LINK] 읽기 큐가 응답을 못 받아 남은 " + mLinkReadQueue.size() + "개를 버립니다.");
+            mLinkReadQueue.clear();
+        }
+    };
+
+    /** 개별 읽기를 큐에 넣는다. 지금 보낼 수 있으면 바로 하나 나간다. */
+    private void enqueueLinkRead(int... indexes)
+    {
+        for (int index : indexes)
+        {
+            if (!mLinkReadQueue.contains(index))
+            {
+                mLinkReadQueue.add(index);
+            }
+        }
+
+        pumpLinkReadQueue();
+    }
+
+    /** 큐에서 하나를 꺼내 보낸다. 응답·거절이 온 자리에서도 부른다. */
+    private void pumpLinkReadQueue()
+    {
+        mLinkReadQueueHandler.removeCallbacks(mLinkReadQueueTimeout);
+
+        if (mLinkReadQueue.isEmpty())
+        {
+            return;
+        }
+
+        if (mStatus.transferState != Status.TRANSFER_STATE_IDLE)
+        {
+            /* 아직 앞 패킷이 안 끝났다. 응답이 오면 다시 불리므로 여기서는 시한만 걸어 둔다. */
+            mLinkReadQueueHandler.postDelayed(mLinkReadQueueTimeout, LINK_READ_QUEUE_TIMEOUT_MS);
+            return;
+        }
+
+        int index = mLinkReadQueue.poll();
+
+        Log.d(TAG, "[LINK] 큐에서 인덱스 " + index + " 를 읽습니다. (남은 " + mLinkReadQueue.size() + "개)");
+
+        mLinkReadQueueHandler.postDelayed(mLinkReadQueueTimeout, LINK_READ_QUEUE_TIMEOUT_MS);
+
+        sendLinkParamRead(index);
+    }
+
+    /* 앱이 스스로 보낸 상한 읽기인가. 사용자가 버튼으로 부른 것이 아니므로 응답 토스트를 억제한다.
+     * 안 하면 연결할 때마다 «Tx 파워 상한 …» 토스트가 뜬다. */
+    private boolean mIsAutoMaxTxPowerRead = false;
+
+    /* 상한 쓰기를 보내고 응답을 기다리는 중인가.
+     *
+     * 에러 응답은 [0xF0, 실패 커맨드, 에러 타입 …] 이라 «어느 인덱스가 거부됐는지» 가 없다.
+     * 그래서 «방금 상한을 썼다» 는 문맥을 앱이 들고 있어야 범위 밖 거부를 구분해 안내할 수 있다.
+     * 응답이 오지 않아도 남지 않도록 타이머로 스스로 꺼진다. */
+    private boolean mIsPendingMaxTxPowerWrite = false;
+
+    // 쓰기 문맥을 들고 있는 시간. 기존 토스트 억제 타이머(3.5초)와 같은 값이다.
+    static private final long MAX_TX_POWER_WRITE_CONTEXT_MS = 3500;
 
     public void resetLinkInfoRead()
     {
@@ -1548,6 +1814,15 @@ public class MainActivity extends AppCompatActivity
 
                 Log.d(TAG, "[LINK] 세대 판별과 상태 읽기를 완료했습니다. -> " + fwReleaseName());
                 UtilLog.instance.writeLog("펌웨어 세대 판별->" + fwReleaseName());
+
+                /* 여기가 «4.5 로 판단되는 시점» 이다 (2026-09-01 은수님 지시).
+                 *
+                 * Tx 파워 상한(인덱스 16)은 20바이트 상한 때문에 전체 읽기에 실리지 않아
+                 * 개별로 한 번 더 읽어야 화면에 값이 뜬다. 이 자리를 고른 이유는 둘이다.
+                 *   - 버전이 PROBE_STEP_VERSION 에서 이미 확정돼 있다.
+                 *   - 판별 상태 기계가 끝나 다음 요청과 겹치지 않는다.
+                 * 4.5 미만이면 나가지 않는다. */
+                requestLinkSettings45("세대 판별 완료");
                 return;
 
             default:
@@ -2350,6 +2625,62 @@ public class MainActivity extends AppCompatActivity
     //
     private int mPendingOneCoinValue = PacketInfo.LINK_VALUE_UNKNOWN;
 
+    /* 상한 쓰기가 범위 밖으로 거부됐을 때의 안내 문구.
+     *
+     * 바닥은 (상시 하한, 매핑 하한) 중 큰 값 + 1 이므로, 어느 쪽이 밀어 올렸는지를 밝혀야
+     * 사용자가 무엇을 내려야 하는지 안다. 두 하한을 아직 못 읽었으면 범위만 적는다. */
+    private String makeMaxTxPowerRangeText()
+    {
+        int minLevel     = mStatusViewModel.getValueMinTxPowerLevel();
+        int mappingLevel = mStatusViewModel.getValueMappingTxPowerLevel();
+        int floor        = PacketInfo.makeMaxTxPowerFloor(minLevel, mappingLevel);
+
+        if (floor == PacketInfo.LINK_VALUE_UNKNOWN)
+        {
+            return "PMIC 상한이 범위 밖입니다. 하한 설정보다 커야 합니다.";
+        }
+
+        String who = (mappingLevel > minLevel) ? "매핑 하한" : "상시 하한";
+
+        return "PMIC 상한은 " + (floor + 1) + " 이상이어야 합니다." //
+               + " (" + who + " " + floor + " 때문)" //
+               + "  지금 범위 : " + (floor + 1) + " ~ " + PacketInfo.MAX_TX_PWR_SELECT_MAX;
+    }
+
+    /* Tx 파워 상한을 설정한다 (프로토콜 4.5 이상).
+     *
+     * 쓰기 뒤에 같은 인덱스를 다시 읽는다. 쓰기 성공 응답이 값을 되돌려 주는지 확인되지 않았고,
+     * 되돌려 주든 아니든 이 한 번이면 화면 값이 실제 값과 맞는다.
+     *
+     * 범위 밖이면 사운드처리기가 en__OutOfDataRange(에러 타입 2)로 거부하는데, 에러 응답에
+     * 인덱스가 없어 «무엇이 거부됐는지» 를 앱이 문맥으로 알아야 한다. 그 문맥이 아래 플래그다. */
+    public void sendMaxTxPower(int level)
+    {
+        /* 버튼이 4.5 미만에서 숨겨지므로 여기까지 오지 않지만, 호출부가 늘어도 안전하도록 막는다.
+         * 없는 인덱스를 보내면 사운드처리기가 거절하고 사용자에게는 «유효하지 않은 명령» 이 뜬다. */
+        if (!isMaxTxPowerSupported())
+        {
+            Log.d(TAG, "[LINK] 이 기기는 Tx 파워 상한을 지원하지 않습니다. 보내지 않습니다.");
+            return;
+        }
+
+        Log.d(TAG, "[LINK] Tx 파워 상한 설정 요청 : " + level);
+
+        mIsPendingMaxTxPowerWrite = true;
+
+        // 응답이 영영 안 와도 문맥이 남지 않도록 스스로 내려온다.
+        new Handler(Looper.getMainLooper()).postDelayed(() -> mIsPendingMaxTxPowerWrite = false, //
+                                                        MAX_TX_POWER_WRITE_CONTEXT_MS);
+
+        if (!sendLinkParam(PacketInfo.RC_LINK_IDX_MAX_TX_POWER, level))
+        {
+            mIsPendingMaxTxPowerWrite = false;
+            return;
+        }
+
+        requestMaxTxPowerRead("상한 설정");
+    }
+
     /* 재시도 코인을 «개수» 로 설정한다 (프로토콜 4.4 이상).
      *
      * 4.3 까지는 infinite(인덱스 8)를 먼저 보내고 그 응답 자리에서 one coin(인덱스 7)을
@@ -2557,19 +2888,27 @@ public class MainActivity extends AppCompatActivity
         {
             /* 전체 읽기의 값 개수는 펌웨어 버전마다 다르다. 인덱스는 뒤에만 추가되므로
              * 앞부분의 의미는 바뀌지 않는다. 이 앱이 아는 만큼만 읽고 나머지는 무시한다. */
-            int count = Math.min(valueLen, PacketInfo.RC_LINK_IDX_MAX);
+            int count = Math.min(valueLen, PacketInfo.RC_LINK_IDX_ALL_READ_MAX);
 
             for (int i = 0; i < count; i++)
             {
                 applyLinkParam(i + 1, responsePacket[PacketInfo.RC_RSP_OFS_VALUE + i] & 0xFF);
             }
 
-            if (PacketInfo.RC_LINK_IDX_MAX < valueLen)
+            if (PacketInfo.RC_LINK_IDX_ALL_READ_MAX < valueLen)
             {
-                Log.d(TAG, "[LINK] 전체 읽기에 이 앱이 모르는 인덱스가 " + (valueLen - PacketInfo.RC_LINK_IDX_MAX) + "개 더 있습니다. 무시합니다.");
+                Log.d(TAG, "[LINK] 전체 읽기에 이 앱이 모르는 인덱스가 " + (valueLen - PacketInfo.RC_LINK_IDX_ALL_READ_MAX) + "개 더 있습니다. 무시합니다.");
             }
 
             Log.i(TAG, "[LINK] 전체 읽기 완료 : " + count + "개");
+
+            /* 상한(인덱스 16)은 전체 읽기에 안 실리므로 갱신 때마다 따로 읽어 준다.
+             * 판별 중(=연결 직후)에는 판별 완료 자리에서 이미 읽으므로 여기서는 보내지 않는다.
+             * 두 경로가 겹치면 연결할 때마다 같은 읽기가 두 번 나간다. */
+            if (isLinkInfoReadIdle())
+            {
+                requestLinkSettings45("링크 파라미터 갱신");
+            }
 
             notifyLinkParamsRefreshed();
             return;
@@ -2585,11 +2924,37 @@ public class MainActivity extends AppCompatActivity
 
         applyLinkParam(index, value);
 
+        /* 앱이 스스로 보낸 상한 읽기의 응답이면 알리지 않는다. 사용자가 부른 것이 아니다.
+         * 한 번만 억제하고 바로 내린다 — 이후 사용자가 버튼으로 바꾸면 그때는 알려야 한다. */
+        if (index == PacketInfo.RC_LINK_IDX_MAX_TX_POWER && mIsAutoMaxTxPowerRead)
+        {
+            mIsAutoMaxTxPowerRead = false;
+            mIsPendingMaxTxPowerWrite = false; // 값이 돌아왔으니 쓰기 대기 문맥도 끝났다
+
+            pumpLinkReadQueue();
+            return;
+        }
+
+        /* 4.5 인덱스는 앱이 큐로 스스로 읽는 것이라 알리지 않는다.
+         * 사용자가 FF 화면에서 바꾼 결과는 그 화면이 보여 주므로 토스트가 겹칠 이유도 없다. */
+        if (PacketInfo.isFfLinkIndex(index))
+        {
+            pumpLinkReadQueue();
+            return;
+        }
+
         // 버튼으로 개별 조작한 결과만 알린다. 연결 직후 읽기나 감시 주기에는 띄우지 않는다.
         if (isLinkInfoReadIdle() && index != PacketInfo.RC_LINK_IDX_CUR_TX_POWER)
         {
             Toast.makeText(getApplicationContext(), makeLinkParamText(index, value), Toast.LENGTH_SHORT).show();
         }
+
+        if (index == PacketInfo.RC_LINK_IDX_MAX_TX_POWER)
+        {
+            mIsPendingMaxTxPowerWrite = false;
+        }
+
+        pumpLinkReadQueue();
     }
 
     // 링크 파라미터 하나를 뷰모델에 반영한다.
@@ -2658,6 +3023,50 @@ public class MainActivity extends AppCompatActivity
 
             case PacketInfo.RC_LINK_IDX_STIM_STRATEGY:
                 mStatusViewModel.setValueStimStrategy(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_MAX_TX_POWER:
+                mStatusViewModel.setValueMaxTxPowerLevel(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_FF_ENABLE:
+                mStatusViewModel.setValueFfEnable(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_FF_COOLDOWN:
+                mStatusViewModel.setValueFfCooldown(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_FF_STEP:
+                mStatusViewModel.setValueFfStep(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_FF_RATIO_0:
+                mStatusViewModel.setValueFfRatio0(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_FF_RATIO_1:
+                mStatusViewModel.setValueFfRatio1(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_FF_RATIO_2:
+                mStatusViewModel.setValueFfRatio2(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_FF_RATIO_3:
+                mStatusViewModel.setValueFfRatio3(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_FF_RAISED:
+                mStatusViewModel.setValueFfRaised(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_FF_APPLIED:
+                mStatusViewModel.setValueFfApplied(value);
+                break;
+
+            case PacketInfo.RC_LINK_IDX_FF_AVG_AMP:
+                mStatusViewModel.setValueFfAvgAmp(value);
                 break;
 
             default:
@@ -2951,6 +3360,20 @@ public class MainActivity extends AppCompatActivity
                     {
                         mStatusViewModel.setValueMinTxPowerLevel(PacketInfo.LINK_VALUE_UNKNOWN);
                         mStatusViewModel.setValueMappingTxPowerLevel(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueMaxTxPowerLevel(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueFfEnable(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueFfCooldown(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueFfStep(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueFfRatio0(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueFfRatio1(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueFfRatio2(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueFfRatio3(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueFfRaised(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueFfApplied(PacketInfo.LINK_VALUE_UNKNOWN);
+                        mStatusViewModel.setValueFfAvgAmp(PacketInfo.LINK_VALUE_UNKNOWN);
+
+                        // 연결이 끊겼으니 남은 읽기 요청도 버린다.
+                        mLinkReadQueue.clear();
                         mStatusViewModel.setValueTxStepUp(PacketInfo.LINK_VALUE_UNKNOWN);
                         mStatusViewModel.setValueForceTxPowerLevel(PacketInfo.LINK_VALUE_UNKNOWN);
                         mStatusViewModel.setValueCurTxPowerLevel(PacketInfo.LINK_VALUE_UNKNOWN);
@@ -3860,6 +4283,21 @@ public class MainActivity extends AppCompatActivity
                             case 2: // 데이터 범위 이탈
                             case 8: // BLE 프로토콜 에러 (사운드처리기 en__EN__BLE_PROTOCOL_ERROR)
                                 Log.d(TAG, "패킷 위반 에러를 수신했습니다. (에러 " + errorType + ", 커맨드 0x" + String.format("%02X", failedCmd) + ")");
+
+                                /* 상한 쓰기를 보내 놓고 «범위 이탈» 이 왔으면 그것은 en__OutOfDataRange 다.
+                                 * 에러 응답에 인덱스가 없어 이 문맥이 유일한 단서다.
+                                 * 무엇을 고쳐야 하는지까지 알려 준다 — 하한이 바닥을 밀어 올린 것이기 때문이다. */
+                                /* 거절이 와도 읽기 큐는 다음으로 넘어가야 한다.
+                                 * 하나에 막히면 뒤의 인덱스가 영영 안 읽힌다. */
+                                pumpLinkReadQueue();
+
+                                if (errorType == 2 && mIsPendingMaxTxPowerWrite)
+                                {
+                                    mIsPendingMaxTxPowerWrite = false;
+
+                                    Toast.makeText(getApplicationContext(), makeMaxTxPowerRangeText(), Toast.LENGTH_LONG).show();
+                                    break;
+                                }
 
                                 if (!mStatus.isEnabledInvalidPacketToast)
                                 {
