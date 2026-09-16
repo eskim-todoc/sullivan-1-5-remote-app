@@ -59,4 +59,8 @@
     크기와 색을 함께 낮춰 그 관계를 보이게 한다.
     -->
     <dimen name="tdc_text_size_ear">16dp</dimen>
+    <!-- 유리 표면 안쪽 여백. 테두리와 글자가 붙지 않게 띄운다.
+         가로는 세로 공간을 안 먹으므로 넉넉히, 세로는 화면이 넘칠 수 있어 최소로 준다. -->
+    <dimen name="tdc_glass_padding_h">8dp</dimen>
+    <dimen name="tdc_glass_padding_v">4dp</dimen>
 </resources>

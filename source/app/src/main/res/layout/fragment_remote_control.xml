@@ -5,7 +5,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white_10"
+        android:background="@drawable/remote_control_background_glass"
         android:paddingStart="@dimen/tdc_screen_padding_h"
         android:paddingTop="@dimen/tdc_screen_padding_v"
         android:paddingEnd="@dimen/tdc_screen_padding_h"
@@ -20,6 +20,11 @@
         -->
         <LinearLayout
             android:id="@+id/ota_status_info_box"
+            android:background="@drawable/remote_control_glass_surface"
+            android:paddingStart="@dimen/tdc_glass_padding_h"
+            android:paddingTop="@dimen/tdc_glass_padding_v"
+            android:paddingEnd="@dimen/tdc_glass_padding_h"
+            android:paddingBottom="@dimen/tdc_glass_padding_v"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -428,12 +433,16 @@
         <!-- 사용자 이름 · 내부기 제조번호 묶음 (왼쪽 절반 · 오른쪽 절반) -->
         <LinearLayout
             android:id="@+id/ota_id_box"
+            android:background="@drawable/remote_control_glass_surface"
+            android:paddingStart="@dimen/tdc_glass_padding_h"
+            android:paddingTop="@dimen/tdc_glass_padding_v"
+            android:paddingEnd="@dimen/tdc_glass_padding_h"
+            android:paddingBottom="@dimen/tdc_glass_padding_v"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:baselineAligned="false"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingEnd="@dimen/tdc_button_gap"
             app:layout_constraintBottom_toTopOf="@id/ota_slot_box"
             app:layout_constraintEnd_toStartOf="@id/ota_fw_release_textview"
             app:layout_constraintStart_toStartOf="parent"
@@ -488,6 +497,11 @@
 
         <LinearLayout
             android:id="@+id/ota_slot_box"
+            android:background="@drawable/remote_control_glass_surface"
+            android:paddingStart="@dimen/tdc_glass_padding_h"
+            android:paddingTop="@dimen/tdc_glass_padding_v"
+            android:paddingEnd="@dimen/tdc_glass_padding_h"
+            android:paddingBottom="@dimen/tdc_glass_padding_v"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -619,6 +633,11 @@
 
         <LinearLayout
             android:id="@+id/ota_status_box"
+            android:background="@drawable/remote_control_glass_surface"
+            android:paddingStart="@dimen/tdc_glass_padding_h"
+            android:paddingTop="@dimen/tdc_glass_padding_v"
+            android:paddingEnd="@dimen/tdc_glass_padding_h"
+            android:paddingBottom="@dimen/tdc_glass_padding_v"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -1002,6 +1021,11 @@
 
         <LinearLayout
             android:id="@+id/ota_button_box"
+            android:background="@drawable/remote_control_glass_surface"
+            android:paddingStart="@dimen/tdc_glass_padding_h"
+            android:paddingTop="@dimen/tdc_glass_padding_v"
+            android:paddingEnd="@dimen/tdc_glass_padding_h"
+            android:paddingBottom="@dimen/tdc_glass_padding_v"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -1099,6 +1123,11 @@
 
         <LinearLayout
             android:id="@+id/ota_caution_box"
+            android:background="@drawable/remote_control_glass_surface"
+            android:paddingStart="@dimen/tdc_glass_padding_h"
+            android:paddingTop="@dimen/tdc_glass_padding_v"
+            android:paddingEnd="@dimen/tdc_glass_padding_h"
+            android:paddingBottom="@dimen/tdc_glass_padding_v"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -1163,6 +1192,11 @@
 
         <LinearLayout
             android:id="@+id/ota_remote_box"
+            android:background="@drawable/remote_control_glass_surface"
+            android:paddingStart="@dimen/tdc_glass_padding_h"
+            android:paddingTop="@dimen/tdc_glass_padding_v"
+            android:paddingEnd="@dimen/tdc_glass_padding_h"
+            android:paddingBottom="@dimen/tdc_glass_padding_v"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -1358,6 +1392,11 @@
 
         <LinearLayout
             android:id="@+id/ota_etc_box"
+            android:background="@drawable/remote_control_glass_surface"
+            android:paddingStart="@dimen/tdc_glass_padding_h"
+            android:paddingTop="@dimen/tdc_glass_padding_v"
+            android:paddingEnd="@dimen/tdc_glass_padding_h"
+            android:paddingBottom="@dimen/tdc_glass_padding_v"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"

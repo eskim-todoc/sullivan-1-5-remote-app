@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+리모컨 화면의 유리 배경.
+
+유리는 뒤에 무언가 있어야 성립한다. 이 화면은 원래 #191919 한 색이라 반투명 판을
+얹어도 밝기만 다른 회색 사각형이 됐다. 그래서 색 덩어리(블롭) 셋을 깔아 판 너머로
+비치게 한다.
+
+색은 앱이 이미 쓰는 accent(#009688)와 error(#EC407A)를 그대로 쓴다. 새 색을 들이면
+colors.xml 이 늘고, 무엇보다 유리 표면의 대비 계산을 전부 다시 해야 한다.
+
+* 이 drawable 은 루트의 android:background 에 건다. 루트가 패딩을 가지는데, 뷰의
+  배경은 패딩 자리까지 칠해지므로 화면 끝까지 덮인다. 자식 View 로 떼면 패딩만큼
+  음의 마진을 줘야 하고 그 값이 tdc_screen_padding_* 과 «두 곳에» 적히게 된다.
+
+* 다만 API 31+ 의 View.setRenderEffect() 로 블러를 켜려면 «그 View 와 자식 전체» 가
+  흐려지므로, 그때는 이 배경을 자식 없는 별도 View 로 떼어야 한다. 지금은 블러를
+  넣지 않기로 해서(게이트 1 결정_3) 루트 배경으로 둔다.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 바탕. 원래 루트 배경이던 색 그대로다. -->
+    <item android:drawable="@color/white_10" />
+
+    <!-- 왼쪽 위 - 틸 -->
+    <item
+        android:width="420dp"
+        android:height="420dp"
+        android:gravity="top|start"
+        android:left="-140dp"
+        android:top="-120dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="210dp"
+                android:startColor="#66009688"
+                android:endColor="#00009688" />
+        </shape>
+    </item>
+
+    <!-- 오른쪽 가운데 - 핑크 -->
+    <item
+        android:width="360dp"
+        android:height="360dp"
+        android:gravity="center_vertical|end"
+        android:right="-130dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="180dp"
+                android:startColor="#4DEC407A"
+                android:endColor="#00EC407A" />
+        </shape>
+    </item>
+
+    <!-- 아래 가운데 - 틸(옅게) -->
+    <item
+        android:width="480dp"
+        android:height="480dp"
+        android:gravity="bottom|center_horizontal"
+        android:bottom="-180dp">
+        <shape android:shape="oval">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="240dp"
+                android:startColor="#33009688"
+                android:endColor="#00009688" />
+        </shape>
+    </item>
+
+</layer-list>
