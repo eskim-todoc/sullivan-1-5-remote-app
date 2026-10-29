@@ -6,9 +6,32 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import todoc.cochlear.remoteapp.params.PacketInfo;
+import todoc.cochlear.remoteapp.params.BatteryTelemetry;
 import todoc.cochlear.remoteapp.params.Status;
 
 public class StatusViewModel extends ViewModel {
+    private final MutableLiveData<BatteryTelemetry> batteryTelemetry = new MutableLiveData<>();
+    private final MutableLiveData<String> batteryTelemetryError = new MutableLiveData<>();
+    public long batteryReceivedAtMs;
+
+    public MutableLiveData<BatteryTelemetry> getBatteryTelemetry() { return batteryTelemetry; }
+    public MutableLiveData<String> getBatteryTelemetryError() { return batteryTelemetryError; }
+
+    // BLE 수신 처리는 MainActivity의 메인 스레드에서 호출한다.
+    public void setBatteryTelemetry(BatteryTelemetry sample, long receivedAtMs) {
+        batteryReceivedAtMs = receivedAtMs;
+        batteryTelemetryError.setValue(null);
+        batteryTelemetry.setValue(sample);
+    }
+
+    public void setBatteryTelemetryError(String error) { batteryTelemetryError.setValue(error); }
+
+    public void resetBatteryTelemetry() {
+        batteryReceivedAtMs = 0;
+        batteryTelemetry.setValue(null);
+        batteryTelemetryError.setValue(null);
+    }
+
     // BLE 연결 상태 관련
     static public final int CONNECTION_STATE_DISCONNECTED = 0;
     static public final int CONNECTION_STATE_CONNECTING = 1;
@@ -244,10 +267,10 @@ public class StatusViewModel extends ViewModel {
         return mMinTxPowerLevel.getValue();
     }
 
-    /* 링크 Tx 파워 상한(PMIC) 레벨. 1스텝 = 25mV. 프로토콜 4.5 의 인덱스 16 이다.
+    /* 링크 Tx 파워 상한(PMIC) 레벨. 1스텝 = 25mV. 프로토콜 4.6 의 인덱스 16 이다.
      *
      * 전체 읽기 응답에 실리지 않으므로 «판별이 끝난 뒤 개별 읽기» 로만 채워진다.
-     * 4.5 미만이거나 아직 못 읽었으면 LINK_VALUE_UNKNOWN 이고, 그때는 화면에서 숨긴다. */
+     * 4.6 미만이거나 아직 못 읽었으면 LINK_VALUE_UNKNOWN 이고, 그때는 화면에서 숨긴다. */
     private final MutableLiveData<Integer> mMaxTxPowerLevel = new MutableLiveData<>();
 
     public MutableLiveData<Integer> getLiveDataMaxTxPowerLevel() {
@@ -267,7 +290,7 @@ public class StatusViewModel extends ViewModel {
     }
 
 
-    /* 자극 레벨 피드포워드 (프로토콜 4.5 후반). 전부 개별 읽기로만 채워진다. */
+    /* 자극 레벨 피드포워드 (프로토콜 4.6 후반). 전부 개별 읽기로만 채워진다. */
 
     // 피드포워드 사용 (인덱스 17). 0 · 1
     private final MutableLiveData<Integer> mFfEnable = new MutableLiveData<>();

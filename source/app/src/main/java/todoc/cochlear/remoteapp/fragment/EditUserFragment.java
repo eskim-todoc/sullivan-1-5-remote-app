@@ -63,7 +63,7 @@ public class EditUserFragment extends Fragment
 
         todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding mainBinding = ((MainActivity) requireContext()).mBinding;
         mainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
-        mainBinding.toolbarNavigationMessage.setText("사용자\n목록");
+        mainBinding.toolbarNavigationMessage.setText("사용자 목록");
         mainBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
@@ -135,8 +135,6 @@ public class EditUserFragment extends Fragment
     {
         mEditUserBinding.editUserDelButton.setOnClickListener(view ->
         {
-            // 장시간 미사용 핸들러 업데이트
-            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
             if (Status.instance().lastDialog != null)
             {
@@ -157,8 +155,6 @@ public class EditUserFragment extends Fragment
                                 .setMessage("현재 연결을 해제하고 사용자 정보를 삭제하시겠습니까?")
                                 .setPositiveButton("삭제", (dialogInterface, i) ->
                                 {
-                                    // 장시간 미사용 핸들러 업데이트
-                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
                                     UtilUser.instance.delete(mItem);
 
@@ -177,8 +173,6 @@ public class EditUserFragment extends Fragment
                                 })
                                 .setNegativeButton("취소", (dialogInterface, i) ->
                                 {
-                                    // 장시간 미사용 핸들러 업데이트
-                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
                                 })
                                 .setCancelable(false)
                                 .create();
@@ -203,8 +197,6 @@ public class EditUserFragment extends Fragment
                                     // TD2-SW-RC-UNIT-Test-ID-63 [사용자 삭제 유닛] 순서[2] 끝.
 
 
-                                    // 장시간 미사용 핸들러 업데이트
-                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
                                     UtilUser.instance.delete(mItem);
 
@@ -226,8 +218,6 @@ public class EditUserFragment extends Fragment
     {
         mEditUserBinding.editUserEditButton.setOnClickListener(view ->
         {
-            // 장시간 미사용 핸들러 업데이트
-            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
             String passKey = Objects.requireNonNull(mEditUserBinding.edittextPasskey.getText()).toString();
             if (passKey.length() != 4)
@@ -258,8 +248,6 @@ public class EditUserFragment extends Fragment
                                 .setMessage("내부기 키는 4자리 번호입니다.")
                                 .setPositiveButton("확인", (dialogInterface, i) ->
                                 {
-                                    // 장시간 미사용 핸들러 업데이트
-                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
                                 })
                                 .setCancelable(false)
                                 .create();
@@ -326,8 +314,6 @@ public class EditUserFragment extends Fragment
                                             .setMessage("현재 연결을 해제하고 사용자 정보를 수정하시겠습니까?")
                                             .setPositiveButton("확인", (dialogInterface, i) ->
                                             {
-                                                // 장시간 미사용 핸들러 업데이트
-                                                ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
                                                 if (((MainActivity) requireActivity()).mBluetoothGatt != null)
                                                 {
@@ -342,8 +328,6 @@ public class EditUserFragment extends Fragment
                                             })
                                             .setNegativeButton("취소", (dialogInterface, i) ->
                                             {
-                                                // 장시간 미사용 핸들러 업데이트
-                                                ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
                                             })
                                             .setCancelable(false)
                                             .create();
@@ -381,8 +365,6 @@ public class EditUserFragment extends Fragment
                                                 .setMessage("현재 연결을 해제하고 사용자 정보를 수정하시겠습니까?")
                                                 .setPositiveButton("확인", (dialogInterface, i) ->
                                                 {
-                                                    // 장시간 미사용 핸들러 업데이트
-                                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
                                                     if (((MainActivity) requireActivity()).mBluetoothGatt != null)
                                                     {
@@ -397,8 +379,6 @@ public class EditUserFragment extends Fragment
                                                 })
                                                 .setNegativeButton("취소", (dialogInterface, i) ->
                                                 {
-                                                    // 장시간 미사용 핸들러 업데이트
-                                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
                                                 })
                                                 .setCancelable(false)
                                                 .create();

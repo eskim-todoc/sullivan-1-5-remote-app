@@ -1,0 +1,26 @@
+[
+  {
+    "name": "todoc.cochlear.remoteapp.activity.ExampleUnitTest",
+    "tests": "1",
+    "failures": "0",
+    "errors": "0"
+  },
+  {
+    "name": "todoc.cochlear.remoteapp.ff.Ff3SessionTest",
+    "tests": "18",
+    "failures": "0",
+    "errors": "0"
+  },
+  {
+    "name": "todoc.cochlear.remoteapp.ff.Ff3UiTest",
+    "tests": "7",
+    "failures": "0",
+    "errors": "0"
+  },
+  {
+    "name": "todoc.cochlear.remoteapp.params.BatteryTelemetryTest",
+    "tests": "9",
+    "failures": "0",
+    "errors": "0"
+  }
+]

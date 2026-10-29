@@ -1,0 +1,9 @@
+{
+  "battery_packets_checked": 64,
+  "power_computation_mismatches": 0,
+  "setting_write_packets": 0,
+  "poll_interval_min_s": 1.986,
+  "poll_interval_max_s": 4.003,
+  "verified_apk_sha256_before_unsigned_timer_compatibility_change": "17F51187EA3BA31E05C7C91882209EFF229BC6B0FA4463D332BDE26678A9A9B0",
+  "final_apk_sha256": "31E6C2B026FD4908491959A71BD260738D7BBA5D082F73BD0BC6036956F0F2A9"
+}

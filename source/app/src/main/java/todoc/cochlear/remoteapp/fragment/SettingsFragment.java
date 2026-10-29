@@ -89,8 +89,6 @@ public class SettingsFragment extends Fragment
         // 2) 리스너를 등록해야 초기 상태값 설정에 따른 리스너 호출이 발생하지 않는다.
         mSettingBinding.switchLockScreen.setOnCheckedChangeListener((compoundButton, b) ->
                 {
-                    // 장시간 미사용 핸들러 업데이트
-                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
                     //((MainActivity) requireActivity()).mLockScreen.setEnable(requireContext(), b);
                     ((MainActivity) requireActivity()).mLockScreen.setEnable(b);
@@ -111,8 +109,6 @@ public class SettingsFragment extends Fragment
         @Override
         public void onClick(View view)
         {
-            // 장시간 미사용 핸들러 업데이트
-            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
             if (view.getId() == mSettingBinding.buttonManual.getId())
             {
@@ -138,8 +134,6 @@ public class SettingsFragment extends Fragment
         @Override
         public void onClick(View view)
         {
-            // 장시간 미사용 핸들러 업데이트
-            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
             if (view.getId() == mSettingBinding.buttonUser.getId())
             {
@@ -165,8 +159,6 @@ public class SettingsFragment extends Fragment
     {
         mSettingBinding.settingsCheckConnOteInfoButton.setOnClickListener(view ->
         {
-            // 장시간 미사용 핸들러 업데이트
-            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
             if (Status.instance().lastDialog != null && Status.instance().lastDialog.isShowing())
             {
@@ -194,8 +186,6 @@ public class SettingsFragment extends Fragment
                                 .setMessage(msg)
                                 .setPositiveButton("닫기", (dialogInterface, i) ->
                                 {
-                                    // 장시간 미사용 핸들러 업데이트
-                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
                                 })
                                 .setCancelable(false)
                                 .create();
@@ -209,8 +199,6 @@ public class SettingsFragment extends Fragment
                                 .setMessage("외부기와 연결되지 않았습니다.")
                                 .setPositiveButton("닫기", (dialogInterface, i) ->
                                 {
-                                    // 장시간 미사용 핸들러 업데이트
-                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
                                 })
                                 .setCancelable(false)
                                 .create();

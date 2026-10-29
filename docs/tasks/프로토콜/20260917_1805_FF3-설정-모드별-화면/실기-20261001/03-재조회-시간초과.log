@@ -1,0 +1,436 @@
+10-01 14:39:15.952 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> 판별 전
+10-01 14:39:15.960 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> 판별 전
+10-01 14:39:15.961 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> 판별 전
+10-01 14:39:15.961 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> 판별 전
+10-01 14:39:15.962 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> 판별 전
+10-01 14:39:15.962 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> 판별 전
+10-01 14:39:18.958 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> 판별 전
+10-01 14:39:18.959 30001 30001 D TODOC_MainActivity: [LINK] 연결 직후 세대 판별을 시작합니다. (버전 조회부터)
+10-01 14:39:18.959 30001 30001 D TODOC_MainActivity: [LINK] 링크 감시를 시작합니다.
+10-01 14:39:19.016 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 FF 00 00 
+10-01 14:39:19.039 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 FF 00 00 0A 04 06 06 00 00 00 07 00 00 00 
+10-01 14:39:19.039 30001 30001 I TODOC_MainActivity: [LINK] 0x59 프로토콜 버전 4.6, 지원 옵션 비트맵 06 00 00 00 07 00 00 00 (링크=true, 자극=true, 배터리=true)
+10-01 14:39:19.045 30001 30001 D TODOC_UtilLog: [로그] 로그 입력 : 패킷 수신 : 0x59 프로토콜 버전->4.6
+10-01 14:39:19.045 30001 30001 I TODOC_MainActivity: [LINK] 펌웨어 세대 -> REL4.6
+10-01 14:39:19.056 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> REL4.6
+10-01 14:39:19.132 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 00 
+10-01 14:39:19.174 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 00 0F 9D 03 70 AC 04 00 01 00 00 01 03 19 02 00 01 
+10-01 14:39:19.182 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> REL4.6
+10-01 14:39:19.186 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> REL4.6
+10-01 14:39:19.190 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> REL4.6
+10-01 14:39:19.194 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> REL4.6
+10-01 14:39:19.195 30001 30001 I TODOC_MainActivity: [LINK] 전체 읽기 완료 : 15개
+10-01 14:39:19.248 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 01 
+10-01 14:39:19.280 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 01 01 01 02 
+10-01 14:39:19.291 30001 30001 D TODOC_MainActivity: [LINK] 세대 판별과 상태 읽기를 완료했습니다. -> REL4.6
+10-01 14:39:19.299 30001 30001 D TODOC_MainActivity: [LINK] Tx 파워 상한을 개별로 읽습니다. (세대 판별 완료)
+10-01 14:39:19.299 30001 30001 D TODOC_MainActivity: [LINK] 큐에서 인덱스 16 를 읽습니다. (남은 0개)
+10-01 14:39:19.317 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 10 
+10-01 14:39:19.355 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 10 01 D6 
+10-01 14:39:19.396 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 26 
+10-01 14:39:19.432 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 26 01 03 
+10-01 14:39:19.434 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 11 
+10-01 14:39:19.462 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 11 01 03 
+10-01 14:39:19.463 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 27 
+10-01 14:39:19.492 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 27 01 19 
+10-01 14:39:19.493 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 74 
+10-01 14:39:19.536 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 74 0A 03 00 00 00 02 D7 B3 C0 0A 00 
+10-01 14:39:19.537 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 28 
+10-01 14:39:19.566 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 28 01 01 
+10-01 14:39:19.567 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 29 
+10-01 14:39:19.595 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 29 01 20 
+10-01 14:39:19.597 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 2A 
+10-01 14:39:19.626 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 2A 01 19 
+10-01 14:39:19.628 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 2B 
+10-01 14:39:19.654 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 2B 01 06 
+10-01 14:39:19.656 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 2C 
+10-01 14:39:19.686 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 2C 01 0C 
+10-01 14:39:19.688 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 2D 
+10-01 14:39:19.714 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 2D 01 02 
+10-01 14:39:19.717 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 2E 
+10-01 14:39:19.744 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 2E 01 06 
+10-01 14:39:19.746 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 2F 
+10-01 14:39:19.791 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 2F 01 18 
+10-01 14:39:19.794 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 30 
+10-01 14:39:19.821 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 30 01 04 
+10-01 14:39:19.823 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 31 
+10-01 14:39:19.852 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 31 01 01 
+10-01 14:39:19.854 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 32 
+10-01 14:39:19.881 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 32 01 0B 
+10-01 14:39:19.883 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 33 
+10-01 14:39:19.912 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 33 01 20 
+10-01 14:39:19.914 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 34 
+10-01 14:39:19.942 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 34 01 03 
+10-01 14:39:19.944 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 35 
+10-01 14:39:19.986 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 35 01 03 
+10-01 14:39:19.989 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 36 
+10-01 14:39:20.016 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 36 01 04 
+10-01 14:39:20.019 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 37 
+10-01 14:39:20.047 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 37 01 06 
+10-01 14:39:20.050 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 38 
+10-01 14:39:20.092 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 38 01 01 
+10-01 14:39:20.095 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 39 
+10-01 14:39:20.121 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 39 01 04 
+10-01 14:39:20.124 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 3A 
+10-01 14:39:20.152 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 3A 01 01 
+10-01 14:39:20.154 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 3B 
+10-01 14:39:20.196 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 3B 01 01 
+10-01 14:39:20.199 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 3C 
+10-01 14:39:20.227 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 3C 01 01 
+10-01 14:39:20.228 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 40 
+10-01 14:39:20.257 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 40 01 00 
+10-01 14:39:20.260 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 41 
+10-01 14:39:20.302 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 41 01 28 
+10-01 14:39:20.305 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 42 
+10-01 14:39:20.347 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 42 01 2E 
+10-01 14:39:20.350 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 43 
+10-01 14:39:20.393 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 43 01 37 
+10-01 14:39:20.396 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 44 
+10-01 14:39:20.435 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 44 01 41 
+10-01 14:39:20.437 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 45 
+10-01 14:39:20.465 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 45 01 50 
+10-01 14:39:20.466 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 46 
+10-01 14:39:20.512 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 46 01 00 
+10-01 14:39:20.515 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 47 
+10-01 14:39:20.542 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 47 01 00 
+10-01 14:39:20.544 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 48 
+10-01 14:39:20.587 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 48 01 00 
+10-01 14:39:20.590 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 49 
+10-01 14:39:20.632 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 49 01 00 
+10-01 14:39:20.635 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 4A 
+10-01 14:39:20.678 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 4A 01 00 
+10-01 14:39:20.681 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 4B 
+10-01 14:39:20.737 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 4B 01 00 
+10-01 14:39:20.739 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 4C 
+10-01 14:39:20.767 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 4C 01 00 
+10-01 14:39:20.769 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 4D 
+10-01 14:39:20.797 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 4D 01 00 
+10-01 14:39:20.799 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 4E 
+10-01 14:39:20.827 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 4E 01 00 
+10-01 14:39:20.829 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 4F 
+10-01 14:39:20.857 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 4F 01 00 
+10-01 14:39:20.859 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 50 
+10-01 14:39:20.901 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 50 01 00 
+10-01 14:39:20.904 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 51 
+10-01 14:39:20.930 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 51 01 04 
+10-01 14:39:20.932 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 52 
+10-01 14:39:20.960 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 52 01 03 
+10-01 14:39:20.961 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 53 
+10-01 14:39:21.007 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 53 01 02 
+10-01 14:39:21.010 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 54 
+10-01 14:39:21.037 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 54 01 01 
+10-01 14:39:21.040 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 55 
+10-01 14:39:21.082 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 55 01 01 
+10-01 14:39:21.085 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 56 
+10-01 14:39:21.112 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 56 01 00 
+10-01 14:39:21.114 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 57 
+10-01 14:39:21.142 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 57 01 00 
+10-01 14:39:21.146 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 58 
+10-01 14:39:21.186 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 58 01 00 
+10-01 14:39:21.188 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 59 
+10-01 14:39:21.216 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 59 01 00 
+10-01 14:39:21.219 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 5A 
+10-01 14:39:21.261 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 5A 01 00 
+10-01 14:39:21.264 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 5B 
+10-01 14:39:21.290 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 5B 01 00 
+10-01 14:39:21.293 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 5C 
+10-01 14:39:21.321 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 5C 01 00 
+10-01 14:39:21.323 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 5D 
+10-01 14:39:21.351 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 5D 01 00 
+10-01 14:39:21.354 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 5E 
+10-01 14:39:21.381 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 5E 01 00 
+10-01 14:39:21.384 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 5F 
+10-01 14:39:21.412 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 5F 01 00 
+10-01 14:39:21.414 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 60 
+10-01 14:39:21.439 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 60 01 04 
+10-01 14:39:21.441 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 61 
+10-01 14:39:21.470 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 61 01 04 
+10-01 14:39:21.472 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 62 
+10-01 14:39:21.499 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 62 01 04 
+10-01 14:39:21.501 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 63 
+10-01 14:39:21.535 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 63 01 05 
+10-01 14:39:21.538 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 64 
+10-01 14:39:21.579 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 64 01 06 
+10-01 14:39:21.581 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 65 
+10-01 14:39:21.638 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 65 01 08 
+10-01 14:39:21.641 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 66 
+10-01 14:39:21.714 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 66 01 00 
+10-01 14:39:21.717 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 67 
+10-01 14:39:21.759 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 67 01 00 
+10-01 14:39:21.762 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 68 
+10-01 14:39:21.801 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 68 01 00 
+10-01 14:39:21.804 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 69 
+10-01 14:39:21.833 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 69 01 00 
+10-01 14:39:21.835 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 6A 
+10-01 14:39:21.894 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 6A 01 00 
+10-01 14:39:21.896 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 6B 
+10-01 14:39:21.940 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 6B 01 00 
+10-01 14:39:21.941 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 6C 
+10-01 14:39:21.985 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 6C 01 00 
+10-01 14:39:21.987 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 6D 
+10-01 14:39:22.026 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 6D 01 00 
+10-01 14:39:22.028 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 6E 
+10-01 14:39:22.058 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 6E 01 00 
+10-01 14:39:22.059 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 6F 
+10-01 14:39:22.103 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 6F 01 00 
+10-01 14:39:22.960 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:39:22.962 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:39:23.001 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A3 
+10-01 14:39:24.960 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:39:24.962 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:39:25.056 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 9E 
+10-01 14:39:26.963 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:39:26.964 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:39:27.036 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A3 
+10-01 14:39:28.964 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:39:28.965 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:39:29.108 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A2 
+10-01 14:39:30.966 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:39:30.968 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:39:31.042 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A4 
+10-01 14:39:33.025 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 70 
+10-01 14:39:33.167 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 70 0F 00 00 1F 01 02 02 01 06 78 AF 00 00 01 00 01 
+10-01 14:39:33.169 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 71 
+10-01 14:39:33.245 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 71 0F 9F 00 07 07 02 02 00 01 2E 01 00 05 E2 01 03 
+10-01 14:39:33.247 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 72 
+10-01 14:39:33.337 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 72 0F 05 88 77 00 01 4A 00 00 01 00 00 00 00 00 00 
+10-01 14:39:33.338 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 73 
+10-01 14:39:33.428 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 73 0F 00 05 DE 00 00 00 00 01 E3 00 05 E2 00 00 01 
+10-01 14:39:33.429 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 74 
+10-01 14:39:33.562 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 74 0A 03 00 00 00 02 D7 B3 C0 0A 00 
+10-01 14:39:33.564 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 75 
+10-01 14:39:33.653 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 75 0F 01 A0 9F 01 02 01 01 00 05 6C 7C 90 6D 01 00 
+10-01 14:39:33.656 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 76 
+10-01 14:39:33.744 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 76 0F 00 01 2E 02 00 00 05 6C 01 00 04 06 7B 23 00 
+10-01 14:39:35.067 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:39:35.068 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:39:35.137 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A2 
+10-01 14:39:37.068 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:39:37.071 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:39:37.161 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 9F 
+10-01 14:39:39.071 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 링크 파라미터 전체 읽기
+10-01 14:39:39.073 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 00 
+10-01 14:39:39.186 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 00 0F A3 03 70 AC 04 00 01 00 00 01 03 19 02 00 01 
+10-01 14:39:39.200 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> REL4.6
+10-01 14:39:39.204 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> REL4.6
+10-01 14:39:39.208 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> REL4.6
+10-01 14:39:39.212 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> REL4.6
+10-01 14:39:39.212 30001 30001 I TODOC_MainActivity: [LINK] 전체 읽기 완료 : 15개
+10-01 14:39:39.213 30001 30001 D TODOC_MainActivity: [LINK] Tx 파워 상한을 개별로 읽습니다. (링크 파라미터 갱신)
+10-01 14:39:39.213 30001 30001 D TODOC_MainActivity: [LINK] 큐에서 인덱스 16 를 읽습니다. (남은 0개)
+10-01 14:39:39.262 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 10 
+10-01 14:39:39.320 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 10 01 D6 
+10-01 14:39:41.072 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:39:41.074 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:39:41.165 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 9F 
+10-01 14:39:43.074 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:39:43.076 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:39:43.191 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 9F 
+10-01 14:39:45.076 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:39:45.078 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:39:45.170 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A4 
+10-01 14:39:47.079 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:39:47.080 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:39:47.151 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A1 
+10-01 14:39:49.079 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:39:49.081 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:39:49.176 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A1 
+10-01 14:39:49.566 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 70 
+10-01 14:39:49.654 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 70 0F 00 00 45 02 02 03 01 06 B9 05 00 00 01 00 01 
+10-01 14:39:49.682 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 71 
+10-01 14:39:49.809 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 71 0F 9F 00 07 07 02 02 00 01 3B 01 00 05 E2 01 03 
+10-01 14:39:49.829 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 72 
+10-01 14:39:49.916 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 72 0F 05 C7 FB 00 01 58 00 00 01 00 00 00 00 00 00 
+10-01 14:39:49.918 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 73 
+10-01 14:39:49.983 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 73 0F 00 05 DE 00 00 00 00 01 F6 00 05 E2 00 00 01 
+10-01 14:39:49.984 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 74 
+10-01 14:39:50.073 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 74 0A 03 00 00 00 02 D7 B3 C0 0A 00 
+10-01 14:39:50.074 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 75 
+10-01 14:39:50.208 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 75 0F 01 A1 A0 01 02 01 01 00 05 A2 72 A4 BE 01 00 
+10-01 14:39:50.210 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 76 
+10-01 14:39:50.345 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 76 0F 00 01 3C 02 00 00 05 A3 01 00 01 06 BB A7 01 
+10-01 14:39:51.079 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:39:51.081 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:39:51.157 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 9F 
+10-01 14:39:53.080 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 기기 상태 정보 읽기
+10-01 14:39:55.081 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:39:55.082 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:39:55.251 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A1 
+10-01 14:39:57.083 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:39:57.085 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:39:57.188 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A2 
+10-01 14:39:59.085 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:39:59.087 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:39:59.165 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A1 
+10-01 14:40:01.088 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:01.089 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:01.235 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A3 
+10-01 14:40:03.090 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:03.092 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:03.171 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A0 
+10-01 14:40:05.825 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:05.859 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:05.959 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A2 
+10-01 14:40:07.825 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:07.827 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:07.894 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A2 
+10-01 14:40:09.827 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 링크 파라미터 전체 읽기
+10-01 14:40:09.829 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 00 
+10-01 14:40:09.920 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 00 0F A2 03 70 AC 04 00 01 00 00 01 03 19 02 00 01 
+10-01 14:40:09.927 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> REL4.6
+10-01 14:40:09.931 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> REL4.6
+10-01 14:40:09.934 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> REL4.6
+10-01 14:40:09.938 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> REL4.6
+10-01 14:40:09.938 30001 30001 I TODOC_MainActivity: [LINK] 전체 읽기 완료 : 15개
+10-01 14:40:09.939 30001 30001 D TODOC_MainActivity: [LINK] Tx 파워 상한을 개별로 읽습니다. (링크 파라미터 갱신)
+10-01 14:40:09.939 30001 30001 D TODOC_MainActivity: [LINK] 큐에서 인덱스 16 를 읽습니다. (남은 0개)
+10-01 14:40:09.987 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 10 
+10-01 14:40:10.104 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 10 01 D6 
+10-01 14:40:11.829 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:11.831 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:11.900 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 9E 
+10-01 14:40:13.831 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:13.833 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:14.015 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A2 
+10-01 14:40:15.833 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:15.834 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:15.904 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A2 
+10-01 14:40:17.835 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:17.837 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:17.932 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A0 
+10-01 14:40:19.838 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:19.839 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:19.912 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A2 
+10-01 14:40:21.841 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:21.842 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:21.934 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A3 
+10-01 14:40:23.843 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 기기 상태 정보 읽기
+10-01 14:40:25.846 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:25.847 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:25.940 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A1 
+10-01 14:40:27.848 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:27.849 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:27.965 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A0 
+10-01 14:40:29.850 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:29.851 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:29.944 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A0 
+10-01 14:40:31.852 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:31.854 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:31.926 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A2 
+10-01 14:40:33.853 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:33.870 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:33.967 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A0 
+10-01 14:40:35.862 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:35.880 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:35.980 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A1 
+10-01 14:40:37.864 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:37.865 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:37.955 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A3 
+10-01 14:40:39.866 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 링크 파라미터 전체 읽기
+10-01 14:40:39.867 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 00 
+10-01 14:40:39.937 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 00 0F A1 03 70 AC 04 00 01 00 00 01 03 19 02 00 01 
+10-01 14:40:39.944 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> REL4.6
+10-01 14:40:39.948 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> REL4.6
+10-01 14:40:39.951 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> REL4.6
+10-01 14:40:39.955 30001 30001 D TODOC_RemoteControlFragment: [LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> REL4.6
+10-01 14:40:39.955 30001 30001 I TODOC_MainActivity: [LINK] 전체 읽기 완료 : 15개
+10-01 14:40:39.955 30001 30001 D TODOC_MainActivity: [LINK] Tx 파워 상한을 개별로 읽습니다. (링크 파라미터 갱신)
+10-01 14:40:39.955 30001 30001 D TODOC_MainActivity: [LINK] 큐에서 인덱스 16 를 읽습니다. (남은 0개)
+10-01 14:40:40.002 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 10 
+10-01 14:40:40.071 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 10 01 D6 
+10-01 14:40:41.867 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:41.868 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:41.958 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A6 
+10-01 14:40:43.870 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:43.871 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:43.986 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 9F 
+10-01 14:40:45.873 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:45.874 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:45.966 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A0 
+10-01 14:40:47.874 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:47.875 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:47.944 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A2 
+10-01 14:40:49.874 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:49.876 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:49.966 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A2 
+10-01 14:40:51.875 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:51.876 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:51.946 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 9F 
+10-01 14:40:53.878 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 기기 상태 정보 읽기
+10-01 14:40:55.881 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:55.882 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:55.956 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A1 
+10-01 14:40:57.882 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:57.884 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:57.979 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A2 
+10-01 14:40:59.883 30001 30001 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-01 14:40:59.884 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-01 14:40:59.981 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 A1 
+10-01 14:41:00.031 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 26 
+10-01 14:41:00.117 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 26 01 03 
+10-01 14:41:00.137 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 11 
+10-01 14:41:00.255 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 11 01 03 
+10-01 14:41:00.275 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 27 
+10-01 14:41:00.379 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 27 01 19 
+10-01 14:41:00.381 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 74 
+10-01 14:41:00.452 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 74 0A 03 00 00 00 02 D7 B3 C0 0A 00 
+10-01 14:41:00.453 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 28 
+10-01 14:41:00.542 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 28 01 01 
+10-01 14:41:00.543 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 29 
+10-01 14:41:00.632 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 29 01 20 
+10-01 14:41:00.634 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 2A 
+10-01 14:41:00.724 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 2A 01 19 
+10-01 14:41:00.726 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 2B 
+10-01 14:41:00.816 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 2B 01 06 
+10-01 14:41:00.818 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 2C 
+10-01 14:41:00.906 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 2C 01 0C 
+10-01 14:41:00.908 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 2D 
+10-01 14:41:01.040 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 2D 01 02 
+10-01 14:41:01.043 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 2E 
+10-01 14:41:01.129 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 2E 01 06 
+10-01 14:41:01.131 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 2F 
+10-01 14:41:01.264 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 2F 01 18 
+10-01 14:41:01.266 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 30 
+10-01 14:41:01.354 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 30 01 04 
+10-01 14:41:01.357 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 31 
+10-01 14:41:01.442 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 31 01 01 
+10-01 14:41:01.444 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 32 
+10-01 14:41:01.532 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 32 01 0B 
+10-01 14:41:01.533 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 33 
+10-01 14:41:01.623 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 33 01 20 
+10-01 14:41:01.624 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 34 
+10-01 14:41:01.714 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 34 01 03 
+10-01 14:41:01.715 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 35 
+10-01 14:41:01.805 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 35 01 03 
+10-01 14:41:01.806 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 36 
+10-01 14:41:01.896 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 36 01 04 
+10-01 14:41:01.899 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 37 
+10-01 14:41:01.984 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 37 01 06 
+10-01 14:41:01.985 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 38 
+10-01 14:41:02.075 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 38 01 01 
+10-01 14:41:02.077 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 39 
+10-01 14:41:02.165 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 39 01 04 
+10-01 14:41:02.167 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 3A 
+10-01 14:41:02.255 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 3A 01 01 
+10-01 14:41:02.257 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 3B 
+10-01 14:41:02.343 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 3B 01 01 
+10-01 14:41:02.346 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 3C 
+10-01 14:41:02.435 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 3C 01 01 
+10-01 14:41:02.438 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 40 
+10-01 14:41:02.526 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 40 01 00 
+10-01 14:41:02.528 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 41 
+10-01 14:41:02.661 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 41 01 28 
+10-01 14:41:02.664 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 42 
+10-01 14:41:02.750 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 42 01 2E 
+10-01 14:41:02.753 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 43 
+10-01 14:41:02.843 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 43 01 37 
+10-01 14:41:02.846 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 44 
+10-01 14:41:02.975 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 44 01 41 
+10-01 14:41:02.978 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 45 
+10-01 14:41:03.068 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 45 01 50 
+10-01 14:41:03.072 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 46 
+10-01 14:41:03.157 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 46 01 00 
+10-01 14:41:03.160 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 47 
+10-01 14:41:03.246 30001 30001 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 47 01 00 
+10-01 14:41:03.249 30001 30001 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 48 
+10-01 14:41:06.260 30001 30001 W TODOC_MainActivity: [FF3] 응답 시간 초과. 반영 상태 불명: 재연결 후 재조회하세요.

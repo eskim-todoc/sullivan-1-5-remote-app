@@ -6,7 +6,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/black_70"
+        android:background="@drawable/remote_control_background_glass"
         tools:context="todoc.cochlear.remoteapp.fragment.UserFragment">
 
         <LinearLayout
@@ -21,7 +21,7 @@
                 android:layout_height="wrap_content"
                 android:text="기본 사용자"
                 android:textColor="@color/white_70"
-                android:textSize="14dp" />
+                android:textSize="@dimen/type_body" android:fontFamily="@font/pretendard"  android:layout_marginBottom="6dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/default_user_recyclerview"
@@ -39,7 +39,7 @@
                 android:layout_height="wrap_content"
                 android:text="등록된 사용자"
                 android:textColor="@color/white_70"
-                android:textSize="14dp" />
+                android:textSize="@dimen/type_body" android:fontFamily="@font/pretendard"  android:layout_marginBottom="6dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/user_recyclerview"
@@ -48,7 +48,7 @@
                 android:layout_weight="1"
                 android:overScrollMode="never"
                 android:scrollbars="none"
-                tools:listitem="@layout/item_user" />
+                tools:listitem="@layout/item_user"  android:paddingBottom="80dp" android:clipToPadding="false" />
 
 
         </LinearLayout>
@@ -65,6 +65,6 @@
             app:borderWidth="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:rippleColor="@color/accent_70" />
+            app:rippleColor="@color/glass_ripple" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

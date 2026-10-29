@@ -62,7 +62,7 @@ public class EditDeviceFragment extends Fragment
 
         todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding mainBinding = ((MainActivity) requireContext()).mBinding;
         mainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
-        mainBinding.toolbarNavigationMessage.setText("외부기\n목록");
+        mainBinding.toolbarNavigationMessage.setText("외부기 목록");
         mainBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
@@ -109,8 +109,6 @@ public class EditDeviceFragment extends Fragment
     {
         mEditDeviceBinding.editDeviceDelButton.setOnClickListener(view ->
         {
-            // 장시간 미사용 핸들러 업데이트
-            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
             if (Status.instance().lastDialog != null)
             {
@@ -131,8 +129,6 @@ public class EditDeviceFragment extends Fragment
                                 .setMessage("현재 연결을 해제하고 외부기 정보를 삭제하시겠습니까?")
                                 .setPositiveButton("삭제", (dialogInterface, i) ->
                                 {
-                                    // 장시간 미사용 핸들러 업데이트
-                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
                                     UtilDevice.instance.delete(mItem);
 
@@ -172,8 +168,6 @@ public class EditDeviceFragment extends Fragment
                                     // TD2-SW-RC-UNIT-Test-ID-70 [기기 삭제 유닛] 순서[2] 끝.
 
 
-                                    // 장시간 미사용 핸들러 업데이트
-                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
                                     UtilDevice.instance.delete(mItem);
 
@@ -184,8 +178,6 @@ public class EditDeviceFragment extends Fragment
                                 })
                                 .setNegativeButton("취소", (dialogInterface, i) ->
                                 {
-                                    // 장시간 미사용 핸들러 업데이트
-                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
                                 })
                                 .setCancelable(false)
                                 .create();
@@ -229,8 +221,6 @@ public class EditDeviceFragment extends Fragment
                                 .setMessage("페어링 키는 6자리 번호입니다.")
                                 .setPositiveButton("확인", (dialogInterface, i) ->
                                 {
-                                    // 장시간 미사용 핸들러 업데이트
-                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
                                 })
                                 .setCancelable(false)
                                 .create();

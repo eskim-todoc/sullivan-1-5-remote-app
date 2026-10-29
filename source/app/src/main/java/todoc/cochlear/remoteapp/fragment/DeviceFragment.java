@@ -79,8 +79,6 @@ public class DeviceFragment extends Fragment
 
     public void mItemClickListener(int position)
     {
-        // 장시간 미사용 핸들러 업데이트
-        ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
         EntityDevice item = mDeviceAdapter.getItem(position);
 
@@ -103,8 +101,6 @@ public class DeviceFragment extends Fragment
     {
         mDeviceBinding.addBtn.setOnClickListener(view ->
         {
-            // 장시간 미사용 핸들러 업데이트
-            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
             /*
             ((MainActivity) requireActivity()).getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new AddDeviceFragment()).commitAllowingStateLoss();

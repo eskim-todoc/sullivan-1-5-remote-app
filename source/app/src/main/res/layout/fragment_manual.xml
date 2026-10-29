@@ -5,7 +5,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/black_70"
+        android:background="@drawable/remote_control_background_glass"
         android:orientation="vertical"
         tools:context="todoc.cochlear.remoteapp.fragment.ManualFragment">
 
@@ -67,7 +67,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/manual_screen_checkbox"
                 android:textColor="@color/white_90"
-                android:textSize="14dp" />
+                android:textSize="@dimen/type_body" />
         </LinearLayout>
 
         <Button
@@ -78,6 +78,6 @@
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent" android:fontFamily="@font/pretendard" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

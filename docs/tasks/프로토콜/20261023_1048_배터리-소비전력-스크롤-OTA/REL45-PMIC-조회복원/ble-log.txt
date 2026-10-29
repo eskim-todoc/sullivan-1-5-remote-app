@@ -1,0 +1,131 @@
+--------- beginning of main
+10-28 15:17:09.042 28243 28243 D TODOC_MainActivity: [SCREEN] 가장 작은 변 411dp -> 폰, 세로 고정
+10-28 15:17:09.278 28243 28243 D TODOC_MainActivity:  
+
+10-28 15:17:09.278 28243 28243 D TODOC_MainActivity: *
+
+10-28 15:17:09.278 28243 28243 D TODOC_MainActivity: * *
+
+10-28 15:17:09.278 28243 28243 D TODOC_MainActivity: * * *
+
+10-28 15:17:09.278 28243 28243 D TODOC_MainActivity: * * * *
+
+10-28 15:17:09.278 28243 28243 D TODOC_MainActivity: * * * * *
+
+10-28 15:17:09.278 28243 28243 D TODOC_MainActivity: * * * * * *
+
+10-28 15:17:09.278 28243 28243 D TODOC_MainActivity: * * * * * * *
+
+10-28 15:17:09.278 28243 28243 D TODOC_MainActivity: * * * * * * * *
+
+10-28 15:17:09.278 28243 28243 D TODOC_MainActivity: * * * * * * * * *
+10-28 15:17:09.278 28243 28243 D TODOC_MainActivity: * * * * * * * * * *
+10-28 15:17:09.278 28243 28243 D TODOC_MainActivity: 액티비티가 실행되었습니다. -> onCreate()
+10-28 15:17:09.283 28243 28243 D TODOC_MainActivity: 런타임 권한을 체크합니다. 버전코드가 S 이상입니다.
+10-28 15:17:09.286 28243 28243 D TODOC_MainActivity: 강제 종료 포착 서비스를 시작합니다.
+10-28 15:17:09.343 28243 28243 D TODOC_MainActivity: 사운드처리기 상태 값 뷰모델 클래스를 불러옵니다.
+10-28 15:17:09.365 28243 28243 D TODOC_MainActivity: 방송수신자를 등록했습니다.
+10-28 15:17:09.367 28243 28243 D TODOC_MainActivity: 블루투스 매니저, 어댑터, 스캐너 객체를 획득했습니다.
+10-28 15:17:09.367 28243 28243 D TODOC_MainActivity: 앱 실행 직후에 따른 잠금화면 초기화를 수행합니다.
+10-28 15:17:09.372 28243 28243 D TODOC_MainActivity: Manual screen enabled = false
+10-28 15:17:09.372 28243 28243 D TODOC_MainActivity: 사용설명서 표시가 비활성화 되어 있습니다. 리모컨 화면을 출력합니다.
+10-28 15:17:09.738 28243 28243 V TODOC_MainActivity: BLE 스캔을 시작합니다.
+10-28 15:17:09.805 28243 28243 D TODOC_MainActivity: 액티비티 onResume() 상태이므로, 장시간 미사용 핸들러를 업데이트합니다.
+10-28 15:17:09.805 28243 28243 V TODOC_MainActivity: 장시간 미사용 핸들러 업데이트 완료.
+10-28 15:17:13.380 28243 28243 V TODOC_MainActivity: BLE 스캔 결과 : 이름 = TD_L_TODOC_OTE_FFFF, 스캔 응답 데이터 = L_TODOC_OTE_FFFF
+10-28 15:17:13.380 28243 28243 D TODOC_MainActivity: 타겟 장치 발견 : L_TODOC_OTE_FFFF
+10-28 15:17:13.380 28243 28243 V TODOC_MainActivity: BLE 스캔을 종료합니다.
+10-28 15:17:18.476 28243 28243 D TODOC_MainActivity: BLE 연결해제 이벤트 발생 -> NAME = TD_L_TODOC_OTE_FFFF, ADDRESS = EE:94:8D:8B:65:4A
+10-28 15:17:18.538 28243 28243 D TODOC_MainActivity: 사용자가 아닌 다른 이유에 의한 연결해제로 인식되었습니다. (예, 장치 리셋, 통신 거리 벗어남 등)
+10-28 15:17:18.539 28243 28243 D TODOC_MainActivity: 현재 리모컨 화면이며, 액티비티 화면이 포그라운드 상태이므로 자동 재연결을 위해 BLE 스캔을 시작합니다.
+10-28 15:17:18.539 28243 28243 V TODOC_MainActivity: BLE 스캔을 시작합니다.
+10-28 15:17:23.094 28243 28243 V TODOC_MainActivity: BLE 스캔 결과 : 이름 = TD_L_TODOC_OTE_FFFF, 스캔 응답 데이터 = L_TODOC_OTE_FFFF
+10-28 15:17:23.094 28243 28243 D TODOC_MainActivity: 타겟 장치 발견 : L_TODOC_OTE_FFFF
+10-28 15:17:23.094 28243 28243 V TODOC_MainActivity: BLE 스캔을 종료합니다.
+10-28 15:17:24.984 28243 28243 D TODOC_MainActivity: BLE 연결 이벤트 발생 -> NAME = TD_L_TODOC_OTE_FFFF, ADDRESS = EE:94:8D:8B:65:4A
+10-28 15:17:24.984 28243 28243 D TODOC_MainActivity: [BLE] BLUETOOTH_CONNECT 권한이 있어서, CONNECTION PRIORITY 설정 시도
+10-28 15:17:24.986 28243 28243 D TODOC_MainActivity: 이미 본딩된 기기입니다.
+10-28 15:17:24.997 28243 28264 D TODOC_MainActivity: GATT Callback Service Discovered : STATE = SUCCESS, NAME = TD_L_TODOC_OTE_FFFF, ADDRESS = EE:94:8D:8B:65:4A
+10-28 15:17:24.997 28243 28264 D TODOC_MainActivity: Service 0 UUID : 00001800-0000-1000-8000-00805f9b34fb
+10-28 15:17:24.997 28243 28264 D TODOC_MainActivity: Service 1 UUID : 00001801-0000-1000-8000-00805f9b34fb
+10-28 15:17:24.997 28243 28264 D TODOC_MainActivity: Service 2 UUID : 6e400001-b5a3-f393-e0a9-e50e24dcca9e
+10-28 15:17:24.999 28243 28264 D TODOC_MainActivity: GATT Callback Service Discovered : Characteristic indication {server to client} is enabled.
+10-28 15:17:24.999 28243 28264 D TODOC_MainActivity: GATT Callback Service Discovered : Finally, success to discover service, characteristics and descriptor.
+10-28 15:17:25.455 28243 28264 D TODOC_MainActivity: CCCD(클라이언트 특성 설정 설명자) 쓰기에 성공했습니다. 보안코드 인증 시간초과 핸들러를 생성하고, 보안코드 패킷을 전송합니다.
+10-28 15:17:25.462 28243 28264 D TODOC_MainActivity: 새롭게 생성한 패킷 : 0x40 31 31 31 31 
+10-28 15:17:25.532 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x40 31 31 31 31 
+10-28 15:17:25.764 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x40 01 
+10-28 15:17:25.764 28243 28243 D TODOC_MainActivity: 사용자의 내부기 키가 올바릅니다.
+10-28 15:17:25.764 28243 28243 D TODOC_MainActivity: 내부기 키 인증에 성공했습니다. 상태정보 획득 시간초과 핸들러를 생성하고, 상태정보 획득 패킷을 전송합니다. 
+10-28 15:17:25.765 28243 28243 D TODOC_MainActivity: 새롭게 생성한 패킷 : 0x41 
+10-28 15:17:25.809 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x41 
+10-28 15:17:25.900 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x41 04 46 46 46 46 05 01 01 31 32 33 34 35 36 
+10-28 15:17:25.900 28243 28243 D TODOC_MainActivity: 사운드처리기 펌웨어 버전은 '1.1' 입니다.
+10-28 15:17:25.901 28243 28243 D TODOC_MainActivity: 새롭게 생성한 패킷 : 0x52 01 
+10-28 15:17:25.904 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x52 01 
+10-28 15:17:25.972 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x52 01 00 00 00 85 48 6D 4B 19 6F FF FF 
+10-28 15:17:25.973 28243 28243 D TODOC_MainActivity: 내부기 ID 읽기 패킷 수신 : ID = #196FFFFF
+10-28 15:17:26.043 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x52 02 26 1B 10 11 14 18 00 19 10 16 0B 00 00 03 00 D3 00 00 
+10-28 15:17:26.047 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x52 03 00 00 01 00 00 00 00 00 00 00 00 00 00 00 
+10-28 15:17:26.068 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x52 04 02 A4 02 70 02 3C 02 41 02 4F 02 62 01 F1 02 66 
+10-28 15:17:26.105 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x52 05 02 3C 02 58 02 24 01 F1 01 F1 01 FF 01 F1 05 D4 
+10-28 15:17:26.141 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x52 06 01 F1 01 F1 01 F1 01 F1 01 F5 01 F1 01 F1 01 F1 
+10-28 15:17:26.177 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x52 07 01 F1 01 F1 01 F1 01 F1 01 F1 01 F1 01 F1 01 F1 
+10-28 15:17:26.177 28243 28243 D TODOC_MainActivity: 새롭게 생성한 패킷 : 0x43 
+10-28 15:17:26.186 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x43 
+10-28 15:17:26.224 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x43 50 01 04 01 01 02 01 
+10-28 15:17:26.225 28243 28243 D TODOC_MainActivity: 사운드처리기 상태 확인 패킷 수신 : 배터리 = 80, 맵번호 = 1, 볼륨 = 1, 최대출력 = 4, LED = 1, 텔레코일 = 2, 자극알림 = 1
+10-28 15:17:26.245 28243 28243 D TODOC_MainActivity: 사운드처리기와 BLE 통신이 온전하게 연결되었습니다.
+10-28 15:17:26.257 28243 28243 D TODOC_MainActivity: [LINK] 연결 직후 세대 판별을 시작합니다. (버전 조회부터)
+10-28 15:17:26.257 28243 28243 D TODOC_MainActivity: [LINK] 링크 감시를 시작합니다.
+10-28 15:17:26.352 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 FF 00 00 
+10-28 15:17:26.394 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 FF 00 00 0A 04 05 06 00 00 00 07 00 00 00 
+10-28 15:17:26.395 28243 28243 I TODOC_MainActivity: [LINK] 0x59 프로토콜 버전 4.5, 지원 옵션 비트맵 06 00 00 00 07 00 00 00 (링크=true, 자극=true, 배터리=true)
+10-28 15:17:26.399 28243 28243 I TODOC_MainActivity: [LINK] 펌웨어 세대 -> REL4.5
+10-28 15:17:26.452 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 00 
+10-28 15:17:26.482 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 00 0F 00 03 70 AC 04 00 01 00 00 01 03 32 03 00 01 
+10-28 15:17:26.504 28243 28243 I TODOC_MainActivity: [LINK] 전체 읽기 완료 : 15개
+10-28 15:17:26.541 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 01 
+10-28 15:17:26.566 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 01 01 02 02 
+10-28 15:17:26.566 28243 28243 I TODOC_MainActivity: [GATING] 게이팅 : Off, 오프셋 2
+10-28 15:17:26.569 28243 28243 D TODOC_MainActivity: [LINK] 세대 판별과 상태 읽기를 완료했습니다. -> REL4.5
+10-28 15:17:28.258 28243 28243 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-28 15:17:28.262 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-28 15:17:28.308 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 00 
+10-28 15:17:30.259 28243 28243 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-28 15:17:30.263 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-28 15:17:30.303 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 00 
+10-28 15:17:32.260 28243 28243 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-28 15:17:32.264 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-28 15:17:32.480 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 00 
+10-28 15:17:34.261 28243 28243 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-28 15:17:34.266 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-28 15:17:34.354 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 00 
+10-28 15:17:36.262 28243 28243 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-28 15:17:36.266 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-28 15:17:36.384 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 00 
+10-28 15:17:38.264 28243 28243 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-28 15:17:38.268 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-28 15:17:38.403 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 00 
+10-28 15:17:40.265 28243 28243 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-28 15:17:40.269 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-28 15:17:40.429 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 00 
+10-28 15:17:42.265 28243 28243 V TODOC_MainActivity: [LINK] 감시 : 링크 파라미터 전체 읽기
+10-28 15:17:42.269 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 00 
+10-28 15:17:42.460 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 00 0F 00 03 70 AC 04 00 01 00 00 01 03 32 03 00 01 
+10-28 15:17:42.572 28243 28243 I TODOC_MainActivity: [LINK] 전체 읽기 완료 : 15개
+10-28 15:17:44.266 28243 28243 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-28 15:17:44.270 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-28 15:17:44.404 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 00 
+10-28 15:17:46.267 28243 28243 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-28 15:17:46.271 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-28 15:17:46.429 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 00 
+10-28 15:17:48.268 28243 28243 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-28 15:17:48.272 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-28 15:17:48.379 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 00 
+10-28 15:17:50.269 28243 28243 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-28 15:17:50.273 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-28 15:17:50.403 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 00 
+10-28 15:17:52.270 28243 28243 V TODOC_MainActivity: [LINK] 감시 : 현재 Tx 파워 읽기
+10-28 15:17:52.273 28243 28243 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 01 
+10-28 15:17:52.428 28243 28243 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 01 01 00 

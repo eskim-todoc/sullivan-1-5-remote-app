@@ -22,16 +22,16 @@
     <color name="white_20">#FF333333</color>
     <color name="white_10">#FF191919</color>
 
-    <color name="accent_100">#009688</color>
-    <color name="accent_90">#0F968A</color>
-    <color name="accent_80">#1E968B</color>
-    <color name="accent_70">#2D968D</color>
-    <color name="accent_60">#3C968E</color>
-    <color name="accent_50">#4B968F</color>
-    <color name="accent_40">#5A9691</color>
-    <color name="accent_30">#699692</color>
-    <color name="accent_20">#789694</color>
-    <color name="accent_10">#879695</color>
+    <color name="accent_100">#719E95</color>
+    <color name="accent_90">#77A39A</color>
+    <color name="accent_80">#7DA89F</color>
+    <color name="accent_70">#83ADA5</color>
+    <color name="accent_60">#89B2AA</color>
+    <color name="accent_50">#8FB7B0</color>
+    <color name="accent_40">#95BCB6</color>
+    <color name="accent_30">#9BC1BC</color>
+    <color name="accent_20">#A1C6C1</color>
+    <color name="accent_10">#A7CBC7</color>
 
     <color name="error_100">#EC407A</color>
     <color name="error_90">#DA4074</color>
@@ -64,4 +64,10 @@
     <color name="status_bar">@color/black_90</color>
     <color name="toolbar_background">@color/black_80</color>
     <color name="bottom_navigation">@color/black_90</color>
+    <!-- Status category accents, not alarm severity. Alarms retain their existing colors. -->
+    <color name="status_energy">#B8E2D3</color>
+    <color name="status_voltage">#B8D7F4</color>
+    <color name="status_current">#D4C9F4</color>
+    <color name="status_power">#F0D3A4</color>
+    <color name="glass_ripple">#18D4E1DE</color>
 </resources>

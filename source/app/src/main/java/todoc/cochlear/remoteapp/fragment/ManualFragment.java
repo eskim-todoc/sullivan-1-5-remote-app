@@ -122,8 +122,6 @@ public class ManualFragment extends Fragment
             mTouchAvailable = false;
             mTouchHandler.postDelayed(mTouchRunner, 250);
 
-            // 장시간 미사용 핸들러 업데이트
-            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
         }
     }
 
@@ -132,8 +130,6 @@ public class ManualFragment extends Fragment
         mManualBinding.enableCheckbox.setChecked(!((MainActivity) requireContext()).mManualScreen.isEnabled());
         mManualBinding.enableCheckbox.setOnCheckedChangeListener((compoundButton, b) ->
         {
-            // 장시간 미사용 핸들러 업데이트
-            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
             ((MainActivity) requireContext()).mManualScreen.setEnable(!b);
 

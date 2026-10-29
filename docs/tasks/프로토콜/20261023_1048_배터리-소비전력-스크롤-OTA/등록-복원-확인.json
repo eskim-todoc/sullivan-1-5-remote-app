@@ -1,0 +1,10 @@
+{
+  "user_info_count": 1,
+  "user_info_integrity": "ok",
+  "verified_original_user_restored": true,
+  "DB_DEVICE_count": 1,
+  "DB_DEVICE_integrity": "ok",
+  "verified_original_device_restored": true,
+  "user_confirmed_original_roster_one_each": true,
+  "past_logs_and_preferences_recovered": false
+}

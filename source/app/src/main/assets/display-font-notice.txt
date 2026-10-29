@@ -1,0 +1,12 @@
+KoPubWorld 돋움체 Medium / Bold
+저작권: 문화체육관광부 · 한국출판인회의
+원본 글꼴을 변경 없이 앱에 포함했습니다.
+https://www.kopus.org
+https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=13287212
+https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=419038
+
+REL 버전 표시: 평창 평화체 Bold (PyeongChang Peace Bold)
+저작권: 평창군
+Python Todoc ON 앱에 포함된 동일한 원본 글꼴을 사용합니다.
+일반 UI: Pretendard Regular / Bold v1.3.9. 공식 저장소에서 원본 다운로드. 라이선스 전문은 pretendard-license.txt 참조. https://github.com/orioncactus/pretendard/releases/tag/v1.3.9
+KoPubWorld 돋움체는 내부기 제조번호에 적용합니다.

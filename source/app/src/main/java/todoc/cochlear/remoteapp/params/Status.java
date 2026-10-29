@@ -42,8 +42,6 @@ public class Status
 
     static public final int RESENDING_PACKET_COUNT = 3;
     /*
-    static public final int LONG_TIME_IDLE_STATE_NOT_TRIGGERED = 0;
-    static public final int LONG_TIME_IDLE_STATE_TRIGGERED = 1;
     */
 
     public int typeOfFragment;
@@ -100,11 +98,9 @@ public class Status
     public byte[]       rcOptionBitmap  = null;
 
     /*
-    public int longTimeIdleState;       // 장시간 미사용 상태
     */
     public AlertDialog  lastDialog;      // 앱에서 마지막에 출력된 다이얼로그 정보
     /*
-    public AlertDialog longTimeIdleDialog; // 장시간 미사용시 출력된 다이얼로그 정보
     */
     public EntityDevice connectedDevice;// 현재 연결을 시도하거나 연결중이거나 혹은 연결된 상태의 기기 정보
     public EntityUser   connectedUser;    // 현재 연결을 시도하거나 연결중이거나 혹은 연결된 상태의 사용자 정보

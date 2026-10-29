@@ -81,8 +81,6 @@ public class UserFragment extends Fragment
 
     public void mDefaultItemClickListener(int position)
     {
-        // 장시간 미사용 핸들러 업데이트
-        ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
         EntityUser item = mDefaultUserAdapter.getItem(position);
 
@@ -105,8 +103,6 @@ public class UserFragment extends Fragment
 
     public void mItemClickListener(int position)
     {
-        // 장시간 미사용 핸들러 업데이트
-        ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
         EntityUser item = mUserAdapter.getItem(position);
 
@@ -131,8 +127,6 @@ public class UserFragment extends Fragment
     {
         mUserBinding.addBtn.setOnClickListener(view ->
         {
-            // 장시간 미사용 핸들러 업데이트
-            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
             /*
             requireActivity().getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new AddUserFragment()).commitAllowingStateLoss();

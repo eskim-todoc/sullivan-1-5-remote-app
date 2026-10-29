@@ -63,4 +63,13 @@
          가로는 세로 공간을 안 먹으므로 넉넉히, 세로는 화면이 넘칠 수 있어 최소로 준다. -->
     <dimen name="tdc_glass_padding_h">8dp</dimen>
     <dimen name="tdc_glass_padding_v">4dp</dimen>
+    <!-- Semantic type scale: information/controls, editable input, section/page title, auxiliary navigation. -->
+    <dimen name="type_body">12sp</dimen>
+    <dimen name="type_input">14sp</dimen>
+    <dimen name="type_section">14sp</dimen>
+    <dimen name="type_page">16sp</dimen>
+    <dimen name="type_caption">11sp</dimen>
+    <dimen name="type_navigation">10sp</dimen>
+    <dimen name="basic_control_action_width">196dp</dimen>
+    <dimen name="remote_control_button_height">50dp</dimen>
 </resources>

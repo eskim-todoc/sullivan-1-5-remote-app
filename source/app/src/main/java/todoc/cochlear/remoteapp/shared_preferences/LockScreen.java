@@ -255,12 +255,6 @@ public class LockScreen {
             }
         }
         else {
-            /*
-            if (Status.instance().longTimeIdleState == Status.LONG_TIME_IDLE_STATE_TRIGGERED)
-            {
-                //return;
-            }
-            */
 
             mBinding.lockScreen.setVisibility(View.GONE);
 

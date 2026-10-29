@@ -58,7 +58,7 @@ public class AddDeviceFragment extends Fragment
 
         todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding mainBinding = ((MainActivity) requireContext()).mBinding;
         mainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
-        mainBinding.toolbarNavigationMessage.setText("외부기\n목록");
+        mainBinding.toolbarNavigationMessage.setText("외부기 목록");
         mainBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
@@ -85,8 +85,6 @@ public class AddDeviceFragment extends Fragment
     {
         mAddDeviceBinding.addDeviceAddButton.setOnClickListener(view ->
         {
-            // 장시간 미사용 핸들러 업데이트
-            ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
             EntityDevice device = new EntityDevice();
 
@@ -123,8 +121,6 @@ public class AddDeviceFragment extends Fragment
                                 .setMessage("제조번호를 입력해주세요.")
                                 .setPositiveButton("확인", (dialogInterface, i) ->
                                 {
-                                    // 장시간 미사용 핸들러 업데이트
-                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
                                 })
                                 .setCancelable(false)
                                 .create();
@@ -159,8 +155,6 @@ public class AddDeviceFragment extends Fragment
                                 .setMessage("페어링 키는 6자리 번호입니다.")
                                 .setPositiveButton("확인", (dialogInterface, i) ->
                                 {
-                                    // 장시간 미사용 핸들러 업데이트
-                                    ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
                                 })
                                 .setCancelable(false)
                                 .create();
@@ -198,8 +192,6 @@ public class AddDeviceFragment extends Fragment
                                     .setMessage("이미 등록된 제조번호입니다.")
                                     .setPositiveButton("확인", (dialogInterface, i) ->
                                     {
-                                        // 장시간 미사용 핸들러 업데이트
-                                        ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
                                     })
                                     .setCancelable(false)
                                     .create();

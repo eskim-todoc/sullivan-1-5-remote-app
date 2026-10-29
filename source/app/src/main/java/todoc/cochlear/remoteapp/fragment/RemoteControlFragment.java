@@ -1,15 +1,18 @@
 package todoc.cochlear.remoteapp.fragment;
 
 import android.app.Activity;
+import todoc.cochlear.remoteapp.ff.Ff3Config;
+import todoc.cochlear.remoteapp.ff.Ff3Dialog;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
+import todoc.cochlear.remoteapp.params.BatteryTelemetry;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,8 +50,6 @@ import android.util.TypedValue;
 import android.widget.LinearLayout;
 import android.graphics.Paint;
 import todoc.cochlear.remoteapp.database.logs.UtilLog;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
 
 public class RemoteControlFragment extends Fragment
 {
@@ -60,6 +61,15 @@ public class RemoteControlFragment extends Fragment
     StatusViewModel mStatusViewModel;
 
     public AlertDialog mDialog;
+    private Ff3Dialog ff3Dialog;
+    private int selectedControlTab;
+    private final Handler batteryUiHandler = new Handler(Looper.getMainLooper());
+    private final Runnable batteryUiTick = new Runnable() {
+        @Override public void run() {
+            renderBatteryTelemetry();
+            batteryUiHandler.postDelayed(this, 1000);
+        }
+    };
 
     Activity     mActivity;
     MainActivity mMainActivity;
@@ -73,12 +83,14 @@ public class RemoteControlFragment extends Fragment
     @Override
     public void onDestroyView()
     {
+        if (ff3Dialog != null) { ff3Dialog.dismiss(); ff3Dialog = null; }
         if (mDialog != null && mDialog.isShowing())
         {
             mDialog.dismiss();
             mDialog = null;
         }
 
+        batteryUiHandler.removeCallbacks(batteryUiTick);
         mRemoteControlBinding.remoteControlSearchingAnimator.stopRippleAnimation();
 
         super.onDestroyView();
@@ -104,190 +116,70 @@ public class RemoteControlFragment extends Fragment
     {
         mRemoteControlBinding = FragmentRemoteControlBinding.inflate(inflater, container, false);
 
-        /* 태블릿이면 여기서 2단으로 갈아 끼운다.
-         *
-         * 가시성을 만지기 전, 인플레이트 직후에 딱 한 번만 부른다. ConstraintSet 은
-         * 제약뿐 아니라 «가시성» 도 담고 있어서, 연결 상태에 따라 오버레이가 바뀐 뒤에
-         * 부르면 화면 상태가 통째로 되돌아간다. */
-        View root = mRemoteControlBinding.getRoot();
-
-        if (MainActivity.isTabletAtLaunch() && root instanceof ConstraintLayout)
-        {
-            applyTabletTwoColumnLayout((ConstraintLayout) root);
-        }
-
-        extendConnectionOverlayToEdges();
-
-        return root;
+        configureColumns(mRemoteControlBinding, MainActivity.isTabletAtLaunch(),
+                getResources().getDisplayMetrics().density);
+        showControlTab(mRemoteControlBinding, 0);
+        return mRemoteControlBinding.getRoot();
     }
 
-    /* 외부기 연결 안내(찾는 중 · 연결 중) 오버레이가 화면 끝까지 덮이게 한다.
-     *
-     * 오버레이는 루트 ConstraintLayout 의 자식이라 «parent 의 네 변» 이 패딩 안쪽을
-     * 가리킨다. 콘텐츠는 그래야 맞지만 이 오버레이는 안내판이라 화면 가장자리까지
-     * 덮여야 하는데, 패딩을 키운 태블릿에서는 그 패딩만큼이 어두운 테두리로 남는다.
-     *
-     * 패딩만큼 «음(-) 의 마진» 을 줘서 패딩 밖으로 밀어낸다. 값은 루트가 쓰는 것과
-     * 같은 dimen 에서 읽는다 - 따로 적으면 반드시 어긋난다. */
-    private void extendConnectionOverlayToEdges()
-    {
-        View overlay = mRemoteControlBinding.remoteControlConnectionLayout;
-        ViewGroup.LayoutParams lp = overlay.getLayoutParams();
-
-        if (!(lp instanceof ViewGroup.MarginLayoutParams))
-        {
-            return;
+    static void configureColumns(FragmentRemoteControlBinding binding, boolean tablet, float density) {
+        configureStatusValues(binding);
+        int columns = tablet ? 4 : 3;
+        binding.specialControlGrid.setColumnCount(columns);
+        for (int i = 0; i < binding.specialControlGrid.getChildCount(); i++) {
+            View button = binding.specialControlGrid.getChildAt(i);
+            android.widget.GridLayout.LayoutParams params = (android.widget.GridLayout.LayoutParams) button.getLayoutParams();
+            params.columnSpec = android.widget.GridLayout.spec(i % columns, 1f);
+            params.rowSpec = android.widget.GridLayout.spec(i / columns);
+            button.setLayoutParams(params);
         }
 
-        int paddingH = getResources().getDimensionPixelSize(R.dimen.tdc_screen_padding_h);
-        int paddingV = getResources().getDimensionPixelSize(R.dimen.tdc_screen_padding_v);
-
-        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) lp;
-
-        params.leftMargin   = -paddingH;
-        params.topMargin    = -paddingV;
-        params.rightMargin  = -paddingH;
-        params.bottomMargin = -paddingV;
-
-        overlay.setLayoutParams(params);
-
-        /* 위치만 옮겨서는 안 보인다. ViewGroup 은 기본으로 clipToPadding = true 라,
-         * 자기 «패딩 안쪽» 으로 자식의 그리기를 잘라낸다. 부모 자신의 배경은 이 클리핑의
-         * 영향을 안 받아 패딩 자리에 그대로 남고, 그게 은수님이 보신 어두운 테두리다.
-         *
-         * 자식(오버레이)이 패딩 밖으로 그려지려면 부모의 clipToPadding 을 꺼야 한다. */
-        ViewParent parent = overlay.getParent();
-
-        if (parent instanceof ViewGroup)
-        {
-            ((ViewGroup) parent).setClipToPadding(false);
-        }
+        binding.remotePrimaryLayout.setOrientation(tablet ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams status = new LinearLayout.LayoutParams(
+                tablet ? 0 : ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, tablet ? 0.43f : 0);
+        binding.remoteStatusColumn.setLayoutParams(status);
+        LinearLayout.LayoutParams controls = new LinearLayout.LayoutParams(
+                tablet ? 0 : ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, tablet ? 0.57f : 0);
+        controls.setMarginStart(tablet ? Math.round(12 * density) : 0);
+        controls.topMargin = tablet ? 0 : Math.round(6 * density);
+        binding.remoteControlsColumn.setLayoutParams(controls);
     }
 
-    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// func - 태블릿 2단 배치
-    ///
-    /// 가로 고정 태블릿에서는 폭이 폰의 3배가 넘는데 글자는 그대로라, 늘어난 폭이 전부
-    /// 빈 공간이 된다. 화면을 왼쪽·오른쪽으로 갈라 그 폭을 쓴다.
-    ///
-    ///   왼쪽 화면 (지금 기기를 만지는 일)      오른쪽 화면 (펌웨어를 넣는 일)
-    ///     사용자 - 착용위치 · 시리얼             FW 배지
-    ///                                            List of slots      | 이 둘을 한 덩어리로
-    ///     상태 격자(Cur)       <- 같은 높이 ->   Status of files     | 위아래 가운데에 둔다
-    ///     Remote               <- 같은 높이 ->   OTA Features
-    ///     Etc,...              <- 같은 높이 ->   Caution
-    ///
-    /// 세 규칙이 배치를 결정한다.
-    ///
-    ///   1. 왼쪽은 «위는 위에, 아래는 아래에» 붙는다.
-    ///      Etc 를 화면 바닥에 물리고 Remote 를 그 위에 얹는다.
-    ///   2. 오른쪽 위 덩어리(List of slots + Status of files)는 사용자 이름 아래부터
-    ///      OTA Features 위까지의 구간에서 «세로 가운데» 에 선다.
-    ///   3. 왼쪽 상태 격자(Cur)가 그 덩어리의 Status of files 에 윗변을 맞춘다.
-    ///      OTA Features 는 Remote 와, Caution 은 Etc 와 맞춘다.
-    ///
-    /// 즉 2번에서 오른쪽이 자리를 정하고 3번에서 왼쪽이 따라간다. 첫 안에서는 반대였는데,
-    /// 그러면 오른쪽 위 덩어리가 위로 쏠려 아래에 큰 빈 띠가 남았다.
-    ///
-    /// 세로 체인은 오른쪽 위 덩어리에만 쓴다. 나머지는 서로가 아니라 «맞은편 묶음» 을
-    /// 기준으로 서기 때문에 체인으로 묶을 수 없다.
-    ///
-    /// 레이아웃 파일은 한 벌이다. 8묶음이 이미 루트의 형제라 계층을 바꿀 필요가 없고,
-    /// 제약만 다시 걸면 되기 때문이다. 그 덕에 바인딩 참조를 한 곳도 건드리지 않는다.
-    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static private final int TABLET_SECTION_GAP_DP = 2;   // 묶음 사이 간격
-
-    private void applyTabletTwoColumnLayout(ConstraintLayout root)
-    {
-        /* 먼저 지금 제약을 통째로 떠 온다.
-         *
-         * 이 단계를 건너뛰고 빈 ConstraintSet 을 적용하면 연결 오버레이
-         * (remote_control_connection_layout)의 제약이 사라져 화면이 깨진다.
-         * 우리가 만지는 것은 8묶음뿐이고 나머지는 떠 온 그대로 다시 적용된다. */
-        ConstraintSet set = new ConstraintSet();
-
-        set.clone(root);
-
-        /* 왼쪽 화면과 오른쪽 화면 사이 간격은 «버튼 사이 간격» 과 같아야 한다.
-         * 같은 리소스에서 읽어 절반씩 양쪽에 준다. 값을 코드에 따로 적으면 반드시 어긋난다. */
-        int gutter = getResources().getDimensionPixelSize(R.dimen.tdc_button_gap) / 2;
-        int gap    = dpToPx(TABLET_SECTION_GAP_DP);
-
-        int[] leftIds  = { R.id.ota_id_box, R.id.ota_status_info_box, R.id.ota_remote_box, R.id.ota_etc_box };
-        int[] rightIds = { R.id.ota_slot_box, R.id.ota_status_box, R.id.ota_button_box, R.id.ota_caution_box };
-
-        for (int id : leftIds)
-        {
-            clearSides(set, id);
-            set.connect(id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
-            set.connect(id, ConstraintSet.END, R.id.tdc_center_guideline, ConstraintSet.START, gutter);
-        }
-
-        for (int id : rightIds)
-        {
-            clearSides(set, id);
-            set.connect(id, ConstraintSet.START, R.id.tdc_center_guideline, ConstraintSet.END, gutter);
-            set.connect(id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
-        }
-
-        /* ---- 세대 배지 : 오른쪽 화면의 맨 왼쪽 ----
-         *
-         * 폰에서는 사용자 정보 줄의 오른쪽 끝에 서지만, 태블릿에서는 오른쪽 화면이
-         * 시작되는 자리로 옮긴다. 두 화면의 «머리» 가 한 줄에 나란히 놓인다.
-         *
-         * 끝(END)은 묶지 않는다. wrap_content 가 왼쪽부터 자라야 맨 왼쪽에 붙는다. */
-        clearSides(set, R.id.ota_fw_release_textview);
-        set.connect(R.id.ota_fw_release_textview, ConstraintSet.START, R.id.tdc_center_guideline, ConstraintSet.END, gutter);
-        set.connect(R.id.ota_fw_release_textview, ConstraintSet.TOP, R.id.ota_id_box, ConstraintSet.TOP, 0);
-        set.connect(R.id.ota_fw_release_textview, ConstraintSet.BOTTOM, R.id.ota_id_box, ConstraintSet.BOTTOM, 0);
-
-        // ---- 왼쪽 화면 : 이름은 맨 위, 아래 묶음은 바닥으로 ----
-        set.connect(R.id.ota_id_box, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0);
-        set.connect(R.id.ota_etc_box, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);
-        set.connect(R.id.ota_remote_box, ConstraintSet.BOTTOM, R.id.ota_etc_box, ConstraintSet.TOP, gap);
-
-        /* ---- 오른쪽 화면 위 덩어리 : 세로 가운데 ----
-         *
-         * List of slots 와 Status of files 를 세로 체인으로 묶어, 사용자 이름 아래부터
-         * OTA Features 위까지의 구간 한가운데에 세운다. packed 라야 둘이 붙어 다니고,
-         * bias 0.5 가 그 덩어리를 가운데로 민다. */
-        set.connect(R.id.ota_slot_box, ConstraintSet.TOP, R.id.ota_id_box, ConstraintSet.BOTTOM, gap);
-        set.connect(R.id.ota_slot_box, ConstraintSet.BOTTOM, R.id.ota_status_box, ConstraintSet.TOP, gap);
-        set.connect(R.id.ota_status_box, ConstraintSet.TOP, R.id.ota_slot_box, ConstraintSet.BOTTOM, gap);
-        set.connect(R.id.ota_status_box, ConstraintSet.BOTTOM, R.id.ota_button_box, ConstraintSet.TOP, gap);
-
-        set.setVerticalChainStyle(R.id.ota_slot_box, ConstraintSet.CHAIN_PACKED);
-        set.setVerticalBias(R.id.ota_slot_box, 0.5f);
-
-        /* ---- 나머지는 맞은편에 윗변을 맞춘다 ----
-         *
-         * 아래쪽은 묶지 않는다. 얼마나 자라는지는 각자의 내용이 정하고,
-         * 묶으면 내용이 눌리거나 잘린다. */
-        set.connect(R.id.ota_status_info_box, ConstraintSet.TOP, R.id.ota_status_box, ConstraintSet.TOP, 0);
-        set.connect(R.id.ota_button_box, ConstraintSet.TOP, R.id.ota_remote_box, ConstraintSet.TOP, 0);
-        set.connect(R.id.ota_caution_box, ConstraintSet.TOP, R.id.ota_etc_box, ConstraintSet.TOP, 0);
-
-        set.applyTo(root);
-
-        Log.d(TAG, "[SCREEN] 태블릿 2단 배치를 적용했습니다.");
+    /** Keep protocol-oriented status labels out of the aligned value columns. */
+    static String displayStatusValue(String raw) {
+        return raw.replaceFirst("^(Prog|Vol|Out|Strategy|PW|Frm|Gating|LED|Alarm|BT|Step|Fix|Coin|Accel|Nop|Mode|Cur|PMIC|Map|Max)\\s+", "")
+                .replace("us", "㎲").replace("μs", "㎲")
+                .replace("mA", "㎃").replace("mW", "㎽")
+                .replaceAll("(?<=\\d)(V|ms|㎲)", " $1");
     }
 
-    /* 네 변을 «개별로» 지운다.
-     *
-     * ConstraintSet.clear(id) 를 쓰면 안 된다. 제약뿐 아니라 폭·높이 설정까지 지우는데,
-     * 8묶음은 width 가 0dp(MATCH_CONSTRAINT)라 그것을 잃으면 폭이 0 이 되어 화면이 빈다. */
-    private void clearSides(ConstraintSet set, int viewId)
-    {
-        set.clear(viewId, ConstraintSet.TOP);
-        set.clear(viewId, ConstraintSet.BOTTOM);
-        set.clear(viewId, ConstraintSet.START);
-        set.clear(viewId, ConstraintSet.END);
-    }
-
-    /* ConstraintSet 의 마진은 픽셀이다. dp 로 적은 값을 그대로 넘기면 화면 밀도만큼 어긋난다. */
-    private int dpToPx(int dp)
-    {
-        return Math.round(dp * getResources().getDisplayMetrics().density);
+    private static void configureStatusValues(FragmentRemoteControlBinding binding) {
+        int[] ids = { R.id.ota_program_textview, R.id.ota_volume_textview, R.id.ota_max_output_textview,
+                R.id.ota_strategy_textview, R.id.ota_pulse_width_textview, R.id.ota_frame_num_textview,
+                R.id.ota_gating_textview, R.id.ota_led_textview, R.id.ota_alarm_textview,
+                R.id.ota_backtel_textview, R.id.ota_step_up_textview, R.id.ota_force_pmic_textview,
+                R.id.ota_one_coin_textview, R.id.ota_accel_textview, R.id.ota_nop_standby_textview,
+                R.id.ota_ctrl_mode_textview, R.id.ota_cur_pmic_textview, R.id.ota_pmic_textview,
+                R.id.ota_mapping_pmic_textview, R.id.ota_max_pmic_textview,
+                R.id.battery_voltage_textview, R.id.battery_current_textview, R.id.battery_power_textview };
+        for (int id : ids) {
+            TextView value = binding.getRoot().findViewById(id);
+            value.addTextChangedListener(new android.text.TextWatcher() {
+                private boolean formatting;
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                public void onTextChanged(CharSequence s, int start, int before, int count) { }
+                public void afterTextChanged(android.text.Editable editable) {
+                    if (formatting) return;
+                    String formatted = displayStatusValue(editable.toString());
+                    formatting = true;
+                    if (!formatted.contentEquals(editable)) value.setText(formatted);
+                    if (id == R.id.ota_program_textview) binding.controlProgramValue.setText(formatted);
+                    if (id == R.id.ota_volume_textview) binding.controlVolumeValue.setText(formatted);
+                    if (id == R.id.ota_max_output_textview) binding.controlOutputValue.setText(formatted);
+                    formatting = false;
+                }
+            });
+        }
     }
 
     @Override
@@ -310,12 +202,35 @@ public class RemoteControlFragment extends Fragment
 
         checkRegisteredList_userAndDevice(); // User list
 
+        if (savedInstanceState != null) selectedControlTab = Math.min(3, Math.max(0, savedInstanceState.getInt("selectedControlTab", 0)));
+        // Apply the masked ripple to each touch target so its animation uses local bounds.
+        android.view.ViewGroup tabStrip = (android.view.ViewGroup) mRemoteControlBinding.controlTabs.getChildAt(0);
+        for (int i = 0; i < tabStrip.getChildCount(); i++) {
+            tabStrip.getChildAt(i).setBackgroundResource(R.drawable.remote_tab_press);
+        }
+        mRemoteControlBinding.controlTabs.addOnTabSelectedListener(new com.google.android.material.tabs.TabLayout.OnTabSelectedListener() {
+            @Override public void onTabSelected(com.google.android.material.tabs.TabLayout.Tab tab) {
+                selectedControlTab = tab.getPosition();
+                showControlTab(mRemoteControlBinding, selectedControlTab);
+            }
+            @Override public void onTabUnselected(com.google.android.material.tabs.TabLayout.Tab tab) { }
+            @Override public void onTabReselected(com.google.android.material.tabs.TabLayout.Tab tab) { }
+        });
+        mRemoteControlBinding.controlTabs.selectTab(mRemoteControlBinding.controlTabs.getTabAt(selectedControlTab));
+        showControlTab(mRemoteControlBinding, selectedControlTab);
+        mStatusViewModel.getBatteryTelemetry().observe(getViewLifecycleOwner(), value -> renderBatteryTelemetry());
+        mStatusViewModel.getLiveDataBatteryLevel().observe(getViewLifecycleOwner(), value -> renderBatteryTelemetry());
+        mStatusViewModel.getBatteryTelemetryError().observe(getViewLifecycleOwner(), value -> renderBatteryTelemetry());
+        mStatusViewModel.getObjectConnectionState().observe(getViewLifecycleOwner(), value -> renderBatteryTelemetry());
+        mStatusViewModel.getLiveDataFwRelease().observe(getViewLifecycleOwner(), value -> renderBatteryTelemetry());
+
         mOta = Ota.getInstance();
 
         mRemoteControlBinding.slotRadioButtonGroup.setOnCheckedChangeListener(onChecked_radioGroup);
 
         mRemoteControlBinding.otaInfoButton.setOnClickListener(onClick_infoButton);
         mRemoteControlBinding.otaCollectButton.setOnClickListener(onClick_collectButton);
+        mRemoteControlBinding.otaChooseFilesButton.setOnClickListener(onClick_collectButton);
         mRemoteControlBinding.otaWriteButton.setOnClickListener(onClick_writeButton);
         mRemoteControlBinding.otaSelectButton.setOnClickListener(onClick_selectButton);
         mRemoteControlBinding.otaFactoryResetButton.setOnClickListener(onClick_factoryResetButton);
@@ -346,7 +261,23 @@ public class RemoteControlFragment extends Fragment
 
         mRemoteControlBinding.otaNopStandbyButton.setOnClickListener(onClick_nopStandbyButton);
         mRemoteControlBinding.otaMaxPmicButton.setOnClickListener(onClick_maxPmicButton);
+        mRemoteControlBinding.otaFfCheckButton.setOnClickListener(v -> {
+            if (mMainActivity.isFf3Protocol()) mMainActivity.ff3.load();
+            updateFfControls();
+        });
         mRemoteControlBinding.otaFfButton.setOnClickListener(onClick_ffButton);
+        mRemoteControlBinding.otaFf1SettingsButton.setOnClickListener(v -> {
+            mMainActivity.requestFf1Settings(); makeDialog_ffSettings();
+        });
+        mRemoteControlBinding.otaFf3SettingsButton.setOnClickListener(v -> showFf3(false));
+        mRemoteControlBinding.otaFf3DiagnosticsButton.setOnClickListener(v -> showFf3(true));
+        mMainActivity.ff3Revision.observe(getViewLifecycleOwner(), value -> {
+            updateFfControls();
+            if (ff3Dialog != null) ff3Dialog.refresh();
+        });
+        mStatusViewModel.getLiveDataFfEnable().observe(getViewLifecycleOwner(), value -> updateFfControls());
+        mStatusViewModel.getLiveDataFfStep().observe(getViewLifecycleOwner(), value -> updateFfControls());
+        mStatusViewModel.getLiveDataFfCooldown().observe(getViewLifecycleOwner(), value -> updateFfControls());
 
         /* 아직 연결 전이라 세대가 미상이다. 잠긴 상태로 시작한다.
          * 옵저버는 값이 «바뀔 때» 만 오므로 첫 상태는 여기서 직접 맞춰야 한다. */
@@ -365,6 +296,79 @@ public class RemoteControlFragment extends Fragment
      * 누르기를 네 번 반복해야 했고, 하나를 빠뜨리면 전송 때가 되어서야 알았다.
      *
      * 없는 파일은 건너뛴다. 슬롯에 따라 APP 이 세 개가 아닐 수 있고, 그것이 오류는 아니다. */
+    @Override public void onResume() {
+        super.onResume();
+        batteryUiHandler.removeCallbacks(batteryUiTick);
+        batteryUiHandler.post(batteryUiTick);
+    }
+
+    @Override public void onPause() {
+        batteryUiHandler.removeCallbacks(batteryUiTick);
+        super.onPause();
+    }
+
+    @Override public void onSaveInstanceState(@NonNull Bundle state) {
+        super.onSaveInstanceState(state);
+        state.putInt("selectedControlTab", selectedControlTab);
+    }
+
+    static void showControlTab(FragmentRemoteControlBinding binding, int selected) {
+        binding.otaRemoteBox.setVisibility(selected == 0 ? View.VISIBLE : View.GONE);
+        binding.otaEtcBox.setVisibility(selected == 1 ? View.VISIBLE : View.GONE);
+        binding.ffTabBox.setVisibility(selected == 2 ? View.VISIBLE : View.GONE);
+        binding.otaStatusInfoBox.setVisibility(View.VISIBLE);
+        if (binding.controlTabs.getSelectedTabPosition() != selected) {
+            binding.controlTabs.selectTab(binding.controlTabs.getTabAt(selected));
+        }
+        binding.statusExpandableContent.setVisibility(View.VISIBLE);
+        binding.otaExpandableContent.setVisibility(selected == 3 ? View.VISIBLE : View.GONE);
+        // Keep reading position when switching tabs; the scroll view clamps it to shorter content.
+    }
+
+    private void renderBatteryTelemetry() {
+        if (mRemoteControlBinding == null || mStatusViewModel == null || mMainActivity == null) return;
+        boolean supported = mMainActivity.isBatteryTelemetrySupported();
+        boolean legacy = mStatusViewModel.getValueFwRelease() != Status.FW_RELEASE_UNKNOWN
+                && !mMainActivity.isProtocolAtLeast(4, 6);
+        boolean connected = mStatusViewModel.getConnectionState() == StatusViewModel.CONNECTION_STATE_CONNECTED;
+        mRemoteControlBinding.legacyBatteryTextview.setVisibility(legacy && connected ? View.VISIBLE : View.GONE);
+        if (legacy && connected) {
+            // 구형 펌웨어는 0x43 상태 응답의 잔량을 사용한다. 상세 전류 조회는 하지 않는다.
+            Integer percent = mStatusViewModel.getLiveDataBatteryLevel().getValue();
+            mRemoteControlBinding.legacyBatteryTextview.setText(percent != null && percent >= 0 && percent <= 100
+                    ? "배터리 " + percent + "%" : "배터리 —");
+        }
+        mRemoteControlBinding.batteryTelemetryBox.setVisibility(supported ? View.VISIBLE : View.GONE);
+        if (!supported) {
+            mRemoteControlBinding.batteryDetailTextview.setVisibility(View.GONE);
+            return;
+        }
+        BatteryTelemetry sample = mStatusViewModel.getBatteryTelemetry().getValue();
+        String error = mStatusViewModel.getBatteryTelemetryError().getValue();
+        boolean fresh = sample != null && SystemClock.elapsedRealtime() - mStatusViewModel.batteryReceivedAtMs <= BatteryTelemetry.RECEIVE_STALE_MS;
+        String detail;
+        setBatteryText(mRemoteControlBinding.batteryPercentTextview, connected && fresh ? sample.percent + "%" : "— %");
+        setBatteryText(mRemoteControlBinding.batteryVoltageTextview, connected && fresh ? sample.voltageText() : "—");
+        setBatteryText(mRemoteControlBinding.batteryCurrentTextview, connected && fresh && error == null ? (sample.averageCurrentUa == null ? "미지원" : sample.currentText()) : "—");
+        setBatteryText(mRemoteControlBinding.batteryPowerTextview, connected && fresh && error == null ? (sample.averageCurrentUa == null ? "미지원" : sample.powerText()) : "—");
+        if (!connected) detail = "연결 안 됨";
+        else if (error != null) detail = error;
+        else if (sample != null && !fresh) detail = "수신 갱신 지연 / 마지막 값은 숨겼습니다";
+        else if (sample != null) detail = sample.detailText();
+        else if (mMainActivity.isBatteryTelemetrySupported()) detail = "배터리 조회 대기";
+        else if (mStatusViewModel.getValueFwRelease() == Status.FW_RELEASE_UNKNOWN) detail = "펌웨어 지원 기능 확인 중";
+        else detail = "이 펌웨어는 배터리 상세 조회 미지원";
+        boolean normal = connected && fresh && error == null && sample.isCurrentValid() && sample.voltageMv > 0;
+        mRemoteControlBinding.batteryDetailTextview.setVisibility(normal ? View.GONE : View.VISIBLE);
+        if (!normal) setBatteryText(mRemoteControlBinding.batteryDetailTextview, detail);
+    }
+
+    private void setBatteryText(TextView view, String text) {
+        text = displayStatusValue(text);
+        // 같은 글자를 1초마다 다시 설정해 스크롤/접근성 이벤트를 계속 만들지 않는다.
+        if (!text.contentEquals(view.getText())) view.setText(text);
+    }
+
     static private final int[] OTA_FILE_ORDER = {Ota.FILE_NUM_MFST, Ota.FILE_NUM_APP0, Ota.FILE_NUM_APP1, Ota.FILE_NUM_APP2};
 
     Runnable collectRunnable = new Runnable()
@@ -998,7 +1002,6 @@ public class RemoteControlFragment extends Fragment
         @Override
         public void onCheckedChanged(RadioGroup group, int checkedId)
         {
-            mMainActivity.longTimeIdleHandlerUpdate(true);
 
             if (checkedId == mRemoteControlBinding.slot1RadioButton.getId())
             {
@@ -1021,7 +1024,6 @@ public class RemoteControlFragment extends Fragment
         @Override
         public void onClick(View v)
         {
-            mMainActivity.longTimeIdleHandlerUpdate(true);
 
             /* 사운드처리기는 옵션 바이트만 읽지만, ci_ble_control_boot.h 가 부트 패킷을
              * 3바이트(RECV_PKT_SIZE_BOOT_INFO)로 정의하므로 길이를 맞춰 보낸다. */
@@ -1043,7 +1045,6 @@ public class RemoteControlFragment extends Fragment
         @Override
         public void onClick(View v)
         {
-            mMainActivity.longTimeIdleHandlerUpdate(true);
 
             /* 어느 폴더에서 읽을지 고르게 한다.
              *
@@ -1159,7 +1160,7 @@ public class RemoteControlFragment extends Fragment
     {
         String name = mOta.collectFolderName;
         String text = (name == null || name.isEmpty()) //
-                      ? "" //
+                      ? "선택된 폴더 없음" //
                       : ("Folder: " + Ota.BASE_FOLDER.replace("/", "") + "/" + name);
 
         mRemoteControlBinding.otaFolderTextview.setText(text);
@@ -1173,7 +1174,6 @@ public class RemoteControlFragment extends Fragment
         @Override
         public void onClick(View v)
         {
-            mMainActivity.longTimeIdleHandlerUpdate(true);
 
             /* 별도 스레드로 돌리지 않는다.
              *
@@ -1197,7 +1197,6 @@ public class RemoteControlFragment extends Fragment
         @Override
         public void onClick(View v)
         {
-            mMainActivity.longTimeIdleHandlerUpdate(true);
 
             byte[] packet = new byte[PacketInfo.PACKET_SIZE_BOOT_SEND];
 
@@ -1301,7 +1300,6 @@ public class RemoteControlFragment extends Fragment
         {
             Log.d(TAG, "[PROGRAM] 이전 프로그램 요청");
 
-            mMainActivity.longTimeIdleHandlerUpdate(true);
             mMainActivity.sendPacket(mMainActivity.packetMaker(PacketInfo.HEADER_VALUE_PROMGRAM, new byte[]{PacketInfo.PROGRAM_DOWN}, PacketInfo.PACKET_SIZE_PROGRAM));
         }
     };
@@ -1313,7 +1311,6 @@ public class RemoteControlFragment extends Fragment
         {
             Log.d(TAG, "[PROGRAM] 다음 프로그램 요청");
 
-            mMainActivity.longTimeIdleHandlerUpdate(true);
             mMainActivity.sendPacket(mMainActivity.packetMaker(PacketInfo.HEADER_VALUE_PROMGRAM, new byte[]{PacketInfo.PROGRAM_UP}, PacketInfo.PACKET_SIZE_PROGRAM));
         }
     };
@@ -1394,7 +1391,6 @@ public class RemoteControlFragment extends Fragment
     {
         Log.d(TAG, logMessage);
 
-        mMainActivity.longTimeIdleHandlerUpdate(true);
         mMainActivity.sendPacket(mMainActivity.packetMaker(header, new byte[]{value}, packetSize));
     }
 
@@ -1853,7 +1849,7 @@ public class RemoteControlFragment extends Fragment
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // OnClickListener - Max PMIC 버튼 (링크 제어가 올릴 수 있는 상한, 프로토콜 4.5 이상)
+    // OnClickListener - Max PMIC 버튼 (링크 제어가 올릴 수 있는 상한, 프로토콜 4.6 이상)
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private final View.OnClickListener onClick_maxPmicButton = view -> makeDialog_maxTxPowerSelect();
 
@@ -1942,7 +1938,7 @@ public class RemoteControlFragment extends Fragment
      * 이 상한을 보지 않는다). 그래서 앱이 막는다 — 상한을 180 으로 낮춰 둔 채 하한 210 을 쓰면
      * 성립하지 않는 조합이 파일에 남는다.
      *
-     * 상한을 아직 못 읽었거나 4.5 미만이면 기존 상한(213)을 그대로 쓴다.
+     * 상한을 아직 못 읽었거나 4.6 미만이면 기존 상한(213)을 그대로 쓴다.
      * 여기서 막아 버리면 4.3·4.4 에서 되던 조작이 안 되는 퇴행이 된다. */
     private int makeMinTxPowerSelectMax()
     {
@@ -1958,15 +1954,14 @@ public class RemoteControlFragment extends Fragment
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // OnClickListener - FF 버튼 (자극 레벨 피드포워드, 프로토콜 4.5 이상)
+    // OnClickListener - FF 버튼 (자극 레벨 피드포워드, 프로토콜 4.6 이상)
     ///
     /// 설정이 7개라 버튼 하나로 묶었다. 여는 순간 관측값(24·25·26)을 읽어 제목에 얹는다 —
     /// 계속 변하는 값이라 미리 읽어 두는 것이 의미가 없고, 상시 폴링은 백텔에 영향을 줄 수 있다.
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private final View.OnClickListener onClick_ffButton = view ->
     {
-        mMainActivity.requestFfObservation();
-        makeDialog_ffSettings();
+        makeDialog_ffEnable();
     };
 
     /* 피드포워드 항목 하나. 인덱스·이름·범위·기본값을 묶어 목록과 값 선택이 같은 것을 보게 한다. */
@@ -2128,19 +2123,23 @@ public class RemoteControlFragment extends Fragment
 
     private void makeDialog_ffEnable()
     {
-        String[] items = {"끔", "켬"};
+        boolean ff3Supported = mMainActivity.isFf3Protocol() && mMainActivity.ff3.supported();
+        String[] items = ff3Supported ? new String[]{"전원 보상 끄기 (OFF)", "자극 크기에 따라 보상 (FF1)", "소리 변화에 따라 보상 (FF3)"} : new String[]{"전원 보상 끄기 (OFF)", "자극 크기에 따라 보상 (FF1)"};
+        int[] modes = ff3Supported ? new int[]{0,1,3} : new int[]{0,1};
 
         int enable  = mStatusViewModel.getValueFfEnable();
-        int checked = (enable == PacketInfo.LINK_VALUE_UNKNOWN) ? -1 : enable;
+        int checked = enable == 3 ? 2 : (enable == 0 || enable == 1 ? enable : -1);
 
         // 켜도 동작하지 않는 조건이 넷이다. 켜는 자리에서 알려야 «켰는데 왜 안 되지» 가 안 생긴다.
-        String guide = mMainActivity.makeFeedForwardBlockText();
+        String guide = "전원을 미리 보상할 기준을 선택합니다. 선택한 방식은 장치에 저장됩니다."
+                + "\n소리 보상 설정을 저장해도 자동으로 켜지지는 않습니다. 실제 보상에는 아래 조건도 필요합니다."
+                + "\n" + mMainActivity.makeFeedForwardBlockText();
 
         mDialog = new MaterialAlertDialogBuilder(requireContext()) //
-                .setCustomTitle(makeDialogTitleView("피드포워드 사용", guide)) //
+                .setCustomTitle(makeDialogTitleView("전원 보상 방식", guide)) //
                 .setSingleChoiceItems(items, checked, (dialogInterface, which) ->
                 {
-                    mMainActivity.sendFfParam(PacketInfo.RC_LINK_IDX_FF_ENABLE, which);
+                    mMainActivity.sendFfParam(PacketInfo.RC_LINK_IDX_FF_ENABLE, modes[which]);
                     dialogInterface.dismiss();
                 }) //
                 .create();
@@ -2556,8 +2555,8 @@ public class RemoteControlFragment extends Fragment
         TextView titleView = new TextView(requireContext());
 
         titleView.setText(title);
-        titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-        titleView.setTypeface(null, Typeface.BOLD);
+        titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        titleView.setTypeface(titleView.getTypeface(), Typeface.BOLD);
 
         box.addView(titleView);
 
@@ -2702,7 +2701,6 @@ public class RemoteControlFragment extends Fragment
 
         Log.d(TAG, "[GATING] 게이팅 설정 요청 : " + ((enableState == PacketInfo.MUTE_ENABLE) ? "활성화" : "비활성화") + ", 오프셋 " + offset);
 
-        mMainActivity.longTimeIdleHandlerUpdate(true);
         mMainActivity.sendPacket(packet);
     }
 
@@ -2741,7 +2739,6 @@ public class RemoteControlFragment extends Fragment
          * 사운드처리기는 응답을 먼저 보내고 초기화를 시작하므로 응답 = 완료가 아니다. */
         Log.d(TAG, "[MAP INIT] 맵 초기화 요청 : " + mapInitName + " (type=" + String.format("%02X", mapInitType) + ")");
 
-        mMainActivity.longTimeIdleHandlerUpdate(true);
         mMainActivity.sendMapInit(mapInitType);
     }
 
@@ -2849,14 +2846,14 @@ public class RemoteControlFragment extends Fragment
         mStatusViewModel.getLiveDataProgram().observe(getViewLifecycleOwner(), o ->
         {
             int value = mStatusViewModel.getValueProgram();
-            Log.v(TAG, "옵저버 : 프로그램 -> " + value);
+            Log.v(TAG, "옵저버 : Prog -> " + value);
             mRemoteControlBinding.otaProgramTextview.setText("Prog " + value);
         });
 
         mStatusViewModel.getLiveDataVolume().observe(getViewLifecycleOwner(), o ->
         {
             int value = mStatusViewModel.getValueVolume();
-            Log.v(TAG, "옵저버 : 볼륨 -> " + value);
+            Log.v(TAG, "옵저버 : Vol -> " + value);
             mRemoteControlBinding.otaVolumeTextview.setText("Vol " + value);
         });
 
@@ -2879,7 +2876,7 @@ public class RemoteControlFragment extends Fragment
         mStatusViewModel.getLiveDataNotification().observe(getViewLifecycleOwner(), o ->
         {
             int value = mStatusViewModel.getValueNotification();
-            Log.v(TAG, "옵저버 : 자극알림 -> " + value);
+            Log.v(TAG, "옵저버 : 자극Alarm -> " + value);
             mRemoteControlBinding.otaAlarmTextview.setText("Alarm " + ((value == PacketInfo.NOTIFICATION_ON) ? "On" : "Off"));
         });
 
@@ -2891,7 +2888,7 @@ public class RemoteControlFragment extends Fragment
         mStatusViewModel.getLiveDataCurTxPowerLevel().observe(getViewLifecycleOwner(), o ->
         {
             int level = mStatusViewModel.getValueCurTxPowerLevel();
-            mRemoteControlBinding.otaCurPmicTextview.setText(makeVoltageText("Cur", level));
+            mRemoteControlBinding.otaCurPmicTextview.setText(level == 0 ? "미확인" : makeVoltageText("Cur", level));
         });
 
         // 매핑(피팅) 전용 Tx 파워 하한.
@@ -2950,7 +2947,7 @@ public class RemoteControlFragment extends Fragment
         mStatusViewModel.getLiveDataStimStrategy().observe(getViewLifecycleOwner(), o ->
         {
             int    value = mStatusViewModel.getValueStimStrategy();
-            String text  = (value == PacketInfo.LINK_VALUE_UNKNOWN) ? "Strat -" : makeStimStrategyName(value);
+            String text  = (value == PacketInfo.LINK_VALUE_UNKNOWN) ? "Strategy -" : "Strategy " + makeStimStrategyName(value);
 
             mRemoteControlBinding.otaStrategyTextview.setText(text);
         });
@@ -3022,7 +3019,7 @@ public class RemoteControlFragment extends Fragment
                 text = "Gating -";
             }
 
-            Log.v(TAG, "옵저버 : 게이팅 상태 -> " + state);
+            Log.v(TAG, "옵저버 : Gating 상태 -> " + state);
             mRemoteControlBinding.otaGatingTextview.setText(text);
         });
     }
@@ -3091,26 +3088,92 @@ public class RemoteControlFragment extends Fragment
                 makeLinkStatusText(PacketInfo.RC_LINK_IDX_MIN_TX_POWER, "PMIC", makeVoltageText("PMIC", level)));
     }
 
-    /* 상한 표시. 4.5 미만이면 값이 없으므로 행 전체를 숨긴다 —
-     * «Max -» 를 계속 띄우면 있지도 않은 기능이 있는 것처럼 보인다. */
+    /* 상한 미지원 세대는 값 대신 미지원을 표시하고 제어는 숨긴다. */
     private void updateMaxPowerText()
     {
         boolean supported = (mMainActivity != null) && mMainActivity.isMaxTxPowerSupported();
 
-        mRemoteControlBinding.otaMaxPmicTextview.setVisibility(supported ? View.VISIBLE : View.INVISIBLE);
+        mRemoteControlBinding.otaMaxPmicTextview.setVisibility(View.VISIBLE);
         mRemoteControlBinding.otaMaxPmicButton.setVisibility(supported ? View.VISIBLE : View.INVISIBLE);
 
-        // 피드포워드도 4.5 에서 생겼다. 같은 게이트를 쓴다.
-        mRemoteControlBinding.otaFfButton.setVisibility(supported ? View.VISIBLE : View.INVISIBLE);
+        // 피드포워드도 4.6 에서 생겼다. 같은 게이트를 쓴다.
+        updateFfControls();
 
         if (!supported)
         {
+            mRemoteControlBinding.otaMaxPmicTextview.setText("미지원");
             return;
         }
 
         int level = mStatusViewModel.getValueMaxTxPowerLevel();
 
         mRemoteControlBinding.otaMaxPmicTextview.setText(makeVoltageText("Max", level));
+    }
+
+    private void showFf3(boolean diagnostic) {
+        if (!mMainActivity.ff3.settingsReady() || mMainActivity.ff3.busy()) return;
+        if (ff3Dialog != null && ff3Dialog.showing()) return;
+        ff3Dialog = new Ff3Dialog(mMainActivity, diagnostic);
+    }
+
+    private static String ffValueText(int value) { return value < 0 ? "-" : String.valueOf(value); }
+
+    private void updateFfControls() {
+        if (mMainActivity == null || mRemoteControlBinding == null) return;
+        boolean supported = mMainActivity.isExtendedLinkFeatureSupported();
+        boolean v46 = mMainActivity.isFf3Protocol();
+        boolean ff3 = v46 && mMainActivity.ff3.supported();
+        boolean busy = mMainActivity.ff3.busy();
+        boolean connected = mStatusViewModel.getConnectionState() == StatusViewModel.CONNECTION_STATE_CONNECTED;
+        boolean ready = connected && (!v46 || mMainActivity.ff3.settingsReady());
+        boolean canControl = supported && ready && !busy && !mMainActivity.ff3.needsReconnect();
+        mRemoteControlBinding.otaFfCheckButton.setVisibility(v46 ? View.VISIBLE : View.GONE);
+        mRemoteControlBinding.ffCheckHint.setVisibility(v46 ? View.VISIBLE : View.GONE);
+        mRemoteControlBinding.otaFfCheckButton.setEnabled(v46 && connected && !busy && !mMainActivity.ff3.needsReconnect());
+        mRemoteControlBinding.otaFfCheckButton.setText(busy ? "FF 설정 확인 중…" : ready ? "FF 설정 다시 확인   ›" : "FF 설정 확인   ›");
+        String hint = !connected ? "장치 연결 후 FF 설정을 확인하세요."
+                : mMainActivity.ff3.needsReconnect() ? "조회가 중단되었습니다. 장치를 다시 연결한 뒤 확인하세요."
+                : busy ? "장치 설정을 읽고 있습니다. 완료되면 제어 버튼이 활성화됩니다."
+                : ready ? "설정 확인 완료 · 아래에서 모드와 설정을 제어할 수 있습니다."
+                : mMainActivity.ff3.state == todoc.cochlear.remoteapp.ff.Ff3Session.State.ERROR ? mMainActivity.ff3.message
+                : "먼저 FF 설정을 확인하면 아래 제어를 사용할 수 있습니다.";
+        mRemoteControlBinding.ffCheckHint.setText(hint);
+        int mode = mStatusViewModel.getValueFfEnable();
+        mRemoteControlBinding.otaFfControls.setVisibility(supported ? View.VISIBLE : View.GONE);
+        mRemoteControlBinding.ffUnavailableText.setVisibility(supported ? View.GONE : View.VISIBLE);
+        mRemoteControlBinding.ffUnavailableText.setText("FF 미지원 · 이 장치에서는 FF 설정 조회와 제어를 사용할 수 없습니다.");
+        mRemoteControlBinding.otaFfStatusTextview.setVisibility(View.VISIBLE);
+        mRemoteControlBinding.otaFfButton.setText("FF 모드 · " + (mode == 3 ? "FF3" : mode == 1 ? "FF1" : mode == 0 ? "Off" : "확인 필요") + "   ›");
+        mRemoteControlBinding.otaFf3SettingsButton.setText("FF3 설정 · 감지 / 보상   ›");
+        mRemoteControlBinding.otaFf3DiagnosticsButton.setText("FF3 진단 · 입력 / 상태   ›");
+        mRemoteControlBinding.otaFfButton.setEnabled(canControl && mode >= 0 && (!v46 || (ff3 && !mMainActivity.ff3.editing() && mMainActivity.ff3.config().complete())));
+        mRemoteControlBinding.otaFf1SettingsButton.setVisibility(mode == 1 ? View.VISIBLE : View.GONE);
+        mRemoteControlBinding.otaFf1SettingsButton.setEnabled(canControl);
+        // OFF에서도 활성화 전에 FF3 설정을 준비하거나 남은 편집을 복구할 수 있어야 한다.
+        mRemoteControlBinding.otaFf3SettingsButton.setVisibility(v46 && mode != 1 ? View.VISIBLE : View.GONE);
+        mRemoteControlBinding.otaFf3SettingsButton.setEnabled(canControl);
+        mRemoteControlBinding.otaFf3DiagnosticsButton.setVisibility(ff3 && mode == 3 ? View.VISIBLE : View.GONE);
+        mRemoteControlBinding.otaFf3DiagnosticsButton.setEnabled(canControl);
+        for (View action : new View[]{mRemoteControlBinding.otaFfButton, mRemoteControlBinding.otaFf1SettingsButton,
+                mRemoteControlBinding.otaFf3SettingsButton, mRemoteControlBinding.otaFf3DiagnosticsButton}) {
+            action.setAlpha(action.isEnabled() ? 1f : 0.45f);
+        }
+        String text = !supported ? "FF 미지원" : mode==3 ? "FF3 On" : mode==1 ? "FF1 On" : mode==0 ? "FF Off" : "FF Unknown";
+        if (supported && mode == 1) text += " · Step " + ffValueText(mStatusViewModel.getValueFfStep()) + " · CD " + ffValueText(mStatusViewModel.getValueFfCooldown()) + "ms";
+        if (supported && mode == 3) {
+            Ff3Config c = mMainActivity.ff3.config();
+            text += c.complete() ? " · Zones " + c.get(55) + " · Limit " + c.get(50) : " · 설정 확인 필요";
+            if (mMainActivity.ff3.status >= 0) text += (mMainActivity.ff3.status & 8) != 0 ? " · CFX OK" : " · CFX Pending";
+            if (mMainActivity.ff3.status >= 0 && (mMainActivity.ff3.status & 16) == 0) text += " · 보상 기록 확인 필요";
+
+        }
+        String detail = text;
+        if (v46 && busy) text += " · 처리 중";
+        else if (v46 && mMainActivity.ff3.state == todoc.cochlear.remoteapp.ff.Ff3Session.State.ERROR) text += " · FF 설정 재확인 필요";
+        else if (v46 && mMainActivity.ff3.editing()) text += " · 미저장 편집 있음";
+        mRemoteControlBinding.otaFfStatusTextview.setText(text);
+        mRemoteControlBinding.otaFfStatusTextview.setContentDescription(detail
+                + (v46 ? ". " + mMainActivity.ff3.message : ""));
     }
 
     private void updateStepUpText()
@@ -3271,7 +3334,7 @@ public class RemoteControlFragment extends Fragment
         // 배지
         /* 이름은 액티비티가 만든다. 화면과 로그와 Toast 가 같은 글자를 쓰게 하려는 것이다.
          * 버전 조회가 되는 세대는 «REL4.3» 처럼 읽어 온 버전이 그대로 나온다. */
-        String label = (fwRelease == Status.FW_RELEASE_UNKNOWN) ? "" : mMainActivity.fwReleaseName();
+        String label = (fwRelease == Status.FW_RELEASE_UNKNOWN) ? "" : mMainActivity.fwReleaseName().replaceFirst("^REL", "REL-");
 
         int badgeColor;
 
@@ -3366,7 +3429,6 @@ public class RemoteControlFragment extends Fragment
         updateCoinText();
         updateNopText();
 
-        Log.d(TAG, "[LINK] 화면에 펌웨어 세대와 설정 의존성을 반영했습니다 -> " + (label.isEmpty() ? "판별 전" : label));
 
         String warning = mMainActivity.makeLinkWarningText();
 
@@ -3386,7 +3448,7 @@ public class RemoteControlFragment extends Fragment
     // 경고 상태면 붉게, 아니면 원래 분류 색으로 되돌린다.
     private void markAlert(TextView view, boolean alert, int normalColor)
     {
-        view.setTextColor(alert ? ALERT_COLOR : normalColor);
+        view.setTextColor(alert ? ALERT_COLOR : android.graphics.Color.rgb(233, 240, 242));
     }
 
     /* 상태 칸 하나에 «이 세대엔 없음» 표시를 켜거나 끈다.
@@ -3628,8 +3690,6 @@ public class RemoteControlFragment extends Fragment
         {
             mDialog = new MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.remote_control_no_user_dialog_title)).setMessage(getString(R.string.remote_control_no_user_dialog_message)).setPositiveButton(getString(R.string.remote_control_no_user_positive), (dialogInterface, i) ->
             {
-                // 장시간 미사용 핸들러 업데이트
-                ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
                 mDialog.dismiss();
                 mDialog = null;
@@ -3649,8 +3709,6 @@ public class RemoteControlFragment extends Fragment
         {
             mDialog = new MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.remote_control_no_device_dialog_title)).setMessage(getString(R.string.remote_control_no_device_dialog_message)).setPositiveButton(getString(R.string.remote_control_no_device_positive), (dialogInterface, i) ->
             {
-                // 장시간 미사용 핸들러 업데이트
-                ((MainActivity) requireActivity()).longTimeIdleHandlerUpdate(true);
 
                 mDialog.dismiss();
                 mDialog = null;

@@ -5,9 +5,9 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/black_70"
+        android:background="@drawable/remote_control_background_glass"
         android:overScrollMode="never"
-        android:padding="16dp"
+        android:paddingStart="16dp" android:paddingEnd="16dp" android:paddingTop="12dp" android:paddingBottom="24dp" android:clipToPadding="false"
         tools:context="todoc.cochlear.remoteapp.fragment.AddDeviceFragment">
 
         <LinearLayout
@@ -21,75 +21,77 @@
                 android:layout_marginBottom="4dp"
                 android:text="입력"
                 android:textColor="@color/white_70"
-                android:textSize="14dp"
-                android:visibility="gone" />
+                android:textSize="@dimen/type_body"
+                android:visibility="gone" android:fontFamily="@font/pretendard" />
 
+<LinearLayout android:id="@+id/form_fields_panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/remote_glass_panel" android:padding="12dp">
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="제조번호"
-                app:counterEnabled="true">
+                android:padding="0dp" app:counterEnabled="true" app:boxBackgroundColor="@android:color/transparent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/add_devie_serial_edittext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text" />
+                    android:inputType="text"  android:textSize="@dimen/type_input" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="6dp"
                 android:hint="페어링 키"
-                app:counterEnabled="true"
-                app:counterMaxLength="6">
+                android:padding="0dp" app:counterEnabled="true"
+                app:counterMaxLength="6" app:boxBackgroundColor="@android:color/transparent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/add_devie_pairing_key_edittext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="number"
-                    android:maxLength="6" />
+                    android:maxLength="6"  android:textSize="@dimen/type_input" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="6dp"
                 android:hint="표시 이름 (옵션)"
-                app:counterEnabled="true"
-                app:counterMaxLength="10">
+                android:padding="0dp" app:counterEnabled="true"
+                app:counterMaxLength="10" app:boxBackgroundColor="@android:color/transparent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/add_device_option_edittext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
-                    android:maxLength="10" />
+                    android:maxLength="10"  android:textSize="@dimen/type_input" />
             </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="12dp"
                 android:lineSpacingMultiplier="1.4"
                 android:text="* 제조번호와 페어링 키는 외부기 뒷면에 표시."
-                android:textColor="@color/accent_20"
-                android:textSize="14dp"
+                android:textColor="@color/white_80"
+                android:textSize="@dimen/type_body"
                 android:textStyle="bold"
-                android:visibility="visible" />
+                android:visibility="visible" android:fontFamily="@font/pretendard" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/add_device_add_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:minHeight="56dp"
+                android:layout_marginTop="12dp"
+                android:minHeight="48dp"
                 android:text="등록"
                 android:textAlignment="center"
-                android:textColor="@color/black_90"
-                android:textSize="14dp" />
+                android:textColor="@color/white_90"
+                android:textSize="@dimen/type_body" android:fontFamily="@font/pretendard"  android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:layout_marginBottom="6dp" />
         </LinearLayout>
     </ScrollView>
 </layout>

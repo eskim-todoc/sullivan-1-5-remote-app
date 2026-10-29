@@ -31,7 +31,7 @@
             android:text="@string/service_termination_notification_title"
             android:textColor="@color/white_90"
             android:textSize="14dp"
-            android:textStyle="bold" />
+            android:textStyle="bold" android:fontFamily="@font/pretendard" />
 
         <TextView
             android:layout_width="match_parent"
@@ -41,7 +41,7 @@
             android:text="@string/service_termination_notification_company"
             android:textColor="@color/white_70"
             android:textSize="12dp"
-            android:textStyle="bold" />
+            android:textStyle="bold" android:fontFamily="@font/pretendard" />
     </LinearLayout>
 
 </LinearLayout>

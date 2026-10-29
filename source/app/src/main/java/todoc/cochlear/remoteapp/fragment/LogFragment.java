@@ -57,7 +57,7 @@ public class LogFragment extends Fragment
         ((MainActivity) requireActivity()).mBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
         ((MainActivity) requireActivity()).mBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
         ((MainActivity) requireActivity()).mBinding.toolbar.setTitle("시스템 로그");
-        ((MainActivity) requireActivity()).mBinding.toolbarNavigationMessage.setText("사용자\n등록");
+        ((MainActivity) requireActivity()).mBinding.toolbarNavigationMessage.setText("사용자 등록");
         ((MainActivity) requireActivity()).mBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
 
 

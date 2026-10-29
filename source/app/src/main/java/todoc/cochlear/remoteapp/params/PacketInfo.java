@@ -190,9 +190,9 @@ public class PacketInfo
     static public final int RC_LINK_IDX_FRAME_NUM         = 13; // 패킷 수 = 채널당 프레임 수 (읽기 전용)
     static public final int RC_LINK_IDX_NOP_ENABLE        = 14; // 인덱스 11 을 리모콘이 정했는지 (0 을 쓰면 기본값 복귀)
     static public final int RC_LINK_IDX_STIM_STRATEGY     = 15; // 자극 전략 (읽기 전용)
-    static public final int RC_LINK_IDX_MAX_TX_POWER      = 16; // Tx 파워 상한 (4.5+, 전체 읽기에 안 실린다)
+    static public final int RC_LINK_IDX_MAX_TX_POWER      = 16; // Tx 파워 상한 (4.6+, 전체 읽기에 안 실린다)
 
-    /* 자극 레벨 피드포워드 (4.5 후반 추가). 전부 개별 읽기다.
+    /* 자극 레벨 피드포워드 (4.6 후반 추가). 전부 개별 읽기다.
      *
      * CFX 가 자극 레벨 합의 급증을 보면 플래그를 세우고 CM3 가 PMIC 를 올린다.
      * 백텔(300 msec)보다 먼저 반응해 «조용하다 큰 소리» 에 내부기가 죽는 것을 막는다.
@@ -210,7 +210,7 @@ public class PacketInfo
 
     /* 이 앱이 아는 마지막 인덱스.
      *
-     * 전체 읽기 파서의 상한으로도 쓰이는데, 4.5 의 전체 읽기 응답은 여전히 «값 15개» 다
+     * 전체 읽기 파서의 상한으로도 쓰이는데, 4.6 의 전체 읽기 응답은 여전히 «값 15개» 다
      * (인덱스 16 은 20바이트 상한 때문에 개별 읽기 전용이다). 파서가 min(응답 길이, 이 값)
      * 으로 자르므로 16 으로 올려도 전체 읽기 동작은 그대로다. */
     static public final int RC_LINK_IDX_MAX = 26; // 이 앱이 아는 마지막 인덱스
@@ -232,7 +232,7 @@ public class PacketInfo
     static public final int RC_STIM_IDX_MAP_INIT = 1; // 맵 강제 초기화 (쓰기 전용)
 
     // 배터리 도메인 인덱스
-    static public final int RC_BATTERY_IDX_TELEMETRY = 1; // 텔레메트리 8바이트 (읽기 전용)
+    static public final int RC_BATTERY_IDX_TELEMETRY = 1; // 기존 8 / 전류 포함 15바이트 (읽기 전용)
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// 옵션 255 — 프로토콜 버전
@@ -243,7 +243,7 @@ public class PacketInfo
     /// 응답이 없거나 에러면 릴리즈 2~3 이하이며 묵음(옵션 1, 2)만 쓸 수 있다.
     /// 이 버전은 0x59 만 나타낸다. 펌웨어 전체 버전이 아니다.
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    static public final int RC_REQ_LEN_VERSION      = 3;
+    static public final int RC_REQ_LEN_VERSION      = 4;
     static public final int RC_VERSION_VALUE_LEN    = 10; // major 1 + minor 1 + 비트맵 8
     static public final int RC_VERSION_BITMAP_BYTES = 8;
 
@@ -270,8 +270,8 @@ public class PacketInfo
      * 0 과 1 의 해석은 그대로 보존되므로 구버전 앱이 쓰던 값이 같은 동작을 낸다. */
     static public final int RC_PROTOCOL_MINOR_COIN_COUNT = 4;
 
-    /* 4.5 — Tx 파워 상한(인덱스 16)이 생겼다. 포맷은 안 바뀌어 minor 만 올랐다. */
-    static public final int RC_PROTOCOL_MINOR_MAX_TX_POWER = 5;
+    /* 4.6 — Tx 파워 상한(인덱스 16)이 생겼다. 포맷은 안 바뀌어 minor 만 올랐다. */
+    static public final int RC_PROTOCOL_MINOR_MAX_TX_POWER = 6;
 
     // 옵션 n 의 지원 여부는 비트맵[n / 8] 의 비트 n % 8 이다. 비트맵은 옵션 0~63 만 표현한다.
     static public boolean isOptionSupported(byte[] bitmap, int option)
@@ -449,7 +449,7 @@ public class PacketInfo
     static public final int FORCE_TX_PWR_SELECT_MAX = 214;
     static public final int FORCE_TX_PWR_RELEASE    = 0; // 유효 범위 밖이라 해제 센티널로 쓴다
 
-    /* 링크 Tx 파워 상한 (프로토콜 4.5, 인덱스 16).
+    /* 링크 Tx 파워 상한 (프로토콜 4.6, 인덱스 16).
      *
      * 링크 제어가 «올릴 수 있는» 최대이자 링크 초기화 램프업이 멈추는 지점이다.
      * 낮추면 초기 전압이 그만큼 낮아진다 — 이 설정을 만든 이유가 그것이다.

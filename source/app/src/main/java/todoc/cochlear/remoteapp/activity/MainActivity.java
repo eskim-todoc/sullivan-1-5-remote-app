@@ -1,5 +1,9 @@
 package todoc.cochlear.remoteapp.activity;
 
+import todoc.cochlear.remoteapp.ff.Ff3Session;
+import todoc.cochlear.remoteapp.ff.Ff3Config;
+import androidx.lifecycle.MutableLiveData;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.Notification;
@@ -79,6 +83,8 @@ import todoc.cochlear.remoteapp.fragment.UserFragment;
 import todoc.cochlear.remoteapp.database.logs.UtilLog;
 import todoc.cochlear.remoteapp.params.Status;
 import todoc.cochlear.remoteapp.params.PacketInfo;
+import todoc.cochlear.remoteapp.params.BatteryTelemetry;
+import android.os.SystemClock;
 import todoc.cochlear.remoteapp.service.ExitCaptureService;
 import todoc.cochlear.remoteapp.shared_preferences.LockScreen;
 import todoc.cochlear.remoteapp.shared_preferences.ManualScreen;
@@ -101,7 +107,6 @@ public class MainActivity extends AppCompatActivity
 
     static private final int DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT = 1000;
 
-    static private final int LONG_TIME_IDLE_TIMEOUT_IN_MS    = 3600000; // 1시간
     // 링크 감시 주기. 현재 Tx 파워는 매 주기, 기기 상태 정보는 15주기(30초)마다 읽는다.
     static public final  int LINK_MONITOR_PERIOD_IN_MS       = 2000;
     static public final  int LINK_MONITOR_STATUS_TICK_COUNT  = 15;
@@ -114,10 +119,47 @@ public class MainActivity extends AppCompatActivity
     static public final  int STATUS_TIMEOUT_IN_MS            = 1000;
     static public final  int DEVICE_AND_MAP_INFO_IN_MS       = 1000;
     static public final  int SEND_PACKET_DELAY_IN_MS         = 1;//50;
+    // FF3는 응답 직후 다음 요청이 이어진다. indication 확인 처리 여유를 두되 재전송하지 않는다.
+    static private final int FF3_PACKET_DELAY_IN_MS          = 50;
 
     // Bluetooth
     public BluetoothDevice mBluetoothDevice;
     public BluetoothGatt   mBluetoothGatt;
+    private final Handler mFf3Handler = new Handler(Looper.getMainLooper());
+    public final MutableLiveData<Integer> ff3Revision = new MutableLiveData<>(0);
+    private boolean mFf3Sending;
+    public final Ff3Session ff3 = new Ff3Session(new Ff3Session.Transport() {
+        public boolean ready() {
+            return isFf3Protocol() && mBluetoothGatt != null
+                    && mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED
+                    && mStatus.transferState == Status.TRANSFER_STATE_IDLE
+                    && mLinkReadQueue.isEmpty() && isLinkInfoReadIdle()
+                    && (mOta == null || mOta.commState == Ota.COMM_STATE_IDLE);
+        }
+        public void send(byte[] packet) {
+            mFf3Sending = true;
+            try { sendPacket(packet); } finally { mFf3Sending = false; }
+        }
+        public void later(Runnable action, long delayMs) { mFf3Handler.postDelayed(action, delayMs); }
+        public void changed() {
+            if (mStatusViewModel != null && isFf3Protocol()) {
+                mStatusViewModel.setValueFfEnable(ff3.mode);
+                if (!ff3.busy() && ff3.settingsReady() && ff3.mode == 1 && mStatusViewModel.getValueFfStep() < 0) requestFf1Settings();
+            }
+            if (ff3.state == Ff3Session.State.ERROR) {
+                Log.w(TAG, "[FF3] " + ff3.message);
+                UtilLog.instance.writeLog("FF3: " + ff3.message);
+                Toast.makeText(MainActivity.this, ff3.message, Toast.LENGTH_LONG).show();
+            }
+            ff3Revision.setValue(ff3Revision.getValue() == null ? 1 : ff3Revision.getValue()+1);
+        }
+    });
+
+    public boolean isFf3Protocol() {
+        return mStatus != null && Ff3Config.supportsSchemaQuery(mStatus.rcProtocolMajor,
+                mStatus.rcProtocolMinor, isLinkDomainSupported());
+    }
+
     BluetoothManager            mBluetoothManager;
     BluetoothAdapter            mBluetoothAdapter;
     BluetoothLeScanner          mBluetoothLeScanner;
@@ -201,9 +243,6 @@ public class MainActivity extends AppCompatActivity
 
         mStatus.activityRunningState = Status.ACTIVITY_RUNNING_STATE_FOREGROUND;
 
-        // 장시간 미사용 이벤트 핸들러 시작
-        Log.d(TAG, "액티비티 onResume() 상태이므로, 장시간 미사용 핸들러를 업데이트합니다.");
-        longTimeIdleHandlerUpdate(true);
 
         lastDialogDismiss();
 
@@ -230,8 +269,6 @@ public class MainActivity extends AppCompatActivity
             mAllFilesAccessDialog = null;
         }
 
-        // 장시간 미사용 핸들러를 제거
-        longTimeIdleHandlerUpdate(false);
 
         // BLE가 연결된 상태인지 판별하고 사용자에 의한 연결해제로 연결해제를 진행.
         if (mStatus.connectionState != Status.CONNECTION_STATE_DISCONNECTED)
@@ -271,7 +308,6 @@ public class MainActivity extends AppCompatActivity
         UtilDevice.instance.close(); // 기기 데이터베이스 닫기.
 
         // 모든 핸들러 제거하기
-        mLongTimeIdleHandler.removeCallbacks(mLongTimeIdleRunner); // 장시간 미사용 감지 핸들러 제거
         mScanHandler.removeCallbacks(mScanRunner); // 스캔 핸들러 제거
         stopLinkMonitor(); // 링크 감시 타이머 제거
         mDiscoverServicesHandler.removeCallbacks(mDiscoverServicesRunner); // 서비스 검색 핸들러 제거
@@ -282,6 +318,8 @@ public class MainActivity extends AppCompatActivity
         mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner); // 패킷 응답 시간 초과 핸들러 제거
         mPacketSendHandler.removeCallbacks(mPacketSendRunner); // 패킷 전송 핸들러 제거
 
+        mFf3Handler.removeCallbacksAndMessages(null);
+        ff3.reset();
         mStatusViewModel = null; // 뷰모델 객체 제거
         mManualScreen = null; // 매뉴얼화면 객체 제거
         mLockScreen = null; // 잠금화면 객체 제거
@@ -579,59 +617,6 @@ public class MainActivity extends AppCompatActivity
     } // initMainActivity
 
     //
-    // 장시간 미사용 이벤트 핸들러 관련
-    //
-    public void longTimeIdleHandlerUpdate(boolean enable)
-    {
-        if (enable)
-        {
-            mLongTimeIdleHandler.removeCallbacks(mLongTimeIdleRunner);
-            mLongTimeIdleHandler.postDelayed(mLongTimeIdleRunner, LONG_TIME_IDLE_TIMEOUT_IN_MS); // 10분
-            Log.v(TAG, "장시간 미사용 핸들러 업데이트 완료.");
-        }
-        else
-        {
-            mLongTimeIdleHandler.removeCallbacks(mLongTimeIdleRunner);
-            Log.v(TAG, "장시간 미사용 핸들러 제거 완료.");
-        }
-    }
-
-    private final Handler  mLongTimeIdleHandler = new Handler();
-    private final Runnable mLongTimeIdleRunner  = () ->
-    {
-        Log.d(TAG, "장시간 미사용으로 인해 자동 절전모드로 진입합니다.");
-
-        if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED || mStatus.connectionState == Status.CONNECTION_STATE_CONNECTING)
-        {
-            if (mBluetoothGatt != null)
-            {
-                Log.d(TAG, "현재 연결중인 사운드처리기와 연결을 해제합니다.");
-                mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING; // 사용자에 의한 연결 해제 설정
-                mBluetoothGatt.disconnect();
-            }
-        }
-
-        if (mStatus.scanState == Status.SCAN_STATE_STARTED)
-        {
-            Log.d(TAG, "스캔을 정지합니다.");
-            scanLe(false);
-        }
-
-        // 현재 리모컨 화면이고, 다이얼로그가 팝업되어 있다면 해당 다이얼로그를 제거한다.
-        Fragment fragment = MainActivity.this.getSupportFragmentManager().findFragmentById(R.id.frame);
-        if (fragment instanceof RemoteControlFragment)
-        {
-            if (((RemoteControlFragment) fragment).mDialog != null && ((RemoteControlFragment) fragment).mDialog.isShowing())
-            {
-                Log.d(TAG, "리모컨 화면의 등록 유도 다이얼로그를 제거합니다.");
-                ((RemoteControlFragment) fragment).mDialog.dismiss();
-            }
-        }
-
-        lastDialogDismiss();
-        mLockScreen.resume();
-    };
-
     //
     // 런타임 권한 요청 결과
     //
@@ -868,7 +853,6 @@ public class MainActivity extends AppCompatActivity
 
         Log.d(TAG, "[LINK] 쓰기 요청 : 인덱스=" + index + ", 값=" + value);
 
-        longTimeIdleHandlerUpdate(true);
 
         if (mStatus.fwRelease >= Status.FW_RELEASE_4_PLUS)
         {
@@ -895,7 +879,6 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
-        longTimeIdleHandlerUpdate(true);
 
         sendPacket((mStatus.fwRelease >= Status.FW_RELEASE_4_PLUS) //
                    ? makeRcWritePacket(PacketInfo.RC_OPT_STIM, PacketInfo.RC_STIM_IDX_MAP_INIT, mapInitType) //
@@ -969,7 +952,7 @@ public class MainActivity extends AppCompatActivity
                 case PacketInfo.RC_LINK_IDX_STIM_STRATEGY:
                     return isProtocolAtLeast(PacketInfo.RC_PROTOCOL_MAJOR_REQUIRED, PacketInfo.RC_PROTOCOL_MINOR_STRATEGY);
 
-                /* 4.5 에서 생겼다. default 로 떨어뜨리면 «index <= RC_LINK_IDX_MAX» 만 보므로
+                /* 4.6 에서 생겼다. default 로 떨어뜨리면 «index <= RC_LINK_IDX_MAX» 만 보므로
                  * RC_LINK_IDX_MAX 를 16 으로 올린 순간 4.3·4.4 기기에서도 «지원» 이 되어 버린다. */
                 case PacketInfo.RC_LINK_IDX_MAX_TX_POWER:
                 case PacketInfo.RC_LINK_IDX_FF_ENABLE:
@@ -982,7 +965,7 @@ public class MainActivity extends AppCompatActivity
                 case PacketInfo.RC_LINK_IDX_FF_RAISED:
                 case PacketInfo.RC_LINK_IDX_FF_APPLIED:
                 case PacketInfo.RC_LINK_IDX_FF_AVG_AMP:
-                    return isProtocolAtLeast(PacketInfo.RC_PROTOCOL_MAJOR_REQUIRED, PacketInfo.RC_PROTOCOL_MINOR_MAX_TX_POWER);
+                    return isExtendedLinkFeatureSupported();
 
                 default:
                     return (index <= PacketInfo.RC_LINK_IDX_MAX);
@@ -1054,7 +1037,6 @@ public class MainActivity extends AppCompatActivity
 
         if (mStatus.transferState == Status.TRANSFER_STATE_IDLE)
         {
-            longTimeIdleHandlerUpdate(true);
             sendLinkParamRead(PacketInfo.RC_IDX_ALL);
             return;
         }
@@ -1192,17 +1174,15 @@ public class MainActivity extends AppCompatActivity
      *
      * 인덱스 게이트(isLinkParamSupported)와 따로 두는 이유는 4.4 의 코인 개수와 같다 —
      * 화면을 숨길지 말지는 «인덱스가 있나» 가 아니라 «이 기능을 쓸 수 있나» 로 정해야 한다. */
-    public boolean is45LinkFeatureSupported()
+    public boolean isExtendedLinkFeatureSupported()
     {
-        return isProtocolAtLeast(PacketInfo.RC_PROTOCOL_MAJOR_REQUIRED, //
-                                 PacketInfo.RC_PROTOCOL_MINOR_MAX_TX_POWER);
+        return Ff3Config.supportsFf(mStatus.rcProtocolMajor, mStatus.rcProtocolMinor, isLinkDomainSupported());
     }
 
-    /* 4.5 는 «인덱스 16 + 17~26» 하나다. 중간 상태(16 만 있는 4.5)는 없는 것으로 본다
-     * (2026-09-01 은수님 - "기존 4.5를 하위호환하는건 없어도 되는거"). 그래서 게이트가 하나다. */
+    /* REL4.5는 REL4.4와 같은 BLE 계약이다. 상한·FF 확장은 REL4.6에서 지원한다. */
     public boolean isMaxTxPowerSupported()
     {
-        return is45LinkFeatureSupported();
+        return isExtendedLinkFeatureSupported();
     }
 
     /* 상한을 개별 읽기로 한 번 가져온다.
@@ -1223,35 +1203,23 @@ public class MainActivity extends AppCompatActivity
         enqueueLinkRead(PacketInfo.RC_LINK_IDX_MAX_TX_POWER);
     }
 
-    /* 연결 직후 읽는 4.5 설정 묶음. 상한(16)과 피드포워드 설정(17~23)이다.
-     *
-     * 관측값(24·25·26)은 여기 넣지 않는다 — 계속 변하는 값이라 한 번 읽어 두는 것이
-     * 의미가 없고, 연결 초기화만 길어진다. FF 화면을 열 때 읽는다. */
-    public void requestLinkSettings45(String reason)
+    /* REL4.4/4.5에는 확장 조회를 보내지 않는다. REL4.6은 상한만 먼저 읽고,
+     * FF 전체 설정은 사용자가 FF 설정 확인을 눌렀을 때 조회한다. */
+    public void requestExtendedLinkSettings(String reason)
     {
-        if (!is45LinkFeatureSupported())
-        {
-            return;
-        }
-
-        Log.d(TAG, "[LINK] 4.5 설정을 개별로 읽습니다. (" + reason + ")");
-
-        mIsAutoMaxTxPowerRead = true;
-
-        enqueueLinkRead(PacketInfo.RC_LINK_IDX_MAX_TX_POWER, //
-                        PacketInfo.RC_LINK_IDX_FF_ENABLE, //
-                        PacketInfo.RC_LINK_IDX_FF_COOLDOWN, //
-                        PacketInfo.RC_LINK_IDX_FF_STEP, //
-                        PacketInfo.RC_LINK_IDX_FF_RATIO_0, //
-                        PacketInfo.RC_LINK_IDX_FF_RATIO_1, //
-                        PacketInfo.RC_LINK_IDX_FF_RATIO_2, //
-                        PacketInfo.RC_LINK_IDX_FF_RATIO_3);
+        if (!isExtendedLinkFeatureSupported()) return;
+        requestMaxTxPowerRead(reason);
     }
 
     /* 피드포워드 관측값. FF 화면을 열 때만 읽는다. */
+    public void requestFf1Settings() {
+        if (!isExtendedLinkFeatureSupported() || mStatusViewModel.getValueFfEnable() != 1 || ff3.busy()) return;
+        enqueueLinkRead(18,19,20,21,22,23,24,25,26);
+    }
+
     public void requestFfObservation()
     {
-        if (!is45LinkFeatureSupported())
+        if (!isExtendedLinkFeatureSupported())
         {
             return;
         }
@@ -1314,6 +1282,9 @@ public class MainActivity extends AppCompatActivity
      * 지금 설정 조합에서 의미가 있는가까지 본다. 화면의 잠금과 전송 차단이 같은 답을 쓴다. */
     public boolean isLinkSettingUsable(int index)
     {
+        if (mStatus.fwRelease >= Status.FW_RELEASE_4_PLUS
+                && (mStatus.rcProtocolMajor != 4 || mStatus.rcProtocolMinor > 6)) return false;
+        if (isFf3Protocol() && index == PacketInfo.RC_LINK_IDX_FF_ENABLE) return false;
         if (!isLinkParamSupported(index))
         {
             return false;
@@ -1424,7 +1395,7 @@ public class MainActivity extends AppCompatActivity
 
         if (sb.length() == 0)
         {
-            return "지금 설정에서는 정상 동작합니다. Normal 모드에서만 올립니다.";
+            return "확인된 차단 조건은 없습니다. 실제 실행에는 Normal·링크 연결·Live·양수 음량·CIS/nOFm·프레임 1~9 등이 필요합니다.";
         }
 
         return sb.toString();
@@ -1434,7 +1405,13 @@ public class MainActivity extends AppCompatActivity
      * 쓰기 뒤 같은 인덱스를 다시 읽어 화면 값이 실제 값과 어긋나지 않게 한다. */
     public void sendFfParam(int index, int value)
     {
-        if (!is45LinkFeatureSupported() || !PacketInfo.isFfLinkIndex(index))
+        if (isFf3Protocol() && index == PacketInfo.RC_LINK_IDX_FF_ENABLE) {
+            ff3.changeMode(value);
+            if (!ff3.busy()) Toast.makeText(this, ff3.message, Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (isFf3Protocol() && (!ff3.supported() || ff3.editing() || ff3.mode != 1)) return;
+        if (!isExtendedLinkFeatureSupported() || !PacketInfo.isFfLinkIndex(index))
         {
             Log.d(TAG, "[LINK] 피드포워드 설정을 지원하지 않는 기기입니다. 보내지 않습니다.");
             return;
@@ -1594,7 +1571,7 @@ public class MainActivity extends AppCompatActivity
      *
      * sendPacket() 은 transferState 가 BUSY 면 로그만 남기고 «패킷을 버린다»(:4230 부근).
      * 그래서 읽기를 연달아 늘어놓으면 첫 하나만 나가고 나머지가 사라진다. 인덱스 16 하나일
-     * 때는 드러나지 않았는데, 4.5 후반의 17~26 이 붙으면서 연결 직후 읽을 것이 8개가 됐다.
+     * 때는 드러나지 않았는데, 4.6 후반의 17~26 이 붙으면서 연결 직후 읽을 것이 8개가 됐다.
      *
      * 그래서 큐에 넣어 두고 «응답이 온 자리에서 다음 하나» 를 보낸다.
      * 4.4 코인이 패킷 둘을 보내려고 만든 연쇄(mPendingOneCoinValue)의 일반화다.
@@ -1633,6 +1610,7 @@ public class MainActivity extends AppCompatActivity
     /** 큐에서 하나를 꺼내 보낸다. 응답·거절이 온 자리에서도 부른다. */
     private void pumpLinkReadQueue()
     {
+        if (ff3.busy() || ff3.needsReconnect()) return;
         mLinkReadQueueHandler.removeCallbacks(mLinkReadQueueTimeout);
 
         if (mLinkReadQueue.isEmpty())
@@ -1672,6 +1650,12 @@ public class MainActivity extends AppCompatActivity
 
     public void resetLinkInfoRead()
     {
+        mBatteryReadPending = false;
+        mBatteryReadRejected = false;
+        mLastBatteryStateLog = null;
+        if (mStatusViewModel != null) mStatusViewModel.resetBatteryTelemetry();
+        mFf3Handler.removeCallbacksAndMessages(null);
+        ff3.reset();
         mProbeStep = PROBE_STEP_NONE;
         mNopDialogPending = false;
 
@@ -1681,6 +1665,12 @@ public class MainActivity extends AppCompatActivity
     // 연결이 끝난 직후 호출한다.
     public void startLinkInfoRead()
     {
+        mBatteryReadPending = false;
+        mBatteryReadRejected = false;
+        mLastBatteryStateLog = null;
+        mStatusViewModel.resetBatteryTelemetry();
+        mFf3Handler.removeCallbacksAndMessages(null);
+        ff3.reset();
         mStatus.fwRelease = Status.FW_RELEASE_UNKNOWN;
         mStatus.rel4LinkIndexMax = 0;
         mStatus.rcProtocolMajor = PacketInfo.LINK_VALUE_UNKNOWN;
@@ -1702,8 +1692,7 @@ public class MainActivity extends AppCompatActivity
         switch (mProbeStep)
         {
             case PROBE_STEP_VERSION:
-                /* 버전 조회만 3바이트다. 인덱스가 없다.
-                 * 규격서 예제가 "59 FF 00" 이므로 그대로 따른다. */
+                // 버전 조회: 59 FF 00 00. 마지막 인덱스는 0이다.
                 packet = new byte[PacketInfo.RC_REQ_LEN_VERSION];
                 packet[0] = PacketInfo.HEADER_SPECIFIC_CMD;
                 packet[PacketInfo.RC_REQ_OFS_OPTION] = (byte) PacketInfo.RC_OPT_VERSION;
@@ -1815,14 +1804,14 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "[LINK] 세대 판별과 상태 읽기를 완료했습니다. -> " + fwReleaseName());
                 UtilLog.instance.writeLog("펌웨어 세대 판별->" + fwReleaseName());
 
-                /* 여기가 «4.5 로 판단되는 시점» 이다 (2026-09-01 은수님 지시).
+                /* 여기가 «4.6 로 판단되는 시점» 이다 (2026-09-01 은수님 지시).
                  *
                  * Tx 파워 상한(인덱스 16)은 20바이트 상한 때문에 전체 읽기에 실리지 않아
                  * 개별로 한 번 더 읽어야 화면에 값이 뜬다. 이 자리를 고른 이유는 둘이다.
                  *   - 버전이 PROBE_STEP_VERSION 에서 이미 확정돼 있다.
                  *   - 판별 상태 기계가 끝나 다음 요청과 겹치지 않는다.
-                 * 4.5 미만이면 나가지 않는다. */
-                requestLinkSettings45("세대 판별 완료");
+                 * 4.6 미만이면 나가지 않는다. */
+                requestExtendedLinkSettings("세대 판별 완료");
                 return;
 
             default:
@@ -2195,7 +2184,6 @@ public class MainActivity extends AppCompatActivity
 
                             mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("안내").setMessage("페어링을 실패했습니다.").setNegativeButton("재연결", (dialogInterface, i) ->
                             {
-                                longTimeIdleHandlerUpdate(true);
 
                                 if (mStatus.activityRunningState == Status.ACTIVITY_RUNNING_STATE_FOREGROUND)
                                 {
@@ -2206,7 +2194,6 @@ public class MainActivity extends AppCompatActivity
                                 }
                             }).setPositiveButton("확인", (dialogInterface, i) ->
                             {
-                                longTimeIdleHandlerUpdate(true);
                             }).setCancelable(false).create();
 
                             mStatus.lastDialog.show();
@@ -2223,8 +2210,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed()
     {
-        // 장시간 미사용 핸들러 업데이트
-        longTimeIdleHandlerUpdate(true);
 
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
 
@@ -2538,7 +2523,7 @@ public class MainActivity extends AppCompatActivity
     // sendPacket() 은 앞 패킷의 응답을 받기 전에는 다음 패킷을 조용히 버리기 때문이다.
     //
     // 그래서 타이머를 하나만 두고 한 주기에 패킷을 하나만 보낸다.
-    //   매 주기(2초)     : 현재 Tx 파워 읽기 (0x59. 포맷은 세대가 정한다)
+    //   매 주기(2초)     : 현재 Tx 파워 읽기; 응답 후 지원 장치의 배터리를 순차 조회
     //   15주기마다(30초) : 기기 상태 정보 읽기 (0x43, 배터리 · 볼륨 · LED 등)
     //   15주기마다(30초) : 링크 파라미터 전체 읽기 (Nop · 패킷 수 · 자극 전략 등)
     //
@@ -2549,6 +2534,20 @@ public class MainActivity extends AppCompatActivity
     // 전원 안정 Nop 을 스스로 새로 정하기 때문이다. 연결할 때 한 번만 읽으면 그 변화를 놓친다.
     //
     private int mLinkMonitorTick = 0;
+    private boolean mBatteryReadPending;
+    private boolean mBatteryReadRejected;
+    private String mLastBatteryStateLog;
+
+    public boolean isBatteryTelemetrySupported() {
+        return !mBatteryReadRejected && BatteryTelemetry.supportsProtocol(mStatus.rcProtocolMajor, mStatus.rcProtocolMinor)
+                && PacketInfo.isOptionSupported(mStatus.rcOptionBitmap, PacketInfo.RC_OPT_BATTERY);
+    }
+
+    private void failBatteryRead(String reason) {
+        mBatteryReadPending = false;
+        mStatusViewModel.setBatteryTelemetryError(reason);
+        Log.w(TAG, "[BATTERY] " + reason);
+    }
 
     public final Handler mLinkMonitorHandler = new Handler();
 
@@ -2567,7 +2566,7 @@ public class MainActivity extends AppCompatActivity
 
             /* 세대 판별이 끝나기 전에는 끼어들지 않는다.
              * 판별용 패킷과 겹치면 sendPacket() 이 한쪽을 버려 판별이 멈춘다. */
-            if (mStatus.fwRelease == Status.FW_RELEASE_UNKNOWN)
+            if (mStatus.fwRelease == Status.FW_RELEASE_UNKNOWN || !isLinkInfoReadIdle())
             {
                 return;
             }
@@ -2585,6 +2584,7 @@ public class MainActivity extends AppCompatActivity
                 return;
             }
 
+            if (ff3.busy() || ff3.needsReconnect()) return;
             mLinkMonitorTick++;
 
             if (mLinkMonitorTick >= LINK_MONITOR_STATUS_TICK_COUNT)
@@ -2647,7 +2647,7 @@ public class MainActivity extends AppCompatActivity
                + "  지금 범위 : " + (floor + 1) + " ~ " + PacketInfo.MAX_TX_PWR_SELECT_MAX;
     }
 
-    /* Tx 파워 상한을 설정한다 (프로토콜 4.5 이상).
+    /* Tx 파워 상한을 설정한다 (프로토콜 4.6 이상).
      *
      * 쓰기 뒤에 같은 인덱스를 다시 읽는다. 쓰기 성공 응답이 값을 되돌려 주는지 확인되지 않았고,
      * 되돌려 주든 아니든 이 한 번이면 화면 값이 실제 값과 맞는다.
@@ -2656,7 +2656,7 @@ public class MainActivity extends AppCompatActivity
      * 인덱스가 없어 «무엇이 거부됐는지» 를 앱이 문맥으로 알아야 한다. 그 문맥이 아래 플래그다. */
     public void sendMaxTxPower(int level)
     {
-        /* 버튼이 4.5 미만에서 숨겨지므로 여기까지 오지 않지만, 호출부가 늘어도 안전하도록 막는다.
+        /* 버튼이 4.6 미만에서 숨겨지므로 여기까지 오지 않지만, 호출부가 늘어도 안전하도록 막는다.
          * 없는 인덱스를 보내면 사운드처리기가 거절하고 사용자에게는 «유효하지 않은 명령» 이 뜬다. */
         if (!isMaxTxPowerSupported())
         {
@@ -2907,7 +2907,7 @@ public class MainActivity extends AppCompatActivity
              * 두 경로가 겹치면 연결할 때마다 같은 읽기가 두 번 나간다. */
             if (isLinkInfoReadIdle())
             {
-                requestLinkSettings45("링크 파라미터 갱신");
+                requestExtendedLinkSettings("링크 파라미터 갱신");
             }
 
             notifyLinkParamsRefreshed();
@@ -2931,11 +2931,12 @@ public class MainActivity extends AppCompatActivity
             mIsAutoMaxTxPowerRead = false;
             mIsPendingMaxTxPowerWrite = false; // 값이 돌아왔으니 쓰기 대기 문맥도 끝났다
 
+            if (isFf3Protocol() && ff3.schema == -1 && ff3.state == Ff3Session.State.IDLE) ff3.loadSummary();
             pumpLinkReadQueue();
             return;
         }
 
-        /* 4.5 인덱스는 앱이 큐로 스스로 읽는 것이라 알리지 않는다.
+        /* 4.6 인덱스는 앱이 큐로 스스로 읽는 것이라 알리지 않는다.
          * 사용자가 FF 화면에서 바꾼 결과는 그 화면이 보여 주므로 토스트가 겹칠 이유도 없다. */
         if (PacketInfo.isFfLinkIndex(index))
         {
@@ -3127,35 +3128,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     //
-    // 옵션 0x22 — 배터리 텔레메트리 응답 (값 8바이트)
-    //
-    //   +0 전압(mV) 2바이트, +2 잔량(%), +3 TX PMIC 레벨, +4 시스템 타이머 4바이트
-    //   다중 바이트는 상위 바이트를 먼저 싣는다.
-    //
-    private void handleRcBatteryResponse(byte[] responsePacket, int valueLen)
+    // 옵션 0x22: 구형 L=8 / 평균 전류 확장 L>=15. 유효한 샘플만 한 번에 게시한다.
+    private void handleRcBatteryResponse(byte[] responsePacket)
     {
-        if (valueLen < 8)
-        {
-            Log.d(TAG, "[BATTERY] 텔레메트리 값이 짧습니다 : L = " + valueLen);
-            return;
+        mBatteryReadPending = false;
+        try {
+            BatteryTelemetry sample = BatteryTelemetry.parse(responsePacket);
+            mStatusViewModel.setBatteryTelemetry(sample, SystemClock.elapsedRealtime());
+            mStatusViewModel.setValueBatteryLevel(sample.percent);
+            // Current PMIC는 기존 링크 조회 응답만 사용한다.
+            String state = sample.detailText();
+            if (!state.equals(mLastBatteryStateLog)) {
+                Log.d(TAG, "[BATTERY] " + state);
+                mLastBatteryStateLog = state;
+            }
+        } catch (IllegalArgumentException error) {
+            failBatteryRead(error.getMessage());
         }
-
-        int ofs = PacketInfo.RC_RSP_OFS_VALUE;
-
-        int mv      = ((responsePacket[ofs] & 0xFF) << 8) | (responsePacket[ofs + 1] & 0xFF);
-        int percent = responsePacket[ofs + 2] & 0xFF;
-        int pmic    = responsePacket[ofs + 3] & 0xFF;
-        int tick    = ((responsePacket[ofs + 4] & 0xFF) << 24) //
-                      | ((responsePacket[ofs + 5] & 0xFF) << 16) //
-                      | ((responsePacket[ofs + 6] & 0xFF) << 8) //
-                      | (responsePacket[ofs + 7] & 0xFF);
-
-        // 전압이 0 이면 보드 교정값이 로드되지 않은 것이다. 정상 범위는 3000~4200mV 다.
-        Log.i(TAG, "[BATTERY] 텔레메트리 : " + mv + "mV, " + percent + "%, PMIC " + pmic + ", 타이머 " + tick);
-        UtilLog.instance.writeLog("패킷 수신 : 배터리 텔레메트리->" + mv + "mV, " + percent + "%");
-
-        mStatusViewModel.setValueBatteryLevel(percent);
-        mStatusViewModel.setValueCurTxPowerLevel(pmic);
     }
 
     // 연결이 끝난 뒤 호출한다.
@@ -3560,6 +3549,9 @@ public class MainActivity extends AppCompatActivity
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status)
         {
             super.onCharacteristicWrite(gatt, characteristic, status);
+            if (gatt == mBluetoothGatt && status != BluetoothGatt.GATT_SUCCESS) {
+                Log.w(TAG, "[BLE] GATT 쓰기 완료 실패: status=" + status);
+            }
         }
 
         @Override
@@ -3571,14 +3563,15 @@ public class MainActivity extends AppCompatActivity
 
     private void characteristicChanged(BluetoothGatt gatt, byte[] packet)
     {
-        //mStatus.receivedPackets.offer(characteristic.getValue());
-        mStatus.receivedPackets.offer(packet);
+        if (gatt != mBluetoothGatt) return;
+        final byte[] received = packet.clone();
 
         new Handler(Looper.getMainLooper()).post(() ->
         {
+            if (gatt != mBluetoothGatt) return;
             // 수신 패킷 정보 획득
             //byte[] responsePacket = characteristic.getValue(); // Extract data from packet.
-            byte[] responsePacket = mStatus.receivedPackets.poll();
+            byte[] responsePacket = received;
 
             if (responsePacket == null)
             {
@@ -3597,14 +3590,49 @@ public class MainActivity extends AppCompatActivity
                 return;
             }
 
-            // 패킷 응답 시간초과 핸들러 제거
-            mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner);
+            // 배터리 시한 뒤의 늦은 응답은 새 FF3 트랜잭션에도 전달하지 않는다.
+            if (packetSize >= 2 && (responsePacket[0] & 255) == 0x59
+                    && (responsePacket[1] & 255) == PacketInfo.RC_OPT_BATTERY
+                    && !mBatteryReadPending) return;
+            if (ff3.needsReconnect()) return;
+            if (ff3.awaiting()) {
+                // FF 오류에는 index가 없다. FF3가 전송을 독점한 동안에만 연결한다.
+                if ((responsePacket[0] & 255) != 0x59
+                        && !((responsePacket[0] & 255) == 0xF0 && packetSize >= 2 && (responsePacket[1] & 255) == 0x59)) return;
+                mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner);
+                mStatus.transferState = Status.TRANSFER_STATE_IDLE;
+                ff3.receive(responsePacket);
+                return;
+            }
+            if (ff3.busy()) return;
 
-            // 패킷 전송 상태 초기화 -> 다시 IDLE 상태로 돌아간다.
-            mStatus.transferState = Status.TRANSFER_STATE_IDLE;
-
-            // 수신 패킷 헤더 추출
             byte packetHeader = byteExtractor(responsePacket[0]);
+            boolean batteryResponse = packetHeader == PacketInfo.HEADER_SPECIFIC_CMD && packetSize >= 2
+                    && (responsePacket[1] & 255) == PacketInfo.RC_OPT_BATTERY;
+            boolean batteryError = mBatteryReadPending && packetHeader == PacketInfo.HEADER_ERROR
+                    && packetSize >= 3 && responsePacket[1] == PacketInfo.HEADER_SPECIFIC_CMD;
+            if (batteryResponse) {
+                // 시간초과 뒤에 온 배터리 응답이 새 사용자 명령의 타임아웃을 지우지 않게 한다.
+                if (mBatteryReadPending) {
+                    mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner);
+                    mStatus.transferState = Status.TRANSFER_STATE_IDLE;
+                    handleRcBatteryResponse(responsePacket);
+                }
+                return;
+            }
+            if (batteryError) {
+                mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner);
+                mStatus.transferState = Status.TRANSFER_STATE_IDLE;
+                mBatteryReadRejected = (responsePacket[2] & 255) == 1;
+                failBatteryRead(mBatteryReadRejected ? "이 펌웨어는 배터리 상세 조회 미지원"
+                        : "배터리 조회 거절 / 오류 " + (responsePacket[2] & 255));
+                return;
+            }
+            // 별도 상태 알림이 들어와도 진행 중인 배터리 조회의 시한은 보존한다.
+            if (!mBatteryReadPending) {
+                mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner);
+                mStatus.transferState = Status.TRANSFER_STATE_IDLE;
+            }
 
             // 수신한 패킷 헤더에 따라 처리를 수행한다.
             switch (packetHeader)
@@ -3660,7 +3688,6 @@ public class MainActivity extends AppCompatActivity
 
                             mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("주의").setMessage("내부기 키가 일치하지 않습니다. 재설정하시겠습니까?").setPositiveButton("재설정", (dialogInterface, i) ->
                             {
-                                longTimeIdleHandlerUpdate(true);
 
                                 //EntityUser user = UtilUser.instance.getDefaultUser();
                                 EntityUser user   = mStatus.connectedUser;
@@ -3679,7 +3706,6 @@ public class MainActivity extends AppCompatActivity
                                 replaceFragment(Status.TypeOfFragment.USER_EDIT, bundle);
                             }).setNegativeButton("취소", (dialogInterface, i) ->
                             {
-                                longTimeIdleHandlerUpdate(true);
                             }).setCancelable(false).create();
 
                             mStatus.lastDialog.show();
@@ -4139,6 +4165,12 @@ public class MainActivity extends AppCompatActivity
 
                     if (option == PacketInfo.RC_OPT_VERSION)
                     {
+                        if (valueLen != PacketInfo.RC_VERSION_VALUE_LEN
+                                || (responsePacket[2]&255) != 0 || index != 0) {
+                            // 잘린/불일치 응답을 구형 장치로 확정하거나 판별 대기에 남겨두지 않는다.
+                            packetSizeErrorDialog();
+                            break;
+                        }
                         handleRcVersionResponse(responsePacket, valueLen);
                     }
                     else if (option == PacketInfo.RC_OPT_LINK)
@@ -4156,16 +4188,23 @@ public class MainActivity extends AppCompatActivity
                             Toast.makeText(getApplicationContext(), "맵 초기화 시작\n완료까지 수 초 이상 걸립니다.", Toast.LENGTH_LONG).show();
                         }
                     }
-                    else if (option == PacketInfo.RC_OPT_BATTERY)
-                    {
-                        handleRcBatteryResponse(responsePacket, valueLen);
-                    }
                     else
                     {
                         Log.d(TAG, "[SPECIFIC] 처리하지 않는 0x59 옵션 수신 : " + option);
                     }
 
                     advanceLinkInfoRead(option);
+                    // PMIC 응답을 처리한 뒤 같은 통신 경로에서 순차 조회한다.
+                    // 배터리가 기존 PMIC 주기 조회를 대체하거나 값을 덮어쓰지 않는다.
+                    if (option == PacketInfo.RC_OPT_LINK && index == PacketInfo.RC_LINK_IDX_CUR_TX_POWER
+                            && valueLen == 1 && responsePacket[2] == 0
+                            && isLinkInfoReadIdle() && isBatteryTelemetrySupported()
+                            && mStatus.transferState == Status.TRANSFER_STATE_IDLE
+                            && !ff3.busy() && !ff3.needsReconnect()
+                            && (mOta == null || mOta.commState == Ota.COMM_STATE_IDLE)) {
+                        mBatteryReadPending = true;
+                        sendPacket(makeRcReadPacket(PacketInfo.RC_OPT_BATTERY, PacketInfo.RC_BATTERY_IDX_TELEMETRY));
+                    }
                 }
                 break; // PacketInfo.HEADER_SPECIFIC_CMD
 
@@ -4308,7 +4347,6 @@ public class MainActivity extends AppCompatActivity
                                     new Handler(Looper.getMainLooper()).postDelayed(() ->
                                     {
                                         mStatus.isEnabledInvalidPacketToast = false;
-                                        longTimeIdleHandlerUpdate(true);
                                     }, 3500);
                                 }
                                 break;
@@ -4324,7 +4362,6 @@ public class MainActivity extends AppCompatActivity
 
                                     new Handler(Looper.getMainLooper()).postDelayed(() ->
                                     {
-                                        longTimeIdleHandlerUpdate(true);
                                         mStatus.isEnabledBusyToast = false;
                                     }, 3500);
                                 }
@@ -4340,7 +4377,6 @@ public class MainActivity extends AppCompatActivity
 
                                     new Handler(Looper.getMainLooper()).postDelayed(() ->
                                     {
-                                        longTimeIdleHandlerUpdate(true);
                                         mStatus.isEnabledUnlockedToast = false;
                                     }, 3500);
                                 }
@@ -4358,7 +4394,6 @@ public class MainActivity extends AppCompatActivity
 
                                     new Handler(Looper.getMainLooper()).postDelayed(() ->
                                     {
-                                        longTimeIdleHandlerUpdate(true);
                                         mStatus.isEnabledInternalErrorToast = false;
                                     }, 3500);
                                 }
@@ -4422,6 +4457,13 @@ public class MainActivity extends AppCompatActivity
     Handler  mPacketResponseTimeoutHandler = new Handler();
     Runnable mPacketResponseTimeoutRunner  = () ->
     {
+        if (mBatteryReadPending) {
+            mStatus.transferState = Status.TRANSFER_STATE_IDLE;
+            failBatteryRead("배터리 조회 응답 없음 / 다음 주기에 다시 확인");
+            return;
+        }
+        // 파일 저장·모드 변경을 자동 재전송하지 않는다. FF3 자체 시한이 상태 불명을 처리한다.
+        if (ff3.busy() || ff3.needsReconnect()) return;
         boolean retBool;
 
         if ((mBluetoothGatt == null) || (mStatus.connectionState != Status.CONNECTION_STATE_CONNECTED))
@@ -4515,6 +4557,13 @@ public class MainActivity extends AppCompatActivity
     //
     public void sendPacket(byte[] packet)
     {
+        if (!mFf3Sending && (ff3.busy() || ff3.needsReconnect())) {
+            Log.d(TAG, "[FF3] 트랜잭션 중이거나 재연결 필요: 다른 요청을 보류합니다.");
+            return;
+        }
+        if (mStatus.rcProtocolMajor >= 4 && (mStatus.rcProtocolMajor != 4 || mStatus.rcProtocolMinor > 6)
+                && packet.length >= 3 && (packet[0]&255) == 0x59
+                && ((packet[1]&255) == 2 || ((packet[1]&255) >= 0x20 && packet[2] == 1))) return;
         if (mStatus.transferState == Status.TRANSFER_STATE_BUSY)
         {
             Log.d(TAG, "패킷 전송 처리 중입니다. 잠시 후 다시 시도해주세요.");
@@ -4523,7 +4572,7 @@ public class MainActivity extends AppCompatActivity
 
         mStatus.transferState = Status.TRANSFER_STATE_BUSY;
         mStatus.sendingPacket = packet;
-        mPacketSendHandler.postDelayed(mPacketSendRunner, SEND_PACKET_DELAY_IN_MS);
+        mPacketSendHandler.postDelayed(mPacketSendRunner, mFf3Sending ? FF3_PACKET_DELAY_IN_MS : SEND_PACKET_DELAY_IN_MS);
     }
 
     //
@@ -4593,7 +4642,7 @@ public class MainActivity extends AppCompatActivity
         // 상태바, 하단 네비게이션바 그리고 툴바의 색상 설정
         getWindow().setStatusBarColor(getColor(R.color.status_bar));
         getWindow().setNavigationBarColor(getColor(R.color.bottom_navigation));
-        mBinding.toolbar.setBackgroundColor(getColor(R.color.toolbar_background));
+        mBinding.toolbar.setBackgroundResource(R.drawable.remote_appbar_glass);
 
         // 툴바의 네비게이션버튼 및 타이틀은 안보이게 설정
         mBinding.toolbar.setNavigationIcon(null);
@@ -4608,6 +4657,7 @@ public class MainActivity extends AppCompatActivity
 
         // 툴바의 네비게이션 및 메뉴 버튼 이벤트 리스너 등록
         mBinding.toolbar.setNavigationOnClickListener(mToolBarNavigationClickListener);
+        mBinding.toolbarNavigationMessage.setOnClickListener(mToolBarNavigationClickListener);
         mBinding.toolbar.setOnMenuItemClickListener(mToolBarMenuItemClickListener);
     }
 
@@ -4621,8 +4671,6 @@ public class MainActivity extends AppCompatActivity
     //
     Toolbar.OnMenuItemClickListener mToolBarMenuItemClickListener = item ->
     {
-        // 장시간 미사용 핸들러 업데이트
-        longTimeIdleHandlerUpdate(true);
 
         if (item.getItemId() == R.id.toolbar_settings)
         {
@@ -4659,8 +4707,6 @@ public class MainActivity extends AppCompatActivity
             {
                 mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("안내").setMessage("등록된 사용자가 없습니다. 먼저 사용자를 등록해주세요.").setPositiveButton("확인", (dialogInterface, i) ->
                 {
-                    // 장시간 미사용 핸들러 업데이트
-                    longTimeIdleHandlerUpdate(true);
                 }).setCancelable(false).create();
             }
             else
@@ -4680,8 +4726,6 @@ public class MainActivity extends AppCompatActivity
 
                 mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("사용자 목록").setPositiveButton("선택", (dialogInterface, i) ->
                 {
-                    // 장시간 미사용 핸들러 업데이트
-                    longTimeIdleHandlerUpdate(true);
 
                     String selectName = mUserList[mCheckItem];
 
@@ -4722,11 +4766,9 @@ public class MainActivity extends AppCompatActivity
 
                 }).setSingleChoiceItems(nicknameList, mCheckItem, (dialogInterface, i) ->
                 {
-                    longTimeIdleHandlerUpdate(true);
                     mCheckItem = i;
                 }).setNegativeButton("취소", (dialogInterface, i) ->
                 {
-                    longTimeIdleHandlerUpdate(true);
                 }).setCancelable(false).create();
             }
             mStatus.lastDialog.show();
@@ -4757,8 +4799,6 @@ public class MainActivity extends AppCompatActivity
         {
             mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("안내").setMessage("등록된 사용자가 없습니다. 먼저 사용자를 등록해주세요.").setPositiveButton("확인", (dialogInterface, i) ->
             {
-                // 장시간 미사용 핸들러 업데이트
-                longTimeIdleHandlerUpdate(true);
             }).setCancelable(false).create();
         }
         else
@@ -4778,8 +4818,6 @@ public class MainActivity extends AppCompatActivity
 
             mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("사용자 목록").setPositiveButton("선택", (dialogInterface, i) ->
             {
-                // 장시간 미사용 핸들러 업데이트
-                longTimeIdleHandlerUpdate(true);
 
                 String selectName = mUserList[mCheckItem];
 
@@ -4815,8 +4853,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }).setSingleChoiceItems(nicknameList, mCheckItem, (dialogInterface, i) ->
             {
-                // 장시간 미사용 핸들러 업데이트
-                longTimeIdleHandlerUpdate(true);
                 mCheckItem = i;
             }).setCancelable(false).create();
         }
@@ -4828,8 +4864,6 @@ public class MainActivity extends AppCompatActivity
     //
     public void onLockScreenNumberClickedListener(View view)
     {
-        // 장시간 미사용 핸들러 업데이트
-        longTimeIdleHandlerUpdate(true);
 
         if (mBinding.lockScreen.getVisibility() == View.VISIBLE)
         {
@@ -4842,15 +4876,11 @@ public class MainActivity extends AppCompatActivity
     //
     public void onLockScreenForgetPasswordClickedListener(View view)
     {
-        // 장시간 미사용 핸들러 업데이트
-        longTimeIdleHandlerUpdate(true);
 
         lastDialogDismiss();
 
         mStatus.lastDialog = new MaterialAlertDialogBuilder(this).setTitle(getString(R.string.lock_screen_dialog_title)).setMessage(getString(R.string.lock_screen_dialog_message)).setPositiveButton(getString(R.string.lock_screen_dialog_positive), (dialogInterface, i) ->
         {
-            // 장시간 미사용 핸들러 업데이트
-            longTimeIdleHandlerUpdate(true);
 
             // 현재 연결 중인 사운드처리기가 있을 때
             if (mStatus.connectionState != Status.CONNECTION_STATE_DISCONNECTED)
@@ -4889,8 +4919,6 @@ public class MainActivity extends AppCompatActivity
             replaceFragment(Status.TypeOfFragment.REMOTE_CONTROL);
         }).setNegativeButton(getString(R.string.lock_screen_dialog_negative), (dialogInterface, i) ->
         {
-            // 장시간 미사용 핸들러 업데이트
-            longTimeIdleHandlerUpdate(true);
         }).setCancelable(false).create();
         mStatus.lastDialog.show();
     }

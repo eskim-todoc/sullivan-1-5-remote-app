@@ -1,1856 +1,302 @@
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/remote_control_background_glass"
-        android:paddingStart="@dimen/tdc_screen_padding_h"
-        android:paddingTop="@dimen/tdc_screen_padding_v"
-        android:paddingEnd="@dimen/tdc_screen_padding_h"
-        android:paddingBottom="@dimen/tdc_screen_padding_v"
-        tools:context="todoc.cochlear.remoteapp.fragment.RemoteControlFragment">
-
-
-        <!--
-        상태 정보 묶음 (표시 전용).
-        항목이 많아 내부기 시리얼과 한 줄에 두면 시리얼이 잘리므로 별도 묶음으로 분리했다.
-        세로 체인의 머리이며, 아래 묶음들과 함께 남는 공간을 균등하게 나눠 갖는다.
-        -->
-        <LinearLayout
-            android:id="@+id/ota_status_info_box"
-            android:background="@drawable/remote_control_glass_surface"
-            android:paddingStart="@dimen/tdc_glass_padding_h"
-            android:paddingTop="@dimen/tdc_glass_padding_v"
-            android:paddingEnd="@dimen/tdc_glass_padding_h"
-            android:paddingBottom="@dimen/tdc_glass_padding_v"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@id/ota_id_box"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <!--
-            상태 표시는 4열 4행 격자로 고정한다.
-
-            각 칸을 layout_width="0dp" + layout_weight="1" 로 두면 칸의 폭이 화면 폭으로만
-            정해지고 글자 길이와 무관해진다. On <-> Off 처럼 글자 수가 달라져도 그 칸 안에서만
-            바뀌므로 뒤따르는 항목들의 위치가 밀리지 않는다.
-
-            항목이 19개라 4열 5행이고 마지막 한 칸이 빈다. 자리는 색으로 묶은 순서를 따른다.
-            읽는 순서대로 같은 색이 이어지므로 어느 분류인지 위치와 색이 함께 알려 준다.
-
-              진한 주황빛 노랑 : 현재 Tx 파워 (관찰값. 유일하게 «지금 그런» 값이라 혼자 뗀다)
-              노랑             : PMIC 전압 레벨 설정값 (상시 하한 · 매핑 하한 · 강제 고정)
-              하늘             : 링크 타이밍과 재시도 (백텔 주기 · 상승 스텝 · 코인)
-              보라             : 링크 제어 방식 (상승 가속)
-              형광 연두        : 지금 시험 중인 두 항목 (전원 안정 Nop · 링크 제어 모드)
-                                 나란히 두고 격자에서 이 색을 여기만 써서 한눈에 찾게 한다
-              분홍             : 맵과 자극 (자극 전략 · 펄스폭 · 패킷 수)
-              초록             : 기기 상태 (게이팅 · LED · 알람 · 프로그램 · 볼륨 · 최대출력)
-            -->
-
-            <!-- 1행 : Cur / PMIC / Map / Fix — Tx 파워 전압 (Cur 만 진한 색) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:gravity="center_vertical"
-                android:layout_height="@dimen/tdc_status_row_height"
-                android:baselineAligned="true"
-                android:orientation="horizontal">
-
-                <!-- 현재 Tx 파워 (관찰값). 설정값이 아니라 지금 PMIC 에 쓰인 값이라 혼자 다른 색이다 -->
-                <TextView
-                    android:id="@+id/ota_cur_pmic_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Cur -"
-                    android:textColor="#FF9100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="Cur 4.2V" />
-
-                <!-- 상시 동작 Tx 파워 하한 -->
-                <TextView
-                    android:id="@+id/ota_pmic_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="PMIC -"
-                    android:textColor="#FFD54F"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="PMIC 4.0V" />
-
-                <!-- 매핑 전용 Tx 파워 하한 -->
-                <TextView
-                    android:id="@+id/ota_mapping_pmic_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Map -"
-                    android:textColor="#FFD54F"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="Map 5.0V" />
-
-                <!-- Tx 파워 강제 고정 (0 이면 해제) -->
-                <TextView
-                    android:id="@+id/ota_force_pmic_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Fix -"
-                    android:textColor="#FFD54F"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="Fix Off" />
-
-                <!-- 링크 제어가 올릴 수 있는 Tx 파워 상한 (프로토콜 4.5 이상, 미만이면 숨긴다) -->
-                <TextView
-                    android:id="@+id/ota_max_pmic_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Max -"
-                    android:textColor="#FFD54F"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="Max 5.4V" />
-            </LinearLayout>
-
-            <!-- 2행 : BT / Step / Coin / Accel — 링크 타이밍과 재시도 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:gravity="center_vertical"
-                android:layout_height="@dimen/tdc_status_row_height"
-                android:baselineAligned="true"
-                android:orientation="horizontal">
-
-                <!-- 링크 백텔 주기 -->
-                <TextView
-                    android:id="@+id/ota_backtel_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="BT -"
-                    android:textColor="#4DD0E1"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="BT 300ms" />
-
-                <!-- Tx 파워 상승 스텝 -->
-                <TextView
-                    android:id="@+id/ota_step_up_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Step -"
-                    android:textColor="#4DD0E1"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="Step 4" />
-
-                <!-- 백텔 재시도 (one coin · infinite coin 을 합쳐 표시) -->
-                <TextView
-                    android:id="@+id/ota_one_coin_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Coin -"
-                    android:textColor="#4DD0E1"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="Coin On" />
-
-                <!-- Tx 파워 상승 가속 -->
-                <TextView
-                    android:id="@+id/ota_accel_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Accel -"
-                    android:textColor="#CE93D8"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="Accel On" />
-
-                <!-- 자리 맞춤. 1행이 5열이 되어 모든 행을 5열로 맞춘다 -->
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-            </LinearLayout>
-
-            <!-- 3행 : Nop / Mode — 지금 시험 중인 두 항목이라 나란히 두고 형광색으로 뗀다.
-                 이어서 맵과 자극 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:gravity="center_vertical"
-                android:layout_height="@dimen/tdc_status_row_height"
-                android:baselineAligned="true"
-                android:orientation="horizontal">
-
-                <!-- 전원 안정 Nop 개수. 별표는 리모콘이 정한 값이라는 뜻이다 (없으면 패킷 수별 기본값) -->
-                <TextView
-                    android:id="@+id/ota_nop_standby_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Nop -"
-                    android:textColor="#C6FF00"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="Nop 3*" />
-
-                <!-- 링크 제어 모드. ISD = 내부기 전원 상태를 본다, BT = 백텔이 왔는지만 본다 -->
-                <TextView
-                    android:id="@+id/ota_ctrl_mode_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Mode -"
-                    android:textColor="#C6FF00"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="Mode BT" />
-
-                <!-- 자극 전략. 펄스폭과 패킷 수가 어긋나는 이유를 이 값이 설명한다 -->
-                <TextView
-                    android:id="@+id/ota_strategy_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Strat -"
-                    android:textColor="#F06292"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="nOFm" />
-
-                <!-- 현재 맵의 자극 펄스폭 -->
-                <TextView
-                    android:id="@+id/ota_pulse_width_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="PW -"
-                    android:textColor="#F06292"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="PW 40us" />
-
-                <!-- 자리 맞춤. 1행이 5열이 되어 모든 행을 5열로 맞춘다 -->
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-            </LinearLayout>
-
-            <!-- 4행 : Frm — 맵과 자극, 이어서 기기 상태 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:gravity="center_vertical"
-                android:layout_height="@dimen/tdc_status_row_height"
-                android:baselineAligned="true"
-                android:orientation="horizontal">
-
-                <!-- 패킷 수 = 채널당 프레임 수. 앱은 이 값으로 쓸 수 있는 Nop 표를 찾는다 -->
-                <TextView
-                    android:id="@+id/ota_frame_num_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Frm -"
-                    android:textColor="#F06292"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="Frm 3" />
-
-                <!-- 게이팅(묵음) 상태 -->
-                <TextView
-                    android:id="@+id/ota_gating_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Gating -"
-                    android:textColor="#81C784"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="Gating On" />
-
-                <!-- LED 상태 -->
-                <TextView
-                    android:id="@+id/ota_led_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="LED -"
-                    android:textColor="#81C784"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="LED On" />
-
-                <!-- 자극알림 상태 -->
-                <TextView
-                    android:id="@+id/ota_alarm_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Alarm -"
-                    android:textColor="#81C784"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="Alarm On" />
-
-                <!-- 자리 맞춤. 1행이 5열이 되어 모든 행을 5열로 맞춘다 -->
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-            </LinearLayout>
-
-            <!-- 5행 : Prog / Vol / Out — 기기 상태 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:gravity="center_vertical"
-                android:layout_height="@dimen/tdc_status_row_height"
-                android:baselineAligned="true"
-                android:orientation="horizontal">
-
-                <!-- 현재 프로그램 번호 -->
-                <TextView
-                    android:id="@+id/ota_program_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Prog -"
-                    android:textColor="#81C784"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="Prog 1" />
-
-                <!-- 현재 볼륨 -->
-                <TextView
-                    android:id="@+id/ota_volume_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Vol -"
-                    android:textColor="#81C784"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="Vol 5" />
-
-                <!-- 현재 최대출력 -->
-                <TextView
-                    android:id="@+id/ota_max_output_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Out -"
-                    android:textColor="#81C784"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="bold"
-                    tools:text="Out 2" />
-
-                <!-- 자리 맞춤. 항목이 19개라 마지막 칸이 빈다 -->
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-
-                <!-- 자리 맞춤. 1행이 5열이 되어 모든 행을 5열로 맞춘다 -->
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- 사용자 이름 · 내부기 제조번호 묶음 (왼쪽 절반 · 오른쪽 절반) -->
-        <LinearLayout
-            android:id="@+id/ota_id_box"
-            android:background="@drawable/remote_control_glass_surface"
-            android:paddingStart="@dimen/tdc_glass_padding_h"
-            android:paddingTop="@dimen/tdc_glass_padding_v"
-            android:paddingEnd="@dimen/tdc_glass_padding_h"
-            android:paddingBottom="@dimen/tdc_glass_padding_v"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:baselineAligned="false"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toTopOf="@id/ota_slot_box"
-            app:layout_constraintEnd_toStartOf="@id/ota_fw_release_textview"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ota_status_info_box">
-
-            <!--
-            연결된 기기가 무엇인가. 어느 일을 하든 늘 봐야 하는 정보라 화면 맨 위에 둔다.
-
-            셋을 한 줄에 나란히 놓되 폭을 나누지 않는다. 사용자 이름은 제 글자만큼만
-            차지하고, 제조번호가 그 뒤에 간격을 두고 바로 붙는다. 남는 폭은 제조번호가
-            먹으므로 세대 배지는 자연히 오른쪽 끝에 선다.
-
-            예전에는 이름과 «제조번호+배지» 가 화면을 절반씩 나눠 가졌다. 그러면 이름이
-            짧을 때 제조번호가 화면 한가운데에서 시작해 이름과 동떨어져 보인다.
-            -->
-
-            <!-- 사용자 이름 · 착용부위 -->
-            <TextView
-                android:id="@+id/remote_control_connection_user_name_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text=""
-                android:textAlignment="textStart"
-                android:textColor="@color/white_100"
-                android:textSize="@dimen/tdc_text_size_title"
-                android:textStyle="bold"
-                tools:text="사용자 이름" />
-
-            <!-- 내부기 제조번호. 남는 폭을 먹어 배지를 오른쪽 끝으로 민다. -->
-            <TextView
-                android:id="@+id/remote_control_connection_isd_id_textview"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="@dimen/tdc_button_gap"
-                android:layout_weight="1"
-                android:ellipsize="end"
-                android:fontFamily="@font/roboto_mono_regular_variable"
-                android:maxLines="1"
-                android:text=""
-                android:textAlignment="textStart"
-                android:textColor="#66BB6A"
-                android:textSize="@dimen/tdc_text_size_isd_id"
-                android:textStyle="italic|bold"
-                tools:text="#16210001" />
-
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ota_slot_box"
-            android:background="@drawable/remote_control_glass_surface"
-            android:paddingStart="@dimen/tdc_glass_padding_h"
-            android:paddingTop="@dimen/tdc_glass_padding_v"
-            android:paddingEnd="@dimen/tdc_glass_padding_h"
-            android:paddingBottom="@dimen/tdc_glass_padding_v"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@id/ota_status_box"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ota_id_box">
-            <!--
-            헤더도 아래 내용과 같은 2:2 로 나눈다.
-            왼쪽 절반이 슬롯 선택, 오른쪽 절반이 슬롯 정보다.
-            -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="List of slots"
-                    android:textColor="#FFA000"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="Slot information"
-                    android:textColor="#FFA000"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <!-- Radio group for list of slots -->
-            <RadioGroup
-                android:id="@+id/slot_radio_button_group"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <com.google.android.material.radiobutton.MaterialRadioButton
-                    android:id="@+id/slot_1_radio_button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="1"
-                    android:minHeight="0dp"
-                    android:paddingTop="0dp"
-                    android:paddingBottom="0dp"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_normal" />
-
-                <com.google.android.material.radiobutton.MaterialRadioButton
-                    android:id="@+id/slot_2_radio_button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="2"
-                    android:minHeight="0dp"
-                    android:paddingTop="0dp"
-                    android:paddingBottom="0dp"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_normal" />
-
-                <!--
-                예전에는 자리 차지용 빈 칸이었다. 슬롯 정보를 여기로 올려 세로를 아꼈다.
-
-                슬롯 행의 가중치 합(1+1+2)과 아래 파일 행(1+1+1+1)이 모두 4라서,
-                슬롯 1 · 2 는 MFST · APP0 과, 이 칸은 APP1 · APP2 와 열이 맞는다.
-                -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="2"
-                    android:baselineAligned="true"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Curr"
-                        android:textColor="#BBDEFB"
-                        android:textSize="@dimen/tdc_text_size_normal"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/curr_slot_text_view"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/tdc_button_gap"
-                        android:layout_weight="1"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:text="FF"
-                        android:textColor="#00E676"
-                        android:textSize="@dimen/tdc_text_size_normal"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Last"
-                        android:textColor="#BBDEFB"
-                        android:textSize="@dimen/tdc_text_size_normal"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/last_slot_text_view"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/tdc_button_gap"
-                        android:layout_weight="1"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:text="FF"
-                        android:textColor="#00E676"
-                        android:textSize="@dimen/tdc_text_size_normal"
-                        android:textStyle="bold" />
+<?xml version='1.0' encoding='utf-8'?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools">
+    <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/remote_control_background_glass">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical">
+            <androidx.core.widget.NestedScrollView android:id="@+id/remote_content_scroll" android:paddingStart="12dp" android:paddingEnd="12dp" android:paddingTop="8dp" android:paddingBottom="6dp" android:clipToPadding="false" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+            <LinearLayout android:id="@+id/remote_primary_layout" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:baselineAligned="false">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:id="@+id/remote_status_column">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:id="@+id/ota_id_box" android:paddingBottom="4dp">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:id="@+id/remote_control_connection_user_name_textview" android:text="" android:fontFamily="@font/pyeongchang_peace_bold" app:fontFamily="@font/pyeongchang_peace_bold" android:textSize="@dimen/type_body" android:textColor="#91CBE8" android:includeFontPadding="true" android:layout_weight="1" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ota_fw_release_textview" android:text="" android:fontFamily="@font/pyeongchang_peace_bold" app:fontFamily="@font/pyeongchang_peace_bold" android:letterSpacing="0" android:textSize="@dimen/type_body" android:textColor="#A6CE59" android:includeFontPadding="true" android:maxLines="1" android:layout_marginStart="8dp" />
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:baselineAligned="false" android:layout_marginTop="3dp">
+                            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:id="@+id/remote_control_connection_isd_id_textview" android:text="" android:fontFamily="@font/kopubworld_dotum" app:fontFamily="@font/kopubworld_dotum" android:textSize="@dimen/type_body" android:textColor="#E7B58E" android:includeFontPadding="true" />
+                            <TextView android:id="@+id/legacy_battery_textview" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="@color/status_energy" android:includeFontPadding="true" android:maxLines="1" android:visibility="gone" tools:text="배터리 80%" />
+                        </LinearLayout>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:id="@+id/battery_telemetry_box" android:background="@drawable/remote_glass_panel" android:padding="8dp">
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1" android:paddingEnd="3dp">
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Battery" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" />
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/battery_percent_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="@color/status_energy" android:includeFontPadding="true" android:gravity="start" android:textStyle="bold" android:layout_marginTop="3dp" />
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1" android:paddingEnd="3dp">
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Voltage" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" />
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/battery_voltage_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="@color/status_voltage" android:includeFontPadding="true" android:gravity="start" android:textStyle="bold" android:layout_marginTop="3dp" />
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1" android:paddingEnd="3dp">
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Current" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" />
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/battery_current_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="@color/status_current" android:includeFontPadding="true" android:gravity="start" android:textStyle="bold" android:layout_marginTop="3dp" />
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1" android:paddingEnd="3dp">
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Power" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" />
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/battery_power_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="@color/status_power" android:includeFontPadding="true" android:gravity="start" android:textStyle="bold" android:layout_marginTop="3dp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/battery_detail_textview" android:text="" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#FFD99B" android:includeFontPadding="true" android:visibility="gone" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:id="@+id/ota_status_info_box">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:background="@drawable/remote_glass_panel" android:padding="8dp" android:layout_marginTop="4dp">
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1" android:paddingEnd="3dp">
+                                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Current" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" />
+                                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/ota_cur_pmic_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="start" android:textStyle="bold" android:layout_marginTop="3dp" />
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1" android:paddingEnd="3dp">
+                                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Normal" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" />
+                                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/ota_pmic_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="start" android:textStyle="bold" android:layout_marginTop="3dp" />
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1" android:paddingEnd="3dp">
+                                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Mapping" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" />
+                                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/ota_mapping_pmic_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="start" android:textStyle="bold" android:layout_marginTop="3dp" />
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1" android:paddingEnd="3dp">
+                                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Maximum" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" />
+                                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/ota_max_pmic_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="start" android:textStyle="bold" android:layout_marginTop="3dp" />
+                            </LinearLayout>
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:id="@+id/status_expandable_content" android:padding="8dp" android:layout_marginTop="8dp" android:background="@drawable/remote_status_surface">
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="top" android:layout_marginBottom="4dp">
+                                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1" android:padding="4dp" android:paddingStart="8dp" android:paddingEnd="8dp">
+                                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="자극 / 맵" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="@color/status_voltage" android:includeFontPadding="true" android:textStyle="bold" android:layout_marginBottom="6dp" />
+                                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:paddingTop="3dp" android:paddingBottom="3dp">
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:text="Prog/Vol/Out" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" android:layout_weight="1" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ota_program_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="end" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=" / " android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ota_volume_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="end" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=" / " android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ota_max_output_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="end" />
+                                    </LinearLayout>
+                                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:paddingTop="3dp" android:paddingBottom="3dp">
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:text="Strategy" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" android:layout_weight="1" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ota_strategy_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="end" />
+                                    </LinearLayout>
+                                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:paddingTop="3dp" android:paddingBottom="3dp">
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:text="PW / Frm" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" android:layout_weight="1" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ota_pulse_width_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="end" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=" / " android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ota_frame_num_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="end" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1" android:padding="4dp" android:paddingStart="8dp" android:paddingEnd="8dp">
+                                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="장치 동작" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="@color/status_energy" android:includeFontPadding="true" android:textStyle="bold" android:layout_marginBottom="6dp" />
+                                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:paddingTop="3dp" android:paddingBottom="3dp">
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:text="Gating" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" android:layout_weight="1" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ota_gating_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="end" />
+                                    </LinearLayout>
+                                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:paddingTop="3dp" android:paddingBottom="3dp">
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:text="LED" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" android:layout_weight="1" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ota_led_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="end" />
+                                    </LinearLayout>
+                                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:paddingTop="3dp" android:paddingBottom="3dp">
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:text="Alarm" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" android:layout_weight="1" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ota_alarm_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="end" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="top" android:layout_marginBottom="4dp">
+                                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1" android:padding="4dp" android:paddingStart="8dp" android:paddingEnd="8dp">
+                                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="링크 백텔 설정" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="@color/status_power" android:includeFontPadding="true" android:textStyle="bold" android:layout_marginBottom="6dp" />
+                                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:paddingTop="3dp" android:paddingBottom="3dp">
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:text="BT" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" android:layout_weight="1" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ota_backtel_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="end" />
+                                    </LinearLayout>
+                                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:paddingTop="3dp" android:paddingBottom="3dp">
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:text="Step / Fixed" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" android:layout_weight="1" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ota_step_up_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="end" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=" / " android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ota_force_pmic_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="end" />
+                                    </LinearLayout>
+                                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:paddingTop="3dp" android:paddingBottom="3dp">
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:text="Coin" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" android:layout_weight="1" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ota_one_coin_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="end" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1" android:padding="4dp" android:paddingStart="8dp" android:paddingEnd="8dp">
+                                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="연결 방식" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="@color/status_current" android:includeFontPadding="true" android:textStyle="bold" android:layout_marginBottom="6dp" />
+                                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:paddingTop="3dp" android:paddingBottom="3dp">
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:text="Accel" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" android:layout_weight="1" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ota_accel_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="end" />
+                                    </LinearLayout>
+                                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:paddingTop="3dp" android:paddingBottom="3dp">
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:text="Nop" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" android:layout_weight="1" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ota_nop_standby_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="end" />
+                                    </LinearLayout>
+                                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:paddingTop="3dp" android:paddingBottom="3dp">
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:text="Mode" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" android:layout_weight="1" />
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ota_ctrl_mode_textview" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:gravity="end" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/ota_ff_status_textview" android:text="" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#C4CBD2" android:includeFontPadding="true" android:layout_marginTop="4dp" android:layout_marginBottom="6dp" android:visibility="gone" />
+                    </LinearLayout>
                 </LinearLayout>
-            </RadioGroup>
+                <LinearLayout android:id="@+id/remote_controls_column" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="4dp" android:focusableInTouchMode="true" android:descendantFocusability="beforeDescendants">
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:id="@+id/ota_remote_box">
+                                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="기본 제어" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:textStyle="bold" android:layout_marginBottom="4dp" />
+                                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:layout_marginBottom="4dp">
+                                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:text="Program" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" android:layout_weight="1" />
+                                    <LinearLayout android:layout_width="@dimen/basic_control_action_width" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:background="@drawable/remote_glass_capsule">
+                                        <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_program_down_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="56dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="8dp" android:paddingEnd="8dp" android:text="−" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="20sp" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/remote_step_action" app:backgroundTint="@null" android:gravity="center" android:contentDescription="Program 감소" />
+                                        <View android:layout_width="1dp" android:layout_height="20dp" android:background="#60788E9D" />
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:id="@+id/control_program_value" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:layout_weight="1" android:gravity="center" />
+                                        <View android:layout_width="1dp" android:layout_height="20dp" android:background="#60788E9D" />
+                                        <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_program_up_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="56dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="8dp" android:paddingEnd="8dp" android:text="+" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="20sp" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/remote_step_action" app:backgroundTint="@null" android:gravity="center" android:contentDescription="Program 증가" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:layout_marginBottom="4dp">
+                                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:text="Volume" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" android:layout_weight="1" />
+                                    <LinearLayout android:layout_width="@dimen/basic_control_action_width" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:background="@drawable/remote_glass_capsule">
+                                        <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_volume_down_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="56dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="8dp" android:paddingEnd="8dp" android:text="−" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="20sp" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/remote_step_action" app:backgroundTint="@null" android:gravity="center" android:contentDescription="Volume 감소" />
+                                        <View android:layout_width="1dp" android:layout_height="20dp" android:background="#60788E9D" />
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:id="@+id/control_volume_value" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:layout_weight="1" android:gravity="center" />
+                                        <View android:layout_width="1dp" android:layout_height="20dp" android:background="#60788E9D" />
+                                        <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_volume_up_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="56dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="8dp" android:paddingEnd="8dp" android:text="+" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="20sp" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/remote_step_action" app:backgroundTint="@null" android:gravity="center" android:contentDescription="Volume 증가" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:layout_marginBottom="4dp">
+                                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:text="Output" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:includeFontPadding="true" android:layout_weight="1" />
+                                    <LinearLayout android:layout_width="@dimen/basic_control_action_width" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical" android:background="@drawable/remote_glass_capsule">
+                                        <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_max_output_down_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="56dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="8dp" android:paddingEnd="8dp" android:text="−" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="20sp" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/remote_step_action" app:backgroundTint="@null" android:gravity="center" android:contentDescription="Output 감소" />
+                                        <View android:layout_width="1dp" android:layout_height="20dp" android:background="#60788E9D" />
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:id="@+id/control_output_value" android:text="—" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:layout_weight="1" android:gravity="center" />
+                                        <View android:layout_width="1dp" android:layout_height="20dp" android:background="#60788E9D" />
+                                        <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_max_output_up_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="56dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="8dp" android:paddingEnd="8dp" android:text="+" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="20sp" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/remote_step_action" app:backgroundTint="@null" android:gravity="center" android:contentDescription="Output 증가" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:gravity="center_vertical">
+                                    <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_led_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:layout_weight="1" android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="8dp" android:paddingEnd="8dp" android:text="LED" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/remote_glass_button" app:backgroundTint="@null" android:gravity="center"  />
+                                    <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_alarm_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="@dimen/basic_control_action_width" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="8dp" android:paddingEnd="8dp" android:text="Alarm" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/remote_glass_button" app:backgroundTint="@null" android:gravity="center"  android:layout_marginStart="8dp" />
+                                </LinearLayout>
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:id="@+id/ota_etc_box">
+                                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="특수 제어" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:includeFontPadding="true" android:textStyle="bold" android:layout_marginBottom="4dp" />
+                                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Map · 링크 설정" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#D7DCE2" android:includeFontPadding="true" android:layout_marginTop="4dp" android:layout_marginBottom="4dp" />
+                                <GridLayout android:id="@+id/special_control_grid" android:layout_width="match_parent" android:layout_height="wrap_content" android:columnCount="3" android:useDefaultMargins="false">
+<com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_gating_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp"  android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="4dp" android:paddingEnd="4dp" android:text="Gating" android:textAllCaps="false" android:maxLines="2" android:layout_columnWeight="1" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:gravity="center" android:layout_margin="3dp" />
+<com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_bt_select_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="4dp" android:paddingEnd="4dp" android:text="BT Period" android:textAllCaps="false" android:maxLines="2" android:layout_columnWeight="1" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:gravity="center" android:layout_margin="3dp"  />
+<com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_pmic_select_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp"  android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="4dp" android:paddingEnd="4dp" android:text="Normal PMIC" android:textAllCaps="false" android:maxLines="2" android:layout_columnWeight="1" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:gravity="center" android:layout_margin="3dp" />
+<com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_nop_standby_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp"  android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="4dp" android:paddingEnd="4dp" android:text="Nop Standby" android:textAllCaps="false" android:maxLines="2" android:layout_columnWeight="1" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:gravity="center" android:layout_margin="3dp" />
+<com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_link_step_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp"  android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="4dp" android:paddingEnd="4dp" android:text="Link Step" android:textAllCaps="false" android:maxLines="2" android:layout_columnWeight="1" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:gravity="center" android:layout_margin="3dp" />
+<com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_fixed_pmic_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp"  android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="4dp" android:paddingEnd="4dp" android:text="Fixed PMIC" android:textAllCaps="false" android:maxLines="2" android:layout_columnWeight="1" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:gravity="center" android:layout_margin="3dp" />
+<com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_ctrl_mode_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="4dp" android:paddingEnd="4dp" android:text="Ctrl Mode" android:textAllCaps="false" android:maxLines="2" android:layout_columnWeight="1" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:gravity="center" android:layout_margin="3dp"  />
+<com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_one_coin_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp"  android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="4dp" android:paddingEnd="4dp" android:text="Coin" android:textAllCaps="false" android:maxLines="2" android:layout_columnWeight="1" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:gravity="center" android:layout_margin="3dp" />
+<com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_mapping_pmic_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp"  android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="4dp" android:paddingEnd="4dp" android:text="BT PMIC" android:textAllCaps="false" android:maxLines="2" android:layout_columnWeight="1" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:gravity="center" android:layout_margin="3dp" />
+<com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_map_select_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="4dp" android:paddingEnd="4dp" android:text="Map" android:textAllCaps="false" android:maxLines="2" android:layout_columnWeight="1" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:gravity="center" android:layout_margin="3dp"  />
+<com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_accel_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp"  android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="4dp" android:paddingEnd="4dp" android:text="Accel" android:textAllCaps="false" android:maxLines="2" android:layout_columnWeight="1" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:gravity="center" android:layout_margin="3dp" />
+<com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_max_pmic_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp"  android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="4dp" android:paddingEnd="4dp" android:text="Max PMIC" android:textAllCaps="false" android:maxLines="2" android:layout_columnWeight="1" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:gravity="center" android:layout_margin="3dp" />
+</GridLayout>
+</LinearLayout>
+<LinearLayout android:id="@+id/ff_tab_box" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="4dp" android:text="FF" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:fontFamily="@font/pretendard" android:textStyle="bold" />
+                                <LinearLayout android:id="@+id/ota_ff_controls" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+                                    <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_ff_check_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="match_parent" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="16dp" android:paddingEnd="8dp" android:text="FF 설정 확인   ›" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/remote_glass_button" app:backgroundTint="@null" android:gravity="center_vertical|start" android:layout_marginStart="0dp" android:layout_marginBottom="4dp" />
+                                    <TextView android:id="@+id/ff_check_hint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:text="먼저 FF 설정을 확인하면 아래 제어를 사용할 수 있습니다." android:textColor="#AEBEC7" android:textSize="@dimen/type_body" android:fontFamily="@font/pretendard" />
+                                    <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_ff_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="match_parent" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="16dp" android:paddingEnd="8dp" android:text="FF 모드   ›" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/remote_glass_button" app:backgroundTint="@null" android:gravity="center_vertical|start" android:layout_marginStart="0dp" android:layout_marginBottom="4dp" />
+                                    <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_ff1_settings_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="match_parent" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:layout_marginStart="0dp" android:visibility="gone" android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="16dp" android:paddingEnd="8dp" android:text="FF1 설정   ›" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/remote_glass_button" app:backgroundTint="@null" android:gravity="center_vertical|start" android:layout_marginBottom="4dp" />
+                                    <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_ff3_settings_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="match_parent" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:layout_marginStart="0dp" android:visibility="gone" android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="16dp" android:paddingEnd="8dp" android:text="FF3 설정   ›" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/remote_glass_button" app:backgroundTint="@null" android:gravity="center_vertical|start" android:layout_marginBottom="4dp" />
+                                    <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_ff3_diagnostics_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="match_parent" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:layout_marginStart="0dp" android:visibility="gone" android:insetTop="0dp" android:insetBottom="0dp" android:paddingStart="16dp" android:paddingEnd="8dp" android:text="FF3 진단   ›" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" app:minWidth="0dp" android:fontFamily="@font/pretendard" android:background="@drawable/remote_glass_button" app:backgroundTint="@null" android:gravity="center_vertical|start" android:layout_marginBottom="4dp" />
+                                </LinearLayout>
+                                <TextView android:id="@+id/ff_unavailable_text" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="연결된 장치의 FF 지원 여부를 확인 중입니다." android:textSize="@dimen/type_body" android:textColor="#AEBEC7" android:fontFamily="@font/pretendard" />
+                            </LinearLayout>
+                            <LinearLayout android:id="@+id/ota_expandable_content" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                                <com.google.android.material.button.MaterialButton android:id="@+id/ota_choose_files_button" android:layout_width="match_parent" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:text="업데이트 파일 폴더 선택   ›" android:textAllCaps="false" android:gravity="center_vertical|start" android:paddingStart="16dp" android:fontFamily="@font/pretendard" android:textSize="@dimen/type_body" android:textColor="#E9F0F2" android:background="@drawable/remote_glass_button" app:backgroundTint="@null" android:layout_marginBottom="4dp" />
+                                <TextView android:id="@+id/ota_folder_textview" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:layout_weight="1" android:ellipsize="start" android:fontFamily="@font/pretendard" android:maxLines="1" android:text="" android:textAlignment="textEnd" android:textColor="#AEBEC7" android:textSize="@dimen/type_body" tools:text="Folder: OTA/v1_5_240819" android:layout_marginBottom="4dp" />
+                                <LinearLayout android:id="@+id/ota_slot_box" android:background="@drawable/remote_status_surface" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="8dp" android:padding="12dp">
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="대상 슬롯" android:textColor="@color/status_voltage" android:textSize="@dimen/type_body" android:fontFamily="@font/pretendard"/>
+    <RadioGroup android:id="@+id/slot_radio_button_group" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+        <com.google.android.material.radiobutton.MaterialRadioButton android:id="@+id/slot_1_radio_button" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:gravity="center_vertical" android:fontFamily="@font/pretendard" android:text="Slot 1" android:textColor="@color/white_100" android:textSize="@dimen/type_body" app:buttonTint="@color/glass_choice_tint" app:useMaterialThemeColors="false"/>
+        <com.google.android.material.radiobutton.MaterialRadioButton android:id="@+id/slot_2_radio_button" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:gravity="center_vertical" android:fontFamily="@font/pretendard" android:text="Slot 2" android:textColor="@color/white_100" android:textSize="@dimen/type_body" app:buttonTint="@color/glass_choice_tint" app:useMaterialThemeColors="false"/>
+    </RadioGroup>
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#407E8CAD" android:layout_marginBottom="8dp"/>
+    <LinearLayout android:id="@+id/slot_information_row" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false">
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="horizontal" android:gravity="center_vertical">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Curr" android:textColor="@color/status_voltage" android:textSize="@dimen/type_body"/>
+            <TextView android:id="@+id/curr_slot_text_view" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="FF" android:textColor="#E9F0F2" android:textSize="@dimen/type_body"/>
         </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ota_status_box"
-            android:background="@drawable/remote_control_glass_surface"
-            android:paddingStart="@dimen/tdc_glass_padding_h"
-            android:paddingTop="@dimen/tdc_glass_padding_v"
-            android:paddingEnd="@dimen/tdc_glass_padding_h"
-            android:paddingBottom="@dimen/tdc_glass_padding_v"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@id/ota_button_box"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ota_slot_box">
-            <!-- Status of files · 지금 수집한 폴더 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:gravity="center_vertical"
-                android:layout_height="@dimen/tdc_status_row_height"
-                android:baselineAligned="true"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="Status of files"
-                    android:textColor="#FFA000"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold" />
-
-                <!--
-                수집한 폴더. 슬롯 번호와 더는 묶이지 않으므로 어디서 읽어 온 것인지
-                따로 보여 주지 않으면 알 수 없다.
-                -->
-                <TextView
-                    android:id="@+id/ota_folder_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:ellipsize="start"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text=""
-                    android:textAlignment="textEnd"
-                    android:textColor="#BBDEFB"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    tools:text="Folder: OTA/v1_5_240819" />
-            </LinearLayout>
-
-            <!-- Table top : 데이터 행과 같은 5열 1줄 구성 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:gravity="center_vertical"
-                android:layout_height="@dimen/tdc_status_row_height"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Name"
-                    android:textColor="#BBDEFB"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="R size"
-                    android:textColor="#BBDEFB"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Percent"
-                    android:textColor="#BBDEFB"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="W size"
-                    android:textColor="#BBDEFB"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:maxLines="1"
-                    android:text="Percent"
-                    android:textColor="#BBDEFB"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <!-- Table MANIFEST -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:gravity="center_vertical"
-                android:layout_height="@dimen/tdc_status_row_height"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/mfst_name_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="MFST"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/mfst_collect_size_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="0"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold"
-                    tools:text="1048576" />
-
-                <TextView
-                    android:id="@+id/mfst_collect_percent_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="0%"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold"
-                    tools:text="100%" />
-
-                <TextView
-                    android:id="@+id/mfst_write_size_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="0"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold"
-                    tools:text="1048576" />
-
-                <TextView
-                    android:id="@+id/mfst_write_percent_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="0%"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold"
-                    tools:text="100%" />
-            </LinearLayout>
-
-            <!-- Table APP000 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:gravity="center_vertical"
-                android:layout_height="@dimen/tdc_status_row_height"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/app0_name_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="APP0"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/app0_collect_size_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="0"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold"
-                    tools:text="1048576" />
-
-                <TextView
-                    android:id="@+id/app0_collect_percent_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="0%"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold"
-                    tools:text="100%" />
-
-                <TextView
-                    android:id="@+id/app0_write_size_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="0"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold"
-                    tools:text="1048576" />
-
-                <TextView
-                    android:id="@+id/app0_write_percent_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="0%"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold"
-                    tools:text="100%" />
-            </LinearLayout>
-
-            <!-- Table APP001 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:gravity="center_vertical"
-                android:layout_height="@dimen/tdc_status_row_height"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/app1_name_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="APP1"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/app1_collect_size_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="0"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold"
-                    tools:text="1048576" />
-
-                <TextView
-                    android:id="@+id/app1_collect_percent_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="0%"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold"
-                    tools:text="100%" />
-
-                <TextView
-                    android:id="@+id/app1_write_size_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="0"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold"
-                    tools:text="1048576" />
-
-                <TextView
-                    android:id="@+id/app1_write_percent_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="0%"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold"
-                    tools:text="100%" />
-            </LinearLayout>
-
-            <!-- Table APP002 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:gravity="center_vertical"
-                android:layout_height="@dimen/tdc_status_row_height"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/app2_name_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="APP2"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/app2_collect_size_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="0"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold"
-                    tools:text="1048576" />
-
-                <TextView
-                    android:id="@+id/app2_collect_percent_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="0%"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold"
-                    tools:text="100%" />
-
-                <TextView
-                    android:id="@+id/app2_write_size_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="0"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold"
-                    tools:text="1048576" />
-
-                <TextView
-                    android:id="@+id/app2_write_percent_textview"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/nanum_gothic_regular"
-                    android:text="0%"
-                    android:textColor="#00E676"
-                    android:textSize="@dimen/tdc_text_size_normal"
-                    android:textStyle="bold"
-                    tools:text="100%" />
-            </LinearLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="horizontal" android:gravity="center_vertical">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Last" android:textColor="@color/status_voltage" android:textSize="@dimen/type_body"/>
+            <TextView android:id="@+id/last_slot_text_view" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="FF" android:textColor="#E9F0F2" android:textSize="@dimen/type_body"/>
         </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
+<LinearLayout android:id="@+id/ota_button_box" android:background="@drawable/remote_status_surface" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="4dp" android:padding="8dp">
+                                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/tdc_button_gap" android:orientation="horizontal">
+                                        <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_info_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:layout_weight="1" android:text="Info" android:insetTop="0dp" android:insetBottom="0dp" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" android:fontFamily="@font/pretendard" android:background="@drawable/remote_glass_button" app:backgroundTint="@null" android:gravity="center" android:paddingStart="8dp" android:paddingEnd="8dp" />
+                                        <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_collect_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:layout_marginStart="@dimen/tdc_button_gap" android:layout_weight="1" android:text="Collect" android:insetTop="0dp" android:insetBottom="0dp" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" android:fontFamily="@font/pretendard" android:background="@drawable/remote_glass_button" app:backgroundTint="@null" android:gravity="center" android:paddingStart="8dp" android:paddingEnd="8dp" />
+                                        <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_write_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:layout_marginStart="@dimen/tdc_button_gap" android:layout_weight="1" android:text="Write" android:insetTop="0dp" android:insetBottom="0dp" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" android:fontFamily="@font/pretendard" android:background="@drawable/remote_glass_button" app:backgroundTint="@null" android:gravity="center" android:paddingStart="8dp" android:paddingEnd="8dp" />
+                                        <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_select_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:layout_marginStart="@dimen/tdc_button_gap" android:layout_weight="1" android:text="Select" android:insetTop="0dp" android:insetBottom="0dp" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" android:fontFamily="@font/pretendard" android:background="@drawable/remote_glass_button" app:backgroundTint="@null" android:gravity="center" android:paddingStart="8dp" android:paddingEnd="8dp" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                                <LinearLayout android:id="@+id/ota_status_box" android:background="@drawable/remote_status_surface" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="4dp" android:padding="8dp">
+                                    <LinearLayout android:layout_width="match_parent" android:gravity="center_vertical" android:layout_height="@dimen/tdc_status_row_height" android:baselineAligned="true" android:orientation="horizontal">
+                                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="@font/pretendard" android:text="파일별 진행률" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" />
+                                    </LinearLayout>
+                                    <LinearLayout android:layout_width="match_parent" android:gravity="center_vertical" android:layout_height="@dimen/tdc_status_row_height" android:orientation="horizontal">
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:fontFamily="@font/pretendard" android:maxLines="1" android:text="Name" android:textColor="#BBDEFB" android:textSize="@dimen/type_body" android:textStyle="bold" />
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:fontFamily="@font/pretendard" android:maxLines="1" android:text="R size" android:textColor="#BBDEFB" android:textSize="@dimen/type_body" android:textStyle="bold" />
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:fontFamily="@font/pretendard" android:maxLines="1" android:text="Percent" android:textColor="#BBDEFB" android:textSize="@dimen/type_body" android:textStyle="bold" />
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:fontFamily="@font/pretendard" android:maxLines="1" android:text="W size" android:textColor="#BBDEFB" android:textSize="@dimen/type_body" android:textStyle="bold" />
+                                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:fontFamily="@font/pretendard" android:maxLines="1" android:text="Percent" android:textColor="#BBDEFB" android:textSize="@dimen/type_body" android:textStyle="bold" />
+                                    </LinearLayout>
+                                    <LinearLayout android:layout_width="match_parent" android:gravity="center_vertical" android:layout_height="@dimen/tdc_status_row_height" android:orientation="horizontal">
+                                        <TextView android:id="@+id/mfst_name_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="MFST" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" />
+                                        <TextView android:id="@+id/mfst_collect_size_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="0" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" tools:text="1048576" />
+                                        <TextView android:id="@+id/mfst_collect_percent_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="0%" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" tools:text="100%" />
+                                        <TextView android:id="@+id/mfst_write_size_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="0" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" tools:text="1048576" />
+                                        <TextView android:id="@+id/mfst_write_percent_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="0%" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" tools:text="100%" />
+                                    </LinearLayout>
+                                    <LinearLayout android:layout_width="match_parent" android:gravity="center_vertical" android:layout_height="@dimen/tdc_status_row_height" android:orientation="horizontal">
+                                        <TextView android:id="@+id/app0_name_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="APP0" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" />
+                                        <TextView android:id="@+id/app0_collect_size_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="0" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" tools:text="1048576" />
+                                        <TextView android:id="@+id/app0_collect_percent_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="0%" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" tools:text="100%" />
+                                        <TextView android:id="@+id/app0_write_size_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="0" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" tools:text="1048576" />
+                                        <TextView android:id="@+id/app0_write_percent_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="0%" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" tools:text="100%" />
+                                    </LinearLayout>
+                                    <LinearLayout android:layout_width="match_parent" android:gravity="center_vertical" android:layout_height="@dimen/tdc_status_row_height" android:orientation="horizontal">
+                                        <TextView android:id="@+id/app1_name_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="APP1" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" />
+                                        <TextView android:id="@+id/app1_collect_size_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="0" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" tools:text="1048576" />
+                                        <TextView android:id="@+id/app1_collect_percent_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="0%" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" tools:text="100%" />
+                                        <TextView android:id="@+id/app1_write_size_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="0" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" tools:text="1048576" />
+                                        <TextView android:id="@+id/app1_write_percent_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="0%" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" tools:text="100%" />
+                                    </LinearLayout>
+                                    <LinearLayout android:layout_width="match_parent" android:gravity="center_vertical" android:layout_height="@dimen/tdc_status_row_height" android:orientation="horizontal">
+                                        <TextView android:id="@+id/app2_name_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="APP2" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" />
+                                        <TextView android:id="@+id/app2_collect_size_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="0" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" tools:text="1048576" />
+                                        <TextView android:id="@+id/app2_collect_percent_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="0%" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" tools:text="100%" />
+                                        <TextView android:id="@+id/app2_write_size_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="0" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" tools:text="1048576" />
+                                        <TextView android:id="@+id/app2_write_percent_textview" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/pretendard" android:text="0%" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" tools:text="100%" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                                <LinearLayout android:id="@+id/ota_caution_box" android:background="@drawable/remote_status_surface" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="4dp" android:padding="8dp">
+                                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/tdc_button_gap" android:fontFamily="@font/pretendard" android:text="복원 기능" android:textColor="#D7DCE2" android:textSize="@dimen/type_body" android:textStyle="bold" />
+                                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/tdc_button_gap" android:orientation="horizontal">
+                                        <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_factory_reset_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:layout_weight="1" android:text="FW slot rollback" android:insetTop="0dp" android:insetBottom="0dp" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" android:textStyle="italic" android:fontFamily="@font/pretendard" android:background="@drawable/remote_glass_button" app:backgroundTint="@null" android:gravity="center" android:paddingStart="8dp" android:paddingEnd="8dp" />
+                                        <com.google.android.material.button.MaterialButton android:letterSpacing="0" android:id="@+id/ota_map_init_default_button" style="@style/TextAppearance.MaterialComponents.Button" android:layout_width="0dp" android:layout_height="@dimen/remote_control_button_height" android:minHeight="0dp" android:paddingTop="0dp" android:paddingBottom="0dp" android:layout_marginStart="@dimen/tdc_button_gap" android:layout_weight="1" android:text="Map rollback" android:insetTop="0dp" android:insetBottom="0dp" android:textAllCaps="false" android:textColor="#E9F0F2" android:textSize="@dimen/type_body" android:textStyle="italic" android:fontFamily="@font/pretendard" android:background="@drawable/remote_glass_button" app:backgroundTint="@null" android:gravity="center" android:paddingStart="8dp" android:paddingEnd="8dp" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/ota_button_box"
-            android:background="@drawable/remote_control_glass_surface"
-            android:paddingStart="@dimen/tdc_glass_padding_h"
-            android:paddingTop="@dimen/tdc_glass_padding_v"
-            android:paddingEnd="@dimen/tdc_glass_padding_h"
-            android:paddingBottom="@dimen/tdc_glass_padding_v"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@id/ota_caution_box"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ota_status_box">
-            <!-- Buttons -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/tdc_button_gap"
-                android:fontFamily="@font/nanum_gothic_regular"
-                android:text="OTA Features"
-                android:textColor="#FFA000"
-                android:textSize="@dimen/tdc_text_size_normal"
-                android:textStyle="bold" />
-
-            <!-- Button 1행 : Info / Collect / Write / Select -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/tdc_button_gap"
-                android:orientation="horizontal">
-
-                <!-- Button : Info -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_info_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_weight="1"
-                    android:text="Info"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#1976D2"
-                    app:cornerRadius="4dp" />
-
-                <!-- Button : Collect -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_collect_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:text="Collect"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#00796B"
-                    app:cornerRadius="4dp" />
-
-                <!-- Button : Write -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_write_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:text="Write"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#D84315"
-                    app:cornerRadius="4dp" />
-
-                <!-- Button : Select -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_select_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:text="Select"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#8E24AA"
-                    app:cornerRadius="4dp" />
+                </LinearLayout>
             </LinearLayout>
-
+            </androidx.core.widget.NestedScrollView>
+            <com.google.android.material.tabs.TabLayout android:id="@+id/control_tabs" android:layout_width="match_parent" android:layout_height="54dp" android:minHeight="48dp" android:layout_marginBottom="0dp" android:background="@drawable/remote_navigation_surface" app:tabTextAppearance="@style/TextAppearance.App.ControlTab" app:tabMode="fixed" app:tabGravity="fill" app:tabTextColor="#C0CDD5" app:tabSelectedTextColor="#A6CEC7" app:tabIndicatorColor="#98C8BF" android:layout_marginTop="0dp" android:padding="0dp" app:tabIndicatorHeight="2dp" app:tabIndicatorGravity="top" app:tabIndicatorFullWidth="false" app:tabIconTint="@color/remote_navigation_tint" app:tabBackground="@android:color/transparent" app:tabRippleColor="@null" app:tabPaddingStart="0dp" app:tabPaddingEnd="0dp" app:tabMinWidth="0dp" app:tabMaxWidth="10000dp">
+                <com.google.android.material.tabs.TabItem android:layout="@layout/remote_navigation_item" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="기본 제어" android:icon="@drawable/remote_nav_basic" />
+                <com.google.android.material.tabs.TabItem android:layout="@layout/remote_navigation_item" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="특수 제어" android:icon="@drawable/remote_nav_special" />
+                <com.google.android.material.tabs.TabItem android:layout="@layout/remote_navigation_item" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="FF" android:icon="@drawable/remote_nav_ff" />
+                <com.google.android.material.tabs.TabItem android:layout="@layout/remote_navigation_item" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="OTA" android:icon="@drawable/remote_nav_ota" />
+            </com.google.android.material.tabs.TabLayout>
         </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ota_caution_box"
-            android:background="@drawable/remote_control_glass_surface"
-            android:paddingStart="@dimen/tdc_glass_padding_h"
-            android:paddingTop="@dimen/tdc_glass_padding_v"
-            android:paddingEnd="@dimen/tdc_glass_padding_h"
-            android:paddingBottom="@dimen/tdc_glass_padding_v"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@id/ota_remote_box"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ota_button_box">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/tdc_button_gap"
-                android:fontFamily="@font/nanum_gothic_regular"
-                android:text="Caution"
-                android:textColor="#FFA000"
-                android:textSize="@dimen/tdc_text_size_normal"
-                android:textStyle="bold" />
-
-            <!-- Caution 1행 : Factory rollback / Map rollback (되돌릴 수 없는 동작) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/tdc_button_gap"
-                android:orientation="horizontal">
-
-                <!-- Button : Factory reset -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_factory_reset_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_weight="1"
-                    android:text="FW slot rollback"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:textAllCaps="false"
-                    android:textColor="#FF8A80"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="italic"
-                    app:backgroundTint="#5D1A1A"
-                    app:cornerRadius="4dp" />
-
-                <!-- Button : 기본 맵으로 되돌리기 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_map_init_default_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:text="Map rollback"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:textAllCaps="false"
-                    android:textColor="#FF8A80"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    android:textStyle="italic"
-                    app:backgroundTint="#5D1A1A"
-                    app:cornerRadius="4dp" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ota_remote_box"
-            android:background="@drawable/remote_control_glass_surface"
-            android:paddingStart="@dimen/tdc_glass_padding_h"
-            android:paddingTop="@dimen/tdc_glass_padding_v"
-            android:paddingEnd="@dimen/tdc_glass_padding_h"
-            android:paddingBottom="@dimen/tdc_glass_padding_v"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@id/ota_etc_box"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ota_caution_box">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/tdc_button_gap"
-                android:fontFamily="@font/nanum_gothic_regular"
-                android:text="Remote"
-                android:textColor="#FFA000"
-                android:textSize="@dimen/tdc_text_size_normal"
-                android:textStyle="bold" />
-
-            <!-- Remote 1행 : Program- / Program+ / Vol- / Vol+ -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/tdc_button_gap"
-                android:orientation="horizontal">
-
-                <!-- Button : 이전 프로그램 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_program_down_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="Program-"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#0277BD"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-
-                <!-- Button : 다음 프로그램 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_program_up_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="Program+"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#0277BD"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-
-                <!-- Button : 볼륨 내리기 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_volume_down_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="Vol-"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#2E7D32"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-
-                <!-- Button : 볼륨 올리기 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_volume_up_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="Vol+"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#2E7D32"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-            </LinearLayout>
-
-            <!-- Remote 2행 : Out- / Out+ / LED / Alarm -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_marginTop="@dimen/tdc_button_gap"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <!-- Button : 최대출력 내리기 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_max_output_down_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="Out-"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#BF360C"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-
-                <!-- Button : 최대출력 올리기 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_max_output_up_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="Out+"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#BF360C"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-
-                <!-- Button : LED 켜기 / 끄기 (누를 때마다 반대 상태로) -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_led_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="LED"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#5E35B1"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-
-                <!-- Button : 자극알림 켜기 / 끄기 (누를 때마다 반대 상태로) -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_alarm_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="Alarm"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#AD1457"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ota_etc_box"
-            android:background="@drawable/remote_control_glass_surface"
-            android:paddingStart="@dimen/tdc_glass_padding_h"
-            android:paddingTop="@dimen/tdc_glass_padding_v"
-            android:paddingEnd="@dimen/tdc_glass_padding_h"
-            android:paddingBottom="@dimen/tdc_glass_padding_v"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ota_remote_box">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/tdc_button_gap"
-                android:fontFamily="@font/nanum_gothic_regular"
-                android:text="Etc,..."
-                android:textColor="#FFA000"
-                android:textSize="@dimen/tdc_text_size_normal"
-                android:textStyle="bold" />
-
-            <!-- Etc 1행 : Map / Gating / Normal PMIC / BT PMIC -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/tdc_button_gap"
-                android:orientation="horizontal">
-
-                <!-- Button : 맵 강제 초기화 종류를 선택 (32Ch / 16Ch) -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_map_select_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="Map"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#795548"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-
-                <!-- Button : 게이팅(묵음) 켜기 / 끄기 (누를 때마다 반대 상태로) -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_gating_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="Gating"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#00838F"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-
-                <!-- Button : 상시 동작 Tx 파워 하한을 선택 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_pmic_select_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="Normal PMIC"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#3F51B5"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-
-                <!-- Button : 매핑(피팅) 전용 Tx 파워 하한을 선택 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_mapping_pmic_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="BT PMIC"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#00695C"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-            </LinearLayout>
-
-            <!--
-            Etc 2행 : BT Period / Link Step / Fixed PMIC
-
-            버튼이 3개라 오른쪽 한 칸은 Space 로 비워 둔다.
-            윗줄과 같은 4열 격자를 유지해야 열이 맞기 때문이다.
-            -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_marginTop="@dimen/tdc_button_gap"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <!-- Button : 링크 백텔 주기를 선택 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_bt_select_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="BT Period"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#455A64"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-
-                <!-- Button : 링크 Tx 파워 상승 스텝을 선택 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_link_step_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="Link Step"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#6A1B9A"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-
-                <!-- Button : 모드와 무관하게 PMIC 레벨을 고정 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_fixed_pmic_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="Fixed PMIC"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#AD1457"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-
-                <!-- Button : 백텔 1회 실패 재시도(one coin) 켜기 / 끄기 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_one_coin_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="Coin"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#00796B"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-            </LinearLayout>
-
-            <!-- Etc 3행 : Ctrl Mode / Accel / Nop Standby (마지막 칸은 자리 맞춤용) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_marginTop="@dimen/tdc_button_gap"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_ctrl_mode_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="Ctrl Mode"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#37474F"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_accel_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="Accel"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#546E7A"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-
-                <!-- Button : 백텔 읽기 직전 전원 안정용 NopStandby 개수를 선택 -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_nop_standby_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="Nop Standby"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#455A64"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-
-                <!-- Button : 링크 제어가 올릴 수 있는 PMIC 상한을 선택 (프로토콜 4.5 이상)
-                     4.5 미만 기기에서는 코드가 숨긴다. 자리 맞춤용 Space 를 대신한다. -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_max_pmic_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="Max PMIC"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#455A64"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-            </LinearLayout>
-
-            <!-- Etc 4행 : FF (자극 레벨 피드포워드, 프로토콜 4.5 이상)
-                 설정이 7개 + 관측 3개라 버튼을 하나로 묶고 전용 다이얼로그에서 고른다.
-                 나머지 세 칸은 자리 맞춤이다 — 윗줄과 같은 4열 격자를 유지해야 열이 맞는다. -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_marginTop="@dimen/tdc_button_gap"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/ota_ff_button"
-                    style="@style/TextAppearance.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/tdc_button_height"
-                    android:layout_weight="1"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="0dp"
-                    android:text="FF"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_100"
-                    android:textSize="@dimen/tdc_text_size_small"
-                    app:backgroundTint="#455A64"
-                    app:cornerRadius="4dp"
-                    app:minWidth="0dp" />
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1" />
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1" />
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/tdc_button_gap"
-                    android:layout_weight="1" />
-            </LinearLayout>
-        </LinearLayout>
-        <!-- Connection -->
-        <!--
-        2단 배치의 열 경계.
-
-        태블릿에서만 ConstraintSet 이 이것을 참조한다. 폰에서는 아무 제약도 참조하지
-        않으므로 측정되지도 그려지지도 않는다 - 크기 0 의 가상 뷰다.
-
-        레이아웃 파일을 한 벌로 유지하려고 이렇게 한다. 태블릿용 XML 을 따로 만들면
-        위젯 정의가 두 벌이 되어 한쪽만 고쳐지는 일이 생긴다.
-        -->
-        <!--
-        사운드처리기 펌웨어 세대. 연결 직후 판별한 결과다.
-
-        ota_id_box 안이 아니라 루트의 직계로 둔다. 태블릿에서는 오른쪽 화면의 맨 왼쪽으로
-        옮겨야 하는데, 상자 안에 있으면 그 상자를 벗어날 수 없기 때문이다.
-        폰에서는 아래 제약대로 사용자 정보 줄의 오른쪽 끝에 선다.
-        -->
-        <TextView
-            android:id="@+id/ota_fw_release_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/fw_release_badge_background"
-            android:maxLines="1"
-            android:paddingStart="5dp"
-            android:paddingTop="1dp"
-            android:paddingEnd="5dp"
-            android:paddingBottom="1dp"
-            android:text=""
-            android:textColor="#1A1A1A"
-            android:textSize="@dimen/tdc_text_size_tiny"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@id/ota_id_box"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/ota_id_box"
-            tools:text="REL4.3" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/tdc_center_guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.5" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/remote_control_connection_layout"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:clickable="true"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:visibility="visible">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/remote_control_find_layout"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:alpha="0.9"
-                android:background="@color/black_70"
-                android:clickable="true"
-                android:gravity="center"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:visibility="gone">
-
-                <com.skyfishjy.library.RippleBackground
-                    android:id="@+id/remote_control_searching_animator"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:rb_color="@color/accent_10"
-                    app:rb_duration="2000"
-                    app:rb_radius="8dp"
-                    app:rb_rippleAmount="1"
-                    app:rb_scale="30">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_centerInParent="true"
-                        android:src="@drawable/item_user_ic_person_40dp"
-                        android:visibility="invisible" />
+        <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/remote_control_connection_layout" android:layout_width="match_parent" android:layout_height="match_parent" android:clickable="true" tools:visibility="visible">
+            <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/remote_control_find_layout" android:layout_width="0dp" android:layout_height="0dp" android:alpha="0.9" android:background="@color/black_70" android:clickable="true" android:gravity="center" android:visibility="visible" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" tools:visibility="gone">
+                <com.skyfishjy.library.RippleBackground android:id="@+id/remote_control_searching_animator" android:layout_width="0dp" android:layout_height="0dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:rb_color="@color/accent_10" app:rb_duration="2000" app:rb_radius="8dp" app:rb_rippleAmount="1" app:rb_scale="30">
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_centerInParent="true" android:src="@drawable/item_user_ic_person_40dp" android:visibility="invisible" />
                 </com.skyfishjy.library.RippleBackground>
-
-                <com.google.android.material.progressindicator.LinearProgressIndicator
-                    android:id="@+id/remote_control_progressbar"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:elevation="8dp"
-                    android:indeterminate="true"
-                    android:visibility="gone"
-                    app:indicatorColor="@color/accent_70"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:trackColor="@color/black_30" />
-
-                <TextView
-                    android:id="@+id/remote_control_connection_title"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="32dp"
-                    android:layout_marginEnd="32dp"
-                    android:elevation="8dp"
-                    android:lineSpacingMultiplier="1.5"
-                    android:padding="16dp"
-                    android:text="외부기를 머리에 부착한 상태에서\n장치 연결을 진행하세요."
-                    android:textAlignment="center"
-                    android:textColor="@color/white_90"
-                    android:textSize="@dimen/tdc_text_size_large"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/remote_control_progressbar"
-                    app:layout_constraintVertical_bias="0.35" />
+                <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/remote_control_progressbar" android:layout_width="0dp" android:layout_height="wrap_content" android:elevation="8dp" android:indeterminate="true" android:visibility="gone" app:indicatorColor="@color/accent_70" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:trackColor="@color/black_30" />
+                <TextView android:id="@+id/remote_control_connection_title" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="32dp" android:layout_marginEnd="32dp" android:elevation="8dp" android:lineSpacingMultiplier="1.5" android:padding="12dp" android:text="외부기를 머리에 부착한 상태에서\n장치 연결을 진행하세요." android:textAlignment="center" android:textColor="@color/white_90" android:textSize="@dimen/tdc_text_size_large" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/remote_control_progressbar" app:layout_constraintVertical_bias="0.35" android:fontFamily="@font/pretendard" />
             </androidx.constraintlayout.widget.ConstraintLayout>
-
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>
 </layout>

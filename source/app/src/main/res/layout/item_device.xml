@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/black_70"
-    android:minHeight="96dp"
+    android:background="@drawable/app_glass_action" android:layout_marginTop="4dp" android:layout_marginBottom="4dp" android:paddingStart="10dp" android:paddingEnd="10dp"
+    android:minHeight="88dp"
     android:paddingTop="8dp"
     android:paddingBottom="8dp">
 
@@ -27,13 +27,13 @@
         android:text=""
         android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
         android:textColor="@color/white_90"
-        android:textSize="18dp"
+        android:textSize="@dimen/type_body"
         app:layout_constraintBottom_toTopOf="@id/option"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/device_image"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="A1B2" />
+        tools:text="A1B2" android:fontFamily="@font/pretendard" />
 
     <TextView
         android:id="@+id/option"
@@ -42,11 +42,11 @@
         android:layout_marginTop="4dp"
         android:text=""
         android:textColor="@color/white_80"
-        android:textSize="14dp"
+        android:textSize="@dimen/type_body"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/serial"
         app:layout_constraintTop_toBottomOf="@id/serial"
-        tools:text="길동이꺼" />
+        tools:text="길동이꺼" android:fontFamily="@font/pretendard" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

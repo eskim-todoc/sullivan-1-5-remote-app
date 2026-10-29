@@ -1,0 +1,368 @@
+10-23 11:10:56.789 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 FF 00 00 
+10-23 11:10:56.831 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 FF 00 00 0A 04 06 06 00 00 00 07 00 00 00 
+10-23 11:10:56.833 16747 16747 I TODOC_MainActivity: [LINK] 0x59 프로토콜 버전 4.6, 지원 옵션 비트맵 06 00 00 00 07 00 00 00 (링크=true, 자극=true, 배터리=true)
+10-23 11:10:56.896 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 00 
+10-23 11:10:56.934 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 00 0F 7C 03 70 AC 04 00 01 00 00 01 03 19 02 00 01 
+10-23 11:10:56.960 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 01 
+10-23 11:10:56.992 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 01 01 01 02 
+10-23 11:10:56.996 16747 16747 D TODOC_MainActivity: [LINK] 세대 판별과 상태 읽기를 완료했습니다. -> REL4.6
+10-23 11:10:57.003 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 10 
+10-23 11:10:57.037 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 10 01 D6 
+10-23 11:10:57.097 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 26 
+10-23 11:10:57.129 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 26 01 03 
+10-23 11:10:57.183 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 11 
+10-23 11:10:57.219 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 11 01 03 
+10-23 11:10:57.272 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 27 
+10-23 11:10:57.308 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 27 01 19 
+10-23 11:10:57.360 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 74 
+10-23 11:10:57.401 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 74 0A 03 00 00 00 15 67 2E A6 67 00 
+10-23 11:10:57.453 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 28 
+10-23 11:10:57.488 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 28 01 01 
+10-23 11:10:57.541 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 29 
+10-23 11:10:57.578 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 29 01 20 
+10-23 11:10:57.630 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 2A 
+10-23 11:10:57.668 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 2A 01 19 
+10-23 11:10:57.719 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 2B 
+10-23 11:10:57.757 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 2B 01 06 
+10-23 11:10:57.809 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 2C 
+10-23 11:10:57.847 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 2C 01 0C 
+10-23 11:10:57.900 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 2D 
+10-23 11:10:57.938 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 2D 01 02 
+10-23 11:10:57.991 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 2E 
+10-23 11:10:58.029 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 2E 01 06 
+10-23 11:10:58.081 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 2F 
+10-23 11:10:58.118 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 2F 01 18 
+10-23 11:10:58.170 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 30 
+10-23 11:10:58.209 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 30 01 04 
+10-23 11:10:58.262 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 31 
+10-23 11:10:58.298 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 31 01 01 
+10-23 11:10:58.350 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 32 
+10-23 11:10:58.388 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 32 01 0B 
+10-23 11:10:58.440 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 33 
+10-23 11:10:58.478 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 33 01 20 
+10-23 11:10:58.530 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 34 
+10-23 11:10:58.568 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 34 01 03 
+10-23 11:10:58.620 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 35 
+10-23 11:10:58.657 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 35 01 03 
+10-23 11:10:58.710 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 36 
+10-23 11:10:58.748 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 36 01 04 
+10-23 11:10:58.799 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 37 
+10-23 11:10:58.838 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 37 01 06 
+10-23 11:10:58.890 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 38 
+10-23 11:10:58.930 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 38 01 01 
+10-23 11:10:58.982 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 39 
+10-23 11:10:59.018 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 39 01 04 
+10-23 11:10:59.071 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 3A 
+10-23 11:10:59.109 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 3A 01 01 
+10-23 11:10:59.161 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 3B 
+10-23 11:10:59.198 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 3B 01 01 
+10-23 11:10:59.251 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 3C 
+10-23 11:10:59.287 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 3C 01 01 
+10-23 11:10:59.339 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 40 
+10-23 11:10:59.378 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 40 01 00 
+10-23 11:10:59.430 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 41 
+10-23 11:10:59.468 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 41 01 28 
+10-23 11:10:59.520 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 42 
+10-23 11:10:59.558 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 42 01 2E 
+10-23 11:10:59.610 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 43 
+10-23 11:10:59.649 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 43 01 37 
+10-23 11:10:59.701 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 44 
+10-23 11:10:59.739 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 44 01 41 
+10-23 11:10:59.791 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 45 
+10-23 11:10:59.828 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 45 01 50 
+10-23 11:10:59.880 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 46 
+10-23 11:10:59.919 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 46 01 00 
+10-23 11:10:59.971 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 47 
+10-23 11:11:00.006 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 47 01 00 
+10-23 11:11:00.058 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 48 
+10-23 11:11:00.082 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 48 01 00 
+10-23 11:11:00.132 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 49 
+10-23 11:11:00.173 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 49 01 00 
+10-23 11:11:00.226 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 4A 
+10-23 11:11:00.263 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 4A 01 00 
+10-23 11:11:00.314 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 4B 
+10-23 11:11:00.352 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 4B 01 00 
+10-23 11:11:00.403 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 4C 
+10-23 11:11:00.442 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 4C 01 00 
+10-23 11:11:00.494 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 4D 
+10-23 11:11:00.533 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 4D 01 00 
+10-23 11:11:00.585 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 4E 
+10-23 11:11:00.623 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 4E 01 00 
+10-23 11:11:00.673 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 4F 
+10-23 11:11:00.712 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 4F 01 00 
+10-23 11:11:00.762 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 50 
+10-23 11:11:00.786 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 50 01 00 
+10-23 11:11:00.839 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 51 
+10-23 11:11:00.878 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 51 01 04 
+10-23 11:11:00.931 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 52 
+10-23 11:11:00.968 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 52 01 03 
+10-23 11:11:01.020 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 53 
+10-23 11:11:01.057 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 53 01 02 
+10-23 11:11:01.109 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 54 
+10-23 11:11:01.149 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 54 01 01 
+10-23 11:11:01.202 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 55 
+10-23 11:11:01.238 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 55 01 01 
+10-23 11:11:01.290 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 56 
+10-23 11:11:01.458 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 56 01 00 
+10-23 11:11:01.511 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 57 
+10-23 11:11:01.607 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 57 01 00 
+10-23 11:11:01.659 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 58 
+10-23 11:11:01.757 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 58 01 00 
+10-23 11:11:01.809 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 59 
+10-23 11:11:01.908 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 59 01 00 
+10-23 11:11:01.959 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 5A 
+10-23 11:11:02.132 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 5A 01 00 
+10-23 11:11:02.184 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 5B 
+10-23 11:11:02.285 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 5B 01 00 
+10-23 11:11:02.338 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 5C 
+10-23 11:11:02.432 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 5C 01 00 
+10-23 11:11:02.485 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 5D 
+10-23 11:11:02.582 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 5D 01 00 
+10-23 11:11:02.634 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 5E 
+10-23 11:11:02.734 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 5E 01 00 
+10-23 11:11:02.786 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 5F 
+10-23 11:11:02.883 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 5F 01 00 
+10-23 11:11:02.935 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 60 
+10-23 11:11:03.032 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 60 01 04 
+10-23 11:11:03.085 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 61 
+10-23 11:11:03.183 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 61 01 04 
+10-23 11:11:03.234 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 62 
+10-23 11:11:03.332 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 62 01 04 
+10-23 11:11:03.385 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 63 
+10-23 11:11:03.483 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 63 01 05 
+10-23 11:11:03.535 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 64 
+10-23 11:11:03.707 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 64 01 06 
+10-23 11:11:03.760 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 65 
+10-23 11:11:03.858 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 65 01 08 
+10-23 11:11:03.910 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 66 
+10-23 11:11:04.007 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 66 01 00 
+10-23 11:11:04.059 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 67 
+10-23 11:11:04.159 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 67 01 00 
+10-23 11:11:04.211 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 68 
+10-23 11:11:04.308 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 68 01 00 
+10-23 11:11:04.360 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 69 
+10-23 11:11:04.457 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 69 01 00 
+10-23 11:11:04.510 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 6A 
+10-23 11:11:04.608 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 6A 01 00 
+10-23 11:11:04.659 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 6B 
+10-23 11:11:04.756 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 6B 01 00 
+10-23 11:11:04.808 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 6C 
+10-23 11:11:04.982 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 6C 01 00 
+10-23 11:11:05.034 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 6D 
+10-23 11:11:05.132 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 6D 01 00 
+10-23 11:11:05.184 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 6E 
+10-23 11:11:05.284 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 6E 01 00 
+10-23 11:11:05.336 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 6F 
+10-23 11:11:05.431 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 6F 01 00 
+10-23 11:11:06.758 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:07.010 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7E 00 21 77 81 FF FF B9 33 00 01 14 
+10-23 11:11:07.020 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +18.125 mA, +0.072953 W, 방전 / 수신 시 샘플 나이 276 ms
+10-23 11:11:08.759 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:08.885 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7A 00 21 7F 67 FF FF BA 38 00 01 2A 
+10-23 11:11:08.890 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.864 mA, +0.071903 W, 방전 / 수신 시 샘플 나이 298 ms
+10-23 11:11:10.759 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:10.910 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 77 00 21 87 4D FF FF BB 08 00 01 40 
+10-23 11:11:10.917 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.656 mA, +0.071065 W, 방전 / 수신 시 샘플 나이 320 ms
+10-23 11:11:12.758 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:12.859 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 75 00 21 8E E7 FF FF BB 3C 00 01 09 
+10-23 11:11:12.868 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.604 mA, +0.070856 W, 방전 / 수신 시 샘플 나이 265 ms
+10-23 11:11:14.759 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:14.886 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 76 00 21 96 CD FF FF BD 45 00 01 20 
+10-23 11:11:14.892 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.083 mA, +0.068759 W, 방전 / 수신 시 샘플 나이 288 ms
+10-23 11:11:16.759 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:16.985 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7E 00 21 9E FE FF FF BB D9 00 01 80 
+10-23 11:11:16.994 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.447 mA, +0.070224 W, 방전 / 수신 시 샘플 나이 384 ms
+10-23 11:11:18.759 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:18.860 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7F 00 21 A6 4E FF FF BA D4 00 01 01 
+10-23 11:11:18.868 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.708 mA, +0.071275 W, 방전 / 수신 시 샘플 나이 257 ms
+10-23 11:11:20.759 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 00 
+10-23 11:11:20.885 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 00 0F 7E 03 70 AC 04 00 01 00 00 01 03 19 02 00 01 
+10-23 11:11:20.957 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 10 
+10-23 11:11:21.109 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 10 01 D6 
+10-23 11:11:22.760 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:22.910 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7A 00 21 B6 19 FF FF BB 3C 00 01 2C 
+10-23 11:11:22.915 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.604 mA, +0.070856 W, 방전 / 수신 시 샘플 나이 300 ms
+10-23 11:11:24.760 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:24.859 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7B 00 21 BD B4 FF FF BB 70 00 00 F7 
+10-23 11:11:24.865 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.552 mA, +0.070647 W, 방전 / 수신 시 샘플 나이 247 ms
+10-23 11:11:26.759 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:26.885 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 80 00 21 C5 9A FF FF BA D4 00 01 0D 
+10-23 11:11:26.892 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.708 mA, +0.071275 W, 방전 / 수신 시 샘플 나이 269 ms
+10-23 11:11:28.760 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:28.909 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7D 00 21 CD 7F FF FF BB 3C 00 01 22 
+10-23 11:11:28.915 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.604 mA, +0.070856 W, 방전 / 수신 시 샘플 나이 290 ms
+10-23 11:11:30.761 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:30.935 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7A 00 21 D5 65 FF FF BC 41 00 01 37 
+10-23 11:11:30.941 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.343 mA, +0.069806 W, 방전 / 수신 시 샘플 나이 311 ms
+10-23 11:11:32.762 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:32.959 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7B 00 21 DD 4B FF FF BC A9 00 01 4E 
+10-23 11:11:32.965 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.239 mA, +0.069387 W, 방전 / 수신 시 샘플 나이 334 ms
+10-23 11:11:36.764 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:36.859 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 78 00 21 EC 80 FF FF BD 45 00 00 E3 
+10-23 11:11:36.866 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.083 mA, +0.068759 W, 방전 / 수신 시 샘플 나이 227 ms
+10-23 11:11:38.765 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:38.883 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 77 00 21 F4 66 FF FF BD 45 00 00 F9 
+10-23 11:11:38.887 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.083 mA, +0.068759 W, 방전 / 수신 시 샘플 나이 249 ms
+10-23 11:11:40.766 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:40.910 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 77 00 21 FC 4C FF FF BD 79 00 01 0F 
+10-23 11:11:40.915 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.031 mA, +0.068550 W, 방전 / 수신 시 샘플 나이 271 ms
+10-23 11:11:42.767 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:42.860 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 78 00 22 03 E6 FF FF BD 11 00 00 D9 
+10-23 11:11:42.866 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.135 mA, +0.068968 W, 방전 / 수신 시 샘플 나이 217 ms
+10-23 11:11:44.768 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:44.885 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7A 00 22 0B CC FF FF BC DD 00 00 EF 
+10-23 11:11:44.891 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.187 mA, +0.069178 W, 방전 / 수신 시 샘플 나이 239 ms
+10-23 11:11:46.769 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:46.911 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7B 00 22 13 B2 FF FF BD 79 00 01 05 
+10-23 11:11:46.917 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.031 mA, +0.068550 W, 방전 / 수신 시 샘플 나이 261 ms
+10-23 11:11:48.773 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:48.859 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 76 00 22 1B 4D FF FF BE 4A 00 00 D0 
+10-23 11:11:48.864 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.822 mA, +0.067709 W, 방전 / 수신 시 샘플 나이 208 ms
+10-23 11:11:50.772 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 00 
+10-23 11:11:50.885 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 00 0F 76 03 70 AC 04 00 01 00 00 01 03 19 02 00 01 
+10-23 11:11:50.953 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 10 
+10-23 11:11:51.108 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 10 01 D6 
+10-23 11:11:52.772 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:52.911 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 76 00 22 2B 18 FF FF BD 79 00 00 FB 
+10-23 11:11:52.917 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.031 mA, +0.068550 W, 방전 / 수신 시 샘플 나이 251 ms
+10-23 11:11:54.774 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:54.935 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 77 00 22 32 FE FF FF BD 45 00 01 11 
+10-23 11:11:54.937 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.083 mA, +0.068759 W, 방전 / 수신 시 샘플 나이 273 ms
+10-23 11:11:56.776 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:56.884 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 78 00 22 3A 99 FF FF BC 75 00 00 DC 
+10-23 11:11:56.889 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.291 mA, +0.069596 W, 방전 / 수신 시 샘플 나이 220 ms
+10-23 11:11:58.777 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:11:58.910 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 79 00 22 42 7E FF FF BD AD 00 00 F1 
+10-23 11:11:58.914 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.979 mA, +0.068340 W, 방전 / 수신 시 샘플 나이 241 ms
+10-23 11:12:00.778 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:00.934 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 79 00 22 4A 64 FF FF BE 4A 00 01 07 
+10-23 11:12:00.940 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.822 mA, +0.067709 W, 방전 / 수신 시 샘플 나이 263 ms
+10-23 11:12:02.780 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:02.885 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 79 00 22 51 FF FF FF BD 79 00 00 D2 
+10-23 11:12:02.891 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.031 mA, +0.068550 W, 방전 / 수신 시 샘플 나이 210 ms
+10-23 11:12:06.783 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:06.935 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 77 00 22 61 CA FF FF BE 4A 00 00 FD 
+10-23 11:12:06.941 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.822 mA, +0.067709 W, 방전 / 수신 시 샘플 나이 253 ms
+10-23 11:12:08.785 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:08.884 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7B 00 22 69 65 FF FF BE 4A 00 00 C8 
+10-23 11:12:08.887 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.822 mA, +0.067709 W, 방전 / 수신 시 샘플 나이 200 ms
+10-23 11:12:10.786 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:10.985 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 78 00 22 71 4B FF FF BD E1 00 00 DE 
+10-23 11:12:10.990 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.927 mA, +0.068131 W, 방전 / 수신 시 샘플 나이 222 ms
+10-23 11:12:12.787 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:12.935 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 79 00 22 79 30 FF FF BD 11 00 00 F3 
+10-23 11:12:12.940 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.135 mA, +0.068968 W, 방전 / 수신 시 샘플 나이 243 ms
+10-23 11:12:14.788 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:14.891 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7A 00 22 80 CB FF FF BC 75 00 00 BE 
+10-23 11:12:14.895 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.291 mA, +0.069596 W, 방전 / 수신 시 샘플 나이 190 ms
+10-23 11:12:16.789 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:16.911 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 75 00 22 88 B1 FF FF BC 0D 00 00 D4 
+10-23 11:12:16.915 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.395 mA, +0.070015 W, 방전 / 수신 시 샘플 나이 212 ms
+10-23 11:12:18.790 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:18.935 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 79 00 22 90 96 FF FF BD 11 00 00 E9 
+10-23 11:12:18.941 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.135 mA, +0.068968 W, 방전 / 수신 시 샘플 나이 233 ms
+10-23 11:12:20.791 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 00 
+10-23 11:12:20.886 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 00 0F 7A 03 70 AC 04 00 01 00 00 01 03 19 02 00 01 
+10-23 11:12:20.957 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 10 
+10-23 11:12:21.107 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 10 01 D6 
+10-23 11:12:22.792 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:22.910 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7B 00 22 A0 17 FF FF BE 15 00 00 CA 
+10-23 11:12:22.915 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.875 mA, +0.067922 W, 방전 / 수신 시 샘플 나이 202 ms
+10-23 11:12:24.794 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:25.010 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 78 00 22 A7 FC FF FF BF 4E 00 00 DF 
+10-23 11:12:25.018 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.562 mA, +0.066662 W, 방전 / 수신 시 샘플 나이 223 ms
+10-23 11:12:26.794 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:26.886 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7A 00 22 AF 98 FF FF BF B6 00 00 AB 
+10-23 11:12:26.891 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.458 mA, +0.066243 W, 방전 / 수신 시 샘플 나이 171 ms
+10-23 11:12:28.795 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:28.986 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7A 00 22 B7 C8 FF FF BF 82 00 01 0B 
+10-23 11:12:28.988 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.510 mA, +0.066453 W, 방전 / 수신 시 샘플 나이 267 ms
+10-23 11:12:30.796 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:30.935 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 79 00 22 BF 62 FF FF BF EA 00 00 D5 
+10-23 11:12:30.940 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.406 mA, +0.066034 W, 방전 / 수신 시 샘플 나이 213 ms
+10-23 11:12:32.798 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:32.960 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7B 00 22 C7 48 FF FF C0 1E 00 00 EB 
+10-23 11:12:32.968 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.354 mA, +0.065825 W, 방전 / 수신 시 샘플 나이 235 ms
+10-23 11:12:36.801 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:36.935 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7D 00 22 D6 C8 FF FF BE 4A 00 00 CA 
+10-23 11:12:36.939 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.822 mA, +0.067709 W, 방전 / 수신 시 샘플 나이 202 ms
+10-23 11:12:38.803 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:38.960 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7A 00 22 DE AD FF FF BC DD 00 00 E0 
+10-23 11:12:38.964 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.187 mA, +0.069178 W, 방전 / 수신 시 샘플 나이 224 ms
+10-23 11:12:40.804 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:40.911 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 79 00 22 E6 48 FF FF BD 11 00 00 AB 
+10-23 11:12:40.915 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.135 mA, +0.068968 W, 방전 / 수신 시 샘플 나이 171 ms
+10-23 11:12:42.804 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:42.935 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 77 00 22 EE 2E FF FF BE 15 00 00 C1 
+10-23 11:12:42.939 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.875 mA, +0.067922 W, 방전 / 수신 시 샘플 나이 193 ms
+10-23 11:12:44.806 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:44.959 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 77 00 22 F6 13 FF FF BD 45 00 00 D6 
+10-23 11:12:44.964 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.083 mA, +0.068759 W, 방전 / 수신 시 샘플 나이 214 ms
+10-23 11:12:46.806 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:46.910 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 77 00 22 FD AE FF FF BD 45 00 00 A1 
+10-23 11:12:46.913 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.083 mA, +0.068759 W, 방전 / 수신 시 샘플 나이 161 ms
+10-23 11:12:48.807 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:48.937 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 79 00 23 05 93 FF FF BD 45 00 00 B6 
+10-23 11:12:48.941 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.083 mA, +0.068759 W, 방전 / 수신 시 샘플 나이 182 ms
+10-23 11:12:50.808 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 00 
+10-23 11:12:50.961 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 00 0F 7B 03 70 AC 04 00 01 00 00 01 03 19 02 00 01 
+10-23 11:12:51.028 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 10 
+10-23 11:12:51.184 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 10 01 D6 
+10-23 11:12:52.810 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:52.910 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 76 00 23 15 13 FF FF BD E1 00 00 96 
+10-23 11:12:52.914 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.927 mA, +0.068131 W, 방전 / 수신 시 샘플 나이 150 ms
+10-23 11:12:54.812 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:54.937 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7B 00 23 1C F9 FF FF BE 15 00 00 AB 
+10-23 11:12:54.941 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.875 mA, +0.067922 W, 방전 / 수신 시 샘플 나이 171 ms
+10-23 11:12:56.813 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:56.960 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7B 00 23 24 DF FF FF BD E1 00 00 C2 
+10-23 11:12:56.964 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.927 mA, +0.068131 W, 방전 / 수신 시 샘플 나이 194 ms
+10-23 11:12:58.814 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:12:58.910 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 78 00 23 2C 79 FF FF BD E1 00 00 8C 
+10-23 11:12:58.911 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.927 mA, +0.068131 W, 방전 / 수신 시 샘플 나이 140 ms
+10-23 11:13:00.816 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:13:00.935 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 77 00 23 34 5F FF FF BD 79 00 00 A2 
+10-23 11:13:00.939 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.031 mA, +0.068550 W, 방전 / 수신 시 샘플 나이 162 ms
+10-23 11:13:02.816 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:13:02.960 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 77 00 23 3C 45 FF FF BD 79 00 00 B8 
+10-23 11:13:02.963 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +17.031 mA, +0.068550 W, 방전 / 수신 시 샘플 나이 184 ms
+10-23 11:13:06.818 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:13:06.935 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 79 00 23 4B C5 FF FF BE 4A 00 00 98 
+10-23 11:13:06.938 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.822 mA, +0.067709 W, 방전 / 수신 시 샘플 나이 152 ms
+10-23 11:13:08.819 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:13:08.961 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F BA 5A 79 00 23 53 AA FF FF BE B2 00 00 AD 
+10-23 11:13:08.965 16747 16747 D TODOC_MainActivity: [BATTERY] 4.026 V, +16.718 mA, +0.067307 W, 방전 / 수신 시 샘플 나이 173 ms
+10-23 11:13:10.820 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:13:10.912 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7A 00 23 5B 45 FF FF BE E6 00 00 77 
+10-23 11:13:10.915 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.666 mA, +0.067081 W, 방전 / 수신 시 샘플 나이 119 ms
+10-23 11:13:12.821 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:13:12.936 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7A 00 23 63 2A FF FF BE E6 00 00 8D 
+10-23 11:13:12.938 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.666 mA, +0.067081 W, 방전 / 수신 시 샘플 나이 141 ms
+10-23 11:13:14.823 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:13:14.961 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7A 00 23 6B 10 FF FF BE E6 00 00 A3 
+10-23 11:13:14.964 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.666 mA, +0.067081 W, 방전 / 수신 시 샘플 나이 163 ms
+10-23 11:13:16.823 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:13:16.911 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7C 00 23 72 AB FF FF BF 4E 00 00 6E 
+10-23 11:13:16.913 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.562 mA, +0.066662 W, 방전 / 수신 시 샘플 나이 110 ms
+10-23 11:13:18.824 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:13:18.935 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 7B 00 23 7A 90 FF FF BE E6 00 00 83 
+10-23 11:13:18.938 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.666 mA, +0.067081 W, 방전 / 수신 시 샘플 나이 131 ms
+10-23 11:13:20.824 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 00 
+10-23 11:13:20.961 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 00 0F 77 03 70 AC 04 00 01 00 00 01 03 19 02 00 01 
+10-23 11:13:20.996 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 20 00 10 
+10-23 11:13:21.108 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 20 00 10 01 D6 
+10-23 11:13:22.827 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:13:22.985 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 76 00 23 8A 5B FF FF BE E6 00 00 AE 
+10-23 11:13:22.988 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.666 mA, +0.067081 W, 방전 / 수신 시 샘플 나이 174 ms
+10-23 11:13:24.828 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:13:25.011 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 76 00 23 92 41 FF FF BE 7E 00 00 C4 
+10-23 11:13:25.013 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.770 mA, +0.067499 W, 방전 / 수신 시 샘플 나이 196 ms
+10-23 11:13:26.850 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:13:27.036 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 78 00 23 9A 27 FF FF BE 7E 00 00 DA 
+10-23 11:13:27.038 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.770 mA, +0.067499 W, 방전 / 수신 시 샘플 나이 218 ms
+10-23 11:13:28.836 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:13:29.061 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 79 00 23 A2 0D FF FF BE B2 00 00 F0 
+10-23 11:13:29.066 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.718 mA, +0.067290 W, 방전 / 수신 시 샘플 나이 240 ms
+10-23 11:13:30.836 16747 16747 V TODOC_MainActivity: [BLE] 시간 초과 핸들러 생성 후 패킷 전송 : 0x59 22 00 01 
+10-23 11:13:30.934 16747 16747 V TODOC_MainActivity: BLE 특성 변화 감지 : 0x59 22 00 01 0F 0F B9 5A 79 00 23 A9 5D FF FF BF 1A 00 00 70 
+10-23 11:13:30.938 16747 16747 D TODOC_MainActivity: [BATTERY] 4.025 V, +16.614 mA, +0.066871 W, 방전 / 수신 시 샘플 나이 112 ms

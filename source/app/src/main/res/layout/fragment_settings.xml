@@ -5,8 +5,8 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/black_70"
-        android:padding="16dp"
+        android:background="@drawable/remote_control_background_glass"
+        android:paddingStart="16dp" android:paddingEnd="16dp" android:paddingTop="12dp" android:paddingBottom="24dp"
         tools:context="todoc.cochlear.remoteapp.fragment.SettingsFragment">
 
         <LinearLayout
@@ -19,8 +19,8 @@
                 android:layout_height="wrap_content"
                 android:text="보안"
                 android:textColor="@color/white_70"
-                android:textSize="14dp"
-                android:visibility="gone" />
+                android:textSize="@dimen/type_body"
+                android:visibility="gone" android:fontFamily="@font/pretendard" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switch_lock_screen"
@@ -29,81 +29,80 @@
                 android:minHeight="56dp"
                 android:text="화면 잠금"
                 android:textColor="@color/white_90"
-                android:textSize="14dp"
-                app:switchMinWidth="56dp" />
+                android:textSize="@dimen/type_body"
+                app:switchMinWidth="56dp" android:layout_marginBottom="8dp" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:text="등록관리"
                 android:textColor="@color/white_70"
-                android:textSize="14dp"
-                android:visibility="gone" />
+                android:textSize="@dimen/type_body"
+                android:visibility="gone" android:fontFamily="@font/pretendard" />
 
             <Button
                 android:id="@+id/button_user"
                 style="@style/Widget.MaterialComponents.Button.Icon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="56dp"
+                android:minHeight="48dp"
                 android:text="@string/settings_button_user"
                 android:textAlignment="textStart"
-                android:textColor="@color/black_90"
-                android:textSize="14dp"
+                android:textColor="@color/white_90"
+                android:textSize="@dimen/type_body"
                 app:icon="@drawable/settings_ic_arrow_24dp"
                 app:iconGravity="end"
-                app:iconTint="@color/black_90" />
+                app:iconTint="@color/white_90" android:fontFamily="@font/pretendard"  android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:layout_marginTop="6dp" android:layout_marginBottom="6dp" />
 
             <Button
                 android:id="@+id/button_device"
                 style="@style/Widget.MaterialComponents.Button.Icon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="56dp"
+                android:minHeight="48dp"
                 android:text="@string/settings_button_device"
                 android:textAlignment="textStart"
-                android:textColor="@color/black_90"
-                android:textSize="14dp"
+                android:textColor="@color/white_90"
+                android:textSize="@dimen/type_body"
                 app:icon="@drawable/settings_ic_arrow_24dp"
                 app:iconGravity="end"
-                app:iconTint="@color/black_90" />
+                app:iconTint="@color/white_90" android:fontFamily="@font/pretendard"  android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:layout_marginTop="6dp" android:layout_marginBottom="6dp" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:text="고객지원"
                 android:textColor="@color/white_70"
-                android:textSize="14dp"
-                android:visibility="gone" />
+                android:textSize="@dimen/type_body"
+                android:visibility="gone" android:fontFamily="@font/pretendard" />
 
             <Button
                 android:id="@+id/button_manual"
                 style="@style/Widget.MaterialComponents.Button.Icon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="56dp"
+                android:minHeight="48dp"
                 android:text="@string/settings_button_manual"
                 android:textAlignment="textStart"
-                android:textColor="@color/black_90"
+                android:textColor="@color/white_90"
                 app:icon="@drawable/settings_ic_arrow_24dp"
                 app:iconGravity="end"
-                app:iconTint="@color/black_90" />
+                app:iconTint="@color/white_90" android:fontFamily="@font/pretendard"  android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:layout_marginTop="6dp" android:layout_marginBottom="6dp" />
 
             <Button
                 android:id="@+id/settings_check_conn_ote_info_button"
                 style="@style/Widget.MaterialComponents.Button.Icon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="56dp"
+                android:minHeight="48dp"
                 android:text="연결된 외부기 정보 확인"
                 android:textAlignment="textStart"
-                android:textColor="@color/black_90"
+                android:textColor="@color/white_90"
                 app:icon="@drawable/settings_ic_arrow_24dp"
                 app:iconGravity="end"
-                app:iconTint="@color/black_90" />
-
+                app:iconTint="@color/white_90" android:fontFamily="@font/pretendard"  android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:layout_marginTop="6dp" android:layout_marginBottom="6dp" />
         </LinearLayout>
     </ScrollView>
 </layout>
