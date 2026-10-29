@@ -54,6 +54,7 @@ import todoc.cochlear.remoteapp.database.logs.UtilLog;
 public class RemoteControlFragment extends Fragment
 {
     static final private String TAG = "TODOC_" + RemoteControlFragment.class.getSimpleName();
+    public static final String ARG_CONTROL_TAB = "controlTab";
 
     public ActivityMainBinding          mMainBinding;
     public FragmentRemoteControlBinding mRemoteControlBinding;
@@ -63,10 +64,12 @@ public class RemoteControlFragment extends Fragment
     public AlertDialog mDialog;
     private Ff3Dialog ff3Dialog;
     private int selectedControlTab;
+    private int selectedOtaSection;
     private final Handler batteryUiHandler = new Handler(Looper.getMainLooper());
     private final Runnable batteryUiTick = new Runnable() {
         @Override public void run() {
             renderBatteryTelemetry();
+            updateOtaTargetText();
             batteryUiHandler.postDelayed(this, 1000);
         }
     };
@@ -105,8 +108,8 @@ public class RemoteControlFragment extends Fragment
         mMainBinding.toolbar.setNavigationIcon(null);
         mMainBinding.toolbarNavigationMessage.setText("");
         mMainBinding.toolbarNavigationMessage.setVisibility(View.GONE);
-        mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(true);
-        mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(true);
+        mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
+        mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
         mMainBinding.toolbar.setTitle("");
     }
@@ -124,7 +127,7 @@ public class RemoteControlFragment extends Fragment
 
     static void configureColumns(FragmentRemoteControlBinding binding, boolean tablet, float density) {
         configureStatusValues(binding);
-        int columns = tablet ? 4 : 3;
+        int columns = 3;
         binding.specialControlGrid.setColumnCount(columns);
         for (int i = 0; i < binding.specialControlGrid.getChildCount(); i++) {
             View button = binding.specialControlGrid.getChildAt(i);
@@ -134,7 +137,9 @@ public class RemoteControlFragment extends Fragment
             button.setLayoutParams(params);
         }
 
-        binding.remotePrimaryLayout.setOrientation(tablet ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
+        // The approved control surface is a single portrait flow on every screen size.
+        tablet = false;
+        binding.remotePrimaryLayout.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams status = new LinearLayout.LayoutParams(
                 tablet ? 0 : ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, tablet ? 0.43f : 0);
         binding.remoteStatusColumn.setLayoutParams(status);
@@ -173,6 +178,10 @@ public class RemoteControlFragment extends Fragment
                     String formatted = displayStatusValue(editable.toString());
                     formatting = true;
                     if (!formatted.contentEquals(editable)) value.setText(formatted);
+                    if (id == R.id.ota_led_textview || id == R.id.ota_alarm_textview ||
+                            id == R.id.ota_gating_textview || id == R.id.ota_ctrl_mode_textview) {
+                        value.setBackgroundResource("On".equals(formatted) ? R.drawable.remote_badge_mint : R.drawable.remote_badge_blue);
+                    }
                     if (id == R.id.ota_program_textview) binding.controlProgramValue.setText(formatted);
                     if (id == R.id.ota_volume_textview) binding.controlVolumeValue.setText(formatted);
                     if (id == R.id.ota_max_output_textview) binding.controlOutputValue.setText(formatted);
@@ -203,6 +212,23 @@ public class RemoteControlFragment extends Fragment
         checkRegisteredList_userAndDevice(); // User list
 
         if (savedInstanceState != null) selectedControlTab = Math.min(3, Math.max(0, savedInstanceState.getInt("selectedControlTab", 0)));
+        else if (getArguments() != null) selectedControlTab = Math.min(3, Math.max(0, getArguments().getInt(ARG_CONTROL_TAB, 0)));
+        if (savedInstanceState != null) selectedOtaSection = Math.max(0, Math.min(1, savedInstanceState.getInt("selectedOtaSection", 0)));
+        mRemoteControlBinding.otaSectionTabs.addOnTabSelectedListener(new com.google.android.material.tabs.TabLayout.OnTabSelectedListener() {
+            @Override public void onTabSelected(com.google.android.material.tabs.TabLayout.Tab tab) {
+                if (tab.getPosition() == 1 && (mWaitingMappingConnect || mWriteOrderIndex >= 0)) {
+                    mRemoteControlBinding.otaSectionTabs.selectTab(mRemoteControlBinding.otaSectionTabs.getTabAt(0));
+                    Toast.makeText(requireContext(), "업데이트 중에는 슬롯을 변경할 수 없습니다.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                selectedOtaSection = tab.getPosition();
+                showOtaSection();
+            }
+            @Override public void onTabUnselected(com.google.android.material.tabs.TabLayout.Tab tab) { }
+            @Override public void onTabReselected(com.google.android.material.tabs.TabLayout.Tab tab) { }
+        });
+        mRemoteControlBinding.otaSectionTabs.selectTab(mRemoteControlBinding.otaSectionTabs.getTabAt(selectedOtaSection));
+        showOtaSection();
         // Apply the masked ripple to each touch target so its animation uses local bounds.
         android.view.ViewGroup tabStrip = (android.view.ViewGroup) mRemoteControlBinding.controlTabs.getChildAt(0);
         for (int i = 0; i < tabStrip.getChildCount(); i++) {
@@ -210,14 +236,26 @@ public class RemoteControlFragment extends Fragment
         }
         mRemoteControlBinding.controlTabs.addOnTabSelectedListener(new com.google.android.material.tabs.TabLayout.OnTabSelectedListener() {
             @Override public void onTabSelected(com.google.android.material.tabs.TabLayout.Tab tab) {
+                if (tab.getPosition() != 3 && isOtaTransferActive()) {
+                    mRemoteControlBinding.controlTabs.selectTab(mRemoteControlBinding.controlTabs.getTabAt(3));
+                    Toast.makeText(requireContext(), "업데이트가 끝난 뒤 화면을 이동하세요.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (tab.getPosition() == 4) {
+                    mMainActivity.replaceFragment(Status.TypeOfFragment.MENU);
+                    return;
+                }
                 selectedControlTab = tab.getPosition();
                 showControlTab(mRemoteControlBinding, selectedControlTab);
+                updatePageTitle();
             }
             @Override public void onTabUnselected(com.google.android.material.tabs.TabLayout.Tab tab) { }
             @Override public void onTabReselected(com.google.android.material.tabs.TabLayout.Tab tab) { }
         });
         mRemoteControlBinding.controlTabs.selectTab(mRemoteControlBinding.controlTabs.getTabAt(selectedControlTab));
         showControlTab(mRemoteControlBinding, selectedControlTab);
+        updatePageTitle();
+        updateIdentityBadges();
         mStatusViewModel.getBatteryTelemetry().observe(getViewLifecycleOwner(), value -> renderBatteryTelemetry());
         mStatusViewModel.getLiveDataBatteryLevel().observe(getViewLifecycleOwner(), value -> renderBatteryTelemetry());
         mStatusViewModel.getBatteryTelemetryError().observe(getViewLifecycleOwner(), value -> renderBatteryTelemetry());
@@ -225,6 +263,7 @@ public class RemoteControlFragment extends Fragment
         mStatusViewModel.getLiveDataFwRelease().observe(getViewLifecycleOwner(), value -> renderBatteryTelemetry());
 
         mOta = Ota.getInstance();
+        updateOtaTargetText();
 
         mRemoteControlBinding.slotRadioButtonGroup.setOnCheckedChangeListener(onChecked_radioGroup);
 
@@ -310,6 +349,27 @@ public class RemoteControlFragment extends Fragment
     @Override public void onSaveInstanceState(@NonNull Bundle state) {
         super.onSaveInstanceState(state);
         state.putInt("selectedControlTab", selectedControlTab);
+        state.putInt("selectedOtaSection", selectedOtaSection);
+    }
+
+    private void showOtaSection() {
+        mRemoteControlBinding.otaUpdateContent.setVisibility(selectedOtaSection == 0 ? View.VISIBLE : View.GONE);
+        mRemoteControlBinding.otaRecoveryContent.setVisibility(selectedOtaSection == 1 ? View.VISIBLE : View.GONE);
+    }
+
+    /** OTA responses are handled by this fragment, so its owner must stay attached until completion. */
+    public boolean isOtaTransferActive() {
+        return mWaitingMappingConnect || mWriteOrderIndex >= 0
+                || (mOta != null && mOta.commState != Ota.COMM_STATE_IDLE);
+    }
+
+    private void updateOtaTargetText() {
+        if (mOta == null || mRemoteControlBinding == null) return;
+        boolean valid = mOta.currentSlotNum == Ota.SLOT_NUM_1 || mOta.currentSlotNum == Ota.SLOT_NUM_2;
+        String text = valid ? "기록 슬롯: 슬롯 " + mOta.currentSlotNum : "기록 슬롯: 슬롯 · 복구에서 선택하세요.";
+        if (!text.contentEquals(mRemoteControlBinding.otaUpdateTargetText.getText()))
+            mRemoteControlBinding.otaUpdateTargetText.setText(text);
+        mRemoteControlBinding.otaWriteButton.setEnabled(valid && hasCollectedFile() && !isOtaTransferActive());
     }
 
     static void showControlTab(FragmentRemoteControlBinding binding, int selected) {
@@ -317,6 +377,7 @@ public class RemoteControlFragment extends Fragment
         binding.otaEtcBox.setVisibility(selected == 1 ? View.VISIBLE : View.GONE);
         binding.ffTabBox.setVisibility(selected == 2 ? View.VISIBLE : View.GONE);
         binding.otaStatusInfoBox.setVisibility(View.VISIBLE);
+        binding.otaFfStatusTextview.setVisibility(View.GONE);
         if (binding.controlTabs.getSelectedTabPosition() != selected) {
             binding.controlTabs.selectTab(binding.controlTabs.getTabAt(selected));
         }
@@ -328,18 +389,18 @@ public class RemoteControlFragment extends Fragment
     private void renderBatteryTelemetry() {
         if (mRemoteControlBinding == null || mStatusViewModel == null || mMainActivity == null) return;
         boolean supported = mMainActivity.isBatteryTelemetrySupported();
-        boolean legacy = mStatusViewModel.getValueFwRelease() != Status.FW_RELEASE_UNKNOWN
-                && !mMainActivity.isProtocolAtLeast(4, 6);
+
         boolean connected = mStatusViewModel.getConnectionState() == StatusViewModel.CONNECTION_STATE_CONNECTED;
-        mRemoteControlBinding.legacyBatteryTextview.setVisibility(legacy && connected ? View.VISIBLE : View.GONE);
-        if (legacy && connected) {
-            // 구형 펌웨어는 0x43 상태 응답의 잔량을 사용한다. 상세 전류 조회는 하지 않는다.
-            Integer percent = mStatusViewModel.getLiveDataBatteryLevel().getValue();
-            mRemoteControlBinding.legacyBatteryTextview.setText(percent != null && percent >= 0 && percent <= 100
-                    ? "배터리 " + percent + "%" : "배터리 —");
+        mRemoteControlBinding.legacyBatteryTextview.setVisibility(View.GONE);
+        mRemoteControlBinding.batteryTelemetryBox.setVisibility(View.VISIBLE);
+        for (TextView metric : new TextView[]{mRemoteControlBinding.batteryVoltageTextview,
+                mRemoteControlBinding.batteryCurrentTextview, mRemoteControlBinding.batteryPowerTextview}) {
+            ((View) metric.getParent()).setVisibility(supported ? View.VISIBLE : View.GONE);
         }
-        mRemoteControlBinding.batteryTelemetryBox.setVisibility(supported ? View.VISIBLE : View.GONE);
         if (!supported) {
+            Integer percent = mStatusViewModel.getLiveDataBatteryLevel().getValue();
+            setBatteryText(mRemoteControlBinding.batteryPercentTextview,
+                    connected && percent != null && percent >= 0 && percent <= 100 ? percent + "%" : "—");
             mRemoteControlBinding.batteryDetailTextview.setVisibility(View.GONE);
             return;
         }
@@ -550,6 +611,10 @@ public class RemoteControlFragment extends Fragment
      * 메인 스레드에서만 부른다. 여기서 세우는 대기 표시를 응답 처리 쪽이 읽기 때문이다. */
     private void startWriteSequence()
     {
+        if (mOta.currentSlotNum != Ota.SLOT_NUM_1 && mOta.currentSlotNum != Ota.SLOT_NUM_2) {
+            Toast.makeText(requireContext(), "슬롯 · 복구에서 기록할 슬롯을 먼저 선택하세요.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (mOta.commState != Ota.COMM_STATE_IDLE)
         {
             Log.d(TAG, "[OTA] 무선 전송 상태가 IDLE이 아님");
@@ -575,13 +640,19 @@ public class RemoteControlFragment extends Fragment
 
         Log.d(TAG, "[OTA] 매핑 연결(0x60) 요청 후 전송을 시작합니다.");
 
-        mWaitingMappingConnect = true;
+        mWaitingMappingConnect = mMainActivity.tryStartOtaMapping();
+        if (!mWaitingMappingConnect) {
+            Toast.makeText(requireContext(), "다른 통신이 진행 중입니다. 잠시 후 업데이트를 시작하세요.", Toast.LENGTH_SHORT).show();
+        }
+        updateOtaTargetText();
+    }
 
-        byte[] packet = new byte[PacketInfo.PACKET_SIZE_MAPPING_CONNECT_SEND];
-
-        packet[0] = PacketInfo.HEADER_MAPPING_CONNECT;
-
-        mMainActivity.sendPacket(packet);
+    public void onOtaStartFailed(String message) {
+        if (!mWaitingMappingConnect) return;
+        mWaitingMappingConnect = false;
+        updateOtaTargetText();
+        UtilLog.instance.writeLog("OTA 준비 실패 : " + message);
+        if (isAdded()) Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
     }
 
     /* 연결이 끊겼을 때 액티비티가 부른다. 진행 중이던 전송 순서와 대기를 모두 접는다. */
@@ -1013,6 +1084,7 @@ public class RemoteControlFragment extends Fragment
             }
 
             Log.d(TAG, "[OTA] 쓸 슬롯 -> " + mOta.currentSlotNum);
+            updateOtaTargetText();
         }
     };
 
@@ -1109,7 +1181,7 @@ public class RemoteControlFragment extends Fragment
             }
         }
 
-        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+        mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                 .setCustomTitle(makeDialogTitleView("수집할 폴더 선택", //
                                                     "괄호 안은 이 폴더에 있는 OTA 파일 수입니다.\n" //
                                                     + "고른 폴더의 파일을 MFST 부터 APP2 까지 순서대로 읽습니다.")) //
@@ -1123,7 +1195,7 @@ public class RemoteControlFragment extends Fragment
 
         mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-        mDialog.show();
+        showControlDialog(mDialog);
     }
 
     // 이 폴더에 OTA 파일이 몇 개나 있는지. 고르기 전에 빈 폴더를 가려낼 수 있게 한다.
@@ -1224,7 +1296,12 @@ public class RemoteControlFragment extends Fragment
             packet[1] = (byte) PacketInfo.BOOT_OPTION_SELECT;
             packet[2] = (byte) 0xFF;
 
-            mMainActivity.sendPacket(packet);
+            new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
+                    .setTitle("공장 펌웨어 부팅")
+                    .setMessage("공장 이미지로 전환하고 장치를 재부팅합니다. 맵·사용자 공장 복원과는 별개입니다.")
+                    .setNegativeButton("취소", null)
+                    .setPositiveButton("진행", (dialog, which) -> mMainActivity.sendPacket(packet))
+                    .show();
         }
     };
 
@@ -1266,7 +1343,7 @@ public class RemoteControlFragment extends Fragment
         final String[] names = {PacketInfo.MAP_INIT_NAME_MRI_32CH, PacketInfo.MAP_INIT_NAME_MRI_16CH};
         final String[] items = {"32Ch (MRI 32채널 맵)", "16Ch (MRI 16채널 맵)"};
 
-        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+        mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                 .setTitle("맵 초기화 종류 선택") //
                 .setSingleChoiceItems(items, -1, (dialogInterface, which) ->
                 {
@@ -1284,7 +1361,7 @@ public class RemoteControlFragment extends Fragment
 
         mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-        mDialog.show();
+        showControlDialog(mDialog);
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1459,19 +1536,19 @@ public class RemoteControlFragment extends Fragment
         // 상한이 낮아져 목록이 짧아졌으면 현재 값이 목록 밖일 수 있다. 인덱스를 범위로 묶는다.
         final int checkedIndex = Math.max(0, Math.min(count - 1, currentLevel - minLevel));
 
-        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+        mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                 .setTitle("PMIC 하한 선택") //
                 .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
                 {
                     sendMinTxPowerPacket(minLevel + which);
                     dialogInterface.dismiss();
                 }) //
-                .setNegativeButton("Default", (dialogInterface, i) -> sendMinTxPowerPacket(PacketInfo.MIN_TX_PWR_DEFAULT)) //
+                .setNegativeButton("기본값", (dialogInterface, i) -> sendMinTxPowerPacket(PacketInfo.MIN_TX_PWR_DEFAULT)) //
                 .create();
 
         mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-        mDialog.show();
+        showControlDialog(mDialog);
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1557,19 +1634,19 @@ public class RemoteControlFragment extends Fragment
         // 상한이 낮아져 목록이 짧아졌으면 현재 값이 목록 밖일 수 있다. 인덱스를 범위로 묶는다.
         final int checkedIndex = Math.max(0, Math.min(count - 1, currentLevel - minLevel));
 
-        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+        mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                 .setTitle("매핑 PMIC 하한 선택") //
                 .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
                 {
                     sendMappingTxPowerPacket(minLevel + which);
                     dialogInterface.dismiss();
                 }) //
-                .setNegativeButton("Default", (dialogInterface, i) -> sendMappingTxPowerPacket(PacketInfo.MAPPING_TX_PWR_DEFAULT)) //
+                .setNegativeButton("기본값", (dialogInterface, i) -> sendMappingTxPowerPacket(PacketInfo.MAPPING_TX_PWR_DEFAULT)) //
                 .create();
 
         mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-        mDialog.show();
+        showControlDialog(mDialog);
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1689,7 +1766,7 @@ public class RemoteControlFragment extends Fragment
 
         final int checkedIndex = getCurrentCoinCountIndex();
 
-        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+        mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                 .setCustomTitle(makeDialogTitleView("백텔 재시도 코인", makeCoinDialogMessage())) //
                 .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
                 {
@@ -1701,7 +1778,7 @@ public class RemoteControlFragment extends Fragment
 
         mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-        mDialog.show();
+        showControlDialog(mDialog);
     }
 
     /* 개수를 «견디는 시간» 으로 환산한다. 백텔 주기(인덱스 2)는 100msec 단위다.
@@ -1814,7 +1891,7 @@ public class RemoteControlFragment extends Fragment
 
         final int checkedIndex = checkedIndexValue;
 
-        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+        mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                 .setTitle("백텔 재시도 모드") //
                 .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
                 {
@@ -1826,7 +1903,7 @@ public class RemoteControlFragment extends Fragment
 
         mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-        mDialog.show();
+        showControlDialog(mDialog);
     }
 
     // 현재 코인 모드를 목록 위치로 바꾼다. 아직 못 읽었으면 아무것도 선택하지 않는다.
@@ -1917,19 +1994,19 @@ public class RemoteControlFragment extends Fragment
                        + System.lineSeparator() //
                        + "지금보다 낮추면 현재 파워는 바로 내려가지 않습니다 - 올라가는 것만 막힙니다.";
 
-        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+        mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                 .setCustomTitle(makeDialogTitleView("PMIC 상한 선택", guide)) //
                 .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
                 {
                     sendMaxTxPowerPacket(minLevel + which);
                     dialogInterface.dismiss();
                 }) //
-                .setNegativeButton("Default", (dialogInterface, i) -> sendMaxTxPowerPacket(PacketInfo.MAX_TX_PWR_DEFAULT)) //
+                .setNegativeButton("기본값", (dialogInterface, i) -> sendMaxTxPowerPacket(PacketInfo.MAX_TX_PWR_DEFAULT)) //
                 .create();
 
         mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-        mDialog.show();
+        showControlDialog(mDialog);
     }
 
     /* 하한 다이얼로그가 고를 수 있는 최댓값.
@@ -2099,7 +2176,7 @@ public class RemoteControlFragment extends Fragment
         }
 
         /* setMessage 와 목록을 같이 주면 목록이 사라진다. 제목 자리에 직접 그린다. */
-        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+        mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                 .setCustomTitle(makeDialogTitleView("자극 레벨 피드포워드", makeFfStatusText())) //
                 .setItems(items, (dialogInterface, which) ->
                 {
@@ -2118,7 +2195,7 @@ public class RemoteControlFragment extends Fragment
 
         mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-        mDialog.show();
+        showControlDialog(mDialog);
     }
 
     private void makeDialog_ffEnable()
@@ -2135,7 +2212,7 @@ public class RemoteControlFragment extends Fragment
                 + "\n소리 보상 설정을 저장해도 자동으로 켜지지는 않습니다. 실제 보상에는 아래 조건도 필요합니다."
                 + "\n" + mMainActivity.makeFeedForwardBlockText();
 
-        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+        mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                 .setCustomTitle(makeDialogTitleView("전원 보상 방식", guide)) //
                 .setSingleChoiceItems(items, checked, (dialogInterface, which) ->
                 {
@@ -2146,7 +2223,7 @@ public class RemoteControlFragment extends Fragment
 
         mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-        mDialog.show();
+        showControlDialog(mDialog);
     }
 
     private void makeDialog_ffValue(FfItem item)
@@ -2169,19 +2246,19 @@ public class RemoteControlFragment extends Fragment
 
         final int checkedIndex = Math.max(0, Math.min(count - 1, current - item.min));
 
-        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+        mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                 .setTitle(item.name) //
                 .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
                 {
                     mMainActivity.sendFfParam(item.index, item.min + which);
                     dialogInterface.dismiss();
                 }) //
-                .setNegativeButton("Default", (dialogInterface, i) -> mMainActivity.sendFfParam(item.index, item.def)) //
+                .setNegativeButton("기본값", (dialogInterface, i) -> mMainActivity.sendFfParam(item.index, item.def)) //
                 .create();
 
         mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-        mDialog.show();
+        showControlDialog(mDialog);
     }
 
     private void sendMaxTxPowerPacket(int level)
@@ -2234,7 +2311,7 @@ public class RemoteControlFragment extends Fragment
 
         final int checkedIndex = baseLevel - minLevel;
 
-        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+        mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                 .setTitle("고정 PMIC 선택") //
                 .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
                 {
@@ -2246,7 +2323,7 @@ public class RemoteControlFragment extends Fragment
 
         mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-        mDialog.show();
+        showControlDialog(mDialog);
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2294,19 +2371,19 @@ public class RemoteControlFragment extends Fragment
 
         final int checkedIndex = currentStep - minStep;
 
-        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+        mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                 .setTitle("링크 상승 스텝 선택") //
                 .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
                 {
                     sendTxStepUpPacket(minStep + which);
                     dialogInterface.dismiss();
                 }) //
-                .setNegativeButton("Default", (dialogInterface, i) -> sendTxStepUpPacket(PacketInfo.TX_STEP_UP_DEFAULT)) //
+                .setNegativeButton("기본값", (dialogInterface, i) -> sendTxStepUpPacket(PacketInfo.TX_STEP_UP_DEFAULT)) //
                 .create();
 
         mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-        mDialog.show();
+        showControlDialog(mDialog);
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2409,7 +2486,7 @@ public class RemoteControlFragment extends Fragment
         /* setMessage 와 setSingleChoiceItems 를 같이 주면 안 된다.
          * 둘이 같은 자리를 쓰는 탓에 메시지가 목록을 밀어내 «고를 것이 없는» 화면이 된다.
          * 안내는 제목 자리에 직접 그려 넣는다. */
-        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+        mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                 .setCustomTitle(makeDialogTitleView("전원 안정 Nop 선택", makeNopDialogMessage(frameNum))) //
                 .setSingleChoiceItems(items, selected, (dialogInterface, which) ->
                 {
@@ -2421,7 +2498,7 @@ public class RemoteControlFragment extends Fragment
 
         mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-        mDialog.show();
+        showControlDialog(mDialog);
     }
 
     /* 패킷 수를 모를 때 쓰는 예전 방식 목록. 어느 값이 자리 맞춤에 맞는지 알 수 없으므로
@@ -2454,7 +2531,7 @@ public class RemoteControlFragment extends Fragment
                          ? "패킷 수를 읽지 못해 쓸 수 있는 값을 가릴 수 없습니다." //
                          : ("패킷 수 " + frameNum + " 은 백텔이 나가지 않는 구간입니다.");
 
-        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+        mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                 .setCustomTitle(makeDialogTitleView("전원 안정 Nop 선택", message)) //
                 .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
                 {
@@ -2466,7 +2543,7 @@ public class RemoteControlFragment extends Fragment
 
         mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-        mDialog.show();
+        showControlDialog(mDialog);
     }
 
     /* 다이얼로그 머리말. 지금 맵이 어떤 상태인지와, 펄스폭과 패킷 수가 어긋난다면 그 이유를 적는다. */
@@ -2653,19 +2730,19 @@ public class RemoteControlFragment extends Fragment
 
         final int checkedIndex = currentPeriod - minPeriod;
 
-        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+        mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                 .setTitle("백텔 주기 선택") //
                 .setSingleChoiceItems(items, checkedIndex, (dialogInterface, which) ->
                 {
                     sendBacktelPeriodPacket(minPeriod + which);
                     dialogInterface.dismiss();
                 }) //
-                .setNegativeButton("Default", (dialogInterface, i) -> sendBacktelPeriodPacket(PacketInfo.BACKTEL_PERIOD_DEFAULT_100MS)) //
+                .setNegativeButton("기본값", (dialogInterface, i) -> sendBacktelPeriodPacket(PacketInfo.BACKTEL_PERIOD_DEFAULT_100MS)) //
                 .create();
 
         mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-        mDialog.show();
+        showControlDialog(mDialog);
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2716,7 +2793,7 @@ public class RemoteControlFragment extends Fragment
             return;
         }
 
-        mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+        mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                 .setTitle("맵 초기화") //
                 .setMessage("사운드처리기에 등록된 모든 내부기의 맵 데이터를\n" + mapInitName + " 으로 덮어씁니다.\n\n되돌릴 수 없습니다. 진행하시겠습니까?") //
                 .setPositiveButton("초기화", (dialogInterface, i) -> sendMapInitPacket(mapInitType, mapInitName)) //
@@ -2727,7 +2804,7 @@ public class RemoteControlFragment extends Fragment
         // 이 화면의 다른 다이얼로그와 달리 반복 사용해야 하므로, 닫힐 때 참조를 비워 다시 띄울 수 있게 한다.
         mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-        mDialog.show();
+        showControlDialog(mDialog);
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2791,6 +2868,7 @@ public class RemoteControlFragment extends Fragment
         mStatusViewModel.getObjectConnectionState().observe(getViewLifecycleOwner(), integer ->
         {
             Log.v(TAG, "옵저버 : 연결상태 -> " + integer);
+            updateIdentityBadges();
 
             if (integer == StatusViewModel.CONNECTION_STATE_DISCONNECTED)
             {
@@ -3142,7 +3220,7 @@ public class RemoteControlFragment extends Fragment
         mRemoteControlBinding.otaFfControls.setVisibility(supported ? View.VISIBLE : View.GONE);
         mRemoteControlBinding.ffUnavailableText.setVisibility(supported ? View.GONE : View.VISIBLE);
         mRemoteControlBinding.ffUnavailableText.setText("FF 미지원 · 이 장치에서는 FF 설정 조회와 제어를 사용할 수 없습니다.");
-        mRemoteControlBinding.otaFfStatusTextview.setVisibility(View.VISIBLE);
+        mRemoteControlBinding.otaFfStatusTextview.setVisibility(View.GONE);
         mRemoteControlBinding.otaFfButton.setText("FF 모드 · " + (mode == 3 ? "FF3" : mode == 1 ? "FF1" : mode == 0 ? "Off" : "확인 필요") + "   ›");
         mRemoteControlBinding.otaFf3SettingsButton.setText("FF3 설정 · 감지 / 보상   ›");
         mRemoteControlBinding.otaFf3DiagnosticsButton.setText("FF3 진단 · 입력 / 상태   ›");
@@ -3334,47 +3412,12 @@ public class RemoteControlFragment extends Fragment
         // 배지
         /* 이름은 액티비티가 만든다. 화면과 로그와 Toast 가 같은 글자를 쓰게 하려는 것이다.
          * 버전 조회가 되는 세대는 «REL4.3» 처럼 읽어 온 버전이 그대로 나온다. */
-        String label = (fwRelease == Status.FW_RELEASE_UNKNOWN) ? "" : mMainActivity.fwReleaseName().replaceFirst("^REL", "REL-");
-
-        int badgeColor;
-
-        switch (fwRelease)
-        {
-            case Status.FW_RELEASE_3:
-                badgeColor = 0xFFFF7043; // 주황 - 되는 기능이 가장 적다
-                break;
-
-            case Status.FW_RELEASE_4:
-                badgeColor = 0xFFFFD54F; // 노랑
-                break;
-
-            case Status.FW_RELEASE_4_PLUS:
-                badgeColor = 0xFF00E676; // 초록 - 전부 된다
-                break;
-
-            default:
-                badgeColor = 0;
-                break;
-        }
+        String label = (fwRelease == Status.FW_RELEASE_UNKNOWN) ? "R—" : mMainActivity.fwReleaseName().replaceFirst("^REL-?", "R");
 
         TextView badge = mRemoteControlBinding.otaFwReleaseTextview;
-
         badge.setText(label);
-        badge.setVisibility(label.isEmpty() ? View.INVISIBLE : View.VISIBLE);
-
-        if (badgeColor != 0)
-        {
-            /* 배지 바탕은 모든 세대가 같은 drawable 을 공유한다.
-             * mutate() 없이 색을 바꾸면 같은 drawable 을 쓰는 다른 뷰까지 물든다. */
-            Drawable background = badge.getBackground();
-
-            if (background != null)
-            {
-                background = background.mutate();
-                background.setColorFilter(new PorterDuffColorFilter(badgeColor, PorterDuff.Mode.SRC_IN));
-                badge.setBackground(background);
-            }
-        }
+        badge.setVisibility(View.VISIBLE);
+        updateIdentityBadges();
 
         /* 링크 파라미터 버튼. 세대가 그 인덱스를 아는지에 더해, 지금 설정 조합에서
          * 의미가 있는지까지 본다. 제어 모드를 바꾸면 one coin 과 가속의 유효성이 뒤바뀌고,
@@ -3488,7 +3531,49 @@ public class RemoteControlFragment extends Fragment
             return label + " -";
         }
 
-        return String.format("%s %.1fV", label, (level * PacketInfo.TX_PWR_LEVEL_STEP_MV) / 1000.0f);
+        return String.format("%s %.3f V", label, (level * PacketInfo.TX_PWR_LEVEL_STEP_MV) / 1000.0f);
+    }
+
+    private void showControlDialog(AlertDialog dialog) {
+        dialog.show();
+        // 특수 제어의 선택 목록은 아래에 두어 위쪽 상태를 계속 읽을 수 있게 한다.
+        if (selectedControlTab == 1 && dialog.getListView() != null && dialog.getWindow() != null) {
+            float density = getResources().getDisplayMetrics().density;
+            android.view.Window window = dialog.getWindow();
+            window.setDimAmount(0.12f);
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(0xffb8d8cf);
+            android.view.WindowManager.LayoutParams params = window.getAttributes();
+            params.gravity = android.view.Gravity.BOTTOM;
+            params.y = Math.round(58 * density);
+            window.setAttributes(params);
+            ViewGroup.LayoutParams list = dialog.getListView().getLayoutParams();
+            list.height = Math.round(160 * density);
+            dialog.getListView().setLayoutParams(list);
+            window.setLayout(getResources().getDisplayMetrics().widthPixels - Math.round(24 * density), ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+    }
+    private void updatePageTitle() {
+        if (mMainActivity != null) {
+            String[] titles = {"기본 제어", "특수 제어", "FF", "OTA"};
+            mMainActivity.updateRemotePageTitle(titles[Math.max(0, Math.min(3, selectedControlTab))]);
+        }
+    }
+
+    private void updateIdentityBadges() {
+        if (mRemoteControlBinding == null) return;
+        EntityUser user = Status.instance().connectedUser;
+        if (user == null) user = UtilUser.instance.getDefaultUser();
+        String name = "—";
+        String ear = "—";
+        if (user != null) {
+            name = user.nickname != null && !user.nickname.isEmpty() ? user.nickname :
+                    user.name != null && user.name.length() > 2 ? UtilUser.getNameOnly(user.name) : user.name;
+            ear = user.ear == null ? "—" : user.ear;
+        }
+        mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(name);
+        mRemoteControlBinding.identitySideTextview.setText(ear);
+        mRemoteControlBinding.identityExternalTextview.setText(Status.instance().connectedDevice == null ? "—" :
+                Status.instance().connectedDevice.serialNumber);
     }
 
     public void checkRegisteredList_userAndDevice()
@@ -3511,7 +3596,7 @@ public class RemoteControlFragment extends Fragment
 
                     if (defaultUser != null)
                     {
-                        mRemoteControlBinding.remoteControlConnectionUserNameTextview.setText(UtilUser.makeDisplayName(requireContext(), defaultUser));
+                        updateIdentityBadges();
 
                         if (mMainBinding.lockScreen.getVisibility() == View.GONE)
                         {
@@ -3545,7 +3630,7 @@ public class RemoteControlFragment extends Fragment
     {
         if (mDialog == null)
         {
-            mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+            mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                     .setTitle("안내") //
                     .setMessage("OTA 이미지 전송이 완료되었습니다.\n전송한 파일 " + fileCount + "개") //
                     .setPositiveButton("확인", null) //
@@ -3554,7 +3639,7 @@ public class RemoteControlFragment extends Fragment
 
             mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-            mDialog.show();
+            showControlDialog(mDialog);
         }
     }
 
@@ -3562,7 +3647,7 @@ public class RemoteControlFragment extends Fragment
     {
         if (mDialog == null)
         {
-            mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+            mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                     .setTitle("안내") //
                     .setMessage(message) //
                     .setPositiveButton("확인", null) //
@@ -3571,7 +3656,7 @@ public class RemoteControlFragment extends Fragment
 
             mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-            mDialog.show();
+            showControlDialog(mDialog);
         }
     }
 
@@ -3580,7 +3665,7 @@ public class RemoteControlFragment extends Fragment
     {
         if (mDialog == null)
         {
-            mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+            mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                     .setTitle("안내") //
                     .setMessage("OTA 이미지 수집이 완료되지 않았습니다.") //
                     .setPositiveButton("확인", null) //
@@ -3589,7 +3674,7 @@ public class RemoteControlFragment extends Fragment
 
             mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-            mDialog.show();
+            showControlDialog(mDialog);
         }
     }
 
@@ -3598,7 +3683,7 @@ public class RemoteControlFragment extends Fragment
     {
         if (mDialog == null)
         {
-            mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+            mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                     .setTitle("안내") //
                     .setMessage("패킷 사이즈 에러 발생") //
                     .setPositiveButton("확인", null) //
@@ -3607,7 +3692,7 @@ public class RemoteControlFragment extends Fragment
 
             mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-            mDialog.show();
+            showControlDialog(mDialog);
         }
     }
 
@@ -3616,7 +3701,7 @@ public class RemoteControlFragment extends Fragment
     {
         if (mDialog == null)
         {
-            mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+            mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                     .setTitle("안내") //
                     .setMessage("OTA 결과가 성공이 아님") //
                     .setPositiveButton("확인", null) //
@@ -3625,7 +3710,7 @@ public class RemoteControlFragment extends Fragment
 
             mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-            mDialog.show();
+            showControlDialog(mDialog);
         }
     }
 
@@ -3634,7 +3719,7 @@ public class RemoteControlFragment extends Fragment
     {
         if (mDialog == null)
         {
-            mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+            mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                     .setTitle("안내") //
                     .setMessage("OTA 데이터 인덱스 에러 발생") //
                     .setPositiveButton("확인", null) //
@@ -3643,7 +3728,7 @@ public class RemoteControlFragment extends Fragment
 
             mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-            mDialog.show();
+            showControlDialog(mDialog);
         }
     }
 
@@ -3652,7 +3737,7 @@ public class RemoteControlFragment extends Fragment
     {
         if (mDialog == null)
         {
-            mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+            mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                     .setTitle("안내") //
                     .setMessage("OTA 이미지 전송이 완료되지 않았습니다.") //
                     .setPositiveButton("확인", null) //
@@ -3661,7 +3746,7 @@ public class RemoteControlFragment extends Fragment
 
             mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-            mDialog.show();
+            showControlDialog(mDialog);
         }
     }
 
@@ -3670,7 +3755,7 @@ public class RemoteControlFragment extends Fragment
     {
         if (mDialog == null)
         {
-            mDialog = new MaterialAlertDialogBuilder(requireContext()) //
+            mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()) //
                     .setTitle("안내") //
                     .setMessage("OTA 이미지가 준비되지 않았습니다.") //
                     .setPositiveButton("확인", null) //
@@ -3679,7 +3764,7 @@ public class RemoteControlFragment extends Fragment
 
             mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-            mDialog.show();
+            showControlDialog(mDialog);
         }
     }
 
@@ -3688,7 +3773,7 @@ public class RemoteControlFragment extends Fragment
     {
         if (mDialog == null)
         {
-            mDialog = new MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.remote_control_no_user_dialog_title)).setMessage(getString(R.string.remote_control_no_user_dialog_message)).setPositiveButton(getString(R.string.remote_control_no_user_positive), (dialogInterface, i) ->
+            mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()).setTitle(getString(R.string.remote_control_no_user_dialog_title)).setMessage(getString(R.string.remote_control_no_user_dialog_message)).setPositiveButton(getString(R.string.remote_control_no_user_positive), (dialogInterface, i) ->
             {
 
                 mDialog.dismiss();
@@ -3698,7 +3783,7 @@ public class RemoteControlFragment extends Fragment
 
             mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-            mDialog.show();
+            showControlDialog(mDialog);
         }
     }
 
@@ -3707,7 +3792,7 @@ public class RemoteControlFragment extends Fragment
     {
         if (mDialog == null)
         {
-            mDialog = new MaterialAlertDialogBuilder(requireContext()).setTitle(getString(R.string.remote_control_no_device_dialog_title)).setMessage(getString(R.string.remote_control_no_device_dialog_message)).setPositiveButton(getString(R.string.remote_control_no_device_positive), (dialogInterface, i) ->
+            mDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext()).setTitle(getString(R.string.remote_control_no_device_dialog_title)).setMessage(getString(R.string.remote_control_no_device_dialog_message)).setPositiveButton(getString(R.string.remote_control_no_device_positive), (dialogInterface, i) ->
             {
 
                 mDialog.dismiss();
@@ -3717,7 +3802,7 @@ public class RemoteControlFragment extends Fragment
 
             mDialog.setOnDismissListener(dialogInterface -> mDialog = null);
 
-            mDialog.show();
+            showControlDialog(mDialog);
         }
     }
 

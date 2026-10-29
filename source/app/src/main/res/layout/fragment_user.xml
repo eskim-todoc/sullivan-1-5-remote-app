@@ -13,7 +13,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="12dp">
 
             <TextView
                 android:id="@+id/default_user_title"
@@ -21,7 +21,7 @@
                 android:layout_height="wrap_content"
                 android:text="기본 사용자"
                 android:textColor="@color/white_70"
-                android:textSize="@dimen/type_body" android:fontFamily="@font/pretendard"  android:layout_marginBottom="6dp" />
+                android:textSize="14sp" android:fontFamily="@font/ibm_plex_sans_kr"  android:layout_marginBottom="6dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/default_user_recyclerview"
@@ -39,7 +39,7 @@
                 android:layout_height="wrap_content"
                 android:text="등록된 사용자"
                 android:textColor="@color/white_70"
-                android:textSize="@dimen/type_body" android:fontFamily="@font/pretendard"  android:layout_marginBottom="6dp" />
+                android:textSize="14sp" android:fontFamily="@font/ibm_plex_sans_kr"  android:layout_marginBottom="6dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/user_recyclerview"
@@ -48,23 +48,10 @@
                 android:layout_weight="1"
                 android:overScrollMode="never"
                 android:scrollbars="none"
-                tools:listitem="@layout/item_user"  android:paddingBottom="80dp" android:clipToPadding="false" />
+                tools:listitem="@layout/item_user"  android:paddingBottom="8dp" android:clipToPadding="false" />
 
 
-        </LinearLayout>
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/add_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:backgroundTint="@color/black_30"
-            android:elevation="8dp"
-            android:src="@drawable/fab_ic_add_24dp"
-            app:borderWidth="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:rippleColor="@color/glass_ripple" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/add_btn" android:layout_width="match_parent" android:layout_height="44dp" android:text="+ 새 등록" android:textSize="14sp" android:fontFamily="@font/ibm_plex_sans_kr" android:textColor="@color/white_90" android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:layout_marginTop="10dp" />
+</LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -103,6 +103,7 @@
         -->
         <activity
             android:name=".MainActivity"
+            android:hardwareAccelerated="true"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:exported="true"
             android:launchMode="singleTask"

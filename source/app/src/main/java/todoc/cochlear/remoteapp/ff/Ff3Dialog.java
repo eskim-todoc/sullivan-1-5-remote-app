@@ -13,11 +13,13 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.res.ResourcesCompat;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import todoc.cochlear.remoteapp.activity.MainActivity;
+import todoc.cochlear.remoteapp.activity.R;
 
 /** 장치값과 편집값을 구분하는 FF3 상세 화면. 저장과 활성화는 별도 조작이다. */
 public final class Ff3Dialog {
@@ -47,24 +49,24 @@ public final class Ff3Dialog {
     public Ff3Dialog(MainActivity activity, boolean diagnostic) {
         this.activity=activity; this.session=activity.ff3; this.diagnostic=diagnostic;
         LinearLayout body = column(); body.setPadding(dp(20),dp(4),dp(20),dp(4));
-        body.setBackgroundColor(Color.rgb(247,248,250));
+        body.setBackgroundColor(Color.TRANSPARENT);
         state = text(""); state.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE); body.addView(state);
         reload = button(body,"장치에서 다시 읽기",this::reload); secondary(reload);
         fields=column();
         scroll=new ScrollView(activity); scroll.setFillViewport(true); scroll.addView(fields);
         body.addView(scroll,new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,0,1));
         LinearLayout footer=column(); body.addView(footer);
-        validation=text(""); validation.setTextColor(Color.rgb(155,28,28)); footer.addView(validation);
+        validation=text(""); validation.setTextColor(Color.rgb(240,183,164)); footer.addView(validation);
         LinearLayout actions=new LinearLayout(activity);
         boolean wideActions=activity.getResources().getConfiguration().screenWidthDp>=700;
         actions.setOrientation(wideActions?LinearLayout.HORIZONTAL:LinearLayout.VERTICAL); footer.addView(actions);
         begin = button(actions,"설정 바꾸기 · 보상 끄고 시작",() -> requestEditing(-1));
         save = button(actions,"변경 내용 확인 후 저장",this::save);
-        activate = button(actions,"이 설정으로 소리 보상 켜기",() -> new MaterialAlertDialogBuilder(activity)
+        activate = button(actions,"이 설정으로 소리 보상 켜기",() -> new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(activity)
                 .setTitle("소리 변화에 따른 전원 보상을 켤까요?")
                 .setMessage("저장된 설정으로 FF3를 선택합니다. 실제 보상은 연결·자극·소리 상승 조건을 만족할 때 실행됩니다.")
                 .setNegativeButton("돌아가기",null).setPositiveButton("FF3 켜기",(d,w) -> session.changeMode(3)).show());
-        abort = button(actions,"변경 취소 · 저장된 값으로 돌아가기",() -> new MaterialAlertDialogBuilder(activity)
+        abort = button(actions,"변경 취소 · 저장된 값으로 돌아가기",() -> new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(activity)
                 .setTitle("저장하지 않은 변경을 취소할까요?")
                 .setMessage("화면 입력과 장치에 남은 편집을 버리고 마지막 저장값을 읽습니다. 보상은 계속 꺼져 있습니다.")
                 .setNegativeButton("계속 설정",null).setPositiveButton("변경 취소",(d,w) -> { rebuild=true; editingAccepted=false; session.abort(); }).show());
@@ -73,7 +75,7 @@ public final class Ff3Dialog {
             LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.WRAP_CONTENT,1);
             params.setMarginEnd(dp(8)); b.setLayoutParams(params);
         }
-        dialog=new MaterialAlertDialogBuilder(activity).setTitle(diagnostic ? "소리 보상 동작 확인 · FF3" : "소리 보상 설정 · FF3")
+        dialog=new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(activity).setTitle(diagnostic ? "소리 보상 동작 확인 · FF3" : "소리 보상 설정 · FF3")
                 .setView(body).setNegativeButton("닫기",null).create();
         dialog.show();
         dialog.setCanceledOnTouchOutside(false);
@@ -88,17 +90,18 @@ public final class Ff3Dialog {
     }
     private int dp(int value) { return Math.round(value*activity.getResources().getDisplayMetrics().density); }
     private LinearLayout column() { LinearLayout v=new LinearLayout(activity); v.setOrientation(LinearLayout.VERTICAL); return v; }
-    private TextView text(String value) { TextView v=new TextView(activity); v.setText(value); v.setTextSize(12); v.setTextColor(Color.rgb(31,41,51)); v.setLineSpacing(dp(2),1); v.setPadding(0,dp(6),0,dp(6)); return v; }
+    private TextView text(String value) { TextView v=new TextView(activity); v.setText(value); v.setTextSize(12); v.setTypeface(ResourcesCompat.getFont(activity,R.font.ibm_plex_sans_kr)); v.setIncludeFontPadding(false); v.setTextColor(Color.rgb(233,240,242)); v.setLineSpacing(dp(2),1); v.setPadding(0,dp(6),0,dp(6)); return v; }
     private void heading(LinearLayout parent,String value) { TextView v=text(value); v.setTextSize(14); v.setTypeface(v.getTypeface(),Typeface.BOLD); v.setPadding(0,dp(16),0,dp(8)); parent.addView(v); }
     private MaterialButton button(LinearLayout parent,String label,Runnable action) {
-        MaterialButton b=new MaterialButton(activity); b.setText(label); b.setTextSize(12); b.setAllCaps(false); b.setMinHeight(dp(48));
-        b.setTextColor(new ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled},new int[]{}},new int[]{Color.rgb(74,84,92),Color.WHITE}));
-        b.setBackgroundTintList(new ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled},new int[]{}},new int[]{Color.rgb(221,227,231),Color.rgb(53,91,83)}));
+        MaterialButton b=new MaterialButton(activity); b.setText(label); b.setTextSize(12); b.setTypeface(ResourcesCompat.getFont(activity,R.font.ibm_plex_sans_kr)); b.setIncludeFontPadding(false); b.setAllCaps(false); b.setMinHeight(dp(44));
+        b.setTextColor(new ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled},new int[]{}},new int[]{Color.rgb(131,148,154),Color.rgb(233,240,242)}));
+        b.setBackgroundTintList(new ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled},new int[]{}},new int[]{Color.argb(32,184,203,210),Color.argb(190,53,74,70)}));
+        b.setCornerRadius(dp(12)); b.setStrokeWidth(dp(1)); b.setStrokeColor(ColorStateList.valueOf(Color.argb(72,166,194,185))); b.setRippleColor(ColorStateList.valueOf(Color.argb(32,152,200,191)));
         b.setOnClickListener(v -> action.run()); parent.addView(b); return b;
     }
     private void secondary(MaterialButton b) {
-        b.setBackgroundTintList(ColorStateList.valueOf(Color.rgb(234,242,239)));
-        b.setTextColor(new ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled},new int[]{}},new int[]{Color.rgb(95,105,110),Color.rgb(48,86,78)}));
+        b.setBackgroundTintList(ColorStateList.valueOf(Color.argb(24,184,226,211)));
+        b.setTextColor(new ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled},new int[]{}},new int[]{Color.rgb(131,148,154),Color.rgb(184,226,211)}));
     }
     public void dismiss() { dialog.dismiss(); }
     public boolean showing() { return dialog.isShowing(); }
@@ -151,7 +154,7 @@ public final class Ff3Dialog {
     private void requestEditing(int choiceIndex) {
         if(session.busy() || !session.supported() || session.needsReconnect() || !session.config().complete()) return;
         if(session.editing()) { editingAccepted=true; pendingChoice=choiceIndex; refresh(); return; }
-        new MaterialAlertDialogBuilder(activity).setTitle("설정을 바꾸기 전에 보상을 끕니다")
+        new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(activity).setTitle("설정을 바꾸기 전에 보상을 끕니다")
                 .setMessage("현재: " + Ff3Config.modeName(session.mode)
                         + "\n설정 시작 후 값을 바꿀 수 있습니다. 변경 내용은 저장해야 반영되며, 보상은 직접 다시 켜야 합니다.")
                 .setNegativeButton("돌아가기",null).setPositiveButton(session.mode==0 ? "설정 시작 · 꺼짐 유지" : "보상 끄고 설정 시작",(d,w) -> {
@@ -168,7 +171,7 @@ public final class Ff3Dialog {
         if(!showing() || !inputs.containsKey(index)) return;
         String[] labels=index==59 ? Ff3Ui.FILTERS : new String[]{"사용하지 않음","사용"};
         int selected=Integer.parseInt(inputs.get(index).getText().toString());
-        new MaterialAlertDialogBuilder(activity).setTitle(Ff3Ui.label(index))
+        new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(activity).setTitle(Ff3Ui.label(index))
                 .setSingleChoiceItems(labels,selected,(d,which) -> {
                     if(!session.busy() && !session.needsReconnect() && session.editing() && editingAccepted
                             && session.supported() && session.config().complete() && showing()) {
@@ -182,10 +185,13 @@ public final class Ff3Dialog {
         EditText input=new EditText(activity); input.setId(View.generateViewId()); name.setLabelFor(input.getId());
         input.setSingleLine(true); input.setTextSize(14);
         input.setInputType(InputType.TYPE_CLASS_NUMBER); input.setText(String.valueOf(value*scale));
-        input.setTextColor(Color.rgb(31,41,51)); input.setContentDescription(label); input.setMinHeight(dp(48));
+        input.setTypeface(ResourcesCompat.getFont(activity,R.font.ibm_plex_sans_kr)); input.setIncludeFontPadding(false);
+        input.setTextColor(new ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled},new int[]{}},new int[]{Color.rgb(145,160,167),Color.rgb(233,240,242)})); input.setHintTextColor(Color.rgb(174,190,199));
+        input.setBackgroundTintList(new ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled},new int[]{}},new int[]{Color.argb(64,152,200,191),Color.rgb(152,200,191)}));
+        input.setContentDescription(label); input.setMinHeight(dp(48));
         parent.addView(input); inputs.put(index,input);
         if(Ff3Ui.relativeDb(index) || (index>=64 && index<80)) {
-            TextView hint=text(""); hint.setTextColor(Color.rgb(48,86,78));
+            TextView hint=text(""); hint.setTextColor(Color.rgb(184,226,211));
             parent.addView(hint); dbHints.put(index,hint);
         }
         input.addTextChangedListener(new TextWatcher() {
@@ -198,9 +204,6 @@ public final class Ff3Dialog {
         LinearLayout titleRow=new LinearLayout(activity); titleRow.setOrientation(LinearLayout.HORIZONTAL); parent.addView(titleRow);
         TextView title=text(Ff3Ui.label(index)); title.setTypeface(title.getTypeface(),Typeface.BOLD);
         titleRow.addView(title,new LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.WRAP_CONTENT,1));
-        MaterialButton info=button(titleRow,"?",() -> new MaterialAlertDialogBuilder(activity).setTitle(Ff3Ui.label(index)).setMessage(Ff3Ui.help(index)).setPositiveButton("확인",null).show());
-        info.setContentDescription(Ff3Ui.label(index)+" 용어와 동작 설명"); secondary(info);
-        info.setLayoutParams(new LinearLayout.LayoutParams(dp(48),dp(48))); info.setMinimumWidth(0); info.setPadding(0,0,0,0);
         if(index==59 || index==58) {
             field(parent,index,"",config.get(index),1); inputs.get(index).setVisibility(View.GONE);
             MaterialButton choice=button(parent,Ff3Ui.value(index,config.get(index)),() -> choose(index));
@@ -212,7 +215,7 @@ public final class Ff3Dialog {
     }
     private void buildFields(Ff3Config config) {
         building=true; baseline=config.copy(); fields.removeAllViews(); inputs.clear(); choices.clear(); dbHints.clear();
-        goalButton=button(fields,"",() -> new MaterialAlertDialogBuilder(activity).setTitle("무엇을 조정할까요?")
+        goalButton=button(fields,"",() -> new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(activity).setTitle("무엇을 조정할까요?")
                 .setSingleChoiceItems(Ff3Ui.GOALS,selectedGoal,(d,which) -> { showGoal(which); d.dismiss(); }).show());
         secondary(goalButton);
         preview=text("");
@@ -322,7 +325,7 @@ public final class Ff3Dialog {
             for(int i=40;i<=60;i++) if(error.startsWith(Ff3Ui.label(i))) { badIndex=i; break; }
             revealInput(badIndex); validation.setText(error); return;
         }
-        new MaterialAlertDialogBuilder(activity).setTitle("이 변경 내용으로 저장할까요?")
+        new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(activity).setTitle("이 변경 내용으로 저장할까요?")
                 .setMessage(Ff3Ui.changes(baseline,desired)+"\n변경 항목만 장치에 보냅니다. 저장 후에도 보상은 꺼져 있으며 직접 켤 수 있습니다.")
                 .setNegativeButton("더 수정",null).setPositiveButton("저장 · 꺼짐 유지",(d,w) -> {
                     if(session.busy() || !session.editing() || !session.config().complete()) return;
@@ -338,16 +341,16 @@ public final class Ff3Dialog {
     private boolean hasDraftChanges() { Ff3Config d=draft(false); return editingAccepted && baseline!=null && (d==null || !baseline.sameValues(d)); }
     private void reload() {
         Runnable action=() -> { rebuild=true; if(diagnostic) session.readDiagnostics(); else session.load(); };
-        if(!diagnostic && hasDraftChanges()) new MaterialAlertDialogBuilder(activity).setTitle("화면 입력을 버리고 다시 읽을까요?")
+        if(!diagnostic && hasDraftChanges()) new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(activity).setTitle("화면 입력을 버리고 다시 읽을까요?")
                 .setMessage("아직 저장하지 않은 화면 입력은 사라집니다. 장치에 남은 편집을 취소하는 동작은 아닙니다.")
                 .setNegativeButton("입력 유지",null).setPositiveButton("다시 읽기",(d,w) -> action.run()).show();
         else action.run();
     }
     private void close() {
-        if(session.busy()) { new MaterialAlertDialogBuilder(activity).setTitle("장치와 통신 중입니다")
+        if(session.busy()) { new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(activity).setTitle("장치와 통신 중입니다")
                 .setMessage("창을 닫아도 진행 중인 장치 요청은 취소되지 않습니다. 완료 상태는 다시 열어 확인할 수 있습니다.")
                 .setNegativeButton("완료 기다리기",null).setPositiveButton("창만 닫기",(d,w) -> dismiss()).show(); return; }
-        if(!diagnostic && hasDraftChanges()) new MaterialAlertDialogBuilder(activity).setTitle("저장하지 않고 닫을까요?")
+        if(!diagnostic && hasDraftChanges()) new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(activity).setTitle("저장하지 않고 닫을까요?")
                 .setMessage("화면에서 바꾼 값은 사라집니다. 장치 편집은 남고 보상은 꺼져 있습니다. 취소하려면 설정 화면의 변경 취소를 사용하세요.")
                 .setNegativeButton("계속 설정",null).setPositiveButton("저장 없이 닫기",(d,w) -> dismiss()).show();
         else dismiss();

@@ -52,7 +52,7 @@ public class UserFragment extends Fragment
         mMainBinding = ((MainActivity) requireContext()).mBinding;
         mMainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
         mMainBinding.toolbarNavigationMessage.setText("메뉴");
-        mMainBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
+        mMainBinding.toolbarNavigationMessage.setVisibility(View.GONE);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
@@ -76,7 +76,7 @@ public class UserFragment extends Fragment
         updateRecyclerView();
         initAddButton();
 
-        return view;
+        return ManagementUi.navigation(view);
     }
 
     public void mDefaultItemClickListener(int position)

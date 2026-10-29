@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.database.logs.EntityLog;
@@ -51,6 +52,13 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.ViewHolder>
     {
         mItems.clear();
         this.notifyDataSetChanged();
+    }
+
+    public void replaceItems(List<EntityLog> items)
+    {
+        mItems.clear();
+        mItems.addAll(items);
+        notifyDataSetChanged();
     }
 
     public void addItem(EntityLog item)

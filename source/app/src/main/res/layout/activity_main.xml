@@ -38,7 +38,7 @@
                 <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="44dp"
                     app:menu="@menu/toolbar"
                     app:navigationIcon="@drawable/toolbar_ic_back_arrow_24dp"
                     app:titleCentered="true" app:contentInsetStartWithNavigation="56dp" app:contentInsetEnd="16dp" app:titleMarginStart="0dp" app:navigationContentDescription="이전 화면으로" app:titleTextAppearance="@style/TextAppearance.App.PageTitle"
@@ -51,7 +51,7 @@
             <TextView
                 android:id="@+id/toolbar_navigation_message"
                 android:layout_width="64dp"
-                android:layout_height="48dp"
+                android:layout_height="44dp"
                 android:layout_marginStart="56dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -63,7 +63,7 @@
                 android:textSize="@dimen/type_body"
                 android:textStyle="bold"
                 android:visibility="visible"
-                android:fontFamily="@font/pretendard" />
+                android:fontFamily="@font/ibm_plex_sans_kr" />
 
 
 
@@ -107,7 +107,7 @@
                     android:layout_height="wrap_content"
                     android:text="등록된 페어링 키 : "
                     android:textColor="@color/white_70"
-                    android:textSize="14dp" android:fontFamily="@font/pretendard" />
+                    android:textSize="14dp" android:fontFamily="@font/ibm_plex_sans_kr" />
 
                 <TextView
                     android:id="@+id/pairing_key_value"
@@ -117,14 +117,14 @@
                     android:textColor="@color/accent_70"
                     android:textSize="14dp"
                     android:textStyle="bold"
-                    tools:text="123456" android:fontFamily="@font/pretendard" />
+                    tools:text="123456" android:fontFamily="@font/ibm_plex_sans_kr" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text=""
                     android:textColor="@color/white_70"
-                    android:textSize="14dp" android:fontFamily="@font/pretendard" />
+                    android:textSize="14dp" android:fontFamily="@font/ibm_plex_sans_kr" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -173,7 +173,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_chainStyle="packed" android:fontFamily="@font/pretendard" />
+                app:layout_constraintVertical_chainStyle="packed" android:fontFamily="@font/ibm_plex_sans_kr" />
 
             <LinearLayout
                 android:id="@+id/circle_layout"
@@ -228,7 +228,7 @@
                 app:layout_constraintEnd_toStartOf="@id/lock_screen_number_2"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/lock_screen_number_2"
-                app:rippleColor="@null" android:fontFamily="@font/pretendard" />
+                app:rippleColor="@null" android:fontFamily="@font/ibm_plex_sans_kr" />
 
             <Button
                 android:id="@+id/lock_screen_number_2"
@@ -240,7 +240,7 @@
                 app:layout_constraintStart_toStartOf="@id/lock_screen_number_5"
                 app:layout_constraintTop_toTopOf="@id/lock_screen_guide"
                 app:layout_constraintVertical_chainStyle="spread"
-                app:rippleColor="@null" android:fontFamily="@font/pretendard" />
+                app:rippleColor="@null" android:fontFamily="@font/ibm_plex_sans_kr" />
 
             <Button
                 android:id="@+id/lock_screen_number_3"
@@ -251,7 +251,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/lock_screen_number_2"
                 app:layout_constraintTop_toTopOf="@id/lock_screen_number_2"
-                app:rippleColor="@null" android:fontFamily="@font/pretendard" />
+                app:rippleColor="@null" android:fontFamily="@font/ibm_plex_sans_kr" />
 
             <Button
                 android:id="@+id/lock_screen_number_4"
@@ -262,7 +262,7 @@
                 app:layout_constraintEnd_toStartOf="@id/lock_screen_number_5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/lock_screen_number_5"
-                app:rippleColor="@null" android:fontFamily="@font/pretendard" />
+                app:rippleColor="@null" android:fontFamily="@font/ibm_plex_sans_kr" />
 
             <Button
                 android:id="@+id/lock_screen_number_5"
@@ -273,7 +273,7 @@
                 app:layout_constraintEnd_toEndOf="@id/lock_screen_number_8"
                 app:layout_constraintStart_toStartOf="@id/lock_screen_number_8"
                 app:layout_constraintTop_toBottomOf="@id/lock_screen_number_2"
-                app:rippleColor="@null" android:fontFamily="@font/pretendard" />
+                app:rippleColor="@null" android:fontFamily="@font/ibm_plex_sans_kr" />
 
             <Button
                 android:id="@+id/lock_screen_number_6"
@@ -284,7 +284,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/lock_screen_number_5"
                 app:layout_constraintTop_toTopOf="@id/lock_screen_number_5"
-                app:rippleColor="@null" android:fontFamily="@font/pretendard" />
+                app:rippleColor="@null" android:fontFamily="@font/ibm_plex_sans_kr" />
 
             <Button
                 android:id="@+id/lock_screen_number_7"
@@ -295,7 +295,7 @@
                 app:layout_constraintEnd_toStartOf="@id/lock_screen_number_8"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/lock_screen_number_8"
-                app:rippleColor="@null" android:fontFamily="@font/pretendard" />
+                app:rippleColor="@null" android:fontFamily="@font/ibm_plex_sans_kr" />
 
             <Button
                 android:id="@+id/lock_screen_number_8"
@@ -306,7 +306,7 @@
                 app:layout_constraintEnd_toEndOf="@id/lock_screen_number_0"
                 app:layout_constraintStart_toStartOf="@id/lock_screen_number_0"
                 app:layout_constraintTop_toBottomOf="@id/lock_screen_number_5"
-                app:rippleColor="@null" android:fontFamily="@font/pretendard" />
+                app:rippleColor="@null" android:fontFamily="@font/ibm_plex_sans_kr" />
 
             <Button
                 android:id="@+id/lock_screen_number_9"
@@ -317,7 +317,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/lock_screen_number_8"
                 app:layout_constraintTop_toTopOf="@id/lock_screen_number_8"
-                app:rippleColor="@null" android:fontFamily="@font/pretendard" />
+                app:rippleColor="@null" android:fontFamily="@font/ibm_plex_sans_kr" />
 
             <Button
                 android:id="@+id/lock_screen_number_0"
@@ -329,12 +329,12 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/lock_screen_number_8"
-                app:rippleColor="@null" android:fontFamily="@font/pretendard" />
+                app:rippleColor="@null" android:fontFamily="@font/ibm_plex_sans_kr" />
 
             <ImageButton
                 android:id="@+id/lock_screen_number_del"
                 android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_height="44dp"
                 android:background="@android:color/transparent"
                 android:onClick="onLockScreenNumberClickedListener"
                 android:src="@drawable/lock_screen_ic_backspace_24"

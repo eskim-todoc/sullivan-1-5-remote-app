@@ -92,15 +92,8 @@ public class LockScreen {
     }
 
     public void resume() {
-        Log.v(TAG, "resume(" + mContext.toString() + ", " + mBinding.toString() + ") called.");
-
-        ensureDefaultPassword();
-
-        bufferInit();
-        stateInit();
-        updateCircle(0);
-        updateMessage();
-        enableScreen(isEnabled());
+        // 화면 잠금 기능은 제거되었으며 기존 저장 데이터는 건드리지 않는다.
+        enableScreen(false);
     }
 
     public void bufferInit() {
@@ -139,7 +132,7 @@ public class LockScreen {
      * 기본값이 «쓰지 않음» 이다. 예전에는 앱을 처음 켜면 잠금화면이 먼저 떠서 암호를
      * 등록해야 넘어갈 수 있었다. 기능을 없애지는 않았다 - 설정 화면의 스위치로 언제든 켠다. */
     public boolean isEnabled() {
-        return mContext.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(KEY_FOR_ENABLE, false);
+        return false;
     }
 
     //public void setEnable(Context context, boolean enable)
@@ -233,6 +226,7 @@ public class LockScreen {
     }
 
     public void enableScreen(boolean enable) {
+        enable = false;
         Log.v(TAG, "enableScreen(" + enable + ") called.");
 
         if (enable) {

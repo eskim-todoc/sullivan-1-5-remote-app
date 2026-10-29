@@ -61,7 +61,7 @@ public class AddUserFragment extends Fragment
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         mAddUserBinding = FragmentAddUserBinding.inflate(inflater, container, false);
-        return mAddUserBinding.getRoot();
+        return ManagementUi.navigation(mAddUserBinding.getRoot());
     }
 
     @Override
@@ -72,7 +72,7 @@ public class AddUserFragment extends Fragment
         mMainBinding = ((MainActivity) requireContext()).mBinding;
         mMainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
         mMainBinding.toolbarNavigationMessage.setText("사용자 목록");
-        mMainBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
+        mMainBinding.toolbarNavigationMessage.setVisibility(View.GONE);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
         mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
@@ -187,7 +187,7 @@ public class AddUserFragment extends Fragment
 
 
                 Status.instance().lastDialog =
-                        new MaterialAlertDialogBuilder(requireContext())
+                        new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
                                 .setMessage("사용자 이니셜을 입력해주세요.")
                                 .setPositiveButton("확인", (dialogInterface, i) ->
@@ -220,7 +220,7 @@ public class AddUserFragment extends Fragment
 
 
                 Status.instance().lastDialog =
-                        new MaterialAlertDialogBuilder(requireContext())
+                        new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
                                 .setMessage("내부기 키는 4자리 번호입니다.")
                                 .setPositiveButton("확인", (dialogInterface, i) ->
@@ -251,7 +251,7 @@ public class AddUserFragment extends Fragment
 
 
                 Status.instance().lastDialog =
-                        new MaterialAlertDialogBuilder(requireContext())
+                        new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
                                 .setMessage("착용 위치를 선택해주세요.")
                                 .setPositiveButton("확인", (dialogInterface, i) ->
@@ -289,7 +289,7 @@ public class AddUserFragment extends Fragment
 
 
                     Status.instance().lastDialog =
-                            new MaterialAlertDialogBuilder(requireContext())
+                            new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
                                     .setTitle("주의")
                                     .setMessage("이미 등록된 사용자 정보입니다.")
                                     .setPositiveButton("확인", (dialogInterface, i) ->
@@ -347,7 +347,7 @@ public class AddUserFragment extends Fragment
                                         }
 
                                         Status.instance().lastDialog =
-                                                new MaterialAlertDialogBuilder(requireContext())
+                                                new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
                                                         .setTitle("주의")
                                                         .setMessage("현재 연결을 해제하고 기본사용자 정보를 등록하시겠습니까?")
                                                         .setPositiveButton("확인", (dialogInterface, i) ->

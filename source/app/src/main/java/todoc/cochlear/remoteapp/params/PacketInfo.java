@@ -20,6 +20,9 @@ public class PacketInfo
     static public final byte HEADER_WRITE_ISD_ID_AND_USER  = (byte) (0x4C & 0xff);
     static public final byte HEADER_WRITE_MAP_DATA         = (byte) (0x4D & 0xff);
     static public final byte HEADER_MAP_RESET_DEFAULT      = (byte) (0x50 & 0xff);
+    static public final byte HEADER_WRITE_EXTERNAL_SERIAL  = 0x55;
+    static public final byte HEADER_WRITE_PAIRING_KEY      = 0x56;
+    static public final byte HEADER_FACTORY_MAPS           = 0x57;
     static public final byte HEADER_SOUND_PROCESSING_PARAM = (byte) (0x52 & 0xff); // 0x52로 바뀜
     static public final byte HEADER_SPECIFIC_CMD           = (byte) (0x59 & 0xff); // 특수 시스템 동작 설정
     /* 매핑 연결 · 해제.
@@ -233,6 +236,7 @@ public class PacketInfo
 
     // 배터리 도메인 인덱스
     static public final int RC_BATTERY_IDX_TELEMETRY = 1; // 기존 8 / 전류 포함 15바이트 (읽기 전용)
+    static public final int RC_BATTERY_IDX_EXTENDED = 2; // 새 REL4.5 확장 전류/전력 응답
 
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// 옵션 255 — 프로토콜 버전

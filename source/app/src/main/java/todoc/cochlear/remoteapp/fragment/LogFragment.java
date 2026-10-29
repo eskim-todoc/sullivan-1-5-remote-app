@@ -1,348 +1,168 @@
 package todoc.cochlear.remoteapp.fragment;
-
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Toast;
-
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import java.nio.charset.StandardCharsets;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
+import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import todoc.cochlear.remoteapp.activity.MainActivity;
-import todoc.cochlear.remoteapp.activity.R;
-import todoc.cochlear.remoteapp.activity.databinding.FragmentLogBinding;
 import todoc.cochlear.remoteapp.database.logs.EntityLog;
-import todoc.cochlear.remoteapp.list.LogAdapter;
 import todoc.cochlear.remoteapp.database.logs.UtilLog;
-import todoc.cochlear.remoteapp.params.PacketInfo;
-import todoc.cochlear.remoteapp.params.Status;
+import todoc.cochlear.remoteapp.list.LogAdapter;
 
-public class LogFragment extends Fragment
-{
-    static private final String TAG = "TODOC_" + LogFragment.class.getSimpleName();
+/** Searchable local log snapshot; editing and device commands are not sent here. */
+public class LogFragment extends Fragment {
+ private final ExecutorService io=Executors.newSingleThreadExecutor();
+ private final List<EntityLog> logs=new ArrayList<>();
+ private LogAdapter adapter;private EditText search;private TextView count;
+ private String category="전체";
+ private String pendingExportPath;
+ private boolean exportBusy;
+ private int viewGeneration;
+ private androidx.appcompat.widget.AppCompatButton exportButton;
+ private final ActivityResultLauncher<String> export=registerForActivityResult(
+         new ActivityResultContracts.CreateDocument("text/plain"), this::completeExport);
 
-    public FragmentLogBinding mLogBinding;
-    private List<EntityLog> mLogs;
+ @Override public void onCreate(@Nullable Bundle state) {
+  super.onCreate(state);
+  if(state!=null) pendingExportPath=state.getString("pending-log-export");
+  exportBusy=pendingExportPath!=null;
+ }
+ @Nullable @Override public View onCreateView(@NonNull LayoutInflater inflater,@Nullable ViewGroup container,@Nullable Bundle state){
+  viewGeneration++;
+  ManagementUi.toolbar((MainActivity)requireActivity(),"통신 로그");LinearLayout body=ManagementUi.body(requireContext());
+  search=new EditText(requireContext());search.setSingleLine(true);search.setHint("기록에서 검색");search.setTextSize(14);search.setIncludeFontPadding(false);search.setTextColor(0xffe1ebec);search.setHintTextColor(0xffaebec7);search.setMinHeight(ManagementUi.dp(requireContext(),44));body.addView(search,new LinearLayout.LayoutParams(-1,ManagementUi.dp(requireContext(),44)));
+  LinearLayout filters=new LinearLayout(requireContext());filters.setOrientation(LinearLayout.HORIZONTAL);body.addView(filters);
+  for(String title:new String[]{"전체","제어","상태","연결","오류"}){androidx.appcompat.widget.AppCompatButton button=ManagementUi.action(filters,title,v->{category=title;applyFilter();});button.setTextSize(11);button.setPadding(0,0,0,0);button.setLayoutParams(new LinearLayout.LayoutParams(0,ManagementUi.dp(requireContext(),44),1));}
+  count=ManagementUi.text(requireContext(),"로그 읽는 중…",11);body.addView(count);
+  RecyclerView list=new RecyclerView(requireContext());list.setBackgroundResource(todoc.cochlear.remoteapp.activity.R.drawable.remote_glass_panel);list.setPadding(ManagementUi.dp(requireContext(),10),0,ManagementUi.dp(requireContext(),10),0);list.setClipToPadding(true);list.setClipToOutline(true);list.setLayoutManager(new LinearLayoutManager(requireContext()));adapter=new LogAdapter();list.setAdapter(adapter);body.addView(list,new LinearLayout.LayoutParams(-1,0,1));
+  exportButton=ManagementUi.action(body,"내보내기",v->prepareExport());
+  exportButton.setEnabled(!exportBusy);
+  body.setBackgroundResource(todoc.cochlear.remoteapp.activity.R.drawable.remote_control_background_glass);
+  search.addTextChangedListener(new TextWatcher(){public void beforeTextChanged(CharSequence s,int start,int n,int after){}public void onTextChanged(CharSequence s,int start,int before,int n){applyFilter();}public void afterTextChanged(Editable e){}});
+  final android.app.Activity host=requireActivity();io.execute(()->{List<EntityLog> stored=UtilLog.instance.readAllLogs();List<EntityLog> snapshot=new ArrayList<>();if(stored!=null)for(EntityLog entry:stored){if(entry.number==0)continue;EntityLog safe=new EntityLog();safe.number=entry.number;safe.date=entry.date;safe.message=redact(entry.message);snapshot.add(safe);}Collections.sort(snapshot,(a,b)->String.valueOf(b.date).compareTo(String.valueOf(a.date)));host.runOnUiThread(()->{if(adapter!=null){logs.clear();logs.addAll(snapshot);applyFilter();}});});return ManagementUi.navigation(body);
+ }
+ static String redact(String value){return value==null?"":value.replaceAll("(?i)(패스키|보안코드|pairingKey|passKey|페어링\\s*키)\\s*=\\s*[^,\\n]+","$1=••••");}
+ private String classify(String message){String lower=message.toLowerCase(Locale.ROOT);if(lower.matches("(?s).*(실패|오류|error|timeout|시간초과).*$"))return "오류";if(lower.matches("(?s).*(연결|인증|connect|pair).*$"))return "연결";if(lower.matches("(?s).*(조회|배터리|상태|battery|status|pmic).*$"))return "상태";return "제어";}
+ private List<EntityLog> filtered(){String query=search==null?"":search.getText().toString().toLowerCase(Locale.ROOT);List<EntityLog> result=new ArrayList<>();for(EntityLog item:logs)if(("전체".equals(category)||category.equals(classify(item.message)))&&(String.valueOf(item.date)+" "+item.message).toLowerCase(Locale.ROOT).contains(query))result.add(item);return result;}
+ private void applyFilter(){if(adapter==null)return;List<EntityLog> result=filtered();adapter.replaceItems(result);if(count!=null)count.setText(category+" · "+result.size()+"개");}
+ private String filteredText(){StringBuilder out=new StringBuilder();for(EntityLog entry:filtered())out.append(entry.date).append("\t").append(entry.message).append('\n');return out.toString();}
 
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
+ /** Snapshot first; opening the document picker must never discard the selected log data. */
+ private void prepareExport() {
+  if(exportBusy) return;
+  final String snapshot=filteredText();
+  final int generation=viewGeneration;
+  final android.app.Activity host=requireActivity();
+  final File directory=new File(requireContext().getCacheDir(),"log-exports");
+  exportBusy=true;
+  exportButton.setEnabled(false);
+  io.execute(()->{
+   File snapshotFile=null;
+   String failure=null;
+   try {
+    if(!directory.isDirectory()&&!directory.mkdirs()) throw new IOException("임시 저장소를 만들 수 없습니다.");
+    snapshotFile=File.createTempFile("logs-",".txt",directory);
+    try(OutputStream stream=new FileOutputStream(snapshotFile)) {
+     stream.write(snapshot.getBytes(StandardCharsets.UTF_8));
     }
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
-        mLogBinding = FragmentLogBinding.inflate(inflater, container, false);
-        return mLogBinding.getRoot();
+   } catch(IOException|SecurityException error) {
+    failure=error.getMessage()==null?"임시 파일을 저장할 수 없습니다.":error.getMessage();
+   }
+   final File readyFile=snapshotFile;
+   final String errorMessage=failure;
+   host.runOnUiThread(()->{
+    if(!isAdded()||getView()==null||generation!=viewGeneration) {
+     if(readyFile!=null) readyFile.delete();
+     finishExport(null);
+     return;
     }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
-    {
-        super.onViewCreated(view, savedInstanceState);
-
-        ((MainActivity) requireActivity()).mBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
-        ((MainActivity) requireActivity()).mBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
-        ((MainActivity) requireActivity()).mBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
-        ((MainActivity) requireActivity()).mBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
-        ((MainActivity) requireActivity()).mBinding.toolbar.setTitle("시스템 로그");
-        ((MainActivity) requireActivity()).mBinding.toolbarNavigationMessage.setText("사용자 등록");
-        ((MainActivity) requireActivity()).mBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
-
-
-        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[1] 입력 시작.
-        /*
-        {
-            for (EntityLog log : UtilLog.instance.readAllLogs())
-            {
-                UtilLog.instance.delete(log);
-            }
-
-            prepareLogs();
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[1] 입력 끝.
-
-
-        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[2] 입력 시작.
-        /*
-        {
-            EntityLog logData = new EntityLog();
-            logData.number = 1;
-            logData.date = "2022-10-01 00:00:00.000";
-            logData.message = "2022-10-01";
-
-            EntityLog logIndex = new EntityLog();
-            logIndex.number = 0;
-            logIndex.date = "2022-01-01 00:00:00.000";
-            logIndex.message = "2";
-
-            UtilLog.instance.insert(logData);
-            UtilLog.instance.insert(logIndex);
-
-            prepareLogs();
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[2] 입력 끝.
-
-        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[3] 입력 시작.
-        /*
-        {
-            EntityLog logExtra1 = new EntityLog();
-            logExtra1.number = 2;
-            logExtra1.date = "2022-11-01 00:00:00.000";
-            logExtra1.message = "2022-11-01";
-
-            EntityLog logExtra2 = new EntityLog();
-            logExtra2.number = 3;
-            logExtra2.date = "2022-01-01 00:00:00.000";
-            logExtra2.message = "2022-01-01";
-
-            EntityLog logExtra3 = new EntityLog();
-            logExtra3.number = 4;
-            logExtra3.date = "2022-02-01 00:00:00.000";
-            logExtra3.message = "2022-02-01";
-
-            EntityLog logIndex = new EntityLog();
-            logIndex.number = 0;
-            logIndex.date = "2022-01-01 00:00:00.000";
-            logIndex.message = "5";
-
-            UtilLog.instance.insert(logExtra1);
-            UtilLog.instance.insert(logExtra2);
-            UtilLog.instance.insert(logExtra3);
-            UtilLog.instance.insert(logIndex);
-
-            prepareLogs();
-        }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[3] 입력 끝.
-
-
-        printHiddenLogs();
-
-        mLogBinding.logExitButton.setOnClickListener(view1 -> requireActivity().onBackPressed());
+    if(errorMessage!=null) {
+     if(readyFile!=null) readyFile.delete();
+     finishExport("로그 준비 실패: "+errorMessage);
+     return;
     }
-
-    private void prepareLogs()
-    {
-        if (mLogs == null)
-        {
-            mLogs = new ArrayList<>();
-        }
-
-        mLogs.clear();
-
-        List<EntityLog> logs = UtilLog.instance.readAllLogs();
-
-        if (logs != null)
-        {
-            int size = logs.size();
-
-            switch (size)
-            {
-                case 0:
-                case 1:
-                    Log.d(TAG, "[히든로그] 저장된 로그가 없습니다.");
-
-
-                    // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[1] 시작.
-                    /*
-                    Log.d(TAG, "there is no log written.");
-                    */
-                    // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[1] 끝.
-
-
-                    break;
-
-                case 2:
-                    Log.d(TAG, "[히든로그] 오직 1개의 로그만 있습니다.");
-
-
-                    // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[2] 시작.
-                    /*
-                    Log.d(TAG, "there is only 1 log written.");
-                    Log.d(TAG, "number = " + logs.get(1).number + ", date = " + logs.get(1).date + ", message = " + logs.get(1).message);
-                    */
-                    // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[2] 끝.
-
-
-                    mLogs.add(logs.get(1));
-                    break;
-
-                default:
-                {
-                    Log.d(TAG, "[히든로그] 다수의 로그가 있습니다. -> " + (size - 1) + "개.");
-
-                    int oldestNumber = 1;
-
-                    Log.d(TAG, "[히든로그] 가장 오래된 로그를 찾습니다.");
-
-                    // find oldest date
-                    for (int i = 1; i < size - 1; i++)
-                    {
-                        String front = logs.get(i).date;
-                        String back = logs.get(i + 1).date;
-
-                        String[] front_space_splits = front.split(" ");
-                        String[] back_space_splits = back.split(" ");
-
-                        String[] front_date_splits = front_space_splits[0].split("-");
-                        String[] back_date_splits = back_space_splits[0].split("-");
-
-                        String[] front_time_splits = front_space_splits[1].split(":");
-                        String[] back_time_splits = back_space_splits[1].split(":");
-
-                        String[] front_second_splits = front_time_splits[2].split("\\.");
-                        String[] back_second_splits = back_time_splits[2].split("\\.");
-
-                        int frontYear = Integer.parseInt(front_date_splits[0]);
-                        int frontMonth = Integer.parseInt(front_date_splits[1]);
-                        int frontDay = Integer.parseInt(front_date_splits[2]);
-                        int frontHour = Integer.parseInt(front_time_splits[0]);
-                        int frontMin = Integer.parseInt(front_time_splits[1]);
-                        int frontSecond = Integer.parseInt(front_second_splits[0]);
-                        int frontMs = Integer.parseInt(front_time_splits[1]);
-
-                        int backYear = Integer.parseInt(back_date_splits[0]);
-                        int backMonth = Integer.parseInt(back_date_splits[1]);
-                        int backDay = Integer.parseInt(back_date_splits[2]);
-                        int backHour = Integer.parseInt(back_time_splits[0]);
-                        int backMin = Integer.parseInt(back_time_splits[1]);
-                        int backSecond = Integer.parseInt(back_second_splits[0]);
-                        int backMs = Integer.parseInt(back_time_splits[1]);
-
-                        //Log.d(TAG, "Log(" + i + "){" + front + "} vs Log(" + (i + 1) + "){" + back + "}");
-
-                        Log.d(TAG, "i = " + i
-                                + " -> Front=" + frontYear + "-" + frontMonth + "-" + frontDay + " " + frontHour + ":" + frontMin + ":" + frontSecond + "." + frontMs
-                                + ", Back=" + backYear + "-" + backMonth + "-" + backDay + " " + backHour + ":" + backMin + ":" + backSecond + "." + backMs);
-
-                        if (backYear < frontYear)
-                        {
-                            oldestNumber = i + 1;
-                            break;
-                        }
-
-                        if (backMonth < frontMonth)
-                        {
-                            oldestNumber = i + 1;
-                            break;
-                        }
-
-                        if (backDay < frontDay)
-                        {
-                            oldestNumber = i + 1;
-                            break;
-                        }
-
-                        if (backHour < frontHour)
-                        {
-                            oldestNumber = i + 1;
-                            break;
-                        }
-
-                        if (backDay < frontDay)
-                        {
-                            oldestNumber = i + 1;
-                            break;
-                        }
-
-                        if (backSecond < frontSecond)
-                        {
-                            oldestNumber = i + 1;
-                            break;
-                        }
-
-                        if (backMs < frontMs)
-                        {
-                            oldestNumber = i + 1;
-                            break;
-                        }
-                    }
-
-                    Log.d(TAG, "[히든로그] 가장 오래된 로그의 번호는 " + oldestNumber + "입니다.");
-
-
-                    // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[3-1] 시작.
-                    /*
-                    Log.d(TAG, "total system log count = " + (size - 1) + ", the oldest log number = " + oldestNumber);
-                    */
-                    // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[3-1] 끝.
-
-                    int mLogIndex = 0;
-
-                    // print from oldest log data to last log data on database.
-                    for (int i = oldestNumber; i < size; i++)
-                    {
-                        mLogs.add(mLogIndex, logs.get(i));
-                        mLogIndex++;
-
-                        Log.d(TAG, "[히든로그] {인덱스 = " + i + "}, {일시 = " + logs.get(i).date + "}, {메시지 = " + logs.get(i).message + "}");
-
-
-                        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[3-2] 시작.
-                        /*
-                        Log.d(TAG, "number = " + logs.get(i).number + ", date = " + logs.get(i).date + ", message = " + logs.get(i).message);
-                        */
-                        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[3-2] 끝.
-
-
-                    }
-
-                    // print from first log data to before oldest log data.
-                    for (int i = 1; i < oldestNumber; i++)
-                    {
-                        //mLogs.add(logs.get(i));
-                        mLogs.add(mLogIndex, logs.get(i));
-                        mLogIndex++;
-
-                        Log.d(TAG, "[히든로그] {인덱스 = " + i + "}, {일시 = " + logs.get(i).date + "}, {메시지 = " + logs.get(i).message + "}");
-
-
-                        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[3-3] 시작.
-                        /*
-                        Log.d(TAG, "number = " + logs.get(i).number + ", date = " + logs.get(i).date + ", message = " + logs.get(i).message);
-                        */
-                        // TD2-SW-RC-UNIT-Test-ID-71 [시스템 로그 시간 순서 정렬 유닛] 순서[3-3] 끝.
-
-
-                    }
-                }
-                break;
-            }
-        }
+    pendingExportPath=readyFile.getAbsolutePath();
+    try {
+     export.launch("TODOC-logs.txt");
+    } catch(RuntimeException error) {
+     readyFile.delete();
+     pendingExportPath=null;
+     finishExport("파일 선택기를 열 수 없습니다. 다시 시도하세요.");
     }
+   });
+  });
+ }
 
-    private void printHiddenLogs()
-    {
-        UtilLog.instance.printAllLogs();
-
-        prepareLogs();
-
-        LogAdapter adapter = new LogAdapter();
-        mLogBinding.logRecyclerview.setAdapter(adapter);
-        mLogBinding.logRecyclerview.setLayoutManager(new LinearLayoutManager(requireContext()));
-
-        if (mLogs != null)
-        {
-            for (int i = 0; i < mLogs.size(); i++)
-            {
-                adapter.addItem(mLogs.get(i));
-            }
-        }
-
-        mLogBinding.logRecyclerview.scrollToPosition(adapter.getItemCount() - 1);
+ private void completeExport(@Nullable android.net.Uri destination) {
+  final String snapshotPath=pendingExportPath;
+  pendingExportPath=null;
+  final android.app.Activity host=requireActivity();
+  final android.content.ContentResolver resolver=requireContext().getContentResolver();
+  final File directory=new File(requireContext().getCacheDir(),"log-exports");
+  io.execute(()->{
+   File snapshotFile=null;
+   String message=null;
+   try {
+    if(snapshotPath!=null) {
+     File candidate=new File(snapshotPath).getCanonicalFile();
+     if(directory.getCanonicalFile().equals(candidate.getParentFile())) snapshotFile=candidate;
     }
+    if(destination==null) return;
+    if(snapshotFile==null||!snapshotFile.isFile()) throw new IOException("보관된 내보내기 데이터가 없습니다. 다시 내보내 주세요.");
+    // Open the source before the destination so missing/evicted cache data cannot truncate a document.
+    try(InputStream input=new FileInputStream(snapshotFile)) {
+     try(OutputStream output=resolver.openOutputStream(destination)) {
+      if(output==null) throw new IOException("저장할 파일을 열 수 없습니다.");
+      byte[] buffer=new byte[8192];
+      int length;
+      while((length=input.read(buffer))!=-1) output.write(buffer,0,length);
+     }
+    }
+    message="로그 저장 완료";
+   } catch(IOException|SecurityException error) {
+    message="로그 저장 실패: "+error.getMessage();
+   } finally {
+    if(snapshotFile!=null) snapshotFile.delete();
+    final String resultMessage=message;
+    host.runOnUiThread(()->finishExport(resultMessage));
+   }
+  });
+ }
+
+ private void finishExport(@Nullable String message) {
+  exportBusy=false;
+  if(exportButton!=null) exportButton.setEnabled(true);
+  if(count!=null&&message!=null) count.setText(message);
+ }
+
+ @Override public void onSaveInstanceState(@NonNull Bundle state) {
+  super.onSaveInstanceState(state);
+  if(pendingExportPath!=null) state.putString("pending-log-export",pendingExportPath);
+ }
+ @Override public void onDestroyView(){viewGeneration++;exportButton=null;adapter=null;search=null;count=null;super.onDestroyView();}
+ @Override public void onDestroy(){io.shutdown();super.onDestroy();}
 }

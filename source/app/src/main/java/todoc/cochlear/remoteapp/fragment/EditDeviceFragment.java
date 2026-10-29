@@ -63,7 +63,7 @@ public class EditDeviceFragment extends Fragment
         todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding mainBinding = ((MainActivity) requireContext()).mBinding;
         mainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
         mainBinding.toolbarNavigationMessage.setText("외부기 목록");
-        mainBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
+        mainBinding.toolbarNavigationMessage.setVisibility(View.GONE);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
@@ -85,7 +85,7 @@ public class EditDeviceFragment extends Fragment
                              Bundle savedInstanceState)
     {
         mEditDeviceBinding = FragmentEditDeviceBinding.inflate(inflater, container, false);
-        return mEditDeviceBinding.getRoot();
+        return ManagementUi.navigation(mEditDeviceBinding.getRoot());
     }
 
     @Override
@@ -124,7 +124,7 @@ public class EditDeviceFragment extends Fragment
                     && Status.instance().connectedDevice.serialNumber.equals(mItem.serialNumber))
             {
                 Status.instance().lastDialog =
-                        new MaterialAlertDialogBuilder(requireContext())
+                        new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
                                 .setMessage("현재 연결을 해제하고 외부기 정보를 삭제하시겠습니까?")
                                 .setPositiveButton("삭제", (dialogInterface, i) ->
@@ -151,7 +151,7 @@ public class EditDeviceFragment extends Fragment
             else
             {
                 Status.instance().lastDialog =
-                        new MaterialAlertDialogBuilder(requireContext())
+                        new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
                                 .setMessage("외부기 정보를 삭제하시겠습니까?")
                                 .setPositiveButton("삭제", (dialogInterface, i) ->
@@ -216,7 +216,7 @@ public class EditDeviceFragment extends Fragment
 
 
                 Status.instance().lastDialog =
-                        new MaterialAlertDialogBuilder(requireContext())
+                        new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
                                 .setMessage("페어링 키는 6자리 번호입니다.")
                                 .setPositiveButton("확인", (dialogInterface, i) ->

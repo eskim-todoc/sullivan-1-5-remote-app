@@ -59,7 +59,7 @@ public class AddDeviceFragment extends Fragment
         todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding mainBinding = ((MainActivity) requireContext()).mBinding;
         mainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
         mainBinding.toolbarNavigationMessage.setText("외부기 목록");
-        mainBinding.toolbarNavigationMessage.setVisibility(View.VISIBLE);
+        mainBinding.toolbarNavigationMessage.setVisibility(View.GONE);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
         mainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
@@ -70,7 +70,7 @@ public class AddDeviceFragment extends Fragment
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         mAddDeviceBinding = FragmentAddDeviceBinding.inflate(inflater, container, false);
-        return mAddDeviceBinding.getRoot();
+        return ManagementUi.navigation(mAddDeviceBinding.getRoot());
     }
 
     @Override
@@ -116,7 +116,7 @@ public class AddDeviceFragment extends Fragment
 
 
                 Status.instance().lastDialog =
-                        new MaterialAlertDialogBuilder(requireContext())
+                        new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
                                 .setMessage("제조번호를 입력해주세요.")
                                 .setPositiveButton("확인", (dialogInterface, i) ->
@@ -150,7 +150,7 @@ public class AddDeviceFragment extends Fragment
 
 
                 Status.instance().lastDialog =
-                        new MaterialAlertDialogBuilder(requireContext())
+                        new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
                                 .setTitle("주의")
                                 .setMessage("페어링 키는 6자리 번호입니다.")
                                 .setPositiveButton("확인", (dialogInterface, i) ->
@@ -187,7 +187,7 @@ public class AddDeviceFragment extends Fragment
 
 
                     Status.instance().lastDialog =
-                            new MaterialAlertDialogBuilder(requireContext())
+                            new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
                                     .setTitle("주의")
                                     .setMessage("이미 등록된 제조번호입니다.")
                                     .setPositiveButton("확인", (dialogInterface, i) ->

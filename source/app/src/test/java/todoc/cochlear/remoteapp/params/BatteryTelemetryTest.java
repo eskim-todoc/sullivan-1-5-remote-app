@@ -6,9 +6,9 @@ import java.util.Locale;
 import static org.junit.Assert.*;
 
 public class BatteryTelemetryTest {
-    @Test public void detailedBatteryStartsAtRel46() {
+    @Test public void detailedBatteryCanBeProbedFromRel45() {
         assertFalse(BatteryTelemetry.supportsProtocol(4, 4));
-        assertFalse(BatteryTelemetry.supportsProtocol(4, 5));
+        assertTrue(BatteryTelemetry.supportsProtocol(4, 5));
         assertFalse(BatteryTelemetry.supportsProtocol(0, 0));
         assertTrue(BatteryTelemetry.supportsProtocol(4, 6));
     }
@@ -76,10 +76,12 @@ public class BatteryTelemetryTest {
             byte[] p = GOLDEN.clone(); p[4] = (byte) length;
             assertThrows(IllegalArgumentException.class, () -> BatteryTelemetry.parse(p));
         }
-        for (int offset : new int[]{0, 1, 2, 3}) {
+        for (int offset : new int[]{0, 1, 2}) {
             byte[] p = GOLDEN.clone(); p[offset] = 2;
             assertThrows(IllegalArgumentException.class, () -> BatteryTelemetry.parse(p));
         }
+        byte[] wrongIndex = GOLDEN.clone(); wrongIndex[3] = 3;
+        assertThrows(IllegalArgumentException.class, () -> BatteryTelemetry.parse(wrongIndex));
         assertThrows(IllegalArgumentException.class, () -> BatteryTelemetry.parse(null));
         byte[] p = GOLDEN.clone(); p[7] = 101;
         assertThrows(IllegalArgumentException.class, () -> BatteryTelemetry.parse(p));
@@ -88,6 +90,14 @@ public class BatteryTelemetryTest {
     @Test public void acceptsAllIndexAndFutureTailWithoutDependingOnReleaseMinor() {
         byte[] p = Arrays.copyOf(GOLDEN, 22); p[3] = 0; p[4] = 17;
         assertEquals(0.114, BatteryTelemetry.parse(p).consumptionPowerW(), 0.000000001);
+    }
+
+    @Test public void rel45ExtendedIndexRetainsSignedCurrentAndRejectsLegacyPayload() {
+        byte[] p = GOLDEN.clone(); p[3] = 2;
+        assertEquals(-30000, BatteryTelemetry.parse(p).averageCurrentUa.intValue());
+        p = Arrays.copyOf(p, 13); p[4] = 8;
+        final byte[] legacy = p;
+        assertThrows(IllegalArgumentException.class, () -> BatteryTelemetry.parse(legacy));
     }
 
     @Test public void invalidStatusesNeverExposeCachedCurrent() {

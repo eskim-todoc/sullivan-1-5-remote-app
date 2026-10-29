@@ -7,9 +7,9 @@ public final class BatteryTelemetry {
     public static final int CURRENT_STALE_MS = 2500;
     public static final long RECEIVE_STALE_MS = 6000;
 
-    /** 새 REL4.5는 REL4.4 계약을 유지한다. 상세 배터리는 REL4.6부터 표시한다. */
+    /** REL4.5부터 읽기를 시도하되 실제 확장 응답으로 연결별 지원을 확인한다. */
     public static boolean supportsProtocol(int major, int minor) {
-        return major == 4 && minor >= 6;
+        return major == 4 && minor >= 5;
     }
 
     public final int voltageMv, percent, txPmicLevel;
@@ -32,11 +32,12 @@ public final class BatteryTelemetry {
     public static BatteryTelemetry parse(byte[] packet) {
         if (packet == null || packet.length < 5 || (packet[0] & 255) != 0x59
                 || (packet[1] & 255) != 0x22 || packet[2] != 0
-                || ((packet[3] & 255) != 0 && (packet[3] & 255) != 1)) {
+                || (packet[3] & 255) > 2) {
             throw new IllegalArgumentException("배터리 읽기 응답 형식 오류");
         }
         int length = packet[4] & 255;
-        if ((length != 8 && length < 15) || packet.length < 5 + length) {
+        if ((length != 8 && length < 15) || packet.length < 5 + length
+                || ((packet[3] & 255) == 2 && length < 15)) {
             throw new IllegalArgumentException("배터리 응답 길이 오류");
         }
         int percent = packet[7] & 255;

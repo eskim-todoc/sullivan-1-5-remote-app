@@ -84,6 +84,10 @@ import todoc.cochlear.remoteapp.database.logs.UtilLog;
 import todoc.cochlear.remoteapp.params.Status;
 import todoc.cochlear.remoteapp.params.PacketInfo;
 import todoc.cochlear.remoteapp.params.BatteryTelemetry;
+import todoc.cochlear.remoteapp.params.DeviceManagementProtocol;
+import todoc.cochlear.remoteapp.params.UserControlQueue;
+import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 import android.os.SystemClock;
 import todoc.cochlear.remoteapp.service.ExitCaptureService;
 import todoc.cochlear.remoteapp.shared_preferences.LockScreen;
@@ -317,6 +321,7 @@ public class MainActivity extends AppCompatActivity
         mDeviceAndMapInfoHandler.removeCallbacks(mDeviceAndMapInfoRunner); // 사운드처리기 기기 및 맵 정보 읽기 핸들러 제거
         mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner); // 패킷 응답 시간 초과 핸들러 제거
         mPacketSendHandler.removeCallbacks(mPacketSendRunner); // 패킷 전송 핸들러 제거
+        clearQueuedUserControls();
 
         mFf3Handler.removeCallbacksAndMessages(null);
         ff3.reset();
@@ -439,7 +444,7 @@ public class MainActivity extends AppCompatActivity
 
         lastDialogDismiss();
 
-        mStatus.lastDialog = new MaterialAlertDialogBuilder(this) //
+        mStatus.lastDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(this) //
                 .setTitle("화면 방향 변경") //
                 .setMessage(sb.toString()) //
                 .setPositiveButton("다시 시작", (dialogInterface, i) -> restartForScreenClass()) //
@@ -496,6 +501,13 @@ public class MainActivity extends AppCompatActivity
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = mBinding.getRoot();
         setContentView(view);
+        getSupportFragmentManager().registerFragmentLifecycleCallbacks(
+                new androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks() {
+                    @Override public void onFragmentViewCreated(@NonNull androidx.fragment.app.FragmentManager manager,
+                            @NonNull Fragment fragment, @NonNull View root, @androidx.annotation.Nullable Bundle state) {
+                        todoc.cochlear.remoteapp.ui.GlassSurfaces.lift(root);
+                    }
+                }, true);
 
         Log.d(TAG, " \r\n*\r\n* *\r\n* * *\r\n* * * *\r\n* * * * *\r\n* * * * * *\r\n* * * * * * *\r\n* * * * * * * *\r\n* * * * * * * * *\n* * * * * * * * *" + " *");
         Log.d(TAG, "액티비티가 실행되었습니다. -> onCreate()");
@@ -580,34 +592,8 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, "앱 실행 직후에 따른 잠금화면 초기화를 수행합니다.");
         mLockScreen.resume();
 
-        // Shared Preferences for Manual Screen.
-        if (mManualScreen == null)
-        {
-            mManualScreen = new ManualScreen(this);
-        }
-
-        Log.d(TAG, "Manual screen enabled = " + mManualScreen.isEnabled());
-
-        if (mManualScreen.isEnabled())
-        {
-            Log.d(TAG, "사용설명서 표시가 활성화 되어 있습니다.");
-            Bundle bundle = new Bundle();
-            bundle.putBoolean(ManualFragment.ARG_FIRST_SCREEN, true);
-            /*
-            ManualFragment manualFragment = new ManualFragment();
-            manualFragment.setArguments(bundle);
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame, manualFragment).commitAllowingStateLoss();
-            */
-            replaceFragment(Status.TypeOfFragment.MANUAL, bundle);
-        }
-        else // If the user manual screen is disabled, the first screen must be the remote control screen.
-        {
-            Log.d(TAG, "사용설명서 표시가 비활성화 되어 있습니다. 리모컨 화면을 출력합니다.");
-            /*
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame, new RemoteControlFragment()).commitAllowingStateLoss();
-            */
-            replaceFragment(Status.TypeOfFragment.REMOTE_CONTROL);
-        }
+        // 사용설명서와 잠금 화면 없이 제어 화면에서 시작한다.
+        replaceFragment(Status.TypeOfFragment.REMOTE_CONTROL);
 
         /* OTA 이미지 읽기에 필요한 '모든 파일 접근' 권한을 확인한다.
          * 이 권한은 OTA 파일 읽기에만 쓰이므로, 앱 초기화를 끝낸 뒤에 안내한다.
@@ -883,6 +869,152 @@ public class MainActivity extends AppCompatActivity
         sendPacket((mStatus.fwRelease >= Status.FW_RELEASE_4_PLUS) //
                    ? makeRcWritePacket(PacketInfo.RC_OPT_STIM, PacketInfo.RC_STIM_IDX_MAP_INIT, mapInitType) //
                    : makeLegacyWritePacket(PacketInfo.LEGACY_OPT_MAP_INIT, mapInitType));
+    }
+
+    /** A one-shot management transaction; values are only published after a matching response. */
+    public static final class ManagementResult {
+        public final String operation, message, appliedValue;
+        public final boolean success;
+        ManagementResult(String operation, boolean success, String message, String appliedValue) {
+            this.operation = operation; this.success = success; this.message = message; this.appliedValue = appliedValue;
+        }
+    }
+    public final MutableLiveData<ManagementResult> managementResult = new MutableLiveData<>();
+    private byte[] mManagementPacket;
+    private String mManagementOperation;
+    private boolean mManagementNeedsReconnect;
+
+    public boolean changeExternalSerial(String value) {
+        try { return beginManagement("serial", DeviceManagementProtocol.serialPacket(value)); }
+        catch (IllegalArgumentException error) { return rejectManagement("serial", error.getMessage()); }
+    }
+
+    public void navigateRemotePage(int page) {
+        RemoteControlFragment fragment = new RemoteControlFragment();
+        Bundle arguments = new Bundle();
+        arguments.putInt(RemoteControlFragment.ARG_CONTROL_TAB, Math.max(0, Math.min(3, page)));
+        fragment.setArguments(arguments);
+        getSupportFragmentManager().beginTransaction().replace(R.id.frame, fragment).commit();
+    }
+
+    public void updateRemotePageTitle(String title) {
+        mBinding.toolbar.setTitle(title);
+        mBinding.toolbarNavigationMessage.setVisibility(View.GONE);
+        mBinding.toolbar.setNavigationIcon(null);
+        mBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
+        mBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
+        mBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
+    }
+
+    /** Accept the OTA startup transaction atomically on the UI thread. */
+    public boolean tryStartOtaMapping() {
+        if (Looper.myLooper() != Looper.getMainLooper()
+                || mBluetoothGatt == null || mCharClientToServer == null
+                || mStatus.connectionState != Status.CONNECTION_STATE_CONNECTED
+                || mStatus.transferState != Status.TRANSFER_STATE_IDLE
+                || !mUserControls.isEmpty() || !isLinkInfoReadIdle()
+                || ff3.busy() || ff3.needsReconnect() || mManagementPacket != null
+                || (mOta != null && mOta.commState != Ota.COMM_STATE_IDLE)) return false;
+        byte[] packet = new byte[PacketInfo.PACKET_SIZE_MAPPING_CONNECT_SEND];
+        packet[0] = PacketInfo.HEADER_MAPPING_CONNECT;
+        sendPacket(packet);
+        // sendPacket schedules a main-thread runner; no response can run before this returns.
+        return mStatus.transferState == Status.TRANSFER_STATE_BUSY && mStatus.sendingPacket == packet;
+    }
+
+    private boolean isPendingOtaMappingStart() {
+        return mStatus.sendingPacket != null && mStatus.sendingPacket.length > 0
+                && mStatus.sendingPacket[0] == PacketInfo.HEADER_MAPPING_CONNECT;
+    }
+
+    private void failOtaMappingStart(String message) {
+        mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner);
+        mPacketSendHandler.removeCallbacks(mPacketSendRunner);
+        mStatus.transferState = Status.TRANSFER_STATE_IDLE;
+        if (isPendingOtaMappingStart()) mStatus.sendingPacket = null;
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
+        if (fragment instanceof RemoteControlFragment)
+            ((RemoteControlFragment) fragment).onOtaStartFailed(message);
+    }
+
+    public boolean changePairingKey(String value) {
+        try { return beginManagement("key", DeviceManagementProtocol.keyPacket(value)); }
+        catch (IllegalArgumentException error) { return rejectManagement("key", error.getMessage()); }
+    }
+
+    public boolean restoreFactoryMaps() {
+        return beginManagement("factory-map", new byte[]{PacketInfo.HEADER_FACTORY_MAPS});
+    }
+
+    public boolean requestMapAction(int value) {
+        if ((value != 0x10 && value != 0x20 && value != 0xFF) || !isMapInitSupported())
+            return rejectManagement("map", "이 장치에서 지원하지 않는 맵 작업입니다.");
+        return beginManagement("map", mStatus.fwRelease >= Status.FW_RELEASE_4_PLUS
+                ? makeRcWritePacket(PacketInfo.RC_OPT_STIM, PacketInfo.RC_STIM_IDX_MAP_INIT, value)
+                : makeLegacyWritePacket(PacketInfo.LEGACY_OPT_MAP_INIT, value));
+    }
+
+    private boolean rejectManagement(String operation, String message) {
+        managementResult.setValue(new ManagementResult(operation, false, message, null));
+        return false;
+    }
+
+    private boolean beginManagement(String operation, byte[] packet) {
+        if (mStatus.rcProtocolMajor >= 4
+                && (mStatus.rcProtocolMajor != 4 || mStatus.rcProtocolMinor > 6)
+                && packet.length >= 3 && (packet[0] & 255) == 0x59
+                && ((packet[1] & 255) == 2 || ((packet[1] & 255) >= 0x20 && packet[2] == 1)))
+            return rejectManagement(operation, "이 프로토콜 버전의 쓰기는 지원하지 않습니다.");
+        if (mManagementNeedsReconnect)
+            return rejectManagement(operation, "앞선 작업의 적용 여부가 불명확합니다. 다시 연결해 확인하세요.");
+        if (mBluetoothGatt == null || mStatus.connectionState != Status.CONNECTION_STATE_CONNECTED)
+            return rejectManagement(operation, "먼저 외부기를 연결하세요.");
+        if (mManagementPacket != null || mStatus.transferState != Status.TRANSFER_STATE_IDLE
+                || !mUserControls.isEmpty()
+                || !isLinkInfoReadIdle() || ff3.busy() || ff3.needsReconnect()
+                || (mOta != null && mOta.commState != Ota.COMM_STATE_IDLE))
+            return rejectManagement(operation, "다른 통신이 진행 중입니다. 잠시 후 다시 시도하세요.");
+        mManagementOperation = operation;
+        mManagementPacket = packet;
+        sendPacket(packet);
+        return true;
+    }
+
+    private void finishManagement(boolean success, String message, String value) {
+        if (mManagementPacket == null) return;
+        mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner);
+        mPacketSendHandler.removeCallbacks(mPacketSendRunner);
+        if (mStatus.sendingPacket == mManagementPacket) mStatus.sendingPacket = null;
+        Arrays.fill(mManagementPacket, (byte) 0);
+        mManagementPacket = null;
+        String operation = mManagementOperation;
+        mManagementOperation = null;
+        mStatus.transferState = Status.TRANSFER_STATE_IDLE;
+        managementResult.setValue(new ManagementResult(operation, success, message, value));
+    }
+
+    private void handleManagementResponse(byte[] response) {
+        byte[] request = mManagementPacket;
+        if (request == null) return;
+        if (response.length >= 3 && response[0] == PacketInfo.HEADER_ERROR && response[1] == request[0]) {
+            finishManagement(false, "장치가 작업을 거절했습니다. 오류 " + (response[2] & 255), null);
+            return;
+        }
+        if (response[0] != request[0]) return;
+        if (request[0] == PacketInfo.HEADER_SPECIFIC_CMD
+                && (response.length < 2 || response[1] != request[1])) return;
+        if (!DeviceManagementProtocol.matches(request, response)) {
+            mManagementNeedsReconnect = true;
+            finishManagement(false, "장치 응답이 요청과 달라 적용 여부를 확인할 수 없습니다. 다시 연결하세요.", null);
+            return;
+        }
+        String operation = mManagementOperation;
+        String value = "serial".equals(operation) ? new String(response, 1, 4, StandardCharsets.US_ASCII) : null;
+        String message = "map".equals(operation) ? "맵 작업이 접수되었습니다. 파일 생성 완료는 별도로 확인하세요."
+                : "key".equals(operation) ? "새 키 저장 응답을 확인했습니다. 연결이 종료되면 새 키로 다시 연결하세요."
+                : "factory-map".equals(operation) ? "맵·사용자 공장 복원 완료 응답을 확인했습니다."
+                : "외부기 제조번호 저장 응답을 확인했습니다. 광고 이름은 재시작 후 확인하세요.";
+        finishManagement(true, message, value);
     }
 
     //
@@ -1650,8 +1782,12 @@ public class MainActivity extends AppCompatActivity
 
     public void resetLinkInfoRead()
     {
+        clearQueuedUserControls();
+        if (mManagementPacket != null) finishManagement(false, "연결이 종료되어 적용 여부를 확인할 수 없습니다.", null);
+        managementResult.setValue(null);
         mBatteryReadPending = false;
         mBatteryReadRejected = false;
+        mBatteryReadIndex = PacketInfo.RC_BATTERY_IDX_EXTENDED;
         mLastBatteryStateLog = null;
         if (mStatusViewModel != null) mStatusViewModel.resetBatteryTelemetry();
         mFf3Handler.removeCallbacksAndMessages(null);
@@ -1665,8 +1801,12 @@ public class MainActivity extends AppCompatActivity
     // 연결이 끝난 직후 호출한다.
     public void startLinkInfoRead()
     {
+        clearQueuedUserControls();
+        managementResult.setValue(null);
+        mManagementNeedsReconnect = false;
         mBatteryReadPending = false;
         mBatteryReadRejected = false;
+        mBatteryReadIndex = PacketInfo.RC_BATTERY_IDX_EXTENDED;
         mLastBatteryStateLog = null;
         mStatusViewModel.resetBatteryTelemetry();
         mFf3Handler.removeCallbacksAndMessages(null);
@@ -2010,7 +2150,7 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
-        mAllFilesAccessDialog = new MaterialAlertDialogBuilder(MainActivity.this) //
+        mAllFilesAccessDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(MainActivity.this) //
                 .setTitle("권한 필요") //
                 .setMessage("OTA 이미지를 아래 폴더에서 읽으려면 '모든 파일 접근 허용' 권한이 필요합니다.\n\n" //
                             + Environment.getExternalStorageDirectory().getAbsolutePath() + Ota.BASE_FOLDER //
@@ -2182,7 +2322,7 @@ public class MainActivity extends AppCompatActivity
 
                             lastDialogDismiss();
 
-                            mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("안내").setMessage("페어링을 실패했습니다.").setNegativeButton("재연결", (dialogInterface, i) ->
+                            mStatus.lastDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(MainActivity.this).setTitle("안내").setMessage("페어링을 실패했습니다.").setNegativeButton("재연결", (dialogInterface, i) ->
                             {
 
                                 if (mStatus.activityRunningState == Status.ACTIVITY_RUNNING_STATE_FOREGROUND)
@@ -2214,11 +2354,16 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
 
         // 리모컨 화면
+        if (fragment instanceof RemoteControlFragment
+                && ((RemoteControlFragment) fragment).isOtaTransferActive()) {
+            Toast.makeText(this, "OTA 전송 중입니다. 전송을 마친 뒤 이동하세요.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (fragment instanceof RemoteControlFragment || mBinding.lockScreen.getVisibility() == View.VISIBLE)
         {
             lastDialogDismiss();
 
-            mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this)
+            mStatus.lastDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(MainActivity.this)
                     //.setTitle("주의")
                     .setMessage("앱을 종료하시겠습니까?").setPositiveButton("종료", (dialogInterface, i) -> finish()).setNegativeButton("취소", null).setCancelable(false).create();
             mStatus.lastDialog.show();
@@ -2299,12 +2444,14 @@ public class MainActivity extends AppCompatActivity
             }
         }
         // 시스템로그 화면
-        else if (fragment instanceof LogFragment)
+        else if (fragment instanceof todoc.cochlear.remoteapp.fragment.DeviceManagementFragment
+                || fragment instanceof todoc.cochlear.remoteapp.fragment.MapManagementFragment
+                || fragment instanceof LogFragment)
         {
             /*
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new AddUserFragment()).commitAllowingStateLoss();
             */
-            replaceFragment(Status.TypeOfFragment.USER_ADD);
+            replaceFragment(Status.TypeOfFragment.MENU);
         }
     }
 
@@ -2536,6 +2683,7 @@ public class MainActivity extends AppCompatActivity
     private int mLinkMonitorTick = 0;
     private boolean mBatteryReadPending;
     private boolean mBatteryReadRejected;
+    private int mBatteryReadIndex = PacketInfo.RC_BATTERY_IDX_EXTENDED;
     private String mLastBatteryStateLog;
 
     public boolean isBatteryTelemetrySupported() {
@@ -2546,7 +2694,10 @@ public class MainActivity extends AppCompatActivity
     private void failBatteryRead(String reason) {
         mBatteryReadPending = false;
         mStatusViewModel.setBatteryTelemetryError(reason);
-        Log.w(TAG, "[BATTERY] " + reason);
+        if (!reason.equals(mLastBatteryStateLog)) {
+            Log.w(TAG, "[BATTERY] " + reason);
+            mLastBatteryStateLog = reason;
+        }
     }
 
     public final Handler mLinkMonitorHandler = new Handler();
@@ -2585,6 +2736,10 @@ public class MainActivity extends AppCompatActivity
             }
 
             if (ff3.busy() || ff3.needsReconnect()) return;
+            if (!mUserControls.isEmpty()) {
+                scheduleUserControls();
+                return;
+            }
             mLinkMonitorTick++;
 
             if (mLinkMonitorTick >= LINK_MONITOR_STATUS_TICK_COUNT)
@@ -3134,6 +3289,8 @@ public class MainActivity extends AppCompatActivity
         mBatteryReadPending = false;
         try {
             BatteryTelemetry sample = BatteryTelemetry.parse(responsePacket);
+            // An old REL4.5 response is a capability result, not a recurring error.
+            if (sample.averageCurrentUa == null) mBatteryReadRejected = true;
             mStatusViewModel.setBatteryTelemetry(sample, SystemClock.elapsedRealtime());
             mStatusViewModel.setValueBatteryLevel(sample.percent);
             // Current PMIC는 기존 링크 조회 응답만 사용한다.
@@ -3590,6 +3747,25 @@ public class MainActivity extends AppCompatActivity
                 return;
             }
 
+            if (mManagementPacket != null) {
+                handleManagementResponse(responsePacket);
+                return;
+            }
+            // Late identity acknowledgements must not end a newer ordinary transaction.
+            if (responsePacket[0] == PacketInfo.HEADER_WRITE_EXTERNAL_SERIAL
+                    || responsePacket[0] == PacketInfo.HEADER_WRITE_PAIRING_KEY
+                    || responsePacket[0] == PacketInfo.HEADER_FACTORY_MAPS) return;
+            if (responsePacket.length >= 2 && responsePacket[0] == PacketInfo.HEADER_ERROR
+                    && (responsePacket[1] == PacketInfo.HEADER_WRITE_EXTERNAL_SERIAL
+                    || responsePacket[1] == PacketInfo.HEADER_WRITE_PAIRING_KEY
+                    || responsePacket[1] == PacketInfo.HEADER_FACTORY_MAPS)) return;
+
+            // An expired OTA startup acknowledgement must not release a newer transaction.
+            boolean mappingStartResponse = responsePacket[0] == PacketInfo.HEADER_MAPPING_CONNECT
+                    || (packetSize >= 2 && responsePacket[0] == PacketInfo.HEADER_ERROR
+                    && responsePacket[1] == PacketInfo.HEADER_MAPPING_CONNECT);
+            if (mappingStartResponse && !isPendingOtaMappingStart()) return;
+
             // 배터리 시한 뒤의 늦은 응답은 새 FF3 트랜잭션에도 전달하지 않는다.
             if (packetSize >= 2 && (responsePacket[0] & 255) == 0x59
                     && (responsePacket[1] & 255) == PacketInfo.RC_OPT_BATTERY
@@ -3623,7 +3799,16 @@ public class MainActivity extends AppCompatActivity
             if (batteryError) {
                 mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner);
                 mStatus.transferState = Status.TRANSFER_STATE_IDLE;
-                mBatteryReadRejected = (responsePacket[2] & 255) == 1;
+                boolean unsupported = (responsePacket[2] & 255) == 1;
+                if (unsupported && mStatus.rcProtocolMinor == 5
+                        && mBatteryReadIndex == PacketInfo.RC_BATTERY_IDX_EXTENDED) {
+                    mBatteryReadPending = false;
+                    mBatteryReadIndex = PacketInfo.RC_BATTERY_IDX_TELEMETRY;
+                    mBatteryReadPending = true;
+                    sendPacket(makeRcReadPacket(PacketInfo.RC_OPT_BATTERY, mBatteryReadIndex));
+                    return;
+                }
+                mBatteryReadRejected = unsupported;
                 failBatteryRead(mBatteryReadRejected ? "이 펌웨어는 배터리 상세 조회 미지원"
                         : "배터리 조회 거절 / 오류 " + (responsePacket[2] & 255));
                 return;
@@ -3686,7 +3871,7 @@ public class MainActivity extends AppCompatActivity
 
                             lastDialogDismiss();
 
-                            mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("주의").setMessage("내부기 키가 일치하지 않습니다. 재설정하시겠습니까?").setPositiveButton("재설정", (dialogInterface, i) ->
+                            mStatus.lastDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(MainActivity.this).setTitle("주의").setMessage("내부기 키가 일치하지 않습니다. 재설정하시겠습니까?").setPositiveButton("재설정", (dialogInterface, i) ->
                             {
 
                                 //EntityUser user = UtilUser.instance.getDefaultUser();
@@ -4040,44 +4225,61 @@ public class MainActivity extends AppCompatActivity
 
                 case PacketInfo.HEADER_BOOT_STATUS:
                 {
-                    RemoteControlFragment remoteFragment;
-                    Fragment              fragment = getSupportFragmentManager().findFragmentById(mBinding.frame.getId());
-
-                    if (!(fragment instanceof RemoteControlFragment))
-                    {
-                        Log.e(TAG, "[BLE][OTA] 리모콘 화면이 아닌데, 어떻게 호출됐지?");
-                        return;
+                    if (packetSize < 2) {
+                        Log.w(TAG, "[BLE][OTA] 부팅 응답에 옵션이 없습니다. size=" + packetSize);
+                        UtilLog.instance.writeLog("부팅 응답 오류 : 옵션 누락");
+                        break;
                     }
-
-                    remoteFragment = (RemoteControlFragment) fragment;
-
-                    // Info
-                    if (responsePacket[1] == 1)
-                    {
-                        String boot_slot_num, last_boot_slot_num;
-
-                        boot_slot_num = "" + (responsePacket[5] & 0xFF);
-                        last_boot_slot_num = "" + (responsePacket[6] & 0xFF);
-
-                        new Handler(Looper.getMainLooper()).post(() ->
-                        {
-                            remoteFragment.mRemoteControlBinding.currSlotTextView.setText(boot_slot_num);
-                            remoteFragment.mRemoteControlBinding.lastSlotTextView.setText(last_boot_slot_num);
+                    int bootOption = responsePacket[1] & 0xFF;
+                    int minimumSize = bootOption == PacketInfo.BOOT_OPTION_INFO
+                            ? PacketInfo.PACKET_SIZE_BOOT_RESP_INFO : PacketInfo.PACKET_SIZE_BOOT_RESP_SELECT;
+                    if (bootOption != PacketInfo.BOOT_OPTION_INFO && bootOption != PacketInfo.BOOT_OPTION_SELECT) {
+                        Log.w(TAG, "[BLE][OTA] 알 수 없는 부팅 응답 옵션=" + bootOption);
+                        UtilLog.instance.writeLog("부팅 응답 오류 : 알 수 없는 옵션 " + bootOption);
+                        break;
+                    }
+                    if (packetSize < minimumSize) {
+                        Log.w(TAG, "[BLE][OTA] 부팅 응답이 짧습니다. option=" + bootOption + ", size=" + packetSize);
+                        UtilLog.instance.writeLog("부팅 응답 오류 : 길이 부족 (옵션 " + bootOption + ", " + packetSize + "바이트)");
+                        break;
+                    }
+                    Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
+                    if (!(fragment instanceof RemoteControlFragment)) {
+                        Log.d(TAG, "[BLE][OTA] 제어 화면을 떠나 부팅 응답의 화면 갱신을 생략합니다.");
+                        break;
+                    }
+                    RemoteControlFragment remoteFragment = (RemoteControlFragment) fragment;
+                    int bootResult = responsePacket[2] & 0xFF;
+                    if (bootOption == PacketInfo.BOOT_OPTION_INFO) {
+                        if (bootResult != 1) {
+                            Log.w(TAG, "[BLE][OTA] 슬롯 정보 조회 실패. result=" + bootResult);
+                            remoteFragment.makeDialog_withMessage("슬롯 정보 조회 실패 (응답 " + bootResult + ")");
+                            break;
+                        }
+                        int currentSlot = responsePacket[5] & 0xFF;
+                        int previousSlot = responsePacket[6] & 0xFF;
+                        // Boot metadata can retain slots 3/4 even though BLE selection is limited to 1/2.
+                        String currentLabel = currentSlot == 0xFF ? "공장 (FF)"
+                                : currentSlot >= 1 && currentSlot <= 4 ? "슬롯 " + currentSlot
+                                : String.format(java.util.Locale.ROOT, "알 수 없음 (0x%02X)", currentSlot);
+                        String previousLabel = previousSlot == 0xFF ? "공장 (FF)"
+                                : previousSlot >= 1 && previousSlot <= 4 ? "슬롯 " + previousSlot
+                                : String.format(java.util.Locale.ROOT, "알 수 없음 (0x%02X)", previousSlot);
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            if (isFinishing() || isDestroyed() || remoteFragment.getView() == null
+                                    || remoteFragment.mRemoteControlBinding == null
+                                    || getSupportFragmentManager().findFragmentById(R.id.frame) != remoteFragment) return;
+                            remoteFragment.mRemoteControlBinding.currSlotTextView.setText(currentLabel);
+                            remoteFragment.mRemoteControlBinding.lastSlotTextView.setText(previousLabel);
                         });
                     }
-                    // Select
-                    else if (responsePacket[1] == 2)
-                    {
-                        if (responsePacket[2] == 1)
-                        {
-                            Log.i(TAG, "[BLE][OTA] 슬롯 선택 성공.");
-                            remoteFragment.makeDialog_withMessage("슬롯 선택 성공.");
-                        }
-                        else
-                        {
-                            Log.i(TAG, "[BLE][OTA] 슬롯 선택 실패.");
-                            remoteFragment.makeDialog_withMessage("슬롯 선택 실패.");
-                        }
+                    else if (bootResult == 1) {
+                        Log.i(TAG, "[BLE][OTA] 슬롯 선택 성공.");
+                        remoteFragment.makeDialog_withMessage("슬롯 선택 성공.");
+                    }
+                    else {
+                        Log.i(TAG, "[BLE][OTA] 슬롯 선택 실패.");
+                        remoteFragment.makeDialog_withMessage("슬롯 선택 실패.");
                     }
                 }
                 break;
@@ -4200,10 +4402,12 @@ public class MainActivity extends AppCompatActivity
                             && valueLen == 1 && responsePacket[2] == 0
                             && isLinkInfoReadIdle() && isBatteryTelemetrySupported()
                             && mStatus.transferState == Status.TRANSFER_STATE_IDLE
+                            && mUserControls.isEmpty()
                             && !ff3.busy() && !ff3.needsReconnect()
                             && (mOta == null || mOta.commState == Ota.COMM_STATE_IDLE)) {
                         mBatteryReadPending = true;
-                        sendPacket(makeRcReadPacket(PacketInfo.RC_OPT_BATTERY, PacketInfo.RC_BATTERY_IDX_TELEMETRY));
+                        sendPacket(makeRcReadPacket(PacketInfo.RC_OPT_BATTERY,
+                                mStatus.rcProtocolMinor == 5 ? mBatteryReadIndex : PacketInfo.RC_BATTERY_IDX_TELEMETRY));
                     }
                 }
                 break; // PacketInfo.HEADER_SPECIFIC_CMD
@@ -4215,6 +4419,7 @@ public class MainActivity extends AppCompatActivity
                     {
                         Log.d(TAG, "BLE 특성 변경 감지 -> 매핑 연결 응답이 짧습니다 : 사이즈 = " + packetSize);
                         UtilLog.instance.writeLog("패킷 에러 : 매핑 연결 응답 사이즈 에러 (사이즈->" + packetSize + ")");
+                        failOtaMappingStart("업데이트 준비 응답이 올바르지 않습니다. 상태를 확인하고 다시 시도하세요.");
                         break;
                     }
 
@@ -4252,6 +4457,10 @@ public class MainActivity extends AppCompatActivity
                 // 에러
                 case PacketInfo.HEADER_ERROR:
                 {
+                    if (responsePacket.length >= 2 && responsePacket[1] == PacketInfo.HEADER_MAPPING_CONNECT) {
+                        failOtaMappingStart("장치가 업데이트 준비 요청을 거절했습니다.");
+                        break;
+                    }
                     RemoteControlFragment remoteFragment;
                     Fragment              fragment;
 
@@ -4414,7 +4623,7 @@ public class MainActivity extends AppCompatActivity
         // 패킷 사이즈 문제가 발생하면, 경고창을 출력하고 연결을 해제하여 재연결을 시도한다.
         lastDialogDismiss();
 
-        mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("에러").setMessage("통신 에러가 발생했습니다. 앱을 다시 시작해주세요. 같은 에러가 반복되면 외부기를 다시 " + "착용해주세요.").setPositiveButton("확인", null).setCancelable(false).create();
+        mStatus.lastDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(MainActivity.this).setTitle("에러").setMessage("통신 에러가 발생했습니다. 앱을 다시 시작해주세요. 같은 에러가 반복되면 외부기를 다시 " + "착용해주세요.").setPositiveButton("확인", null).setCancelable(false).create();
         mStatus.lastDialog.show();
 
         if (mBluetoothGatt != null)
@@ -4457,6 +4666,15 @@ public class MainActivity extends AppCompatActivity
     Handler  mPacketResponseTimeoutHandler = new Handler();
     Runnable mPacketResponseTimeoutRunner  = () ->
     {
+        if (isPendingOtaMappingStart()) {
+            failOtaMappingStart("업데이트 준비 응답이 없습니다. 연결 상태를 확인하고 다시 시도하세요.");
+            return;
+        }
+        if (mManagementPacket != null) {
+            mManagementNeedsReconnect = true;
+            finishManagement(false, "응답이 없어 적용 여부를 확인할 수 없습니다. 다시 연결해 확인하세요.", null);
+            return;
+        }
         if (mBatteryReadPending) {
             mStatus.transferState = Status.TRANSFER_STATE_IDLE;
             failBatteryRead("배터리 조회 응답 없음 / 다음 주기에 다시 확인");
@@ -4525,6 +4743,7 @@ public class MainActivity extends AppCompatActivity
         if (mBluetoothGatt == null || mStatus.sendingPacket == null)
         {
             Log.d(TAG, "패킷 전송 시도를 실패했습니다. -> GATT 객체가 null 이거나, 패킷 정보가 없습니다.");
+            if (isPendingOtaMappingStart()) failOtaMappingStart("업데이트 준비 요청을 전송하지 못했습니다.");
             return;
         }
 
@@ -4533,7 +4752,8 @@ public class MainActivity extends AppCompatActivity
         Log.v(TAG, "[BLE] 시간 초과 핸들러 생성 후 패킷 전송 : " + printLogBytesToString(mStatus.sendingPacket));
 
         mStatus.resendingCount = Status.RESENDING_PACKET_COUNT;
-        mPacketResponseTimeoutHandler.postDelayed(mPacketResponseTimeoutRunner, DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT);
+        mPacketResponseTimeoutHandler.postDelayed(mPacketResponseTimeoutRunner,
+                mManagementPacket != null ? 30000 : DELAY_IN_MS_FOR_PACKET_RESPONSE_TIMEOUT);
 
         if (mCharClientToServer.setValue(mStatus.sendingPacket))
         {
@@ -4547,6 +4767,16 @@ public class MainActivity extends AppCompatActivity
         {
             Log.d(TAG, "패킷 전송을 실패했습니다. 패킷 전송 시간 초과 핸들러를 제거합니다.");
             mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner);
+            if (isPendingOtaMappingStart()) {
+                failOtaMappingStart("업데이트 준비 요청을 전송하지 못했습니다. 연결 상태를 확인하세요.");
+                return;
+            }
+            if (mManagementPacket != null) finishManagement(false, "작업을 전송하지 못했습니다. 연결 상태를 확인하세요.", null);
+            else {
+                mStatus.transferState = Status.TRANSFER_STATE_IDLE;
+                if (UserControlQueue.isOrdinaryWrite(mStatus.sendingPacket))
+                    Toast.makeText(MainActivity.this, "제어를 전송하지 못했습니다. 연결 상태를 확인하세요.", Toast.LENGTH_SHORT).show();
+            }
         }
 
         //mStatus.sendingPacket = null;
@@ -4555,8 +4785,55 @@ public class MainActivity extends AppCompatActivity
     //
     // 패킷 전송 메소드
     //
+    private final UserControlQueue mUserControls = new UserControlQueue();
+    private final Handler mUserControlHandler = new Handler(Looper.getMainLooper());
+    private boolean mDrainingUserControl;
+    private final Runnable mUserControlRunner = new Runnable() {
+        @Override public void run() {
+            if (mUserControls.isEmpty()) return;
+            if (mBluetoothGatt == null || mStatus.connectionState != Status.CONNECTION_STATE_CONNECTED) {
+                clearQueuedUserControls();
+                return;
+            }
+            if (ff3.busy() || ff3.needsReconnect() || mManagementPacket != null
+                    || (mOta != null && mOta.commState != Ota.COMM_STATE_IDLE)) {
+                clearQueuedUserControls();
+                Toast.makeText(MainActivity.this, "다른 작업이 시작되어 대기 중인 제어를 취소했습니다.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (mUserControls.expire(SystemClock.elapsedRealtime()) > 0)
+                Toast.makeText(MainActivity.this, "제어 대기 시간이 지나 취소했습니다. 상태를 확인하고 다시 눌러주세요.", Toast.LENGTH_SHORT).show();
+            if (mUserControls.isEmpty()) return;
+            if (mStatus.transferState == Status.TRANSFER_STATE_IDLE && isLinkInfoReadIdle()) {
+                byte[] next = mUserControls.poll();
+                mDrainingUserControl = true;
+                try { sendPacket(next); } finally { mDrainingUserControl = false; }
+                Log.d(TAG, "[CONTROL] 대기 중인 사용자 제어를 전송했습니다.");
+            }
+            if (!mUserControls.isEmpty()) mUserControlHandler.postDelayed(this, 25);
+        }
+    };
+
+    private void clearQueuedUserControls() {
+        mUserControlHandler.removeCallbacksAndMessages(null);
+        mUserControls.clear();
+    }
+
+    private void scheduleUserControls() {
+        mUserControlHandler.removeCallbacks(mUserControlRunner);
+        mUserControlHandler.postDelayed(mUserControlRunner, 25);
+    }
+
     public void sendPacket(byte[] packet)
     {
+        boolean userControl = !mFf3Sending && packet != mManagementPacket && UserControlQueue.isOrdinaryWrite(packet);
+        if (userControl && (mBluetoothGatt == null || mStatus.connectionState != Status.CONNECTION_STATE_CONNECTED
+                || ff3.busy() || ff3.needsReconnect() || mManagementPacket != null
+                || (mOta != null && mOta.commState != Ota.COMM_STATE_IDLE))) {
+            Toast.makeText(this, "지금은 제어할 수 없습니다. 연결과 진행 중인 작업을 확인하세요.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (mManagementPacket != null && packet != mManagementPacket) return;
         if (!mFf3Sending && (ff3.busy() || ff3.needsReconnect())) {
             Log.d(TAG, "[FF3] 트랜잭션 중이거나 재연결 필요: 다른 요청을 보류합니다.");
             return;
@@ -4564,6 +4841,16 @@ public class MainActivity extends AppCompatActivity
         if (mStatus.rcProtocolMajor >= 4 && (mStatus.rcProtocolMajor != 4 || mStatus.rcProtocolMinor > 6)
                 && packet.length >= 3 && (packet[0]&255) == 0x59
                 && ((packet[1]&255) == 2 || ((packet[1]&255) >= 0x20 && packet[2] == 1))) return;
+        if (userControl && !mDrainingUserControl && (mStatus.transferState == Status.TRANSFER_STATE_BUSY
+                || !mUserControls.isEmpty())) {
+            if (!isLinkInfoReadIdle() || !mUserControls.offer(packet, SystemClock.elapsedRealtime())) {
+                Toast.makeText(this, "제어 요청이 많거나 장치 확인 중입니다. 잠시 후 다시 눌러주세요.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Log.d(TAG, "[CONTROL] 다른 응답을 기다린 뒤 사용자 제어를 전송합니다.");
+            scheduleUserControls();
+            return;
+        }
         if (mStatus.transferState == Status.TRANSFER_STATE_BUSY)
         {
             Log.d(TAG, "패킷 전송 처리 중입니다. 잠시 후 다시 시도해주세요.");
@@ -4580,6 +4867,9 @@ public class MainActivity extends AppCompatActivity
     //
     public String printLogBytesToString(byte[] bytes)
     {
+        if (bytes != null && bytes.length > 0
+                && (bytes[0] == PacketInfo.HEADER_WRITE_PAIRING_KEY || bytes[0] == PacketInfo.HEADER_PASSWORD))
+            return String.format("0x%02X [인증 정보 숨김]", bytes[0] & 255);
         StringBuilder sb = new StringBuilder();
 
         sb.append("0x");
@@ -4705,7 +4995,7 @@ public class MainActivity extends AppCompatActivity
 
             if (users.size() == 0)
             {
-                mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("안내").setMessage("등록된 사용자가 없습니다. 먼저 사용자를 등록해주세요.").setPositiveButton("확인", (dialogInterface, i) ->
+                mStatus.lastDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(MainActivity.this).setTitle("안내").setMessage("등록된 사용자가 없습니다. 먼저 사용자를 등록해주세요.").setPositiveButton("확인", (dialogInterface, i) ->
                 {
                 }).setCancelable(false).create();
             }
@@ -4724,7 +5014,7 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
 
-                mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("사용자 목록").setPositiveButton("선택", (dialogInterface, i) ->
+                mStatus.lastDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(MainActivity.this).setTitle("사용자 목록").setPositiveButton("선택", (dialogInterface, i) ->
                 {
 
                     String selectName = mUserList[mCheckItem];
@@ -4797,7 +5087,7 @@ public class MainActivity extends AppCompatActivity
 
         if (users.size() == 0)
         {
-            mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("안내").setMessage("등록된 사용자가 없습니다. 먼저 사용자를 등록해주세요.").setPositiveButton("확인", (dialogInterface, i) ->
+            mStatus.lastDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(MainActivity.this).setTitle("안내").setMessage("등록된 사용자가 없습니다. 먼저 사용자를 등록해주세요.").setPositiveButton("확인", (dialogInterface, i) ->
             {
             }).setCancelable(false).create();
         }
@@ -4816,7 +5106,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
 
-            mStatus.lastDialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle("사용자 목록").setPositiveButton("선택", (dialogInterface, i) ->
+            mStatus.lastDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(MainActivity.this).setTitle("사용자 목록").setPositiveButton("선택", (dialogInterface, i) ->
             {
 
                 String selectName = mUserList[mCheckItem];
@@ -4879,7 +5169,7 @@ public class MainActivity extends AppCompatActivity
 
         lastDialogDismiss();
 
-        mStatus.lastDialog = new MaterialAlertDialogBuilder(this).setTitle(getString(R.string.lock_screen_dialog_title)).setMessage(getString(R.string.lock_screen_dialog_message)).setPositiveButton(getString(R.string.lock_screen_dialog_positive), (dialogInterface, i) ->
+        mStatus.lastDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(this).setTitle(getString(R.string.lock_screen_dialog_title)).setMessage(getString(R.string.lock_screen_dialog_message)).setPositiveButton(getString(R.string.lock_screen_dialog_positive), (dialogInterface, i) ->
         {
 
             // 현재 연결 중인 사운드처리기가 있을 때
