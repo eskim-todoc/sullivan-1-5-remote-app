@@ -1,0 +1,69 @@
+{
+  "errors": [],
+  "results": [
+    {
+      "variant": "A",
+      "dialog": false,
+      "horizontalOverflow": false,
+      "fontLoaded": true,
+      "title": "기본 제어",
+      "background": "radial-gradient(110% 52% at 0% 2%, rgba(64, 116, 112, 0.376), rgba(59, 110, 104, 0.07) 55%, rgba(0, 0, 0, 0) 100%), radial-gradient(118% 53% at 108% 46%, rgba(128, 70, 84, 0.5), rgba(106, 61, 73, 0.125) 55%, rgba(0, 0, 0, 0) 100%), radial-gradient(110% 50% at 42% 96%, rgba(68, 120, 112, 0.44), rgba(60, 108, 101, 0.086) 55%, rgba(0, 0, 0, 0) 100%), none"
+    },
+    {
+      "variant": "A",
+      "dialog": true,
+      "horizontalOverflow": false,
+      "fontLoaded": true,
+      "title": "기본 제어",
+      "background": "radial-gradient(110% 52% at 0% 2%, rgba(64, 116, 112, 0.376), rgba(59, 110, 104, 0.07) 55%, rgba(0, 0, 0, 0) 100%), radial-gradient(118% 53% at 108% 46%, rgba(128, 70, 84, 0.5), rgba(106, 61, 73, 0.125) 55%, rgba(0, 0, 0, 0) 100%), radial-gradient(110% 50% at 42% 96%, rgba(68, 120, 112, 0.44), rgba(60, 108, 101, 0.086) 55%, rgba(0, 0, 0, 0) 100%), none"
+    },
+    {
+      "variant": "B",
+      "dialog": false,
+      "horizontalOverflow": false,
+      "fontLoaded": true,
+      "title": "기본 제어",
+      "background": "radial-gradient(130% 64% at 0% 4%, rgba(104, 160, 153, 0.34), rgba(0, 0, 0, 0) 63%), radial-gradient(145% 65% at 106% 43%, rgba(168, 94, 118, 0.44), rgba(0, 0, 0, 0) 65%), radial-gradient(130% 60% at 40% 103%, rgba(97, 155, 141, 0.34), rgba(0, 0, 0, 0) 66%), none"
+    },
+    {
+      "variant": "B",
+      "dialog": true,
+      "horizontalOverflow": false,
+      "fontLoaded": true,
+      "title": "기본 제어",
+      "background": "radial-gradient(130% 64% at 0% 4%, rgba(104, 160, 153, 0.34), rgba(0, 0, 0, 0) 63%), radial-gradient(145% 65% at 106% 43%, rgba(168, 94, 118, 0.44), rgba(0, 0, 0, 0) 65%), radial-gradient(130% 60% at 40% 103%, rgba(97, 155, 141, 0.34), rgba(0, 0, 0, 0) 66%), none"
+    },
+    {
+      "variant": "C",
+      "dialog": false,
+      "horizontalOverflow": false,
+      "fontLoaded": true,
+      "title": "기본 제어",
+      "background": "radial-gradient(140% 68% at -3% 3%, rgba(92, 146, 140, 0.3), rgba(0, 0, 0, 0) 65%), radial-gradient(155% 78% at 106% 38%, rgba(187, 88, 113, 0.56), rgba(0, 0, 0, 0) 70%), radial-gradient(145% 68% at 30% 104%, rgba(116, 160, 145, 0.35), rgba(0, 0, 0, 0) 69%), none"
+    },
+    {
+      "variant": "C",
+      "dialog": true,
+      "horizontalOverflow": false,
+      "fontLoaded": true,
+      "title": "기본 제어",
+      "background": "radial-gradient(140% 68% at -3% 3%, rgba(92, 146, 140, 0.3), rgba(0, 0, 0, 0) 65%), radial-gradient(155% 78% at 106% 38%, rgba(187, 88, 113, 0.56), rgba(0, 0, 0, 0) 70%), radial-gradient(145% 68% at 30% 104%, rgba(116, 160, 145, 0.35), rgba(0, 0, 0, 0) 69%), none"
+    },
+    {
+      "variant": "D",
+      "dialog": false,
+      "horizontalOverflow": false,
+      "fontLoaded": true,
+      "title": "기본 제어",
+      "background": "radial-gradient(145% 70% at -2% 3%, rgba(110, 128, 171, 0.36), rgba(0, 0, 0, 0) 65%), radial-gradient(150% 78% at 106% 42%, rgba(174, 108, 132, 0.46), rgba(0, 0, 0, 0) 70%), radial-gradient(135% 67% at 38% 104%, rgba(139, 119, 170, 0.32), rgba(0, 0, 0, 0) 68%), none"
+    },
+    {
+      "variant": "D",
+      "dialog": true,
+      "horizontalOverflow": false,
+      "fontLoaded": true,
+      "title": "기본 제어",
+      "background": "radial-gradient(145% 70% at -2% 3%, rgba(110, 128, 171, 0.36), rgba(0, 0, 0, 0) 65%), radial-gradient(150% 78% at 106% 42%, rgba(174, 108, 132, 0.46), rgba(0, 0, 0, 0) 70%), radial-gradient(135% 67% at 38% 104%, rgba(139, 119, 170, 0.32), rgba(0, 0, 0, 0) 68%), none"
+    }
+  ]
+}

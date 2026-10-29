@@ -1,0 +1,65 @@
+{
+  "checkedAt": "2026-10-29T18:42:07.5725131+09:00",
+  "result": "pass",
+  "device": "FFFF / #196FFFFF / SM-G977N R3CM7068Y6P",
+  "firmware": "REL4.5",
+  "source": "existing fw_rel-4-5-0-full-8mb.hex offline FAT extraction",
+  "provenance": "ota-rel45-provenance.json",
+  "phoneFolder": "/sdcard/OTA/REL4.5_20261029",
+  "targetSlot": 2,
+  "freshSlotEvidence": "[DFU] THERE IS NO '/2/' PATH, SO MKDIR",
+  "files": [
+    {
+      "name": "MFST",
+      "bytes": 45,
+      "collectPercent": 100,
+      "writePercent": 100
+    },
+    {
+      "name": "APP0",
+      "bytes": 205388,
+      "collectPercent": 100,
+      "writePercent": 100
+    },
+    {
+      "name": "APP1",
+      "bytes": 8660,
+      "collectPercent": 100,
+      "writePercent": 100
+    },
+    {
+      "name": "APP2",
+      "bytes": 1280,
+      "collectPercent": 100,
+      "writePercent": 100
+    }
+  ],
+  "transferFinished": "2026-10-29T18:33:49+09:00 (monitor observation)",
+  "bootSlot2": {
+    "info": "C2 01 01 00 01 02 FF",
+    "volume": "1 -> 2 -> 1 verified",
+    "request": "C2 02 02",
+    "runtime": "[BOOT] CM3 REL4.5 / CFX STARTED"
+  },
+  "factoryReturn": {
+    "info": "C2 01 01 00 01 FF 02",
+    "led": "On -> Off -> On verified",
+    "request": "C2 02 FF",
+    "runtime": "[BOOT] CM3 REL4.5 / CFX STARTED"
+  },
+  "navigation": {
+    "more": "blocked during active transfer",
+    "androidBack": "blocked during active transfer"
+  },
+  "finalBaseline": "Program1 / Volume1 / Output4 / GatingOff / LEDOn / AlarmOn / BT300ms / Step4 / FixedOff / Normal2.8V / Mapping4.3V",
+  "battery": "70%, index2 extended telemetry resumed after boot",
+  "finalDisplay": "현재 공장 (FF) / 이전 슬롯 2",
+  "finalApkSha256": "EE4DE55BE409387DDB3C823B23E1D6B711DD3F36C9E9C362DE1655A0B2FE6F29",
+  "otaTimeApkSha256": "92DED087B2E9D27A882E5C68F1E5086E4E2A8665D2D538086C8C96224426BC59",
+  "notExecuted": [
+    "power-cut/failed-boot automatic rollback injection",
+    "C3 payload readback not supported; no byte-for-byte board equality proof",
+    "live per-section bootloader CRC messages not captured; offline CRC passed and actual slot boot verified"
+  ],
+  "rttEvidence": "ota-rtt-evidence.txt"
+}

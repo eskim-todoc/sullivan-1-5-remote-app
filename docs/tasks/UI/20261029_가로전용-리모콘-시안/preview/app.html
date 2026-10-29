@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Todoc ON · Android 미리보기</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<div class="ambient"></div>
+<header class="appbar"><span class="brand">Todoc ON</span><span class="platform">for Android</span><span class="prototype">화면 미리보기 · 모든 값은 예시</span><select id="firmware" aria-label="미리보기 펌웨어"><option value="45">REL-4.5 · 배터리 확장</option><option value="46">REL-4.6 · FF 지원</option><option value="44">REL-4.4 · 기본 상태</option></select></header>
+<div class="shell">
+ <aside class="device-rail glass" aria-label="외부기 목록"><button class="device active" data-device="FFFF"><span class="device-art"><i></i><em></em></span><b>FFFF</b></button><button class="add-device" aria-label="외부기 검색">+</button><div class="rail-foot">외부기</div></aside>
+ <main id="main"></main>
+ <nav class="nav-rail glass" aria-label="화면 선택"></nav>
+</div>
+<div class="modal-overlay" id="modal" hidden></div><div class="toast" id="toast" role="status"></div>
+<script src="app.js"></script></body></html>

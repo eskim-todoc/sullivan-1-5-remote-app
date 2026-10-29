@@ -1,0 +1,78 @@
+{
+  "checkedAt": "2026-10-29T18:42:07.5552912+09:00",
+  "branch": "develop_ota_landscape",
+  "baseline": "130037c",
+  "device": "SM-G977N / R3CM7068Y6P",
+  "firmware": "REL4.5",
+  "externalSerial": "FFFF",
+  "internalSerial": "#196FFFFF",
+  "fontScale": 1.1,
+  "apkSha256": "EE4DE55BE409387DDB3C823B23E1D6B711DD3F36C9E9C362DE1655A0B2FE6F29",
+  "build": "assembleDebug passed",
+  "installation": "adb install -r success, app data preserved",
+  "unitTests": [
+    {
+      "suite": "todoc.cochlear.remoteapp.activity.ExampleUnitTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "todoc.cochlear.remoteapp.ff.Ff3SessionTest",
+      "tests": 23,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "todoc.cochlear.remoteapp.ff.Ff3UiTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "todoc.cochlear.remoteapp.params.BatteryTelemetryTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "todoc.cochlear.remoteapp.params.DeviceManagementProtocolTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "suite": "todoc.cochlear.remoteapp.params.UserControlQueueTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0
+    }
+  ],
+  "realControls": "Program, Volume, Output, LED, Alarm, Gating, Link Step responses verified and restored",
+  "battery": "20-byte index2 response received on REL4.5; independent PMIC index1 poll retained",
+  "otaFiles": {
+    "MFST": 45,
+    "APP2": 1280,
+    "APP1": 8712,
+    "APP0": 202256
+  },
+  "otaInfo": "final factory FF / previous slot2; final display 공장 (FF) / 슬롯 2 verified",
+  "logExport": {
+    "result": "saved, 515 lines / 34770 bytes",
+    "path": "/sdcard/Download/TODOC-logs-20261029-QA.txt",
+    "cancellation": "returned to app"
+  },
+  "notExecuted": [
+    "real identity/key writes",
+    "map reset/restore",
+    "FF3 on REL4.6",
+    "OTA startup failure injection",
+    "document picker lifecycle fault injection",
+    "power-cut/failed-boot automatic rollback fault injection",
+    "byte-for-byte board file readback"
+  ],
+  "markdownLinks": "279 checked; 3 existing broken links in unrelated 20260826 protocol requirements; no failures in current task",
+  "gitDiffCheck": "passed",
+  "baselineApkSha256": "92DED087B2E9D27A882E5C68F1E5086E4E2A8665D2D538086C8C96224426BC59",
+  "otaResult": "ota-validation.json"
+}

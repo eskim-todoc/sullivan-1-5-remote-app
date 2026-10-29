@@ -1,0 +1,8 @@
+const fs=require('fs'),path=require('path');const dir=path.join(__dirname,'preview/portrait');const p=path.join(dir,'app.js');let s=fs.readFileSync(p,'utf8');
+s=s.replace("esc(state.identity.name)+' - '+esc(state.identity.side)","(state.identity.side==='오른쪽'?'R':'L')+' '+esc(state.identity.name)+' '+esc(state.deviceSerial||'FFFF')");
+s=s.replace("REL-4.'+state.fw.slice(-1)+'</div><div class=\"identity-serial\">", "<span class=\"release-label\">REL</span> <span class=\"release-badge\">4.'+state.fw.slice(-1)+'</span></div><div class=\"identity-serial\">");
+s=s.replace('<div class="identity-link">외부기 FFFF</div>','');
+s=s.replace("<dd>'+esc(value)+'</dd>","<dd>'+(['led','alarm','gating','mode'].includes(key)?'<span class=\"status-badge '+(value==='On'?'is-on':'')+'\">'+esc(value)+'</span>':esc(value))+'</dd>");
+fs.writeFileSync(p,s);
+fs.appendFileSync(path.join(dir,'portrait.css'),'\nbody,body *{font-family:Remote,sans-serif!important}.identity-name{font-size:13px!important;font-weight:600;letter-spacing:0}.identity-release{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600}.release-label{font-size:11px;color:#b5c1c0}.release-badge{padding:3px 8px;border:1px solid #a6ce5959;border-radius:8px;background:#a6ce591a;color:#bfdd7b;line-height:1.35}.identity-serial{grid-column:1/-1}.status-badge{display:inline-block;padding:0 6px;border-radius:5px;background:#b8cbd211;border:1px solid #b8cbd225;font-size:11px;line-height:1.4}.status-badge.is-on{color:#b9e0cf;border-color:#b9e0cf40;background:#b9e0cf12}\n');
+const v=path.join(__dirname,'validate-portrait-gallery.cjs');fs.writeFileSync(v,fs.readFileSync(v,'utf8').replace("getByText('REL-4.6'","getByText('4.6'"));

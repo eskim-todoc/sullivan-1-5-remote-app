@@ -1,0 +1,622 @@
+[
+  {
+    "size": "tablet",
+    "page": "remote",
+    "fw": "45",
+    "width": 1200,
+    "height": 760,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 100,
+      "y": 54,
+      "width": 990,
+      "height": 690,
+      "top": 54,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "workarea": {
+      "x": 100,
+      "y": 357.296875,
+      "width": 990,
+      "height": 386.703125,
+      "top": 357.296875,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "tablet",
+    "page": "advanced",
+    "fw": "45",
+    "width": 1200,
+    "height": 760,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 100,
+      "y": 54,
+      "width": 990,
+      "height": 690,
+      "top": 54,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "workarea": {
+      "x": 100,
+      "y": 357.296875,
+      "width": 990,
+      "height": 386.703125,
+      "top": 357.296875,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "tablet",
+    "page": "ff",
+    "fw": "45",
+    "width": 1200,
+    "height": 760,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 100,
+      "y": 54,
+      "width": 990,
+      "height": 690,
+      "top": 54,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "workarea": {
+      "x": 100,
+      "y": 357.296875,
+      "width": 990,
+      "height": 386.703125,
+      "top": 357.296875,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "tablet",
+    "page": "ff",
+    "fw": "46",
+    "width": 1200,
+    "height": 760,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 100,
+      "y": 54,
+      "width": 990,
+      "height": 690,
+      "top": 54,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "workarea": {
+      "x": 100,
+      "y": 357.296875,
+      "width": 990,
+      "height": 386.703125,
+      "top": 357.296875,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "tablet",
+    "page": "management",
+    "fw": "45",
+    "width": 1200,
+    "height": 760,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 100,
+      "y": 54,
+      "width": 990,
+      "height": 690,
+      "top": 54,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "workarea": {
+      "x": 100,
+      "y": 357.296875,
+      "width": 990,
+      "height": 386.703125,
+      "top": 357.296875,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "tablet",
+    "page": "observation",
+    "fw": "45",
+    "width": 1200,
+    "height": 760,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 100,
+      "y": 54,
+      "width": 990,
+      "height": 690,
+      "top": 54,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "workarea": {
+      "x": 100,
+      "y": 158.5,
+      "width": 990,
+      "height": 585.5,
+      "top": 158.5,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "tablet",
+    "page": "register",
+    "fw": "45",
+    "width": 1200,
+    "height": 760,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 100,
+      "y": 54,
+      "width": 990,
+      "height": 690,
+      "top": 54,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "workarea": {
+      "x": 100,
+      "y": 158.5,
+      "width": 990,
+      "height": 585.5,
+      "top": 158.5,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "tablet",
+    "page": "ota",
+    "fw": "45",
+    "width": 1200,
+    "height": 760,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 100,
+      "y": 54,
+      "width": 990,
+      "height": 690,
+      "top": 54,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "workarea": {
+      "x": 100,
+      "y": 158.5,
+      "width": 990,
+      "height": 585.5,
+      "top": 158.5,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "tablet",
+    "page": "logs",
+    "fw": "45",
+    "width": 1200,
+    "height": 760,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 100,
+      "y": 54,
+      "width": 990,
+      "height": 690,
+      "top": 54,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "workarea": {
+      "x": 100,
+      "y": 158.5,
+      "width": 990,
+      "height": 585.5,
+      "top": 158.5,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "tablet",
+    "page": "disconnected",
+    "fw": "45",
+    "width": 1200,
+    "height": 760,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 100,
+      "y": 54,
+      "width": 990,
+      "height": 690,
+      "top": 54,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "workarea": {
+      "x": 100,
+      "y": 158.5,
+      "width": 990,
+      "height": 585.5,
+      "top": 158.5,
+      "right": 1090,
+      "bottom": 744,
+      "left": 100
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "tablet",
+    "interactions": {
+      "destructiveLocked": true,
+      "destructiveUnlockedAfterMatching": true,
+      "ffInitiallyGated": true,
+      "ff3": true,
+      "volume": true
+    }
+  },
+  {
+    "size": "phone",
+    "page": "remote",
+    "fw": "45",
+    "width": 868,
+    "height": 411,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 68,
+      "y": 36,
+      "width": 718,
+      "height": 367,
+      "top": 36,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "workarea": {
+      "x": 68,
+      "y": 190,
+      "width": 718,
+      "height": 213,
+      "top": 190,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "phone",
+    "page": "advanced",
+    "fw": "45",
+    "width": 868,
+    "height": 411,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 68,
+      "y": 36,
+      "width": 718,
+      "height": 367,
+      "top": 36,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "workarea": {
+      "x": 68,
+      "y": 190,
+      "width": 718,
+      "height": 213,
+      "top": 190,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "phone",
+    "page": "ff",
+    "fw": "45",
+    "width": 868,
+    "height": 411,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 68,
+      "y": 36,
+      "width": 718,
+      "height": 367,
+      "top": 36,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "workarea": {
+      "x": 68,
+      "y": 190,
+      "width": 718,
+      "height": 213,
+      "top": 190,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "phone",
+    "page": "ff",
+    "fw": "46",
+    "width": 868,
+    "height": 411,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 68,
+      "y": 36,
+      "width": 718,
+      "height": 367,
+      "top": 36,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "workarea": {
+      "x": 68,
+      "y": 190,
+      "width": 718,
+      "height": 213,
+      "top": 190,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "phone",
+    "page": "management",
+    "fw": "45",
+    "width": 868,
+    "height": 411,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 68,
+      "y": 36,
+      "width": 718,
+      "height": 367,
+      "top": 36,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "workarea": {
+      "x": 68,
+      "y": 190,
+      "width": 718,
+      "height": 213,
+      "top": 190,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "phone",
+    "page": "observation",
+    "fw": "45",
+    "width": 868,
+    "height": 411,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 68,
+      "y": 36,
+      "width": 718,
+      "height": 367,
+      "top": 36,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "workarea": {
+      "x": 68,
+      "y": 103,
+      "width": 718,
+      "height": 300,
+      "top": 103,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "phone",
+    "page": "register",
+    "fw": "45",
+    "width": 868,
+    "height": 411,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 68,
+      "y": 36,
+      "width": 718,
+      "height": 367,
+      "top": 36,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "workarea": {
+      "x": 68,
+      "y": 103,
+      "width": 718,
+      "height": 300,
+      "top": 103,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "phone",
+    "page": "ota",
+    "fw": "45",
+    "width": 868,
+    "height": 411,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 68,
+      "y": 36,
+      "width": 718,
+      "height": 367,
+      "top": 36,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "workarea": {
+      "x": 68,
+      "y": 103,
+      "width": 718,
+      "height": 300,
+      "top": 103,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "phone",
+    "page": "logs",
+    "fw": "45",
+    "width": 868,
+    "height": 411,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 68,
+      "y": 36,
+      "width": 718,
+      "height": 367,
+      "top": 36,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "workarea": {
+      "x": 68,
+      "y": 103,
+      "width": 718,
+      "height": 300,
+      "top": 103,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "phone",
+    "page": "disconnected",
+    "fw": "45",
+    "width": 868,
+    "height": 411,
+    "bodyOverflow": false,
+    "mainBounds": {
+      "x": 68,
+      "y": 36,
+      "width": 718,
+      "height": 367,
+      "top": 36,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "workarea": {
+      "x": 68,
+      "y": 103,
+      "width": 718,
+      "height": 300,
+      "top": 103,
+      "right": 786,
+      "bottom": 403,
+      "left": 68
+    },
+    "horizontalOverflows": [],
+    "loadedFonts": true
+  },
+  {
+    "size": "phone",
+    "interactions": {
+      "destructiveLocked": true,
+      "destructiveUnlockedAfterMatching": true,
+      "ffInitiallyGated": true,
+      "ff3": true,
+      "volume": true
+    }
+  }
+]

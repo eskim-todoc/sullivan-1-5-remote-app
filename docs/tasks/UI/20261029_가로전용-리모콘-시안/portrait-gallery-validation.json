@@ -1,0 +1,41 @@
+{
+  "errors": [],
+  "images": [
+    {
+      "src": "screens/remote.png",
+      "loaded": true
+    },
+    {
+      "src": "screens/more.png",
+      "loaded": true
+    },
+    {
+      "src": "screens/users.png",
+      "loaded": true
+    },
+    {
+      "src": "screens/logs.png",
+      "loaded": true
+    },
+    {
+      "src": "screens/user-edit.png",
+      "loaded": true
+    },
+    {
+      "src": "screens/device-edit.png",
+      "loaded": true
+    },
+    {
+      "src": "screens/management.png",
+      "loaded": true
+    },
+    {
+      "src": "screens/maps.png",
+      "loaded": true
+    }
+  ],
+  "wideOverflow": false,
+  "narrowOverflow": false,
+  "liveLogs": true,
+  "liveFf": true
+}

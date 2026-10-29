@@ -1,0 +1,305 @@
+{
+  "createdAt": "2026-10-29T09:17:54.267Z",
+  "operation": "offline IntelHEX/FAT12 extraction only; no device/build/repository writes",
+  "source": {
+    "path": "E:/workspace/projects/sullivan-1-5-fw-rel-4-5/fw-downloader/ez8300/fw_rel-4-5-0-full-8mb.hex",
+    "bytes": 20187294,
+    "sha256": "cf11c6f67197e24af5dd5cb4877b4dd247ab358f7576f48186ee83e6fa825d02",
+    "mtime": "2026-10-29T05:43:59.031Z",
+    "gitStatus": "?? fw-downloader/ez8300/fw_rel-4-5-0-full-8mb.hex"
+  },
+  "intelHex": {
+    "records": 262274,
+    "dataBytes": 8388608,
+    "checksums": "allpass",
+    "coverage": "all8MiB",
+    "addressStart": "0x40008000",
+    "addressEndExclusive": "0x40808000"
+  },
+  "fat12": {
+    "bps": 4096,
+    "sectorsPerCluster": 2,
+    "reservedSectors": 13,
+    "fatCopies": 2,
+    "fatSectors": 2,
+    "rootEntries": 256,
+    "totalSectors": 1024,
+    "dataOffset": 77824,
+    "boundsAndChains": "pass",
+    "fatCopiesEqual": true
+  },
+  "crcAlgorithm": "CRC16-CCITT poly0x1021 init0xffff no reflection/no xor; headers residue0 and payloads compare BE table bytes, same byte ordering as bootloader_CRC_calc",
+  "files": [
+    {
+      "name": "MANIFEST.TXT",
+      "bytes": 45,
+      "sha256": "5c6e3f56b59490dac188bc0813542ecfe08973d4471c10485b894467ea6348e9",
+      "clusters": [
+        31
+      ],
+      "magic": "maze",
+      "crcTableEntries": 1,
+      "headerCRC": "pass",
+      "sections": [],
+      "manifest": "APP000.FEZ\nAPP001.FEZ\nAPP002.FEZ\u0000",
+      "bodyCRC": "pass"
+    },
+    {
+      "name": "APP000.FEZ",
+      "bytes": 205388,
+      "sha256": "e1207a936569b64ae7b5d877a72c9fa3177f276f9b4abd06aec58ed9bd69b263",
+      "clusters": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27
+      ],
+      "magic": "iaze",
+      "crcTableEntries": 5,
+      "headerCRC": "pass",
+      "sections": [
+        {
+          "type": 5,
+          "flags": 0,
+          "words": 50122,
+          "bytes": 200488,
+          "headerCRC": "pass",
+          "dataCRC": "pass"
+        },
+        {
+          "type": 5,
+          "flags": 0,
+          "words": 143,
+          "bytes": 572,
+          "headerCRC": "pass",
+          "dataCRC": "pass"
+        },
+        {
+          "type": 5,
+          "flags": 0,
+          "words": 1013,
+          "bytes": 4052,
+          "headerCRC": "pass",
+          "dataCRC": "pass"
+        },
+        {
+          "type": 5,
+          "flags": 0,
+          "words": 42,
+          "bytes": 168,
+          "headerCRC": "pass",
+          "dataCRC": "pass"
+        },
+        {
+          "type": 9,
+          "flags": 0,
+          "words": 2,
+          "bytes": 8,
+          "headerCRC": "pass",
+          "dataCRC": "pass"
+        }
+      ],
+      "releaseMarker": "[BOOT] CM3 REL4.5",
+      "releaseMarkerOffset": 196787,
+      "batteryTelemetryMarker": true
+    },
+    {
+      "name": "APP001.FEZ",
+      "bytes": 8660,
+      "sha256": "2a990acdca23fc4effd273b7ed4917e2468389070e3b01b9c12035f78086c67d",
+      "clusters": [
+        28,
+        29
+      ],
+      "magic": "iaze",
+      "crcTableEntries": 9,
+      "headerCRC": "pass",
+      "sections": [
+        {
+          "type": 3,
+          "flags": 0,
+          "words": 94,
+          "bytes": 376,
+          "headerCRC": "pass",
+          "dataCRC": "pass"
+        },
+        {
+          "type": 3,
+          "flags": 0,
+          "words": 1,
+          "bytes": 4,
+          "headerCRC": "pass",
+          "dataCRC": "pass"
+        },
+        {
+          "type": 3,
+          "flags": 0,
+          "words": 1949,
+          "bytes": 7796,
+          "headerCRC": "pass",
+          "dataCRC": "pass"
+        },
+        {
+          "type": 1,
+          "flags": 16,
+          "words": 639,
+          "bytes": 0,
+          "headerCRC": "pass",
+          "dataCRC": "notcheckedbybootloader"
+        },
+        {
+          "type": 1,
+          "flags": 0,
+          "words": 76,
+          "bytes": 304,
+          "headerCRC": "pass",
+          "dataCRC": "pass"
+        },
+        {
+          "type": 1,
+          "flags": 16,
+          "words": 48,
+          "bytes": 0,
+          "headerCRC": "pass",
+          "dataCRC": "notcheckedbybootloader"
+        },
+        {
+          "type": 1,
+          "flags": 16,
+          "words": 72,
+          "bytes": 0,
+          "headerCRC": "pass",
+          "dataCRC": "notcheckedbybootloader"
+        },
+        {
+          "type": 1,
+          "flags": 16,
+          "words": 384,
+          "bytes": 0,
+          "headerCRC": "pass",
+          "dataCRC": "notcheckedbybootloader"
+        },
+        {
+          "type": 8,
+          "flags": 0,
+          "words": 2,
+          "bytes": 8,
+          "headerCRC": "pass",
+          "dataCRC": "pass"
+        }
+      ]
+    },
+    {
+      "name": "APP002.FEZ",
+      "bytes": 1280,
+      "sha256": "017121b786b68882b37a67f141251e4ca5a6aa70d5d95594653c29822aedd186",
+      "clusters": [
+        30
+      ],
+      "magic": "iaze",
+      "crcTableEntries": 4,
+      "headerCRC": "pass",
+      "sections": [
+        {
+          "type": 5,
+          "flags": 0,
+          "words": 153,
+          "bytes": 612,
+          "headerCRC": "pass",
+          "dataCRC": "pass"
+        },
+        {
+          "type": 1,
+          "flags": 0,
+          "words": 75,
+          "bytes": 300,
+          "headerCRC": "pass",
+          "dataCRC": "pass"
+        },
+        {
+          "type": 1,
+          "flags": 0,
+          "words": 48,
+          "bytes": 192,
+          "headerCRC": "pass",
+          "dataCRC": "pass"
+        },
+        {
+          "type": 1,
+          "flags": 0,
+          "words": 24,
+          "bytes": 96,
+          "headerCRC": "pass",
+          "dataCRC": "pass"
+        }
+      ]
+    }
+  ],
+  "buildPairingEvidence": {
+    "eepromConfigPath": "E:/workspace/projects/sullivan-1-5-fw-rel-4-5/Sullivan1_5__EEPROM/.cproject",
+    "configSHA256": "61aab924e172c4132b91bf60e65727be5e8a91938f8c5d7c7f6637c2b627f6d2",
+    "applications": [
+      {
+        "path": "E:/workspace/projects/sullivan-1-5-fw-rel-4-5/Sullivan1_5__CM3/Debug/Sullivan1_5__CM3.elf",
+        "bytes": 2452388,
+        "mtime": "2026-10-29T03:45:31.558Z",
+        "sha256": "0366dab28636ef0b9eb54f63d9c6941b796d97791bb4a26e574180fce4088605"
+      },
+      {
+        "path": "E:/workspace/projects/sullivan-1-5-fw-rel-4-5/Sullivan1_5__CFX/Debug/Sullivan1_5__CFX.elf",
+        "bytes": 205996,
+        "mtime": "2026-10-28T05:25:01.322Z",
+        "sha256": "665969216b3fa3d4be90ba9d49f301b0bcf611e835a9a417bd0a610061e93131"
+      },
+      {
+        "path": "E:/workspace/projects/sullivan-1-5-fw-rel-4-5/Sullivan1_5__HEAR/Release/Sullivan1_5__HEAR.elf",
+        "bytes": 4693,
+        "mtime": "2026-10-27T08:45:45.494Z",
+        "sha256": "bf68dbc9f5d0e3c19fceb72bfe7803725d75dc798a0f2db0161d815e85fe26c5"
+      }
+    ],
+    "existingNvmPath": "E:/workspace/projects/sullivan-1-5-fw-rel-4-5/Sullivan1_5__EEPROM/Release/Sullivan1_5__EEPROM.nvm",
+    "existingNvmBytes": 319488,
+    "nvmSHA256": "fea1ceba9cddb9df1f3337dcdafdd6f1de1589037ef16b42e54fa686891236a1",
+    "matchesFullHexPrefix": false,
+    "limit": "Same packaged FAT root plus EEPROM configuration establish CM3/CFX/HEAR pairing; no live-board readback identity check performed.",
+    "existingNvmApplicationFilesMatch": true,
+    "exactCurrentCM3PayloadMatches": [
+      {
+        "elfOffset": 65536,
+        "bytes": 200488
+      },
+      {
+        "elfOffset": 294912,
+        "bytes": 572
+      }
+    ],
+    "cfxHearElfLimit": "CFX/HEAR payloads use different serialization from plain ELF; direct byte-match against current ELF was not established. Same four-file hashes are present in existing .nvm and full-8MiB hex package."
+  },
+  "packagedSlot2Inventory": {
+    "present": false,
+    "scope": "lower factory FAT root of source fullhex only; no conclusion about live board slot2"
+  }
+}

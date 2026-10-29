@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Todoc ON · 휴대전화 가로 시안</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+  <div class="app-shell">
+    <main id="main">
+      <header id="devicebar" class="devicebar"></header>
+      <section id="summary" class="summary glass" aria-label="선택한 장치의 핵심 상태"></section>
+      <section id="workspace" class="workspace" aria-label="제어 화면"></section>
+    </main>
+    <nav id="navigation" class="navigation" aria-label="화면 선택"></nav>
+  </div>
+  <div id="overlay" class="overlay" hidden></div>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>

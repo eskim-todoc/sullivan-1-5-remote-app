@@ -1,0 +1,288 @@
+{
+  "errors": [],
+  "results": [
+    {
+      "name": "remote",
+      "viewport": [
+        411,
+        781
+      ],
+      "main": {
+        "x": 0,
+        "y": 44,
+        "width": 411,
+        "height": 679
+      },
+      "mainScrollHeight": 679,
+      "navigation": {
+        "x": 0,
+        "y": 723,
+        "width": 411,
+        "height": 58
+      },
+      "overflow": [],
+      "statusOverlap": [],
+      "fontLoaded": true
+    },
+    {
+      "name": "advanced",
+      "viewport": [
+        411,
+        781
+      ],
+      "main": {
+        "x": 0,
+        "y": 44,
+        "width": 411,
+        "height": 679
+      },
+      "mainScrollHeight": 679,
+      "navigation": {
+        "x": 0,
+        "y": 723,
+        "width": 411,
+        "height": 58
+      },
+      "overflow": [],
+      "statusOverlap": [],
+      "fontLoaded": true
+    },
+    {
+      "name": "more",
+      "viewport": [
+        411,
+        781
+      ],
+      "main": {
+        "x": 0,
+        "y": 44,
+        "width": 411,
+        "height": 679
+      },
+      "mainScrollHeight": 679,
+      "navigation": {
+        "x": 0,
+        "y": 723,
+        "width": 411,
+        "height": 58
+      },
+      "overflow": [],
+      "statusOverlap": [],
+      "fontLoaded": true
+    },
+    {
+      "name": "users",
+      "viewport": [
+        411,
+        781
+      ],
+      "main": {
+        "x": 0,
+        "y": 44,
+        "width": 411,
+        "height": 679
+      },
+      "mainScrollHeight": 679,
+      "navigation": {
+        "x": 0,
+        "y": 723,
+        "width": 411,
+        "height": 58
+      },
+      "overflow": [],
+      "statusOverlap": [],
+      "fontLoaded": true
+    },
+    {
+      "name": "devices",
+      "viewport": [
+        411,
+        781
+      ],
+      "main": {
+        "x": 0,
+        "y": 44,
+        "width": 411,
+        "height": 679
+      },
+      "mainScrollHeight": 679,
+      "navigation": {
+        "x": 0,
+        "y": 723,
+        "width": 411,
+        "height": 58
+      },
+      "overflow": [],
+      "statusOverlap": [],
+      "fontLoaded": true
+    },
+    {
+      "name": "user-edit",
+      "viewport": [
+        411,
+        781
+      ],
+      "main": {
+        "x": 0,
+        "y": 44,
+        "width": 411,
+        "height": 679
+      },
+      "mainScrollHeight": 679,
+      "navigation": {
+        "x": 0,
+        "y": 723,
+        "width": 411,
+        "height": 58
+      },
+      "overflow": [],
+      "statusOverlap": [],
+      "fontLoaded": true
+    },
+    {
+      "name": "device-edit",
+      "viewport": [
+        411,
+        781
+      ],
+      "main": {
+        "x": 0,
+        "y": 44,
+        "width": 411,
+        "height": 679
+      },
+      "mainScrollHeight": 679,
+      "navigation": {
+        "x": 0,
+        "y": 723,
+        "width": 411,
+        "height": 58
+      },
+      "overflow": [],
+      "statusOverlap": [],
+      "fontLoaded": true
+    },
+    {
+      "name": "management",
+      "viewport": [
+        411,
+        781
+      ],
+      "main": {
+        "x": 0,
+        "y": 44,
+        "width": 411,
+        "height": 679
+      },
+      "mainScrollHeight": 679,
+      "navigation": {
+        "x": 0,
+        "y": 723,
+        "width": 411,
+        "height": 58
+      },
+      "overflow": [],
+      "statusOverlap": [],
+      "fontLoaded": true
+    },
+    {
+      "name": "maps",
+      "viewport": [
+        411,
+        781
+      ],
+      "main": {
+        "x": 0,
+        "y": 44,
+        "width": 411,
+        "height": 679
+      },
+      "mainScrollHeight": 679,
+      "navigation": {
+        "x": 0,
+        "y": 723,
+        "width": 411,
+        "height": 58
+      },
+      "overflow": [],
+      "statusOverlap": [],
+      "fontLoaded": true
+    },
+    {
+      "name": "logs",
+      "viewport": [
+        411,
+        781
+      ],
+      "main": {
+        "x": 0,
+        "y": 44,
+        "width": 411,
+        "height": 679
+      },
+      "mainScrollHeight": 679,
+      "navigation": {
+        "x": 0,
+        "y": 723,
+        "width": 411,
+        "height": 58
+      },
+      "overflow": [],
+      "statusOverlap": [],
+      "fontLoaded": true
+    },
+    {
+      "name": "ota",
+      "viewport": [
+        411,
+        781
+      ],
+      "main": {
+        "x": 0,
+        "y": 44,
+        "width": 411,
+        "height": 679
+      },
+      "mainScrollHeight": 780,
+      "navigation": {
+        "x": 0,
+        "y": 723,
+        "width": 411,
+        "height": 58
+      },
+      "overflow": [],
+      "statusOverlap": [],
+      "fontLoaded": true
+    },
+    {
+      "name": "ff",
+      "viewport": [
+        411,
+        781
+      ],
+      "main": {
+        "x": 0,
+        "y": 44,
+        "width": 411,
+        "height": 679
+      },
+      "mainScrollHeight": 679,
+      "navigation": {
+        "x": 0,
+        "y": 723,
+        "width": 411,
+        "height": 58
+      },
+      "overflow": [],
+      "statusOverlap": [],
+      "fontLoaded": true
+    }
+  ],
+  "interactions": {
+    "deviceNavigation": true,
+    "draftRetained": true,
+    "errorCount": 1,
+    "searchCount": 1,
+    "narrowOverflow": false
+  }
+}

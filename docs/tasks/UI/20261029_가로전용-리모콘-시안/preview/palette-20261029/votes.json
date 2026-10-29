@@ -1,0 +1,59 @@
+{
+  "decision": "C",
+  "decisionRule": "first-choice majority; rank points 3/2/1/0 only for ties",
+  "firstChoiceVotes": {
+    "B": 1,
+    "D": 0,
+    "C": 2,
+    "A": 0
+  },
+  "rankPoints": {
+    "B": 6,
+    "D": 5,
+    "C": 7,
+    "A": 0
+  },
+  "ballots": [
+    {
+      "agent": "palette_aesthetic_vote",
+      "perspective": "시각 완성도",
+      "ranking": [
+        "C",
+        "D",
+        "B",
+        "A"
+      ],
+      "reason": "붉은 조명과 차가운 왼쪽 배경의 공간감, 기본 화면과 다이얼로그의 일관성"
+    },
+    {
+      "agent": "palette_color_vote",
+      "perspective": "색상·대비",
+      "ranking": [
+        "C",
+        "B",
+        "D",
+        "A"
+      ],
+      "reason": "붉은빛 요청에 가장 부합하고 측정한 주요 글자 대비 유지",
+      "measurements": {
+        "warning": 8.97,
+        "proceed": 6.34,
+        "label": 4.91
+      }
+    },
+    {
+      "agent": "palette_ux_vote",
+      "perspective": "사용 흐름·상태 확인",
+      "ranking": [
+        "B",
+        "D",
+        "C",
+        "A"
+      ],
+      "reason": "상태값에 시선을 집중하기 쉽고 붉은 배경과 경고의 경쟁이 적음"
+    }
+  ],
+  "caveat": "C의 보조 글자는 B보다 대비 여유가 적음. 실제 적용 때 #B8C7CF 보강 권장, 위험 동작은 색 외의 문구/아이콘 유지",
+  "methodLimit": "독립 전문가 선호 비교, 실제 사용자 피로/오류율 연구 아님",
+  "appApplied": false
+}

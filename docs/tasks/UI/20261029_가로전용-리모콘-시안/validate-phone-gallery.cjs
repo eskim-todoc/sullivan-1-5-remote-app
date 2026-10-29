@@ -1,0 +1,21 @@
+const {chromium}=require('C:/Users/EUNSU/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const {pathToFileURL}=require('node:url');const fs=require('node:fs');const path=require('node:path');
+(async()=>{
+ const folder=path.join(__dirname,'preview','phone');
+ const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});
+ const page=await browser.newPage({viewport:{width:1440,height:1050},deviceScaleFactor:1});const errors=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(pathToFileURL(path.join(folder,'index.html')).href);await page.evaluate(()=>document.fonts.ready);
+ await page.evaluate(()=>Promise.all([...document.images].map(i=>i.decode().catch(()=>{}))));
+ const images=await page.evaluate(()=>[...document.images].filter(i=>!i.naturalWidth).map(i=>i.getAttribute('src')));
+ const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
+ await page.screenshot({path:path.join(folder,'screens','gallery.png'),fullPage:true});
+ await page.selectOption('#screen','management&section=maps');await page.frameLocator('#live').locator('[data-action="map-factory"]').waitFor();
+ const maps=await page.frameLocator('#live').locator('[data-action="map-factory"]').isVisible();
+ await page.selectOption('#screen','ff');await page.selectOption('#fw','46');await page.frameLocator('#live').locator('[data-action="ff-read"]').waitFor();
+ const ff=await page.frameLocator('#live').locator('[data-action="ff-read"]').isVisible();
+ await page.setViewportSize({width:720,height:900});const narrowOverflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
+ const result={errors,missingImages:images,overflow,narrowOverflow,liveMaps:maps,liveFf:ff};
+ fs.writeFileSync(path.join(__dirname,'phone-gallery-validation.json'),JSON.stringify(result,null,2));
+ console.log(JSON.stringify(result,null,2));await browser.close();
+})().catch(e=>{console.error(e);process.exit(1);});

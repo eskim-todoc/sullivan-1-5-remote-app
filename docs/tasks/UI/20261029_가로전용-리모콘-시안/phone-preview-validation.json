@@ -1,0 +1,777 @@
+{
+  "errors": [],
+  "results": [
+    {
+      "name": "remote",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "advanced",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [
+        {
+          "label": "Normal 하한",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "Fixed PMIC",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "Link Step",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "Mapping 하한",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "Accel",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "Maximum",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "BT Period",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "Gating",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "Nop",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "Coin",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "Ctrl Mode",
+          "hitHeight": 44,
+          "faceHeight": 36
+        }
+      ],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "advanced-rel46",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [
+        {
+          "label": "Normal 하한",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "Fixed PMIC",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "Link Step",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "Mapping 하한",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "Accel",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "Maximum",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "BT Period",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "Gating",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "Nop",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "Coin",
+          "hitHeight": 44,
+          "faceHeight": 36
+        },
+        {
+          "label": "Ctrl Mode",
+          "hitHeight": 44,
+          "faceHeight": 36
+        }
+      ],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "management",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "maps",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "more",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "register",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "register-edit",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "device-edit",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "ota",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "ota-recovery",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "ff-unsupported",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "ff-read",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "observation",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "logs",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "setting-inline",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "map-confirm",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "serial",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "pairing",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "ff3",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "ota-ready",
+      "width": 828,
+      "height": 411,
+      "workspace": {
+        "x": 12,
+        "y": 210,
+        "width": 728,
+        "height": 191
+      },
+      "status": {
+        "x": 12,
+        "y": 62,
+        "width": 728,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "interactions": {
+        "ffGated": true,
+        "ff3": true,
+        "otaLocked": true,
+        "otaReady": true,
+        "runningSlotLocked": true,
+        "resetLocked": true,
+        "wrongLocked": true,
+        "resetReady": true,
+        "volume": true,
+        "maxOutputLocked": true,
+        "formKept": true,
+        "keyLocked": true,
+        "mismatchLocked": true,
+        "keyReady": true
+      }
+    },
+    {
+      "persistentStatus": {
+        "allControlsVisible": true,
+        "noStatusButton": true,
+        "draftDoesNotApply": true,
+        "noKeyboardForSettings": true,
+        "statusWhileEditing": true,
+        "currentUpdated": true,
+        "cancelledDraft": true
+      }
+    },
+    {
+      "reviewFixes": {
+        "identityStable": true,
+        "draftDiscarded": true,
+        "settingRetained": true,
+        "toggleRetained": true,
+        "otaEditingLocked": true,
+        "otaCanRestart": true
+      }
+    },
+    {
+      "name": "keyboard-layout",
+      "width": 828,
+      "height": 230,
+      "workspace": {
+        "x": 12,
+        "y": 6,
+        "width": 804,
+        "height": 218
+      },
+      "status": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "visibleStatusRows": 0,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    },
+    {
+      "name": "remote-width780",
+      "width": 780,
+      "height": 411,
+      "workspace": {
+        "x": 8,
+        "y": 210,
+        "width": 688,
+        "height": 191
+      },
+      "status": {
+        "x": 8,
+        "y": 62,
+        "width": 688,
+        "height": 140
+      },
+      "visibleStatusRows": 24,
+      "statusOverlap": [],
+      "statusClipping": [],
+      "overflow": [],
+      "wrap": [],
+      "smallTargets": [],
+      "coreSmallTargets": [],
+      "buttonFaces": [],
+      "documentOverflow": false,
+      "fonts": true
+    }
+  ]
+}
