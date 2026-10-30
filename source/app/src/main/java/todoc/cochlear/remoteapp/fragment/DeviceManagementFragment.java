@@ -186,7 +186,10 @@ public class DeviceManagementFragment extends Fragment
 
     private void updateTarget(MainActivity activity)
     {
-        if (targetLabel == null) return;
+        if (targetLabel == null)
+        {
+            return;
+        }
         java.util.List<todoc.cochlear.remoteapp.connection.ConnectionInfo> rows = activity.getConnectionStates().getValue();
         if (rows != null)
         {

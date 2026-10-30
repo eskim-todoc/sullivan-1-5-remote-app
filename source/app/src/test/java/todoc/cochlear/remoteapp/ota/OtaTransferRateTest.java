@@ -1,6 +1,7 @@
 package todoc.cochlear.remoteapp.ota;
 
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 public class OtaTransferRateTest

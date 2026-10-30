@@ -2,7 +2,9 @@ package todoc.cochlear.remoteapp.ota;
 
 import java.util.ArrayDeque;
 
-/** 장치 ACK로 확인한 이미지 바이트만 집계한다. 시간은 단조 증가 밀리초다. */
+/**
+ * 장치 ACK로 확인한 이미지 바이트만 집계한다. 시간은 단조 증가 밀리초다.
+ */
 public final class OtaTransferRate
 {
     private static final long WINDOW_MS = 1000;

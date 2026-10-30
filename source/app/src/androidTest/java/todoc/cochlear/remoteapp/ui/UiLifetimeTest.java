@@ -4,14 +4,19 @@ import android.content.Context;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ContextThemeWrapper;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+
 import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.view_model.StatusViewModel;
+
 import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
@@ -26,7 +31,11 @@ public class UiLifetimeTest
             View chip = new View(context);
             AtomicInteger clicks = new AtomicInteger();
             chip.setOnClickListener(view -> clicks.incrementAndGet());
-            chip.setOnLongClickListener(view -> { clicks.incrementAndGet(); return true; });
+            chip.setOnLongClickListener(view ->
+            {
+                clicks.incrementAndGet();
+                return true;
+            });
             DelayedLongPress.attach(chip, () -> true, () -> clicks.incrementAndGet());
             Object binding = chip.getTag(R.id.delayed_long_press_binding);
             DelayedLongPress.attach(chip);
@@ -49,8 +58,14 @@ public class UiLifetimeTest
         AtomicReference<Throwable> failure = new AtomicReference<>();
         Thread worker = new Thread(() ->
         {
-            try { model.setFwVerLower(7); }
-            catch (Throwable error) { failure.set(error); }
+            try
+            {
+                model.setFwVerLower(7);
+            }
+            catch (Throwable error)
+            {
+                failure.set(error);
+            }
         });
         worker.start();
         worker.join(3000);

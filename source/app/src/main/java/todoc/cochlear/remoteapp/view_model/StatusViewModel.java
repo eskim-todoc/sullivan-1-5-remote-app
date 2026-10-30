@@ -1005,6 +1005,7 @@ public class StatusViewModel extends ViewModel
 
         return mGatingState.getValue();
     }
+
     private final MutableLiveData<Integer> mGatingOffset = new MutableLiveData<>(PacketInfo.LINK_VALUE_UNKNOWN);
 
     public MutableLiveData<Integer> getLiveDataGatingOffset()

@@ -1,6 +1,8 @@
 package todoc.cochlear.remoteapp.ui;
 
-/** 터치의 시간·이동 판단만 소유하며 Android 콜백은 실행하지 않는다. */
+/**
+ * 터치의 시간·이동 판단만 소유하며 Android 콜백은 실행하지 않는다.
+ */
 final class LongPressGesture
 {
     private enum State

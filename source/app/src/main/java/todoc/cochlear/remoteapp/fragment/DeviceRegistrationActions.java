@@ -5,6 +5,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 
 import java.util.Objects;
+
 import todoc.cochlear.remoteapp.common.BooleanCondition;
 
 import todoc.cochlear.remoteapp.activity.MainActivity;

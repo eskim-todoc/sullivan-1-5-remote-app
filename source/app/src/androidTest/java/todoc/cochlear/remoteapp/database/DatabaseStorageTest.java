@@ -27,7 +27,9 @@ import todoc.cochlear.remoteapp.database.users.UtilUser;
 
 import static org.junit.Assert.*;
 
-/** 인메모리 Room만 사용한다. 앱 싱글턴·실제 등록 DB·실제 인증 정보는 접근하지 않는다. */
+/**
+ * 인메모리 Room만 사용한다. 앱 싱글턴·실제 등록 DB·실제 인증 정보는 접근하지 않는다.
+ */
 @RunWith(AndroidJUnit4.class)
 public class DatabaseStorageTest
 {

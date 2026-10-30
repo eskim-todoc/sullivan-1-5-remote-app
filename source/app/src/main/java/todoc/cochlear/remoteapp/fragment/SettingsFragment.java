@@ -14,10 +14,13 @@ import todoc.cochlear.remoteapp.activity.MainActivity;
 import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.params.Status;
 
-/** Flat top-level More menu; child pages retain their own back navigation. */
+/**
+ * Flat top-level More menu; child pages retain their own back navigation.
+ */
 public class SettingsFragment extends Fragment
 {
     private todoc.cochlear.remoteapp.ui.DeviceRail deviceRail;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle state)
@@ -31,7 +34,9 @@ public class SettingsFragment extends Fragment
         activity.mBinding.toolbarNavigationMessage.setOnClickListener(null);
         activity.mBinding.toolbarNavigationMessage.setVisibility(View.GONE);
         LinearLayout body = ManagementUi.body(requireContext());
-        deviceRail = ManagementUi.deviceRail(activity, body, () -> { });
+        deviceRail = ManagementUi.deviceRail(activity, body, () ->
+        {
+        });
         menuItem(body, "제조번호 · 페어링키",
             clicked -> open(new DeviceManagementFragment()));
         menuItem(body, "맵 관리",

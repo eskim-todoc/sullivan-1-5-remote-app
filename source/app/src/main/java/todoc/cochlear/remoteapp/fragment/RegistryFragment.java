@@ -22,7 +22,9 @@ import todoc.cochlear.remoteapp.database.users.UtilUser;
 import todoc.cochlear.remoteapp.list.DeviceAdapter;
 import todoc.cochlear.remoteapp.list.UserAdapter;
 
-/** A single scrolling registration screen with shared dialog and storage action paths. */
+/**
+ * A single scrolling registration screen with shared dialog and storage action paths.
+ */
 public final class RegistryFragment extends Fragment implements UserAdapter.Host, DeviceAdapter.Host
 {
     private UserAdapter users;

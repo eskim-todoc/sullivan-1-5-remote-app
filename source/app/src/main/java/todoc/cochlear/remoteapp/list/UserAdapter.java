@@ -211,7 +211,7 @@ public class UserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             field.input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
             field.input.setTypeface(alias.getTypeface());
             InlineListUi.identify(field.input, EntityUser.EAR_LEFT.equals(ear) ? R.id.group_left_key
-                : EntityUser.EAR_RIGHT.equals(ear) ? R.id.group_right_key : R.id.group_factory_key,
+                    : EntityUser.EAR_RIGHT.equals(ear) ? R.id.group_right_key : R.id.group_factory_key,
                 label + " 내부기 코드 4자");
             field.active.setId(EntityUser.EAR_LEFT.equals(ear) ? R.id.group_left_active
                 : EntityUser.EAR_RIGHT.equals(ear) ? R.id.group_right_active : R.id.group_factory_active);

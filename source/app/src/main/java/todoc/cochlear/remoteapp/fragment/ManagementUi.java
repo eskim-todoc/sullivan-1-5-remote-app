@@ -248,6 +248,7 @@ final class ManagementUi
         row.addView(arrow, new LinearLayout.LayoutParams(dp(context, 16), -2));
         parent.addView(row, new LinearLayout.LayoutParams(-1, dp(context, hasNote ? 56 : 48)));
     }
+
     static todoc.cochlear.remoteapp.ui.DeviceRail deviceRail(MainActivity activity, LinearLayout body, Runnable selected)
     {
         android.widget.LinearLayout railRow = new android.widget.LinearLayout(activity);

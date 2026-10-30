@@ -871,37 +871,37 @@ public class MainActivity extends AppCompatActivity
             }
             try
             {
-            int state = device.getBondState();
-            if (state == BluetoothDevice.BOND_BONDING)
-            {
-                session.mCCCDHandler.removeCallbacksAndMessages(null);
-            }
-            else if (state == BluetoothDevice.BOND_BONDED)
-            {
-                if (session.isSelected())
+                int state = device.getBondState();
+                if (state == BluetoothDevice.BOND_BONDING)
                 {
-                    mBinding.pairingKeyLayout.setVisibility(View.GONE);
+                    session.mCCCDHandler.removeCallbacksAndMessages(null);
                 }
-                // Resume only this device's handshake after bonding.
-                if (session.mBluetoothGatt != null)
+                else if (state == BluetoothDevice.BOND_BONDED)
                 {
-                    session.mDiscoverServicesHandler.postDelayed(session.mDiscoverServicesRunner, DISCOVER_SERVICES_TIMEOUT_IN_MS);
-                    if (!session.mBluetoothGatt.discoverServices())
+                    if (session.isSelected())
                     {
-                        session.requestGattDisconnect(session.mBluetoothGatt);
+                        mBinding.pairingKeyLayout.setVisibility(View.GONE);
+                    }
+                    // Resume only this device's handshake after bonding.
+                    if (session.mBluetoothGatt != null)
+                    {
+                        session.mDiscoverServicesHandler.postDelayed(session.mDiscoverServicesRunner, DISCOVER_SERVICES_TIMEOUT_IN_MS);
+                        if (!session.mBluetoothGatt.discoverServices())
+                        {
+                            session.requestGattDisconnect(session.mBluetoothGatt);
+                        }
                     }
                 }
-            }
-            else if (state == BluetoothDevice.BOND_NONE)
-            {
-                if (session.isSelected())
+                else if (state == BluetoothDevice.BOND_NONE)
                 {
-                    mBinding.pairingKeyLayout.setVisibility(View.GONE);
+                    if (session.isSelected())
+                    {
+                        mBinding.pairingKeyLayout.setVisibility(View.GONE);
+                    }
+                    session.showSessionToast("페어링에 실패했습니다. 등록된 키를 확인하세요.", Toast.LENGTH_LONG);
+                    session.closeEngine(true);
+                    publishConnections();
                 }
-                session.showSessionToast("페어링에 실패했습니다. 등록된 키를 확인하세요.", Toast.LENGTH_LONG);
-                session.closeEngine(true);
-                publishConnections();
-            }
             }
             catch (SecurityException error)
             {

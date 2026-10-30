@@ -7,7 +7,9 @@ import android.view.ViewConfiguration;
 
 import java.lang.ref.WeakReference;
 
-/** 상단 장치 배지의 터치 롱클릭만 시스템 시간의 1.5배로 지연한다. */
+/**
+ * 상단 장치 배지의 터치 롱클릭만 시스템 시간의 1.5배로 지연한다.
+ */
 public final class DelayedLongPress
 {
 
@@ -22,7 +24,9 @@ public final class DelayedLongPress
      */
     public static void attach(View view)
     {
-        attach(view, () -> false, () -> { });
+        attach(view, () -> false, () ->
+        {
+        });
     }
 
     public static void attach(View view, todoc.cochlear.remoteapp.common.BooleanCondition canDismiss, Runnable dismiss)
@@ -81,7 +85,10 @@ public final class DelayedLongPress
                 originalAlpha = view.getAlpha();
                 dragging = false;
                 horizontal = false;
-                if (canDismiss.getAsBoolean()) requestParentIntercept(view, true);
+                if (canDismiss.getAsBoolean())
+                {
+                    requestParentIntercept(view, true);
+                }
             }
             if (event.getActionMasked() == MotionEvent.ACTION_MOVE && event.getPointerCount() == 1)
             {
@@ -108,14 +115,20 @@ public final class DelayedLongPress
                 boolean remove = canDismiss.getAsBoolean() && Math.abs(event.getRawY() - rawY) >= view.getHeight();
                 resetDrag(view);
                 cancel(view);
-                if (remove) dismiss.run();
+                if (remove)
+                {
+                    dismiss.run();
+                }
                 return true;
             }
             if (event.getActionMasked() == MotionEvent.ACTION_CANCEL || event.getPointerCount() > 1)
             {
                 resetDrag(view);
             }
-            if (event.getActionMasked() == MotionEvent.ACTION_UP) requestParentIntercept(view, false);
+            if (event.getActionMasked() == MotionEvent.ACTION_UP)
+            {
+                requestParentIntercept(view, false);
+            }
             switch (event.getActionMasked())
             {
                 case MotionEvent.ACTION_DOWN:

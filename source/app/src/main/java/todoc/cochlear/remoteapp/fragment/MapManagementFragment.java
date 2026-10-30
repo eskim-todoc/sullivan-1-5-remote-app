@@ -45,7 +45,10 @@ public class MapManagementFragment extends Fragment
         LinearLayout body = ManagementUi.body(requireContext());
         deviceRail = ManagementUi.deviceRail(activity, body, () ->
         {
-            if (warningDialog != null) warningDialog.dismiss();
+            if (warningDialog != null)
+            {
+                warningDialog.dismiss();
+            }
             targetSessionId = activity.getSelectedSessionId();
             result.setText("");
         });

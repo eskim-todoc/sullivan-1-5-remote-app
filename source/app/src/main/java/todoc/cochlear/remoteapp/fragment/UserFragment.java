@@ -16,7 +16,9 @@ import todoc.cochlear.remoteapp.database.users.UserGroup;
 import todoc.cochlear.remoteapp.database.users.UtilUser;
 import todoc.cochlear.remoteapp.list.UserAdapter;
 
-/** Compatibility host; the primary registration route uses RegistryFragment. */
+/**
+ * Compatibility host; the primary registration route uses RegistryFragment.
+ */
 public class UserFragment extends Fragment implements UserAdapter.Host
 {
     private FragmentUserBinding binding;

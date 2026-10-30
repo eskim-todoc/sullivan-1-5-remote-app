@@ -7,6 +7,7 @@ import androidx.appcompat.app.AlertDialog;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
 import todoc.cochlear.remoteapp.common.BooleanCondition;
 
 import todoc.cochlear.remoteapp.activity.MainActivity;
@@ -16,7 +17,9 @@ import todoc.cochlear.remoteapp.database.users.UserGroup;
 import todoc.cochlear.remoteapp.database.users.UtilUser;
 import todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder;
 
-/** Shared user registration actions for list hosts; storage and session ownership stay unchanged. */
+/**
+ * Shared user registration actions for list hosts; storage and session ownership stay unchanged.
+ */
 final class UserRegistrationActions
 {
     private final MainActivity activity;

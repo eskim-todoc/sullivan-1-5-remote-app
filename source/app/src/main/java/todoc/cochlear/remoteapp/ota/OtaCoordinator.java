@@ -10,7 +10,9 @@ import todoc.cochlear.remoteapp.params.PacketInfo;
  */
 public final class OtaCoordinator
 {
-    /** API 23에서도 사용할 수 있는 단조 증가 밀리초 시계. */
+    /**
+     * API 23에서도 사용할 수 있는 단조 증가 밀리초 시계.
+     */
     interface Clock
     {
         long now();

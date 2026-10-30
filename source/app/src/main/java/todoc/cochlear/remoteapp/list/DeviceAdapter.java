@@ -23,8 +23,11 @@ public class DeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public interface Host
     {
         Context requireContext();
+
         String saveDevice(EntityDevice original, EntityDevice updated);
+
         void confirmDeleteDevice(EntityDevice device, Runnable deleted);
+
         void onDeviceRowsChanged();
     }
 
