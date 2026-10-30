@@ -1,0 +1,3 @@
+<resources>
+    <item name="delayed_long_press_binding" type="id" />
+</resources>

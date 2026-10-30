@@ -6,13 +6,11 @@ import android.view.View;
 import android.view.ViewConfiguration;
 
 import java.lang.ref.WeakReference;
-import java.util.Map;
-import java.util.WeakHashMap;
 
 /** 상단 장치 배지의 터치 롱클릭만 시스템 시간의 1.5배로 지연한다. */
 public final class DelayedLongPress
 {
-    private static final Map<View, Binding> bindings = new WeakHashMap<>();
+
 
     private DelayedLongPress()
     {
@@ -27,16 +25,24 @@ public final class DelayedLongPress
         attach(view, () -> false, () -> { });
     }
 
-    public static void attach(View view, java.util.function.BooleanSupplier canDismiss, Runnable dismiss)
+    public static void attach(View view, todoc.cochlear.remoteapp.common.BooleanCondition canDismiss, Runnable dismiss)
     {
-        if (bindings.containsKey(view))
+        if (view.getTag(todoc.cochlear.remoteapp.activity.R.id.delayed_long_press_binding) != null)
         {
             return;
         }
         Binding binding = new Binding(view, canDismiss, dismiss);
-        bindings.put(view, binding);
+        view.setTag(todoc.cochlear.remoteapp.activity.R.id.delayed_long_press_binding, binding);
         view.setOnTouchListener(binding);
         view.addOnAttachStateChangeListener(binding);
+    }
+
+    private static void requestParentIntercept(View view, boolean disallow)
+    {
+        if (view.getParent() != null)
+        {
+            view.getParent().requestDisallowInterceptTouchEvent(disallow);
+        }
     }
 
     private static final class Binding implements View.OnTouchListener, View.OnAttachStateChangeListener
@@ -46,12 +52,12 @@ public final class DelayedLongPress
         private Runnable pending;
         private long token;
 
-        private final java.util.function.BooleanSupplier canDismiss;
+        private final todoc.cochlear.remoteapp.common.BooleanCondition canDismiss;
         private final Runnable dismiss;
         private float rawX, rawY, originalAlpha;
         private boolean dragging, horizontal;
 
-        Binding(View view, java.util.function.BooleanSupplier canDismiss, Runnable dismiss)
+        Binding(View view, todoc.cochlear.remoteapp.common.BooleanCondition canDismiss, Runnable dismiss)
         {
             this.canDismiss = canDismiss;
             this.dismiss = dismiss;
@@ -75,7 +81,7 @@ public final class DelayedLongPress
                 originalAlpha = view.getAlpha();
                 dragging = false;
                 horizontal = false;
-                if (canDismiss.getAsBoolean()) view.getParent().requestDisallowInterceptTouchEvent(true);
+                if (canDismiss.getAsBoolean()) requestParentIntercept(view, true);
             }
             if (event.getActionMasked() == MotionEvent.ACTION_MOVE && event.getPointerCount() == 1)
             {
@@ -85,13 +91,13 @@ public final class DelayedLongPress
                 if (!dragging && Math.abs(dx) > slop && Math.abs(dx) >= Math.abs(dy))
                 {
                     horizontal = true;
-                    view.getParent().requestDisallowInterceptTouchEvent(false);
+                    requestParentIntercept(view, false);
                 }
                 if (!horizontal && canDismiss.getAsBoolean() && Math.abs(dy) > slop && Math.abs(dy) > Math.abs(dx) * 1.3f)
                 {
                     dragging = true;
                     cancel(view);
-                    view.getParent().requestDisallowInterceptTouchEvent(true);
+                    requestParentIntercept(view, true);
                     view.setTranslationY(Math.max(-view.getHeight(), Math.min(view.getHeight(), dy)));
                     view.setAlpha(originalAlpha * 0.6f);
                     return true;
@@ -109,7 +115,7 @@ public final class DelayedLongPress
             {
                 resetDrag(view);
             }
-            if (event.getActionMasked() == MotionEvent.ACTION_UP) view.getParent().requestDisallowInterceptTouchEvent(false);
+            if (event.getActionMasked() == MotionEvent.ACTION_UP) requestParentIntercept(view, false);
             switch (event.getActionMasked())
             {
                 case MotionEvent.ACTION_DOWN:
@@ -207,7 +213,7 @@ public final class DelayedLongPress
             {
                 view.setTranslationY(0);
                 view.setAlpha(originalAlpha);
-                view.getParent().requestDisallowInterceptTouchEvent(false);
+                requestParentIntercept(view, false);
                 dragging = false;
             }
         }

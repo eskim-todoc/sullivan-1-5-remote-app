@@ -118,7 +118,7 @@ public class StatusViewModel extends ViewModel
 
     public void setFwVerLower(int fwVerLower)
     {
-        if (Looper.myLooper().isCurrentThread())
+        if (Looper.myLooper() == Looper.getMainLooper())
         {
             mFwVerLower.setValue(fwVerLower);
         }

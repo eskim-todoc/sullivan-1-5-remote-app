@@ -5,7 +5,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 
 import java.util.Objects;
-import java.util.function.BooleanSupplier;
+import todoc.cochlear.remoteapp.common.BooleanCondition;
 
 import todoc.cochlear.remoteapp.activity.MainActivity;
 import todoc.cochlear.remoteapp.database.devices.EntityDevice;
@@ -16,10 +16,10 @@ import todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder;
 final class DeviceRegistrationActions
 {
     private final MainActivity activity;
-    private final BooleanSupplier attached;
+    private final BooleanCondition attached;
     private AlertDialog deleteDialog;
 
-    DeviceRegistrationActions(MainActivity activity, BooleanSupplier attached)
+    DeviceRegistrationActions(MainActivity activity, BooleanCondition attached)
     {
         this.activity = activity;
         this.attached = attached;
@@ -35,7 +35,7 @@ final class DeviceRegistrationActions
     }
 
     /**
-     * Existing device serials keep their database identity; form drafts are never passed to the mutating storage API.
+     * Existing device serials keep their database identity; form drafts are never passed to the storage API.
      * A null result confirms that both details and the requested activation were read back successfully.
      */
     String saveDevice(EntityDevice original, EntityDevice updated)
@@ -131,7 +131,11 @@ final class DeviceRegistrationActions
         {
             return false;
         }
-        new GlassAlertDialogBuilder(activity)
+        if (deleteDialog != null)
+        {
+            deleteDialog.dismiss();
+        }
+        deleteDialog = new GlassAlertDialogBuilder(activity)
             .setTitle("연결 중인 외부기")
             .setMessage("외부기의 연결을 먼저 해제한 뒤 삭제하세요.")
             .setPositiveButton("확인", null).show();

@@ -413,6 +413,14 @@ public class MainActivity extends AppCompatActivity
          * 이유는 폰이냐 태블릿이냐를 실행할 때 봐야 하기 때문이다. 매니페스트에 configChanges 를
          * 선언해 두어 방향을 걸어도 액티비티가 재생성되지 않는다. */
         super.onCreate(null);
+        getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true)
+        {
+            @Override
+            public void handleOnBackPressed()
+            {
+                handleBackNavigation();
+            }
+        });
 
         applyScreenOrientation();
 
@@ -854,6 +862,15 @@ public class MainActivity extends AppCompatActivity
             {
                 return;
             }
+            if (android.os.Build.VERSION.SDK_INT >= 31 && androidx.core.app.ActivityCompat.checkSelfPermission(
+                MainActivity.this, android.Manifest.permission.BLUETOOTH_CONNECT) != android.content.pm.PackageManager.PERMISSION_GRANTED)
+            {
+                session.closeEngine(true);
+                publishConnections();
+                return;
+            }
+            try
+            {
             int state = device.getBondState();
             if (state == BluetoothDevice.BOND_BONDING)
             {
@@ -871,7 +888,7 @@ public class MainActivity extends AppCompatActivity
                     session.mDiscoverServicesHandler.postDelayed(session.mDiscoverServicesRunner, DISCOVER_SERVICES_TIMEOUT_IN_MS);
                     if (!session.mBluetoothGatt.discoverServices())
                     {
-                        session.mBluetoothGatt.disconnect();
+                        session.requestGattDisconnect(session.mBluetoothGatt);
                     }
                 }
             }
@@ -885,14 +902,20 @@ public class MainActivity extends AppCompatActivity
                 session.closeEngine(true);
                 publishConnections();
             }
+            }
+            catch (SecurityException error)
+            {
+                session.closeEngine(true);
+                publishConnections();
+                Log.w(TAG, "BLE 페어링 처리 중 권한이 해제됐습니다.");
+            }
         }
     };
 
     //
     // 백버튼 콜백 리스너
     //
-    @Override
-    public void onBackPressed()
+    private void handleBackNavigation()
     {
 
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame);
@@ -1135,7 +1158,7 @@ public class MainActivity extends AppCompatActivity
     //
     // 툴바 네비게이션 클릭 리스너
     //
-    View.OnClickListener mToolBarNavigationClickListener = view -> onBackPressed();
+    View.OnClickListener mToolBarNavigationClickListener = view -> handleBackNavigation();
 
     //
     // 툴바 메뉴 버튼 클릭 리스너
@@ -1966,6 +1989,54 @@ public class MainActivity extends AppCompatActivity
     /**
      * 등록된 활성 사용자·외부기의 새 광고를 최대 20초 검색하고 주소별 한 번 연결한다.
      */
+    private static String bluetoothDeviceName(BluetoothDevice device)
+    {
+        try
+        {
+            return device.getName();
+        }
+        catch (SecurityException error)
+        {
+            return null;
+        }
+    }
+
+    private static boolean writeGattCharacteristic(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)
+    {
+        try
+        {
+            return gatt != null && gatt.writeCharacteristic(characteristic);
+        }
+        catch (SecurityException error)
+        {
+            return false;
+        }
+    }
+
+    private static boolean enableGattNotification(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)
+    {
+        try
+        {
+            return gatt != null && gatt.setCharacteristicNotification(characteristic, true);
+        }
+        catch (SecurityException error)
+        {
+            return false;
+        }
+    }
+
+    private static boolean writeGattDescriptor(BluetoothGatt gatt, BluetoothGattDescriptor descriptor)
+    {
+        try
+        {
+            return gatt != null && gatt.writeDescriptor(descriptor);
+        }
+        catch (SecurityException error)
+        {
+            return false;
+        }
+    }
+
     public void startRegisteredDeviceScan()
     {
         mHiddenRailSessions.clear();
@@ -2115,7 +2186,7 @@ public class MainActivity extends AppCompatActivity
         String name = result.getScanRecord().getDeviceName();
         if (name == null)
         {
-            name = result.getDevice().getName();
+            name = bluetoothDeviceName(result.getDevice());
         }
         if (name == null || !name.matches(BT_NAME_REGEX_FILTER))
         {
@@ -2647,7 +2718,20 @@ public class MainActivity extends AppCompatActivity
         void dispatchGattCallback(Runnable action)
         {
             SessionCallbackDispatcher.dispatch(Looper.myLooper() == mMainHandler.getLooper(),
-                callback -> mMainHandler.post(callback), mSessions.guard(token, action));
+                callback -> mMainHandler.post(callback), mSessions.guard(token, () ->
+                {
+                    try
+                    {
+                        action.run();
+                    }
+                    catch (SecurityException error)
+                    {
+                        failed = true;
+                        closeEngine(false);
+                        publishConnections();
+                        Log.w(logTag(), "BLE 콜백 처리 중 권한이 해제됐습니다.");
+                    }
+                }));
         }
 
         void onGattWriteCompletionTimeout()
@@ -2675,13 +2759,26 @@ public class MainActivity extends AppCompatActivity
             publishConnections();
         }
 
+        private void requestGattDisconnect(BluetoothGatt gatt)
+        {
+            try
+            {
+                gatt.disconnect();
+            }
+            catch (SecurityException error)
+            {
+                closeEngine(false);
+                publishConnections();
+            }
+        }
+
         boolean submitGattWrite(byte[] packet, boolean ota)
         {
             if (mGattWrites.isPoisoned() || mGattWrites.pending() != null || mBluetoothGatt == null || mCharClientToServer == null)
             {
                 return false;
             }
-            if (!mCharClientToServer.setValue(packet) || !mBluetoothGatt.writeCharacteristic(mCharClientToServer))
+            if (!mCharClientToServer.setValue(packet) || !writeGattCharacteristic(mBluetoothGatt, mCharClientToServer))
             {
                 return false;
             }
@@ -2967,15 +3064,31 @@ public class MainActivity extends AppCompatActivity
             }
             mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTED;
             mStatusViewModel.setConnectionState(StatusViewModel.CONNECTION_STATE_DISCONNECTED);
+            mStatusViewModel.setValueGatingOffset(PacketInfo.LINK_VALUE_UNKNOWN);
+            mStatusViewModel.setValueGatingState(PacketInfo.LINK_VALUE_UNKNOWN);
             BluetoothGatt closing = mBluetoothGatt;
             mBluetoothGatt = null;
             if (closing != null)
             {
                 if (disconnect)
                 {
-                    closing.disconnect();
+                    try
+                    {
+                        closing.disconnect();
+                    }
+                    catch (SecurityException error)
+                    {
+                        Log.w(logTag(), "BLE 해제 권한이 없습니다.");
+                    }
                 }
-                closing.close();
+                try
+                {
+                    closing.close();
+                }
+                catch (SecurityException error)
+                {
+                    Log.w(logTag(), "BLE 자원 정리 권한이 없습니다.");
+                }
             }
             if (isSelected())
             {
@@ -5101,7 +5214,7 @@ public class MainActivity extends AppCompatActivity
 
             if (mBluetoothGatt != null)
             {
-                mBluetoothGatt.disconnect();
+                requestGattDisconnect(mBluetoothGatt);
             }
         };
 
@@ -5115,7 +5228,7 @@ public class MainActivity extends AppCompatActivity
 
             if (mBluetoothGatt != null)
             {
-                mBluetoothGatt.disconnect();
+                requestGattDisconnect(mBluetoothGatt);
             }
         };
 
@@ -5129,7 +5242,7 @@ public class MainActivity extends AppCompatActivity
 
             if (mBluetoothGatt != null)
             {
-                mBluetoothGatt.disconnect();
+                requestGattDisconnect(mBluetoothGatt);
             }
         };
 
@@ -5143,7 +5256,7 @@ public class MainActivity extends AppCompatActivity
 
             if (mBluetoothGatt != null)
             {
-                mBluetoothGatt.disconnect();
+                requestGattDisconnect(mBluetoothGatt);
             }
         };
 
@@ -5157,7 +5270,7 @@ public class MainActivity extends AppCompatActivity
 
             if (mBluetoothGatt != null)
             {
-                mBluetoothGatt.disconnect();
+                requestGattDisconnect(mBluetoothGatt);
             }
         };
 
@@ -5175,7 +5288,7 @@ public class MainActivity extends AppCompatActivity
                     {
                         return;
                     }
-                    String name = gatt.getDevice().getName();
+                    String name = bluetoothDeviceName(gatt.getDevice());
                     String address = gatt.getDevice().getAddress();
 
                     if (status != BluetoothGatt.GATT_SUCCESS)
@@ -5221,7 +5334,7 @@ public class MainActivity extends AppCompatActivity
 
                                 // 서비스 검색 시도가 실패했으므로, 서비스 검색 시간초과 핸들러도 제거한다.
                                 mDiscoverServicesHandler.removeCallbacks(mDiscoverServicesRunner);
-                                gatt.disconnect(); // 연결 해제
+                                requestGattDisconnect(gatt); // 연결 해제
                             }
                         }
                         else
@@ -5241,7 +5354,7 @@ public class MainActivity extends AppCompatActivity
                         }
                         Log.d(logTag(), "BLE 연결해제 이벤트 발생 -> NAME = " + name + ", ADDRESS = " + address);
 
-                        writeSessionLog("연결 종료 : 장치이름=" + gatt.getDevice().getName());
+                        writeSessionLog("연결 종료 : 장치이름=" + bluetoothDeviceName(gatt.getDevice()));
 
                         mPacketResponseTimeoutHandler.removeCallbacks(mPacketResponseTimeoutRunner);
                         mPacketSendHandler.removeCallbacks(mPacketSendRunner);
@@ -5344,7 +5457,7 @@ public class MainActivity extends AppCompatActivity
                     {
                         return;
                     }
-                    String name = gatt.getDevice().getName();
+                    String name = bluetoothDeviceName(gatt.getDevice());
                     String address = gatt.getDevice().getAddress();
 
                     // 서비스 검색이 완료 되었으므로 서비스 검색 시간초과 핸들러를 제거한다.
@@ -5353,7 +5466,7 @@ public class MainActivity extends AppCompatActivity
                     if (status != BluetoothGatt.GATT_SUCCESS)
                     {
                         Log.d(logTag(), "GATT Callback Service Discovered : STATE = FAILED, NAME = " + name + ", ADDRESS = " + address);
-                        gatt.disconnect();
+                        requestGattDisconnect(gatt);
                         return;
                     }
 
@@ -5376,7 +5489,7 @@ public class MainActivity extends AppCompatActivity
                     if (mBluetoothGattService == null)
                     {
                         Log.d(logTag(), "GATT Callback Service Discovered : Failed to get TODOC service.");
-                        gatt.disconnect();
+                        requestGattDisconnect(gatt);
                         return;
                     }
 
@@ -5387,15 +5500,16 @@ public class MainActivity extends AppCompatActivity
                     if (mCharClientToServer == null || mCharServerToClient == null)
                     {
                         Log.d(logTag(), "GATT Callback Service Discovered : Failed to get TODOC characteristics.");
-                        gatt.disconnect();
+                        requestGattDisconnect(gatt);
                         return;
                     }
 
                     // Enable indication receiver for characteristic {server to client} on App.
-                    if (!mBluetoothGatt.setCharacteristicNotification(mCharServerToClient, true))
+                    if (!enableGattNotification(mBluetoothGatt, mCharServerToClient))
                     {
                         Log.d(logTag(), "GATT Callback Service Discovered : Setting characteristic indication {server to client} is failed.");
-                        gatt.disconnect();
+                        requestGattDisconnect(gatt);
+                        return;
                     }
 
                     Log.d(logTag(), "GATT Callback Service Discovered : Characteristic indication {server to client} is enabled.");
@@ -5406,7 +5520,7 @@ public class MainActivity extends AppCompatActivity
                     if (descriptor == null)
                     {
                         Log.d(logTag(), "GATT Callback Service Discovered : Failed to get descriptor.");
-                        gatt.disconnect();
+                        requestGattDisconnect(gatt);
                         return;
                     }
 
@@ -5418,13 +5532,13 @@ public class MainActivity extends AppCompatActivity
 
                     mCCCDHandler.postDelayed(mCCCDRunner, CCCD_TIMEOUT_IN_MS);
 
-                    if (!mBluetoothGatt.writeDescriptor(descriptor))
+                    if (!writeGattDescriptor(mBluetoothGatt, descriptor))
                     {
                         // CCCD 쓰기에 실패했으므로, 곧 바로 CCCD 시간초과 핸들러 제거한다.
                         mCCCDHandler.removeCallbacks(mCCCDRunner);
 
                         Log.d(logTag(), "GATT Callback Service Discovered : Failed to write descriptor.");
-                        gatt.disconnect();
+                        requestGattDisconnect(gatt);
                     }
                 });
             }
@@ -5456,7 +5570,7 @@ public class MainActivity extends AppCompatActivity
                     else
                     {
                         Log.d(logTag(), "onDescriptorWrite : Failed to write descriptor.");
-                        gatt.disconnect();
+                        requestGattDisconnect(gatt);
                     }
                 });
             }
@@ -5750,7 +5864,7 @@ public class MainActivity extends AppCompatActivity
                                 mStatus.connectionState = Status.CONNECTION_STATE_DISCONNECTING;
                                 if (gatt != null)
                                 {
-                                    gatt.disconnect();    // 연결 종료
+                                    requestGattDisconnect(gatt);    // 연결 종료
                                 }
 
                                 // 이미 생성된 다이얼로그가 있다면, 그 다이얼로그를 종료하고 사용자 보안코드 재설정 다이얼로그를 생성해야 한다.
@@ -5972,7 +6086,7 @@ public class MainActivity extends AppCompatActivity
                         {
                             if (gatt != null)
                             {
-                                writeSessionLog("연결 성공 : 장치이름=" + gatt.getDevice().getName());
+                                writeSessionLog("연결 성공 : 장치이름=" + bluetoothDeviceName(gatt.getDevice()));
                             }
                             else
                             {
@@ -6500,7 +6614,7 @@ public class MainActivity extends AppCompatActivity
                 writeSessionLog("통신 오류: 이 장치의 연결만 종료합니다.");
                 if (mBluetoothGatt != null)
                 {
-                    mBluetoothGatt.disconnect();
+                    requestGattDisconnect(mBluetoothGatt);
                 }
                 return;
             }
@@ -6517,7 +6631,7 @@ public class MainActivity extends AppCompatActivity
             {
                 if (mStatus.connectionState == Status.CONNECTION_STATE_CONNECTING || mStatus.connectionState == Status.CONNECTION_STATE_CONNECTED)
                 {
-                    mBluetoothGatt.disconnect();
+                    requestGattDisconnect(mBluetoothGatt);
                 }
             }
         }
@@ -6607,21 +6721,21 @@ public class MainActivity extends AppCompatActivity
             if (mStatus.resendingCount <= 0)
             {
                 Log.e(logTag(), "[BLE] 패킷 전송 재전송 횟수 초과.");
-                mBluetoothGatt.disconnect();
+                requestGattDisconnect(mBluetoothGatt);
                 return;
             }
 
             if (mGattWrites.pending() != null)
             {
                 Log.w(logTag(), "[BLE] Android 쓰기 완료 전이므로 재전송하지 않습니다.");
-                mBluetoothGatt.disconnect();
+                requestGattDisconnect(mBluetoothGatt);
                 return;
             }
             mStatus.resendingCount--;
             if (!submitGattWrite(mStatus.sendingPacket, false))
             {
                 Log.e(logTag(), "[BLE] 패킷 재전송 실패.");
-                mBluetoothGatt.disconnect();
+                requestGattDisconnect(mBluetoothGatt);
                 return;
             }
             if (!mGattWrites.pending().shouldDeferDeviceAckTimeout())
