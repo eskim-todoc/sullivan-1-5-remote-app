@@ -10,6 +10,12 @@ import todoc.cochlear.remoteapp.params.PacketInfo;
  */
 public final class OtaCoordinator
 {
+    /** API 23에서도 사용할 수 있는 단조 증가 밀리초 시계. */
+    interface Clock
+    {
+        long now();
+    }
+
     public interface Transport
     {
         boolean ready();
@@ -33,11 +39,11 @@ public final class OtaCoordinator
     private long totalBytes, acknowledgedBytes;
     private int targetSlot;
     private final OtaTransferRate transferRate = new OtaTransferRate();
-    private final java.util.function.LongSupplier clock;
+    private final Clock clock;
 
     public long bytesPerSecond()
     {
-        return transferRate.bytesPerSecond(clock.getAsLong());
+        return transferRate.bytesPerSecond(clock.now());
     }
 
     public long averageBytesPerSecond()
@@ -50,7 +56,7 @@ public final class OtaCoordinator
         this(ota, transport, () -> System.nanoTime() / 1_000_000L);
     }
 
-    OtaCoordinator(Ota ota, Transport transport, java.util.function.LongSupplier clock)
+    OtaCoordinator(Ota ota, Transport transport, Clock clock)
     {
         this.ota = ota;
         this.transport = transport;
@@ -208,7 +214,7 @@ public final class OtaCoordinator
             file.writeSize = 0;
             file.writePercent = 0;
         }
-        transferRate.start(clock.getAsLong());
+        transferRate.start(clock.now());
         state = OtaProgress.State.WRITING;
         message = "업데이트 전송 중";
         transport.log("OTA 전송 시작: 슬롯 " + targetSlot + ", 4개 파일, " + totalBytes + " bytes");
@@ -384,7 +390,7 @@ public final class OtaCoordinator
         }
         acknowledgedFileBytes += pendingBytes;
         acknowledgedBytes += pendingBytes;
-        transferRate.acknowledge(pendingBytes, clock.getAsLong());
+        transferRate.acknowledge(pendingBytes, clock.now());
         pendingBytes = 0;
         Ota.OtaFile file = ota.getFile(Ota.SLOT_NUM_COLLECT, FILE_ORDER[fileIndex]);
         file.writeSize = acknowledgedFileBytes;
@@ -394,7 +400,7 @@ public final class OtaCoordinator
             transport.log("OTA 파일 ACK 완료: " + Ota.getFileName(FILE_ORDER[fileIndex]));
             if (++fileIndex == FILE_ORDER.length)
             {
-                transferRate.finish(clock.getAsLong());
+                transferRate.finish(clock.now());
                 state = OtaProgress.State.COMPLETE;
                 ota.commState = Ota.COMM_STATE_IDLE;
                 message = "4개 파일 업데이트 전송 완료";
@@ -419,7 +425,7 @@ public final class OtaCoordinator
         {
             return;
         }
-        transferRate.finish(clock.getAsLong());
+        transferRate.finish(clock.now());
         state = OtaProgress.State.FAILED;
         message = reason;
         ota.commState = Ota.COMM_STATE_IDLE;

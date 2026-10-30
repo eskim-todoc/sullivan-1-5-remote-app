@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    compileSdk 35
+    compileSdk 34
 
     defaultConfig {
         applicationId "kr.co.todoc.cochlear.implant.ota"
@@ -36,7 +36,6 @@ android {
             useLegacyPackaging false
         }
     }
-    compileSdk 34
 }
 
 dependencies {
@@ -69,7 +68,7 @@ dependencies {
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     // LiveData
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
 
 //    implementation 'com.github.mmin18:realtimeblurview:1.2.1'
     implementation 'com.skyfishjy.ripplebackground:library:1.0.1'

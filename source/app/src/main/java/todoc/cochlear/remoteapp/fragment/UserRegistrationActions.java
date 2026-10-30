@@ -7,7 +7,7 @@ import androidx.appcompat.app.AlertDialog;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BooleanSupplier;
+import todoc.cochlear.remoteapp.common.BooleanCondition;
 
 import todoc.cochlear.remoteapp.activity.MainActivity;
 import todoc.cochlear.remoteapp.database.logs.UtilLog;
@@ -20,10 +20,10 @@ import todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder;
 final class UserRegistrationActions
 {
     private final MainActivity activity;
-    private final BooleanSupplier attached;
+    private final BooleanCondition attached;
     private AlertDialog warningDialog;
 
-    UserRegistrationActions(MainActivity activity, BooleanSupplier attached)
+    UserRegistrationActions(MainActivity activity, BooleanCondition attached)
     {
         this.activity = activity;
         this.attached = attached;

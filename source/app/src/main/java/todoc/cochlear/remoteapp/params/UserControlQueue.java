@@ -75,9 +75,18 @@ public final class UserControlQueue
             case 0x49:
                 return packet.length == 2;
             case 0x59:
-                // Domain writes only. Reads, identity writes, FF ownership and destructive
-                // map commands are managed elsewhere and must never be silently queued.
-                return packet.length == 5 && packet[2] == 1 && (packet[1] & 255) == 0x20;
+                if (packet.length != 5)
+                {
+                    return false;
+                }
+                // 게이팅은 도메인 구조가 아닌 구형 쓰기 형식이다. 주기 조회 뒤에 보낸다.
+                if ((packet[1] & 255) == PacketInfo.RC_OPT_MUTE_WRITE)
+                {
+                    return packet[2] == PacketInfo.MUTE_SUB_OPT_NORMAL_MODE
+                        && (packet[3] == PacketInfo.MUTE_ENABLE || packet[3] == PacketInfo.MUTE_DISABLE);
+                }
+                // 읽기·관리·맵 명령을 일반 제어 큐에 넣지 않는다. FF 독점은 호출자가 검사한다.
+                return packet[2] == 1 && (packet[1] & 255) == 0x20;
             default:
                 return false;
         }

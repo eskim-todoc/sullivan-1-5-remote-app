@@ -171,7 +171,7 @@ final class ManagementUi
         button.setTextColor(Color.rgb(225, 235, 236));
         button.setTypeface(ResourcesCompat.getFont(context, R.font.app_sans));
         button.setBackgroundResource(R.drawable.app_glass_action);
-        button.setSupportBackgroundTintList(null);
+        androidx.core.view.ViewCompat.setBackgroundTintList(button, null);
         button.setMinHeight(dp(context, 44));
         button.setMinimumHeight(dp(context, 44));
         button.setMinWidth(0);

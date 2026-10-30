@@ -104,7 +104,7 @@ public final class DeviceRail
                 }
             }
         }
-        visible.sort((first, second) -> Integer.compare(
+        java.util.Collections.sort(visible, (first, second) -> Integer.compare(
             addressOrder.get(addressKey(first)), addressOrder.get(addressKey(second))));
         for (ConnectionInfo info : visible)
         {

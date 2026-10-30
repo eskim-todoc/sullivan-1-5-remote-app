@@ -16,7 +16,6 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import todoc.cochlear.remoteapp.activity.MainActivity;
@@ -110,8 +109,12 @@ public final class ConnectionManagerDialog
     private void render(List<ConnectionInfo> value)
     {
         List<ConnectionInfo> devices = value == null ? new ArrayList<>() : new ArrayList<>(value);
-        devices.sort(Comparator.comparingInt(ConnectionManagerDialog::priority)
-            .thenComparing(info -> info.address == null ? "" : info.address));
+        java.util.Collections.sort(devices, (first, second) ->
+        {
+            int order = Integer.compare(priority(first), priority(second));
+            return order != 0 ? order : (first.address == null ? "" : first.address)
+                .compareTo(second.address == null ? "" : second.address);
+        });
         StringBuilder signature = new StringBuilder();
         for (ConnectionInfo info : devices)
         {
@@ -276,7 +279,7 @@ public final class ConnectionManagerDialog
         button.setTypeface(ResourcesCompat.getFont(activity, R.font.app_sans));
         button.setTextColor(0xffe1ebec);
         button.setBackgroundResource(R.drawable.app_glass_action);
-        button.setSupportBackgroundTintList(null);
+        androidx.core.view.ViewCompat.setBackgroundTintList(button, null);
         button.setMinWidth(0);
         button.setMinimumWidth(0);
         button.setMinHeight(0);
