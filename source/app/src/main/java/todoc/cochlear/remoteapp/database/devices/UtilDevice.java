@@ -130,13 +130,14 @@ public class UtilDevice
             try
             {
                 // 정보 편집은 사용 여부를 바꾸지 않는다. 활성 변경은 setActive만 담당한다.
+                EntityDevice replacement = copy(device);
                 EntityDevice stored = mDatabase.daoDevice().getDeviceBySerialNumber(device.serialNumber);
                 if (stored != null)
                 {
-                    device.isActive = stored.isActive;
+                    replacement.isActive = stored.isActive;
                 }
-                device.pairingKey = UtilDevice.encByKey(device_key, device.pairingKey);
-                mDatabase.daoDevice().update(device);
+                replacement.pairingKey = UtilDevice.encByKey(device_key, replacement.pairingKey);
+                mDatabase.daoDevice().update(replacement);
             }
             catch (Exception e)
             {
@@ -170,7 +171,6 @@ public class UtilDevice
         {
             try
             {
-                device.pairingKey = UtilDevice.encByKey(device_key, device.pairingKey);
                 mDatabase.daoDevice().delete(device);
             }
             catch (Exception e)
@@ -188,8 +188,9 @@ public class UtilDevice
         {
             try
             {
-                device.pairingKey = UtilDevice.encByKey(device_key, device.pairingKey);
-                mDatabase.daoDevice().insert(device);
+                EntityDevice stored = copy(device);
+                stored.pairingKey = UtilDevice.encByKey(device_key, stored.pairingKey);
+                mDatabase.daoDevice().insert(stored);
             }
             catch (Exception e)
             {
@@ -245,5 +246,15 @@ public class UtilDevice
         }
 
         return null;
+    }
+
+    private static EntityDevice copy(EntityDevice source)
+    {
+        EntityDevice copy = new EntityDevice();
+        copy.serialNumber = source.serialNumber;
+        copy.pairingKey = source.pairingKey;
+        copy.additionalInformation = source.additionalInformation;
+        copy.isActive = source.isActive;
+        return copy;
     }
 }

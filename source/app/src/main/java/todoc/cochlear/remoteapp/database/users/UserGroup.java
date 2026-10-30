@@ -85,7 +85,13 @@ public final class UserGroup
                 if (user != null)
                 {
                     String initials = initialsOf(user);
-                    grouped.computeIfAbsent(initials, key -> new ArrayList<>()).add(user);
+                    List<EntityUser> members = grouped.get(initials);
+                    if (members == null)
+                    {
+                        members = new ArrayList<>();
+                        grouped.put(initials, members);
+                    }
+                    members.add(user);
                 }
             }
         }

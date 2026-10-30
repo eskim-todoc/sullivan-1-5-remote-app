@@ -140,37 +140,53 @@ public class UtilLog
     // 데이터베이스에 로그 추가
     public void writeLog(String message)
     {
-        if (mDatabase != null)
+        DatabaseLog database = mDatabase;
+        if (database == null)
         {
-            EntityLog entityIndex = mDatabase.daoLog().getIndex();
-
+            return;
+        }
+        // 로그와 다음 위치를 함께 저장하여 중단 후 같은 위치를 덮어쓰지 않게 한다.
+        database.runInTransaction(() ->
+        {
+            DaoLog dao = database.daoLog();
+            EntityLog entityIndex = dao.getIndex();
             if (entityIndex == null)
             {
-                initQueueIndex();
-                entityIndex = mDatabase.daoLog().getIndex();
+                entityIndex = new EntityLog();
+                entityIndex.number = LOG_INDEX_POINTER;
+                entityIndex.date = getDate();
             }
-
-            int number = Integer.parseInt(entityIndex.message);
-
+            int number = validQueueIndex(entityIndex.message);
             EntityLog entityNew = new EntityLog();
             entityNew.number = number;
             entityNew.date = getDate();
             entityNew.message = message;
+            entityIndex.message = String.valueOf(number == LOG_INDEX_LAST ? LOG_INDEX_FIRST : number + 1);
 
-            number++;
+            dao.insert(entityNew);
+            dao.insert(entityIndex);
+        });
+        Log.d(TAG, "[로그] 로그 입력 : " + message);
+    }
 
-            if (LOG_INDEX_LAST < number)
+    private static int validQueueIndex(String saved)
+    {
+        if (saved != null)
+        {
+            try
             {
-                number = LOG_INDEX_FIRST;
+                int number = Integer.parseInt(saved);
+                if (number >= LOG_INDEX_FIRST && number <= LOG_INDEX_LAST)
+                {
+                    return number;
+                }
             }
-
-            entityIndex.message = String.valueOf(number);
-
-            mDatabase.daoLog().insert(entityNew); // 새 메시지 삽입
-            mDatabase.daoLog().insert(entityIndex); // 인덱스 업데이트 (OnConflictStrategy.REPLACE 라서 업데이트 대신 추가를 사용)
-
-            Log.d(TAG, "[로그] 로그 입력 : " + message);
+            catch (NumberFormatException invalid)
+            {
+                // 숫자가 아니거나 정수 범위를 넘으면 아래의 첫 위치로 복구한다.
+            }
         }
+        return LOG_INDEX_FIRST;
     }
 
     // 데이터베이스에 저장된 모든 로그 읽기

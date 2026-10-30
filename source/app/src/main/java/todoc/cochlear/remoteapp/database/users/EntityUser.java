@@ -40,7 +40,7 @@ public class EntityUser
     {
         return "EntityUser{" +
             "name='" + name + '\'' +
-            ", passKey='" + passKey + '\'' +
+            ", passKey='[인증 정보 숨김]'" +
             ", nickname='" + nickname + '\'' +
             ", ear='" + ear + '\'' +
             ", defaultUser='" + defaultUser + '\'' +

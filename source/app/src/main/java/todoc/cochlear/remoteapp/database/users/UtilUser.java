@@ -136,8 +136,9 @@ public class UtilUser
         {
             try
             {
-                user.passKey = UtilUser.encByKey(user_key, user.passKey);
-                mDatabase.daoUser().update(user);
+                EntityUser stored = UserGroup.copy(user);
+                stored.passKey = UtilUser.encByKey(user_key, stored.passKey);
+                mDatabase.daoUser().update(stored);
             }
             catch (Exception e)
             {
@@ -153,7 +154,6 @@ public class UtilUser
         {
             try
             {
-                user.passKey = UtilUser.encByKey(user_key, user.passKey);
                 mDatabase.daoUser().delete(user);
             }
             catch (Exception e)
@@ -170,8 +170,9 @@ public class UtilUser
         {
             try
             {
-                user.passKey = UtilUser.encByKey(user_key, user.passKey);
-                mDatabase.daoUser().insert(user);
+                EntityUser stored = UserGroup.copy(user);
+                stored.passKey = UtilUser.encByKey(user_key, stored.passKey);
+                mDatabase.daoUser().insert(stored);
             }
             catch (Exception e)
             {
