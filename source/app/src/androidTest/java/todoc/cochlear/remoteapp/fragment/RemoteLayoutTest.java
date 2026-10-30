@@ -4,10 +4,13 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -30,7 +33,7 @@ import static org.junit.Assert.*;
 public class RemoteLayoutTest
 {
     @Test
-    public void phoneContentScrollsWithOtaExpanded()
+    public void phoneTabsAndMultiDeviceOtaContentFitAndScroll()
     {
         verify(411, 760, false, 1.0f, "phone");
     }
@@ -42,7 +45,7 @@ public class RemoteLayoutTest
     }
 
     @Test
-    public void tabletColumnsAndExpandedOtaFitLargeFont()
+    public void tabletRetainsApprovedSingleColumnFlowWithLargeFont()
     {
         verify(1100, 650, true, 1.3f, "tablet");
     }
@@ -62,16 +65,32 @@ public class RemoteLayoutTest
                 R.layout.fragment_edit_device};
             for (int layout : layouts)
             {
-                View root = LayoutInflater.from(context).inflate(layout, null, false);
-                measure(root, 360, 740);
-                assertNotNull(root.getBackground());
-                capture(target, root, 360, 740, context.getResources().getResourceEntryName(layout));
+                // include를 감싼 투명 루트도 있으므로 실제 Activity의 frame 안에 붙여 그린다.
+                View host = LayoutInflater.from(context).inflate(R.layout.activity_main, null, false);
+                android.widget.FrameLayout frame = host.findViewById(R.id.frame);
+                com.google.android.material.appbar.MaterialToolbar toolbar = host.findViewById(R.id.toolbar);
+                toolbar.getMenu().clear();
+                toolbar.setTitle("등록 관리");
+                host.findViewById(R.id.toolbar_navigation_message).setVisibility(View.GONE);
+                View root = LayoutInflater.from(context).inflate(layout, frame, false);
+                frame.addView(root, new android.widget.FrameLayout.LayoutParams(-1, -1));
+                populateFormValues(root);
+                todoc.cochlear.remoteapp.ui.GlassSurfaces.lift(root);
+                measure(host, 360, 740);
+                assertEquals(frame.getWidth(), root.getWidth());
+                assertEquals(frame.getHeight(), root.getHeight());
+                assertTrue("Activity 앱바 아래에서 화면이 그려져야 합니다", frame.getTop() >= toolbar.getHeight());
+                assertTrue("배경은 투명 include 루트 또는 내부 글래스 표면에서 제공되어야 합니다",
+                    visibleBackgroundCount(root) > 0);
+                assertVisibleChildrenFitWidth(root);
+                assertFormValuesReadable(root);
+                capture(target, host, 360, 740, context.getResources().getResourceEntryName(layout));
             }
         });
     }
 
     @Test
-    public void toolbarBackLabelDoesNotOverlapTitle()
+    public void toolbarTitleCentersWithLegacyBackLabelHidden()
     {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
         {
@@ -85,16 +104,18 @@ public class RemoteLayoutTest
             android.widget.TextView back = root.findViewById(R.id.toolbar_navigation_message);
             toolbar.getMenu().clear();
             toolbar.setTitle("사용자 등록");
-            back.setText("사용자 목록");
+            back.setVisibility(View.GONE);
             measure(root, 360, 740);
-            assertEquals(1, back.getLineCount());
+            assertEquals(View.GONE, back.getVisibility());
             boolean found = false;
             for (int i = 0; i < toolbar.getChildCount(); i++)
             {
                 View v = toolbar.getChildAt(i);
                 if (v instanceof android.widget.TextView && "사용자 등록".contentEquals(((android.widget.TextView) v).getText()))
                 {
-                    assertTrue(v.getLeft() >= back.getRight());
+                    TextView title = (TextView) v;
+                    assertEquals(1, title.getLineCount());
+                    assertTrue(Math.abs(v.getLeft() + v.getRight() - toolbar.getWidth()) <= 2);
                     found = true;
                 }
             }
@@ -117,117 +138,278 @@ public class RemoteLayoutTest
             Context context = new ContextThemeWrapper(target.createConfigurationContext(cfg), R.style.app_theme);
             FragmentRemoteControlBinding b = FragmentRemoteControlBinding.inflate(LayoutInflater.from(context));
             RemoteControlFragment.configureColumns(b, tablet, context.getResources().getDisplayMetrics().density);
-            RemoteControlFragment.showControlTab(b, 0);
             b.remoteControlConnectionLayout.setVisibility(View.GONE);
-            b.remoteControlConnectionUserNameTextview.setText("화면 검증용 사용자");
+            b.remoteControlConnectionUserNameTextview.setText("PEK");
+            b.identitySideTextview.setText("L");
+            b.identityExternalTextview.setText("FFFF");
             b.remoteControlConnectionIsdIdTextview.setText("#1A31FFFF");
-            b.otaFwReleaseTextview.setText("REL4.6");
+            b.otaFwReleaseTextview.setText("R4.6");
             b.batteryPercentTextview.setText("80%");
             b.batteryVoltageTextview.setText("3.800 V");
             b.batteryCurrentTextview.setText("+30.0 mA");
             b.batteryPowerTextview.setText("+114.0 mW");
-            b.batteryDetailTextview.setVisibility(View.GONE);
             b.otaProgramTextview.setText("Prog 1");
             b.otaVolumeTextview.setText("Vol 1");
             b.otaMaxOutputTextview.setText("Out 4");
-            b.otaFfStatusTextview.setVisibility(View.VISIBLE);
-            b.otaFfStatusTextview.setText("FF3 On · Zones 6 · Limit 11 · CFX OK");
             b.otaStrategyTextview.setText("Strategy CIS");
             b.otaPulseWidthTextview.setText("PW 25us");
             b.otaFrameNumTextview.setText("Frm 2");
             b.otaBacktelTextview.setText("BT 300ms");
             b.otaForcePmicTextview.setText("Fix Off");
             b.otaStepUpTextview.setText("Step 4");
-            b.otaCurPmicTextview.setText("Cur 3.0V");
-            b.otaPmicTextview.setText("PMIC 2.8V");
-            b.otaMappingPmicTextview.setText("Map 4.3V");
-            b.otaMaxPmicTextview.setText("Max 5.3V");
+            b.otaCurPmicTextview.setText("Cur 3.000 V");
+            b.otaPmicTextview.setText("PMIC 2.800 V");
+            b.otaMappingPmicTextview.setText("Map 4.300 V");
+            b.otaMaxPmicTextview.setText("Max 5.300 V");
             b.otaFfControls.setVisibility(View.VISIBLE);
+            b.ffUnavailableText.setVisibility(View.GONE);
             b.otaFf3SettingsButton.setVisibility(View.VISIBLE);
             b.otaFf3DiagnosticsButton.setVisibility(View.VISIBLE);
             assertEquals("25 ㎲", b.otaPulseWidthTextview.getText().toString());
             assertEquals("300 ms", b.otaBacktelTextview.getText().toString());
-            assertEquals("1", b.controlProgramValue.getText().toString());
-            assertEquals("4", b.controlOutputValue.getText().toString());
+            assertEquals("+30.0 ㎃", b.batteryCurrentTextview.getText().toString());
+            assertEquals("+114.0 ㎽", b.batteryPowerTextview.getText().toString());
+            assertEquals("3800㎷", RemoteControlFragment.displayStatusValue("3800mV"));
+            assertTrue(b.batteryCurrentTextview.getPaint().hasGlyph("㎃"));
+            assertTrue(b.batteryPowerTextview.getPaint().hasGlyph("㎽"));
             View root = b.getRoot();
-            measure(root, width, height);
-            assertEquals(View.GONE, b.otaExpandableContent.getVisibility());
+            assertMissingView(context, root, "battery_detail_textview");
+            assertMissingView(context, root, "ota_mapping_notice");
+            assertMissingView(context, root, "ota_prepare_hint");
+            assertEquals(View.GONE, b.controlProgramValue.getVisibility());
+            assertEquals(View.GONE, b.controlVolumeValue.getVisibility());
+            assertEquals(View.GONE, b.controlOutputValue.getVisibility());
+            assertEquals(View.GONE, b.otaGatingOffsetTextview.getVisibility());
+            assertEquals(LinearLayout.VERTICAL, b.remotePrimaryLayout.getOrientation());
+            assertEquals(b.remoteContentScroll, b.remotePrimaryLayout.getParent());
+            assertEquals(b.remotePrimaryLayout, b.remoteStatusColumn.getParent());
+            assertEquals(b.remotePrimaryLayout, b.remoteControlsColumn.getParent());
             assertEquals(1, b.remoteContentScroll.getChildCount());
-            assertEquals(0, b.otaLedButton.getLeft());
-            assertEquals(((View) b.otaAlarmButton.getParent()).getWidth(), b.otaAlarmButton.getRight());
             assertEquals(root, b.remoteControlConnectionLayout.getParent());
-            assertEquals(tablet ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL, b.remotePrimaryLayout.getOrientation());
-            if (tablet)
+            String[] tabs = {"기본 제어", "특수 제어", "FF", "세부 기능", "OTA"};
+            assertEquals(tabs.length, b.controlTabs.getTabCount());
+            for (int i = 0; i < tabs.length; i++)
             {
-                assertTrue(b.remoteControlsColumn.getLeft() > b.remoteStatusColumn.getRight());
-                assertEquals(b.remoteStatusColumn.getTop(), b.remoteControlsColumn.getTop());
+                assertEquals(tabs[i], b.controlTabs.getTabAt(i).getText().toString());
             }
-            assertEquals(0, b.remoteContentScroll.getScrollY());
-            assertTrue(b.otaIdBox.getTop() >= 0);
-            assertTrue(b.remoteControlConnectionUserNameTextview.getTop() >= b.otaIdBox.getPaddingTop());
-            assertTrue(b.remoteControlConnectionUserNameTextview.getLayout().getEllipsisCount(0) == 0);
-            assertTrue(b.batteryPowerTextview.getWidth() > 0);
-            assertTrue(b.batteryPowerTextview.getLayout().getEllipsisCount(0) == 0);
-            capture(target, root, width, height, name + "-collapsed");
-            RemoteControlFragment.showControlTab(b, 1);
-            assertEquals(View.GONE, b.otaRemoteBox.getVisibility());
-            assertEquals(View.VISIBLE, b.otaEtcBox.getVisibility());
+
+            RemoteControlFragment.showControlTab(b, 0);
             measure(root, width, height);
-            capture(target, root, width, height, name + "-settings");
-            assertEquals(View.VISIBLE, b.otaStatusInfoBox.getVisibility());
-            assertEquals(View.VISIBLE, b.batteryTelemetryBox.getVisibility());
-            int[] batteryPosition = new int[2];
-            b.batteryTelemetryBox.getLocationOnScreen(batteryPosition);
-            assertTrue("제어 영역은 최소 120dp 높이를 확보해야 합니다", b.remoteContentScroll.getHeight() >= 120);
-            assertEquals(tablet ? 4 : 3, b.specialControlGrid.getColumnCount());
-            assertEquals(12, b.specialControlGrid.getChildCount());
-            assertEquals(4, b.controlTabs.getTabCount());
+            assertStatusVisible(b);
+            assertEquals(View.VISIBLE, b.otaRemoteBox.getVisibility());
+            assertEquals(View.GONE, b.otaEtcBox.getVisibility());
+            assertEquals(View.GONE, b.otaExpandableContent.getVisibility());
             assertEquals(0, b.controlTabs.getLeft());
             assertEquals(width, b.controlTabs.getRight());
             assertEquals(height, b.controlTabs.getBottom());
-            int[] tabPosition = new int[2];
-            b.controlTabs.getLocationOnScreen(tabPosition);
-            assertTrue("Tabs remain below the primary layout", b.controlTabs.getTop() >= b.remoteContentScroll.getBottom());
-            android.view.ViewGroup tabStrip = (android.view.ViewGroup) b.controlTabs.getChildAt(0);
-            assertTrue("Tab widths: " + tabStrip.getChildAt(0).getWidth() + "/" + tabStrip.getChildAt(3).getWidth(), Math.abs(tabStrip.getChildAt(0).getWidth() - tabStrip.getChildAt(3).getWidth()) <= 1);
-            assertEquals(LinearLayout.VERTICAL, b.statusExpandableContent.getOrientation());
-            assertEquals(2, b.statusExpandableContent.getChildCount());
+            assertTrue(b.controlTabs.getTop() >= b.remoteContentScroll.getBottom());
+            ViewGroup tabStrip = (ViewGroup) b.controlTabs.getChildAt(0);
+            for (int i = 1; i < tabStrip.getChildCount(); i++)
+            {
+                assertTrue(Math.abs(tabStrip.getChildAt(0).getWidth() - tabStrip.getChildAt(i).getWidth()) <= 1);
+            }
+            Rect battery = bounds(root, b.batteryTelemetryBox);
+            View pmic = (View) b.otaCurPmicTextview.getParent().getParent();
+            Rect pmicBounds = bounds(root, pmic);
+            Rect status = bounds(root, b.statusExpandableContent);
+            assertEquals(battery.left, pmicBounds.left);
+            assertEquals(battery.right, pmicBounds.right);
+            assertEquals(battery.left, status.left);
+            assertEquals(battery.right, status.right);
+            assertTrue(pmicBounds.top >= battery.bottom);
+            assertTrue(status.top >= pmicBounds.bottom);
+            assertEquals(bounds(root, b.otaProgramDownButton).left, bounds(root, b.otaMaxOutputDownButton).left);
+            assertEquals(bounds(root, b.otaProgramUpButton).right, bounds(root, b.otaMaxOutputUpButton).right);
+            assertEquals(bounds(root, b.otaVolumeDownButton).left, bounds(root, b.otaLedButton).left);
+            assertEquals(bounds(root, b.otaVolumeUpButton).right, bounds(root, b.otaAlarmButton).right);
+            assertEquals(b.otaLedButton.getHeight(), b.otaProgramDownButton.getHeight());
+            assertEquals(b.otaAlarmButton.getHeight(), b.otaVolumeUpButton.getHeight());
+            assertNoClipping(b.batteryPercentTextview, b.batteryVoltageTextview,
+                b.batteryCurrentTextview, b.batteryPowerTextview);
+            capture(target, root, width, height, name + "-basic");
+
+            RemoteControlFragment.showControlTab(b, 1);
             measure(root, width, height);
-            capture(target, root, width, height, name + "-status");
+            assertStatusVisible(b);
+            assertEquals(View.GONE, b.otaRemoteBox.getVisibility());
+            assertEquals(View.VISIBLE, b.otaEtcBox.getVisibility());
+            assertEquals(3, b.specialControlGrid.getColumnCount());
+            assertEquals(11, b.specialControlGrid.getChildCount());
+            capture(target, root, width, height, name + "-special");
+
             RemoteControlFragment.showControlTab(b, 2);
             measure(root, width, height);
+            assertStatusVisible(b);
             assertEquals(View.VISIBLE, b.ffTabBox.getVisibility());
             assertEquals(View.GONE, b.otaEtcBox.getVisibility());
             assertEquals(View.GONE, b.otaExpandableContent.getVisibility());
             assertEquals(b.ffTabBox, b.otaFfControls.getParent());
             capture(target, root, width, height, name + "-ff");
+
+            // 실제 장치 명령 없이 여러 행이 누적될 때의 OTA 스크롤 구조를 검증한다.
+            for (int i = 0; i < 6; i++)
+            {
+                TextView row = new TextView(context);
+                row.setText("시험 장치 " + (i + 1) + " · 42% · 8,240 Bytes/s");
+                row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                b.otaDeviceList.addView(row, new LinearLayout.LayoutParams(-1, 86));
+            }
             RemoteControlFragment.showControlTab(b, 3);
             measure(root, width, height);
-            assertEquals(2, b.slotRadioButtonGroup.getChildCount());
-            assertTrue(b.slotInformationRow.getTop() > b.slotRadioButtonGroup.getBottom());
-            assertEquals(b.slot1RadioButton.getTop(), b.slot2RadioButton.getTop());
-            int maxScroll = Math.max(0, b.remoteContentScroll.getChildAt(0).getHeight() - b.remoteContentScroll.getHeight() + b.remoteContentScroll.getPaddingTop() + b.remoteContentScroll.getPaddingBottom());
-            if (!tablet)
+            assertEquals(4, b.controlTabs.getSelectedTabPosition());
+            assertEquals(View.GONE, b.remoteStatusColumn.getVisibility());
+            assertEquals(View.GONE, b.connectionTargetSelector.getVisibility());
+            assertEquals(View.VISIBLE, b.otaExpandableContent.getVisibility());
+            assertEquals(View.GONE, b.otaSlotBox.getVisibility());
+            assertEquals(View.GONE, b.otaCautionBox.getVisibility());
+            assertEquals(LinearLayout.VERTICAL, b.otaDeviceList.getOrientation());
+            Rect files = bounds(root, b.otaUpdateContent);
+            Rect devices = bounds(root, b.otaDevicesGroup);
+            Rect actions = bounds(root, b.otaRecoveryContent);
+            assertTrue(devices.top >= files.bottom);
+            assertTrue(actions.top >= devices.bottom);
+            assertTrue(bounds(root, b.otaAddDeviceButton).top >= bounds(root, b.otaDeviceList).bottom);
+            for (int i = 1; i < b.otaDeviceList.getChildCount(); i++)
             {
-                assertTrue("휴대전화의 OTA 내용은 스크롤로 접근합니다", maxScroll > 0);
+                assertTrue(b.otaDeviceList.getChildAt(i).getTop() >= b.otaDeviceList.getChildAt(i - 1).getBottom());
             }
-            assertTrue(b.otaCautionBox.getBottom() <= b.otaExpandableContent.getHeight());
-            capture(target, root, width, height, name + "-expanded");
+            int maxScroll = Math.max(0, b.remoteContentScroll.getChildAt(0).getHeight()
+                - b.remoteContentScroll.getHeight() + b.remoteContentScroll.getPaddingTop()
+                + b.remoteContentScroll.getPaddingBottom());
+            assertTrue("여러 OTA 장치와 마지막 제어까지 스크롤로 접근해야 합니다", maxScroll > 0);
+            capture(target, root, width, height, name + "-ota");
             b.remoteContentScroll.scrollTo(0, maxScroll);
             assertEquals(maxScroll, b.remoteContentScroll.getScrollY());
-            int[] afterScroll = new int[2];
-            b.batteryTelemetryBox.getLocationOnScreen(afterScroll);
-            assertEquals(b.remoteContentScroll, b.remotePrimaryLayout.getParent());
-            assertEquals(b.remotePrimaryLayout, b.remoteStatusColumn.getParent());
-            assertEquals(b.remotePrimaryLayout, b.remoteControlsColumn.getParent());
-            assertEquals(maxScroll, b.remoteContentScroll.getScrollY());
-            assertEquals(View.VISIBLE, b.otaStatusInfoBox.getVisibility());
-            assertTrue(b.batteryTelemetryBox.getBottom() <= b.remoteStatusColumn.getHeight());
-            capture(target, root, width, height, name + "-bottom");
+            assertTrue(bounds(root, b.otaRecoveryContent).bottom <= b.controlTabs.getTop());
+            assertEquals(height, b.controlTabs.getBottom());
+            capture(target, root, width, height, name + "-ota-bottom");
+            b.remoteContentScroll.scrollTo(0, 0);
             RemoteControlFragment.showControlTab(b, 0);
             measure(root, width, height);
+            assertStatusVisible(b);
             assertEquals(View.GONE, b.otaExpandableContent.getVisibility());
         });
+    }
+
+    private void assertStatusVisible(FragmentRemoteControlBinding b)
+    {
+        assertEquals(View.VISIBLE, b.remoteStatusColumn.getVisibility());
+        assertEquals(View.VISIBLE, b.connectionTargetSelector.getVisibility());
+        assertEquals(View.VISIBLE, b.batteryTelemetryBox.getVisibility());
+        assertEquals(View.VISIBLE, b.otaStatusInfoBox.getVisibility());
+        assertEquals(View.VISIBLE, b.statusExpandableContent.getVisibility());
+        assertEquals(View.GONE, b.otaFfStatusTextview.getVisibility());
+    }
+
+    private void assertNoClipping(TextView... views)
+    {
+        for (TextView view : views)
+        {
+            assertNotNull(view.getLayout());
+            assertEquals(1, view.getLayout().getLineCount());
+            assertEquals(0, view.getLayout().getEllipsisCount(0));
+            assertTrue("상태 값 잘림: " + view.getText(), view.getLayout().getLineWidth(0)
+                <= view.getWidth() - view.getCompoundPaddingLeft() - view.getCompoundPaddingRight() + 1);
+        }
+    }
+
+    private Rect bounds(View root, View child)
+    {
+        Rect result = new Rect(0, 0, child.getWidth(), child.getHeight());
+        ((ViewGroup) root).offsetDescendantRectToMyCoords(child, result);
+        return result;
+    }
+
+    private void assertMissingView(Context context, View root, String resourceName)
+    {
+        int id = context.getResources().getIdentifier(resourceName, "id", context.getPackageName());
+        assertTrue("제거한 중간 안내가 다시 나타났습니다: " + resourceName,
+            id == 0 || root.findViewById(id) == null);
+    }
+
+    private void populateFormValues(View view)
+    {
+        if (view.getVisibility() != View.VISIBLE)
+        {
+            return;
+        }
+        if (view instanceof android.widget.EditText)
+        {
+            TextView text = (TextView) view;
+            String id = view.getId() == View.NO_ID ? "" : view.getResources().getResourceEntryName(view.getId());
+            String value = id.contains("pairing") ? "123456" : id.contains("key") ? "1234"
+                                                               : id.contains("serial") ? "FFFF" : id.contains("initial") ? "PEK" : "시험 별칭";
+            text.setText(value);
+        }
+        if (view instanceof ViewGroup)
+        {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++)
+            {
+                populateFormValues(group.getChildAt(i));
+            }
+        }
+    }
+
+    private int visibleBackgroundCount(View view)
+    {
+        if (view.getVisibility() != View.VISIBLE)
+        {
+            return 0;
+        }
+        int count = view.getBackground() == null ? 0 : 1;
+        if (view instanceof ViewGroup)
+        {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++)
+            {
+                count += visibleBackgroundCount(group.getChildAt(i));
+            }
+        }
+        return count;
+    }
+
+    private void assertVisibleChildrenFitWidth(View view)
+    {
+        if (view.getVisibility() != View.VISIBLE || !(view instanceof ViewGroup))
+        {
+            return;
+        }
+        ViewGroup group = (ViewGroup) view;
+        for (int i = 0; i < group.getChildCount(); i++)
+        {
+            View child = group.getChildAt(i);
+            if (child.getVisibility() != View.VISIBLE)
+            {
+                continue;
+            }
+            assertTrue("화면의 왼쪽을 벗어난 항목: " + child, child.getLeft() >= -1);
+            assertTrue("화면의 오른쪽을 벗어난 항목: " + child, child.getRight() <= group.getWidth() + 1);
+            assertVisibleChildrenFitWidth(child);
+        }
+    }
+
+    private void assertFormValuesReadable(View view)
+    {
+        if (view.getVisibility() != View.VISIBLE)
+        {
+            return;
+        }
+        if (view instanceof android.widget.EditText)
+        {
+            TextView input = (TextView) view;
+            assertNotNull(input.getTypeface());
+            assertTrue(input.getPaint().hasGlyph("한"));
+            assertNoClipping(input);
+        }
+        if (view instanceof ViewGroup)
+        {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++)
+            {
+                assertFormValuesReadable(group.getChildAt(i));
+            }
+        }
     }
 
     private void measure(View root, int width, int height)

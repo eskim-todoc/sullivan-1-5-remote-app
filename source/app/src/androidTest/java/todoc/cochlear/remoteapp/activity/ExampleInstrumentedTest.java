@@ -23,6 +23,6 @@ public class ExampleInstrumentedTest
     {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("todoc.cochlear.remoteapp.activity", appContext.getPackageName());
+        assertEquals("kr.co.todoc.cochlear.implant.ota", appContext.getPackageName());
     }
 }
