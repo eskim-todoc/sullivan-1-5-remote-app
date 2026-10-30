@@ -1,0 +1,25 @@
+{
+  "jvm": 145,
+  "android": 16,
+  "sqlite": 7,
+  "lint": {
+    "Warning": 441
+  },
+  "normalized_classes_unchanged": 241,
+  "java_files_formatted": 109,
+  "apk_sha256": "7782d13d98401f8f3cd22cd7761505c9f4e557cc45ae234ce34c211e6de4d5d0",
+  "physical_hil": {
+    "basic_commands": "REL4.6: Volume2->3->2, Output4->3->4, Program1->2->1, LEDOn->Off->On, AlarmOn->Off->On",
+    "two_connections": "REL4.5 + REL4.6 connected; initial Android connection failure recovered by explicit retry",
+    "ff": "REL4.6 FF settings read completed; controls enabled",
+    "ota": "REL4.6 current/previous slot FF/FF read; no OTA write or reboot",
+    "registry": "4 user groups / 2 external devices retained",
+    "navigation": "identity target page, map target page, detail back and main exit-dialog Cancel verified",
+    "gating": "On -> Off -> On, restored original state",
+    "runtime_fatal_errors": "None observed for current app process in AndroidRuntime log"
+  },
+  "limits": [
+    "No fresh complete four-file OTA, map reset or credential write in this maintenance pass",
+    "API23 compatibility checked by lint; physical phone runs API31"
+  ]
+}

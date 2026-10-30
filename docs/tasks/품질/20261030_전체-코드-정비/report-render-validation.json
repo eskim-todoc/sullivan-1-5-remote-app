@@ -1,0 +1,60 @@
+[
+  {
+    "width": 1440,
+    "overflow": false,
+    "brokenAnchors": [],
+    "ids": [
+      "main",
+      "result",
+      "cleanup",
+      "gaia",
+      "kotlin",
+      "next"
+    ],
+    "font": "ReportBatang, KoPubWorld바탕체, KoPubWorldBatang, Batang, 바탕, serif",
+    "actualFonts": {
+      "fonts": [
+        {
+          "familyName": "KoPubWorldBatang",
+          "postScriptName": "KoPubWorldBatangBold",
+          "isCustomFont": false,
+          "glyphCount": 28
+        }
+      ]
+    },
+    "brokenFiles": [],
+    "errors": []
+  },
+  {
+    "width": 1024,
+    "overflow": false,
+    "brokenAnchors": [],
+    "ids": [
+      "main",
+      "result",
+      "cleanup",
+      "gaia",
+      "kotlin",
+      "next"
+    ],
+    "font": "ReportBatang, KoPubWorld바탕체, KoPubWorldBatang, Batang, 바탕, serif",
+    "brokenFiles": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "overflow": false,
+    "brokenAnchors": [],
+    "ids": [
+      "main",
+      "result",
+      "cleanup",
+      "gaia",
+      "kotlin",
+      "next"
+    ],
+    "font": "ReportBatang, KoPubWorld바탕체, KoPubWorldBatang, Batang, 바탕, serif",
+    "brokenFiles": [],
+    "errors": []
+  }
+]

@@ -1,0 +1,1026 @@
+{
+  "note": "Lint candidates only; not an approved automatic deletion list. Check XML, manifests, tools and recovery routes.",
+  "count": 128,
+  "resources": [
+    {
+      "message": "The resource `R.drawable.blur_cover` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable-v24\\blur_cover.png"
+      }
+    },
+    {
+      "message": "The resource `R.color.black_100` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "3",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.black_60` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "7",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.black_50` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "8",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.black_40` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "9",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.black_20` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "11",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.black_10` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "12",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.white_100` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "14",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.white_60` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "18",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.white_30` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "21",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.white_20` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "22",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.white_10` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "23",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.accent_100` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "25",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.accent_90` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "26",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.accent_80` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "27",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.accent_60` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "29",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.accent_30` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "32",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.accent_20` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "33",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.accent_10` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "34",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.error_90` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "37",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.error_80` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "38",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.error_70` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "39",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.error_60` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "40",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.error_50` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "41",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.error_40` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "42",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.error_30` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "43",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.error_20` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "44",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.error_10` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "45",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.field_100` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "47",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.field_90` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "48",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.field_80` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "49",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.field_70` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "50",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.field_60` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "51",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.field_50` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "52",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.field_40` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "53",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.field_30` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "54",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.field_20` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "55",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.field_10` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "56",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.black` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "61",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.color.white` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\colors.xml",
+        "line": "62",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.custom_progressbar_battery_level` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\custom_progressbar_battery_level.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.dimen.share_category_height_dp` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\dimens.xml",
+        "line": "3",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.dimen.tdc_text_size_tiny` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\dimens.xml",
+        "line": "16",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.dimen.tdc_text_size_small` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\dimens.xml",
+        "line": "17",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.dimen.tdc_text_size_normal` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\dimens.xml",
+        "line": "18",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.dimen.tdc_text_size_title` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\dimens.xml",
+        "line": "20",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.dimen.tdc_button_height` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\dimens.xml",
+        "line": "22",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.dimen.tdc_screen_padding_h` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\dimens.xml",
+        "line": "25",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.dimen.tdc_screen_padding_v` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\dimens.xml",
+        "line": "26",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.dimen.tdc_button_gap` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\dimens.xml",
+        "line": "35",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.dimen.tdc_status_row_height` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\dimens.xml",
+        "line": "44",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.dimen.tdc_text_size_isd_id` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\dimens.xml",
+        "line": "53",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.dimen.tdc_text_size_ear` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\dimens.xml",
+        "line": "61",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.dimen.tdc_glass_padding_h` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\dimens.xml",
+        "line": "64",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.dimen.tdc_glass_padding_v` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\dimens.xml",
+        "line": "65",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.dimen.type_section` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\dimens.xml",
+        "line": "69",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.dimen.basic_control_action_width` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\dimens.xml",
+        "line": "73",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.drawable_home_battery_tap` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\drawable_home_battery_tap.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.layout.fragment_log` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\layout\\fragment_log.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.fw_release_badge_background` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\fw_release_badge_background.xml",
+        "line": "6",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.style.Animation_App_GlassDialog` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\glass_dialog_animation.xml",
+        "line": "2",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.anim.glass_dialog_enter` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\anim\\glass_dialog_enter.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.anim.glass_dialog_exit` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\anim\\glass_dialog_exit.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.color.glass_selected_stroke` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\glass_palette.xml",
+        "line": "7",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.font.ibm_plex_sans_kr` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\font\\ibm_plex_sans_kr.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.ic_file_list_24dp` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\ic_file_list_24dp.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.ic_file_open_24dp` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\ic_file_open_24dp.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.ic_file_send_24dp` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\ic_file_send_24dp.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.ic_launcher_foreground` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable-v24\\ic_launcher_foreground.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.ic_play_arrow_24dp` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\ic_play_arrow_24dp.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.item_device_ic_device_40dp` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\item_device_ic_device_40dp.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.layout.item_manual` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\layout\\item_manual.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.item_user_ic_default_person_40dp` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\item_user_ic_default_person_40dp.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.item_user_ic_person_40dp` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\item_user_ic_person_40dp.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.font.kopubworld_dotum` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\font\\kopubworld_dotum.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.log_ic_spinner_down_arror` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\log_ic_spinner_down_arror.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.management_ic_device` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\management_ic_device.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.management_ic_log` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\management_ic_log.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.management_ic_user` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\management_ic_user.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.style.Widget_App_ManagementListAdd` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\management_list_styles.xml",
+        "line": "29",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.manual_screen_ic_circle_color_12dp` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\manual_screen_ic_circle_color_12dp.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.manual_screen_ic_circle_normal_12dp` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\manual_screen_ic_circle_normal_12dp.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.font.nanum_barun` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\font\\nanum_barun.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.ote_png_image` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable-v24\\ote_png_image.png"
+      }
+    },
+    {
+      "message": "The resource `R.font.pretendard` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\font\\pretendard.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_control_button_ripple_base_bottom_background` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_control_button_ripple_base_bottom_background.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_control_button_ripple_base_top_background` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_control_button_ripple_base_top_background.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_control_button_ripple_round_bottom_background` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_control_button_ripple_round_bottom_background.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_control_button_ripple_round_top_background` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_control_button_ripple_round_top_background.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_control_device_background_image` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_control_device_background_image.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_control_glass_surface` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_control_glass_surface.xml",
+        "line": "24",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_control_ic_down_24dp` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_control_ic_down_24dp.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_control_ic_left_24dp` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_control_ic_left_24dp.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_control_ic_light_24dp` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_control_ic_light_24dp.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_control_ic_notifications_24dp` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_control_ic_notifications_24dp.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_control_ic_right_24dp` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_control_ic_right_24dp.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_control_ic_ripple_circle_background` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_control_ic_ripple_circle_background.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_control_ic_ripple_circle_background_on` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_control_ic_ripple_circle_background_on.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_control_ic_telecoil_24dp` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_control_ic_telecoil_24dp.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_control_ic_up_24dp` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_control_ic_up_24dp.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_control_imagebutton_background_progressbar` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_control_imagebutton_background_progressbar.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_control_program_down_button` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_control_program_down_button.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_control_program_up_button` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_control_program_up_button.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_dialog_surface` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_dialog_surface.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_status_cell` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_status_cell.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_step_action` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_step_action.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.remote_tab_state` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\remote_tab_state.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.rounded_cancel_24` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\rounded_cancel_24.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.rounded_check_circle_unread_24` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\rounded_check_circle_unread_24.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.rounded_fact_check_24` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\rounded_fact_check_24.xml",
+        "line": "1",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.string.toolbar_title_settings` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\strings.xml",
+        "line": "6",
+        "column": "13"
+      }
+    },
+    {
+      "message": "The resource `R.string.lock_screen_decode_password` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\strings.xml",
+        "line": "15",
+        "column": "13"
+      }
+    },
+    {
+      "message": "The resource `R.string.lock_screen_register_password` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\strings.xml",
+        "line": "16",
+        "column": "13"
+      }
+    },
+    {
+      "message": "The resource `R.string.lock_screen_compare_password` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\strings.xml",
+        "line": "17",
+        "column": "13"
+      }
+    },
+    {
+      "message": "The resource `R.string.lock_screen_forgot_password` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\strings.xml",
+        "line": "18",
+        "column": "13"
+      }
+    },
+    {
+      "message": "The resource `R.string.lock_screen_invalid_state` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\strings.xml",
+        "line": "19",
+        "column": "13"
+      }
+    },
+    {
+      "message": "The resource `R.string.hello_blank_fragment` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\strings.xml",
+        "line": "52",
+        "column": "13"
+      }
+    },
+    {
+      "message": "The resource `R.string.no_content` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\strings.xml",
+        "line": "53",
+        "column": "13"
+      }
+    },
+    {
+      "message": "The resource `R.style.TextAppearance_App_Body2` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\styles.xml",
+        "line": "74",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.style.RemoteControl_RemoteControl_CircleButton` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\styles.xml",
+        "line": "168",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.dimen.toolbar_navigation_message_margin_start` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\toolbar_navigation_message.xml",
+        "line": "3",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.user_ear_checked` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\user_ear_checked.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.color.user_ear_chip_background` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\color\\user_ear_chip_background.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.color.user_ear_chip_stroke` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\color\\user_ear_chip_stroke.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.color.user_ear_chip_text` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\color\\user_ear_chip_text.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.style.Widget_App_UserEarChip` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\values\\user_list_styles.xml",
+        "line": "3",
+        "column": "12"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.user_profile_avatar_surface` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\user_profile_avatar_surface.xml",
+        "line": "2",
+        "column": "1"
+      }
+    },
+    {
+      "message": "The resource `R.drawable.user_profile_person` appears to be unused",
+      "location": {
+        "file": "E:\\workspace\\projects\\TD2-Remote-Application\\source\\app\\src\\main\\res\\drawable\\user_profile_person.xml",
+        "line": "2",
+        "column": "1"
+      }
+    }
+  ]
+}

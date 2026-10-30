@@ -1,0 +1,7 @@
+{
+  "formatter": "Android Studio Quail2 2026.1.2 (existing project code scheme)",
+  "files_scanned": 109,
+  "production_class_count": 241,
+  "comparison": "ASM reader SKIP_DEBUG -> fresh writer -> SHA256",
+  "before_after_equal": true
+}

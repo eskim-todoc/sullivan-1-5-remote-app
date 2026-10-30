@@ -1,0 +1,27 @@
+[
+  {
+    "control": "volume",
+    "changed": "3",
+    "before": "2"
+  },
+  {
+    "control": "max_output",
+    "changed": "3",
+    "before": "4"
+  },
+  {
+    "control": "program",
+    "changed": "2",
+    "before": "1"
+  },
+  {
+    "control": "led",
+    "changed": "Off",
+    "before": "On"
+  },
+  {
+    "control": "alarm",
+    "changed": "Off",
+    "before": "On"
+  }
+]
