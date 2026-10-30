@@ -8,9 +8,9 @@ public class Ota
     static public final String BASE_FOLDER = "/OTA/";
 
     static public final String FILE_NAME_MANIFEST = "MANIFEST.TXT";
-    static public final String FILE_NAME_APP000   = "APP000.FEZ";
-    static public final String FILE_NAME_APP001   = "APP001.FEZ";
-    static public final String FILE_NAME_APP002   = "APP002.FEZ";
+    static public final String FILE_NAME_APP000 = "APP000.FEZ";
+    static public final String FILE_NAME_APP001 = "APP001.FEZ";
+    static public final String FILE_NAME_APP002 = "APP002.FEZ";
 
     static public final int THREAD_STATE_IDLE = 0;
     static public final int THREAD_STATE_BUSY = 1;
@@ -34,19 +34,19 @@ public class Ota
      * 슬롯 번호와 겹치지 않게 0 을 쓴다. */
     static public final int SLOT_NUM_COLLECT = 0;
 
-    static public final int COMM_STATE_IDLE              = 0;
-    static public final int COMM_STATE_PREPARE_COMMAND   = 1;
+    static public final int COMM_STATE_IDLE = 0;
+    static public final int COMM_STATE_PREPARE_COMMAND = 1;
     static public final int COMM_STATE_WAIT_RESP_COMMAND = 2;
-    static public final int COMM_STATE_PREPARE_DATA      = 3;
-    static public final int COMM_STATE_WAIT_RESP_DATA    = 4;
+    static public final int COMM_STATE_PREPARE_DATA = 3;
+    static public final int COMM_STATE_WAIT_RESP_DATA = 4;
 
     static public final int COMM_RW_WRITE = 1;
-    static public final int COMM_RW_READ  = 2;
+    static public final int COMM_RW_READ = 2;
 
-    static public final int COMM_RESP_OK   = 1;
+    static public final int COMM_RESP_OK = 1;
     static public final int COMM_RESP_FAIL = 2;
 
-    // Instance
+    // Legacy app-shell instance. Each BLE session owns a separate new Ota().
     private static final Ota mInstance = new Ota();
 
     public int currentSlotNum;
@@ -57,24 +57,24 @@ public class Ota
     public String collectFolderName;
 
     // Members
-    public static ArrayList<OtaFile> fileList;
+    public ArrayList<OtaFile> fileList;
 
     public int threadState;
 
     // 무선 프로토콜 관련
-    public int    commState;
-    public int    commDataIndex;
-    public int    commSlotNum;
-    public int    commFileNum;
-    public int    commOption;
-    public int    commTotalByte;
-    public int    commEndDataIndexNum;
-    public int    commEndDataIndexByte;
-    public int    commBufferIndex;
+    public int commState;
+    public int commDataIndex;
+    public int commSlotNum;
+    public int commFileNum;
+    public int commOption;
+    public int commTotalByte;
+    public int commEndDataIndexNum;
+    public int commEndDataIndexByte;
+    public int commBufferIndex;
     public byte[] commBuffer;
 
-    // Constructor
-    private Ota()
+    // File buffers and transfer progress belong to one BLE session.
+    public Ota()
     {
         threadState = THREAD_STATE_IDLE;
 
@@ -88,7 +88,7 @@ public class Ota
         fileList = new ArrayList<>();
     }
 
-    // Get instance
+    // Compatibility accessor for the app shell, not for a live device session.
     public static Ota getInstance()
     {
         return mInstance;
@@ -115,7 +115,7 @@ public class Ota
         }
     }
 
-    public static OtaFile getFile(int slotNum, int fileNum)
+    public OtaFile getFile(int slotNum, int fileNum)
     {
         OtaFile file = null;
 
@@ -213,13 +213,13 @@ public class Ota
 
     public static class OtaFile
     {
-        public int    slotNum;
-        public int    fileNum;
-        public int    collectSize;
-        public int    collectPercent;
-        public int    writeSize;
-        public int    writePercent;
-        public int    totalBytes;
+        public int slotNum;
+        public int fileNum;
+        public int collectSize;
+        public int collectPercent;
+        public int writeSize;
+        public int writePercent;
+        public int totalBytes;
         public byte[] buffer;
 
         // Constructor

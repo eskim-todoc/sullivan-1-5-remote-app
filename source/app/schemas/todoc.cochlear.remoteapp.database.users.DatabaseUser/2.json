@@ -1,0 +1,58 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "0c3c11c8ba81e55b5dbe8325310fa5e0",
+    "entities": [
+      {
+        "tableName": "EntityUser",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `passKey` TEXT, `nickname` TEXT, `ear` TEXT, `defaultUser` TEXT, `isActive` INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(`name`))",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "passKey",
+            "columnName": "passKey",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "nickname",
+            "columnName": "nickname",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "ear",
+            "columnName": "ear",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "defaultUser",
+            "columnName": "defaultUser",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "isActive",
+            "columnName": "isActive",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "name"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0c3c11c8ba81e55b5dbe8325310fa5e0')"
+    ]
+  }
+}

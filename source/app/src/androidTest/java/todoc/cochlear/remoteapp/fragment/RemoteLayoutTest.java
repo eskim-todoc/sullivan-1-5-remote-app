@@ -14,31 +14,54 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import java.io.File;
 import java.io.FileOutputStream;
 
 import todoc.cochlear.remoteapp.activity.R;
 import todoc.cochlear.remoteapp.activity.databinding.FragmentRemoteControlBinding;
+
 import static org.junit.Assert.*;
 
-/** 실제 Android 위젯의 측정/그리기. BLE 연결이나 장치 명령은 사용하지 않는다. */
+/**
+ * 실제 Android 위젯의 측정/그리기. BLE 연결이나 장치 명령은 사용하지 않는다.
+ */
 @RunWith(AndroidJUnit4.class)
-public class RemoteLayoutTest {
-    @Test public void phoneContentScrollsWithOtaExpanded() { verify(411, 760, false, 1.0f, "phone"); }
-    @Test public void narrowPhoneWithLargeFont() { verify(360, 740, false, 1.3f, "phone-large-font"); }
-    @Test public void tabletColumnsAndExpandedOtaFitLargeFont() { verify(1100, 650, true, 1.3f, "tablet"); }
+public class RemoteLayoutTest
+{
+    @Test
+    public void phoneContentScrollsWithOtaExpanded()
+    {
+        verify(411, 760, false, 1.0f, "phone");
+    }
 
-    @Test public void managementScreensRenderGlass() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+    @Test
+    public void narrowPhoneWithLargeFont()
+    {
+        verify(360, 740, false, 1.3f, "phone-large-font");
+    }
+
+    @Test
+    public void tabletColumnsAndExpandedOtaFitLargeFont()
+    {
+        verify(1100, 650, true, 1.3f, "tablet");
+    }
+
+    @Test
+    public void managementScreensRenderGlass()
+    {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+        {
             Context target = InstrumentationRegistry.getInstrumentation().getTargetContext();
             Configuration cfg = new Configuration(target.getResources().getConfiguration());
             cfg.densityDpi = 160;
             cfg.fontScale = 1.3f;
             Context context = new ContextThemeWrapper(target.createConfigurationContext(cfg), R.style.app_theme);
             int[] layouts = {R.layout.fragment_settings, R.layout.fragment_user, R.layout.fragment_add_user,
-                    R.layout.fragment_edit_user, R.layout.fragment_device, R.layout.fragment_add_device,
-                    R.layout.fragment_edit_device};
-            for (int layout : layouts) {
+                R.layout.fragment_edit_user, R.layout.fragment_device, R.layout.fragment_add_device,
+                R.layout.fragment_edit_device};
+            for (int layout : layouts)
+            {
                 View root = LayoutInflater.from(context).inflate(layout, null, false);
                 measure(root, 360, 740);
                 assertNotNull(root.getBackground());
@@ -47,11 +70,15 @@ public class RemoteLayoutTest {
         });
     }
 
-    @Test public void toolbarBackLabelDoesNotOverlapTitle() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+    @Test
+    public void toolbarBackLabelDoesNotOverlapTitle()
+    {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+        {
             Context target = InstrumentationRegistry.getInstrumentation().getTargetContext();
             Configuration cfg = new Configuration(target.getResources().getConfiguration());
-            cfg.densityDpi = 160; cfg.fontScale = 1.3f;
+            cfg.densityDpi = 160;
+            cfg.fontScale = 1.3f;
             Context context = new ContextThemeWrapper(target.createConfigurationContext(cfg), R.style.app_theme);
             View root = LayoutInflater.from(context).inflate(R.layout.activity_main, null, false);
             com.google.android.material.appbar.MaterialToolbar toolbar = root.findViewById(R.id.toolbar);
@@ -62,9 +89,11 @@ public class RemoteLayoutTest {
             measure(root, 360, 740);
             assertEquals(1, back.getLineCount());
             boolean found = false;
-            for (int i = 0; i < toolbar.getChildCount(); i++) {
+            for (int i = 0; i < toolbar.getChildCount(); i++)
+            {
                 View v = toolbar.getChildAt(i);
-                if (v instanceof android.widget.TextView && "사용자 등록".contentEquals(((android.widget.TextView)v).getText())) {
+                if (v instanceof android.widget.TextView && "사용자 등록".contentEquals(((android.widget.TextView) v).getText()))
+                {
                     assertTrue(v.getLeft() >= back.getRight());
                     found = true;
                 }
@@ -73,8 +102,10 @@ public class RemoteLayoutTest {
         });
     }
 
-    private void verify(int width, int height, boolean tablet, float fontScale, String name) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+    private void verify(int width, int height, boolean tablet, float fontScale, String name)
+    {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+        {
             Context target = InstrumentationRegistry.getInstrumentation().getTargetContext();
             Configuration cfg = new Configuration(target.getResources().getConfiguration());
             cfg.densityDpi = 160;
@@ -123,10 +154,11 @@ public class RemoteLayoutTest {
             assertEquals(View.GONE, b.otaExpandableContent.getVisibility());
             assertEquals(1, b.remoteContentScroll.getChildCount());
             assertEquals(0, b.otaLedButton.getLeft());
-            assertEquals(((View)b.otaAlarmButton.getParent()).getWidth(), b.otaAlarmButton.getRight());
+            assertEquals(((View) b.otaAlarmButton.getParent()).getWidth(), b.otaAlarmButton.getRight());
             assertEquals(root, b.remoteControlConnectionLayout.getParent());
             assertEquals(tablet ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL, b.remotePrimaryLayout.getOrientation());
-            if (tablet) {
+            if (tablet)
+            {
                 assertTrue(b.remoteControlsColumn.getLeft() > b.remoteStatusColumn.getRight());
                 assertEquals(b.remoteStatusColumn.getTop(), b.remoteControlsColumn.getTop());
             }
@@ -175,7 +207,10 @@ public class RemoteLayoutTest {
             assertTrue(b.slotInformationRow.getTop() > b.slotRadioButtonGroup.getBottom());
             assertEquals(b.slot1RadioButton.getTop(), b.slot2RadioButton.getTop());
             int maxScroll = Math.max(0, b.remoteContentScroll.getChildAt(0).getHeight() - b.remoteContentScroll.getHeight() + b.remoteContentScroll.getPaddingTop() + b.remoteContentScroll.getPaddingBottom());
-            if (!tablet) assertTrue("휴대전화의 OTA 내용은 스크롤로 접근합니다", maxScroll > 0);
+            if (!tablet)
+            {
+                assertTrue("휴대전화의 OTA 내용은 스크롤로 접근합니다", maxScroll > 0);
+            }
             assertTrue(b.otaCautionBox.getBottom() <= b.otaExpandableContent.getHeight());
             capture(target, root, width, height, name + "-expanded");
             b.remoteContentScroll.scrollTo(0, maxScroll);
@@ -195,20 +230,30 @@ public class RemoteLayoutTest {
         });
     }
 
-    private void measure(View root, int width, int height) {
+    private void measure(View root, int width, int height)
+    {
         root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY));
+            View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY));
         root.layout(0, 0, width, height);
     }
 
-    private void capture(Context context, View root, int width, int height, String name) {
+    private void capture(Context context, View root, int width, int height, String name)
+    {
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         root.draw(new Canvas(bitmap));
         File folder = new File(context.getExternalFilesDir(null), "layout-verification");
         assertTrue(folder.isDirectory() || folder.mkdirs());
-        try (FileOutputStream out = new FileOutputStream(new File(folder, name + ".png"))) {
+        try (FileOutputStream out = new FileOutputStream(new File(folder, name + ".png")))
+        {
             assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, out));
-        } catch (Exception error) { throw new AssertionError(error); }
-        finally { bitmap.recycle(); }
+        }
+        catch (Exception error)
+        {
+            throw new AssertionError(error);
+        }
+        finally
+        {
+            bitmap.recycle();
+        }
     }
 }

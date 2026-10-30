@@ -1,186 +1,97 @@
 package todoc.cochlear.remoteapp.fragment;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import java.util.List;
-
 import todoc.cochlear.remoteapp.activity.MainActivity;
 import todoc.cochlear.remoteapp.activity.R;
-import todoc.cochlear.remoteapp.activity.databinding.ActivityMainBinding;
 import todoc.cochlear.remoteapp.activity.databinding.FragmentUserBinding;
-import todoc.cochlear.remoteapp.database.users.EntityUser;
+import todoc.cochlear.remoteapp.database.users.UserGroup;
 import todoc.cochlear.remoteapp.database.users.UtilUser;
 import todoc.cochlear.remoteapp.list.UserAdapter;
-import todoc.cochlear.remoteapp.params.Status;
 
-public class UserFragment extends Fragment
+/** Compatibility host; the primary registration route uses RegistryFragment. */
+public class UserFragment extends Fragment implements UserAdapter.Host
 {
-    private static final String TAG = "TODOC_" + UserFragment.class.getSimpleName();
-
-    private ActivityMainBinding mMainBinding;
-    private FragmentUserBinding mUserBinding;
-
-    UserAdapter mUserAdapter;
-    UserAdapter mDefaultUserAdapter;
-
-    public UserFragment()
-    {
-        // Required empty public constructor
-    }
-
-    @Override
-    public void onDestroyView()
-    {
-        super.onDestroyView();
-        mUserBinding = null;
-    }
+    private FragmentUserBinding binding;
+    private UserAdapter adapter;
+    private UserRegistrationActions actions;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
-        mMainBinding = ((MainActivity) requireContext()).mBinding;
-        mMainBinding.toolbar.setNavigationIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.toolbar_ic_back_arrow_24dp));
-        mMainBinding.toolbarNavigationMessage.setText("메뉴");
-        mMainBinding.toolbarNavigationMessage.setVisibility(View.GONE);
-        mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_settings).setVisible(false);
-        mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_user).setVisible(false);
-        mMainBinding.toolbar.getMenu().findItem(R.id.toolbar_search).setVisible(false);
-        mMainBinding.toolbar.setTitle(requireContext().getString(R.string.toolbar_title_management_user));
+        ManagementUi.toolbar((MainActivity) requireActivity(), getString(R.string.toolbar_title_management_user));
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        mUserBinding = FragmentUserBinding.inflate(inflater, container, false);
-        View view = mUserBinding.getRoot();
-
-        mUserAdapter = new UserAdapter(this);
-        mUserBinding.userRecyclerview.setAdapter(mUserAdapter);
-        mUserBinding.userRecyclerview.setLayoutManager(new LinearLayoutManager(requireContext()));
-
-        mDefaultUserAdapter = new UserAdapter(this);
-        mUserBinding.defaultUserRecyclerview.setAdapter(mDefaultUserAdapter);
-        mUserBinding.defaultUserRecyclerview.setLayoutManager(new LinearLayoutManager(requireContext()));
-
-        updateRecyclerView();
-        initAddButton();
-
-        return ManagementUi.navigation(view);
-    }
-
-    public void mDefaultItemClickListener(int position)
-    {
-
-        EntityUser item = mDefaultUserAdapter.getItem(position);
-
-        Log.d(TAG, "Default User Position = " + position + ", " + item.toString());
-
-        Bundle bundle = new Bundle();
-        bundle.putString(EditUserFragment.ARG_NAME, item.name);
-        bundle.putString(EditUserFragment.ARG_PASSKEY, item.passKey);
-        bundle.putString(EditUserFragment.ARG_NICKNAME, item.nickname);
-        bundle.putString(EditUserFragment.ARG_EAR, item.ear);
-        bundle.putString(EditUserFragment.ARG_DEFAULT, item.defaultUser);
-
-        /*
-        EditUserFragment editUserFragment = new EditUserFragment();
-        editUserFragment.setArguments(bundle);
-        requireActivity().getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), editUserFragment).commitAllowingStateLoss();
-        */
-        ((MainActivity) requireActivity()).replaceFragment(Status.TypeOfFragment.USER_EDIT, bundle);
-    }
-
-    public void mItemClickListener(int position)
-    {
-
-        EntityUser item = mUserAdapter.getItem(position);
-
-        Log.d(TAG, "Position = " + position + ", " + item.toString());
-
-        Bundle bundle = new Bundle();
-        bundle.putString(EditUserFragment.ARG_NAME, item.name);
-        bundle.putString(EditUserFragment.ARG_PASSKEY, item.passKey);
-        bundle.putString(EditUserFragment.ARG_NICKNAME, item.nickname);
-        bundle.putString(EditUserFragment.ARG_EAR, item.ear);
-        bundle.putString(EditUserFragment.ARG_DEFAULT, item.defaultUser);
-
-        /*
-        EditUserFragment editUserFragment = new EditUserFragment();
-        editUserFragment.setArguments(bundle);
-        requireActivity().getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), editUserFragment).commitAllowingStateLoss();
-        */
-        ((MainActivity) requireActivity()).replaceFragment(Status.TypeOfFragment.USER_EDIT, bundle);
-    }
-
-    private void initAddButton()
-    {
-        mUserBinding.addBtn.setOnClickListener(view ->
+        binding = FragmentUserBinding.inflate(inflater, container, false);
+        actions = new UserRegistrationActions((MainActivity) requireActivity(), this::isAdded);
+        binding.userRecyclerview.setLayoutManager(new LinearLayoutManager(requireContext()));
+        if (adapter == null)
         {
-
-            /*
-            requireActivity().getSupportFragmentManager().beginTransaction().replace(mMainBinding.frame.getId(), new AddUserFragment()).commitAllowingStateLoss();
-            */
-            ((MainActivity) requireActivity()).replaceFragment(Status.TypeOfFragment.USER_ADD);
-        });
-    }
-
-    private void updateRecyclerView()
-    {
-
-
-        // TD2-SW-RC-UNIT-Test-ID-60 [사용자 목록 표시 유닛] 순서[1] 시작.
-        /*
-        {
-            List<EntityUser> testUsers = UtilUser.instance.getUsers();
-
-            for (EntityUser user : testUsers)
+            adapter = new UserAdapter(this);
+            for (UserGroup group : UserGroup.fromUsers(UtilUser.instance.getUsers()))
             {
-                Log.d(TAG, "name = " + user.name + ", ear = " + user.ear + ", nickname = " + user.nickname
-                        + ", passKey = " + user.passKey + ", defaultUser = " + user.defaultUser);
+                adapter.addItem(group);
             }
         }
-        */
-        // TD2-SW-RC-UNIT-Test-ID-60 [사용자 목록 표시 유닛] 순서[1] 끝.
+        binding.userRecyclerview.setAdapter(adapter);
+        listChanged();
+        return ManagementUi.navigation(binding.getRoot());
+    }
 
-
-        mUserBinding.defaultUserTitle.setVisibility(View.GONE);
-        mUserBinding.defaultUserRecyclerview.setVisibility(View.GONE);
-
-        mUserBinding.userTitle.setVisibility(View.GONE);
-        mUserBinding.userRecyclerview.setVisibility(View.GONE);
-
-        EntityUser defaultUser = UtilUser.instance.getDefaultUser();
-
-        if (defaultUser != null)
+    @Override
+    public void onDestroyView()
+    {
+        if (adapter != null)
         {
-            //mUserAdapter.addItem(defaultUser);
-            mDefaultUserAdapter.addItem(defaultUser);
-            mUserBinding.defaultUserTitle.setVisibility(View.VISIBLE);
-            mUserBinding.defaultUserRecyclerview.setVisibility(View.VISIBLE);
+            adapter.dismissEditor();
         }
-
-        List<EntityUser> entityUsers = UtilUser.instance.getUsers();
-
-
-        for (EntityUser entityUser : entityUsers)
+        if (actions != null)
         {
-            if (entityUser.defaultUser.equals(EntityUser.USER_NOT_DEFAULT))
-            {
-                mUserAdapter.addItem(entityUser);
-                mUserBinding.userTitle.setVisibility(View.VISIBLE);
-                mUserBinding.userRecyclerview.setVisibility(View.VISIBLE);
-            }
+            actions.close();
+            actions = null;
         }
+        if (binding != null)
+        {
+            binding.userRecyclerview.setAdapter(null);
+        }
+        binding = null;
+        super.onDestroyView();
+    }
+
+    public void editGroup(UserGroup group, String focusEar)
+    {
+        adapter.openEditor(group, focusEar);
+    }
+
+    @Override
+    public void listChanged()
+    {
+        if (binding != null)
+        {
+            binding.userTitle.setText("등록된 사용자 · " + adapter.getRegisteredCount());
+        }
+    }
+
+    @Override
+    public String saveGroup(UserGroup original, UserGroup updated)
+    {
+        return actions.saveGroup(original, updated);
+    }
+
+    @Override
+    public void deleteGroup(UserGroup group, Runnable onDeleted)
+    {
+        actions.deleteGroup(group, onDeleted);
     }
 }

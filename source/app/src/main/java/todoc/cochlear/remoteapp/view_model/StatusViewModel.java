@@ -9,24 +9,37 @@ import todoc.cochlear.remoteapp.params.PacketInfo;
 import todoc.cochlear.remoteapp.params.BatteryTelemetry;
 import todoc.cochlear.remoteapp.params.Status;
 
-public class StatusViewModel extends ViewModel {
+public class StatusViewModel extends ViewModel
+{
     private final MutableLiveData<BatteryTelemetry> batteryTelemetry = new MutableLiveData<>();
     private final MutableLiveData<String> batteryTelemetryError = new MutableLiveData<>();
     public long batteryReceivedAtMs;
 
-    public MutableLiveData<BatteryTelemetry> getBatteryTelemetry() { return batteryTelemetry; }
-    public MutableLiveData<String> getBatteryTelemetryError() { return batteryTelemetryError; }
+    public MutableLiveData<BatteryTelemetry> getBatteryTelemetry()
+    {
+        return batteryTelemetry;
+    }
+
+    public MutableLiveData<String> getBatteryTelemetryError()
+    {
+        return batteryTelemetryError;
+    }
 
     // BLE 수신 처리는 MainActivity의 메인 스레드에서 호출한다.
-    public void setBatteryTelemetry(BatteryTelemetry sample, long receivedAtMs) {
+    public void setBatteryTelemetry(BatteryTelemetry sample, long receivedAtMs)
+    {
         batteryReceivedAtMs = receivedAtMs;
         batteryTelemetryError.setValue(null);
         batteryTelemetry.setValue(sample);
     }
 
-    public void setBatteryTelemetryError(String error) { batteryTelemetryError.setValue(error); }
+    public void setBatteryTelemetryError(String error)
+    {
+        batteryTelemetryError.setValue(error);
+    }
 
-    public void resetBatteryTelemetry() {
+    public void resetBatteryTelemetry()
+    {
         batteryReceivedAtMs = 0;
         batteryTelemetry.setValue(null);
         batteryTelemetryError.setValue(null);
@@ -40,22 +53,29 @@ public class StatusViewModel extends ViewModel {
 
     private final MutableLiveData<Integer> mConnectionState = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getObjectConnectionState() {
+    public MutableLiveData<Integer> getObjectConnectionState()
+    {
         return mConnectionState;
     }
 
-    public int getConnectionState() {
-        if (mConnectionState.getValue() == null) {
+    public int getConnectionState()
+    {
+        if (mConnectionState.getValue() == null)
+        {
             mConnectionState.setValue(CONNECTION_STATE_DISCONNECTED);
         }
 
         return mConnectionState.getValue();
     }
 
-    public void setConnectionState(int connectionState) {
-        if (Looper.getMainLooper().isCurrentThread()) {
+    public void setConnectionState(int connectionState)
+    {
+        if (Looper.getMainLooper().isCurrentThread())
+        {
             mConnectionState.setValue(connectionState);
-        } else {
+        }
+        else
+        {
             mConnectionState.postValue(connectionState);
         }
     }
@@ -64,34 +84,46 @@ public class StatusViewModel extends ViewModel {
     private final MutableLiveData<Integer> mFwVerUpper = new MutableLiveData<>();
     private final MutableLiveData<Integer> mFwVerLower = new MutableLiveData<>();
 
-    public int getFwVerUpper() {
-        if (mFwVerUpper.getValue() == null) {
+    public int getFwVerUpper()
+    {
+        if (mFwVerUpper.getValue() == null)
+        {
             mFwVerUpper.setValue(-1);
         }
 
         return mFwVerUpper.getValue();
     }
 
-    public int getFwVerLower() {
-        if (mFwVerLower.getValue() == null) {
+    public int getFwVerLower()
+    {
+        if (mFwVerLower.getValue() == null)
+        {
             mFwVerLower.setValue(-1);
         }
 
         return mFwVerLower.getValue();
     }
 
-    public void setFwVerUpper(int fwVerUpper) {
-        if (Looper.getMainLooper().isCurrentThread()) {
+    public void setFwVerUpper(int fwVerUpper)
+    {
+        if (Looper.getMainLooper().isCurrentThread())
+        {
             mFwVerUpper.setValue(fwVerUpper);
-        } else {
+        }
+        else
+        {
             mFwVerUpper.postValue(fwVerUpper);
         }
     }
 
-    public void setFwVerLower(int fwVerLower) {
-        if (Looper.myLooper().isCurrentThread()) {
+    public void setFwVerLower(int fwVerLower)
+    {
+        if (Looper.myLooper().isCurrentThread())
+        {
             mFwVerLower.setValue(fwVerLower);
-        } else {
+        }
+        else
+        {
             mFwVerLower.postValue(fwVerLower);
         }
     }
@@ -99,16 +131,20 @@ public class StatusViewModel extends ViewModel {
     // ISD ID
     private final MutableLiveData<Integer> mIsdID = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataIsdID() {
+    public MutableLiveData<Integer> getLiveDataIsdID()
+    {
         return mIsdID;
     }
 
-    public void setValueIsdID(int id) {
+    public void setValueIsdID(int id)
+    {
         mIsdID.setValue(id);
     }
 
-    public int getValueIsdID() {
-        if (mIsdID.getValue() == null) {
+    public int getValueIsdID()
+    {
+        if (mIsdID.getValue() == null)
+        {
             mIsdID.setValue(0);
         }
 
@@ -118,16 +154,20 @@ public class StatusViewModel extends ViewModel {
     // Battery level
     private final MutableLiveData<Integer> mBatteryLevel = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataBatteryLevel() {
+    public MutableLiveData<Integer> getLiveDataBatteryLevel()
+    {
         return mBatteryLevel;
     }
 
-    public void setValueBatteryLevel(int level) {
+    public void setValueBatteryLevel(int level)
+    {
         mBatteryLevel.setValue(level);
     }
 
-    public int getValueBatteryLevel() {
-        if (mBatteryLevel.getValue() == null) {
+    public int getValueBatteryLevel()
+    {
+        if (mBatteryLevel.getValue() == null)
+        {
             mBatteryLevel.setValue(PacketInfo.INIT_VALUE_BATTERY);
         }
 
@@ -137,16 +177,20 @@ public class StatusViewModel extends ViewModel {
     // Notification
     private final MutableLiveData<Integer> mNotification = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataNotification() {
+    public MutableLiveData<Integer> getLiveDataNotification()
+    {
         return mNotification;
     }
 
-    public void setValueNotification(int value) {
+    public void setValueNotification(int value)
+    {
         mNotification.setValue(value);
     }
 
-    public int getValueNotification() {
-        if (mNotification.getValue() == null) {
+    public int getValueNotification()
+    {
+        if (mNotification.getValue() == null)
+        {
             mNotification.setValue(PacketInfo.INIT_VALUE_NOTIFICATION);
         }
 
@@ -156,16 +200,20 @@ public class StatusViewModel extends ViewModel {
     // LED
     private final MutableLiveData<Integer> mLed = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataLed() {
+    public MutableLiveData<Integer> getLiveDataLed()
+    {
         return mLed;
     }
 
-    public void setValueLed(int value) {
+    public void setValueLed(int value)
+    {
         mLed.setValue(value);
     }
 
-    public int getValueLed() {
-        if (mLed.getValue() == null) {
+    public int getValueLed()
+    {
+        if (mLed.getValue() == null)
+        {
             mLed.setValue(PacketInfo.INIT_VALUE_LED);
         }
 
@@ -175,16 +223,20 @@ public class StatusViewModel extends ViewModel {
     // Telecoil
     private final MutableLiveData<Integer> mTelecoil = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataTelecoil() {
+    public MutableLiveData<Integer> getLiveDataTelecoil()
+    {
         return mTelecoil;
     }
 
-    public void setValueTelecoil(int value) {
+    public void setValueTelecoil(int value)
+    {
         mTelecoil.setValue(value);
     }
 
-    public int getValueTelecoil() {
-        if (mTelecoil.getValue() == null) {
+    public int getValueTelecoil()
+    {
+        if (mTelecoil.getValue() == null)
+        {
             mTelecoil.setValue(PacketInfo.INIT_VALUE_TELECOIL);
         }
 
@@ -194,16 +246,20 @@ public class StatusViewModel extends ViewModel {
     // Max output
     private final MutableLiveData<Integer> mMaxOutput = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataMaxOutput() {
+    public MutableLiveData<Integer> getLiveDataMaxOutput()
+    {
         return mMaxOutput;
     }
 
-    public void setValueMaxOutput(int value) {
+    public void setValueMaxOutput(int value)
+    {
         mMaxOutput.setValue(value);
     }
 
-    public int getValueMaxOutput() {
-        if (mMaxOutput.getValue() == null) {
+    public int getValueMaxOutput()
+    {
+        if (mMaxOutput.getValue() == null)
+        {
             mMaxOutput.setValue(PacketInfo.INIT_VALUE_MAX_OUTPUT);
         }
 
@@ -213,16 +269,20 @@ public class StatusViewModel extends ViewModel {
     // Volume
     private final MutableLiveData<Integer> mVolume = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataVolume() {
+    public MutableLiveData<Integer> getLiveDataVolume()
+    {
         return mVolume;
     }
 
-    public void setValueVolume(int value) {
+    public void setValueVolume(int value)
+    {
         mVolume.setValue(value);
     }
 
-    public int getValueVolume() {
-        if (mVolume.getValue() == null) {
+    public int getValueVolume()
+    {
+        if (mVolume.getValue() == null)
+        {
             mVolume.setValue(PacketInfo.INIT_VALUE_VOLUME);
         }
 
@@ -232,16 +292,20 @@ public class StatusViewModel extends ViewModel {
     // Program
     private final MutableLiveData<Integer> mProgram = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataProgram() {
+    public MutableLiveData<Integer> getLiveDataProgram()
+    {
         return mProgram;
     }
 
-    public void setValueProgram(int value) {
+    public void setValueProgram(int value)
+    {
         mProgram.setValue(value);
     }
 
-    public int getValueProgram() {
-        if (mProgram.getValue() == null) {
+    public int getValueProgram()
+    {
+        if (mProgram.getValue() == null)
+        {
             mProgram.setValue(PacketInfo.INIT_VALUE_PROGRAM);
         }
 
@@ -251,16 +315,20 @@ public class StatusViewModel extends ViewModel {
     // 링크 Tx 파워 하한(PMIC) 레벨. 1스텝 = 25mV. 연결 직후 특수 명령(0x59) 옵션 5로 읽어온다.
     private final MutableLiveData<Integer> mMinTxPowerLevel = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataMinTxPowerLevel() {
+    public MutableLiveData<Integer> getLiveDataMinTxPowerLevel()
+    {
         return mMinTxPowerLevel;
     }
 
-    public void setValueMinTxPowerLevel(int value) {
+    public void setValueMinTxPowerLevel(int value)
+    {
         mMinTxPowerLevel.setValue(value);
     }
 
-    public int getValueMinTxPowerLevel() {
-        if (mMinTxPowerLevel.getValue() == null) {
+    public int getValueMinTxPowerLevel()
+    {
+        if (mMinTxPowerLevel.getValue() == null)
+        {
             mMinTxPowerLevel.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -273,16 +341,20 @@ public class StatusViewModel extends ViewModel {
      * 4.6 미만이거나 아직 못 읽었으면 LINK_VALUE_UNKNOWN 이고, 그때는 화면에서 숨긴다. */
     private final MutableLiveData<Integer> mMaxTxPowerLevel = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataMaxTxPowerLevel() {
+    public MutableLiveData<Integer> getLiveDataMaxTxPowerLevel()
+    {
         return mMaxTxPowerLevel;
     }
 
-    public void setValueMaxTxPowerLevel(int value) {
+    public void setValueMaxTxPowerLevel(int value)
+    {
         mMaxTxPowerLevel.setValue(value);
     }
 
-    public int getValueMaxTxPowerLevel() {
-        if (mMaxTxPowerLevel.getValue() == null) {
+    public int getValueMaxTxPowerLevel()
+    {
+        if (mMaxTxPowerLevel.getValue() == null)
+        {
             mMaxTxPowerLevel.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -295,16 +367,20 @@ public class StatusViewModel extends ViewModel {
     // 피드포워드 사용 (인덱스 17). 0 · 1
     private final MutableLiveData<Integer> mFfEnable = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataFfEnable() {
+    public MutableLiveData<Integer> getLiveDataFfEnable()
+    {
         return mFfEnable;
     }
 
-    public void setValueFfEnable(int value) {
+    public void setValueFfEnable(int value)
+    {
         mFfEnable.setValue(value);
     }
 
-    public int getValueFfEnable() {
-        if (mFfEnable.getValue() == null) {
+    public int getValueFfEnable()
+    {
+        if (mFfEnable.getValue() == null)
+        {
             mFfEnable.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -314,16 +390,20 @@ public class StatusViewModel extends ViewModel {
     // 피드포워드 쿨다운 msec (18)
     private final MutableLiveData<Integer> mFfCooldown = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataFfCooldown() {
+    public MutableLiveData<Integer> getLiveDataFfCooldown()
+    {
         return mFfCooldown;
     }
 
-    public void setValueFfCooldown(int value) {
+    public void setValueFfCooldown(int value)
+    {
         mFfCooldown.setValue(value);
     }
 
-    public int getValueFfCooldown() {
-        if (mFfCooldown.getValue() == null) {
+    public int getValueFfCooldown()
+    {
+        if (mFfCooldown.getValue() == null)
+        {
             mFfCooldown.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -333,16 +413,20 @@ public class StatusViewModel extends ViewModel {
     // 피드포워드 상승 스텝 (19). 25mV 단위
     private final MutableLiveData<Integer> mFfStep = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataFfStep() {
+    public MutableLiveData<Integer> getLiveDataFfStep()
+    {
         return mFfStep;
     }
 
-    public void setValueFfStep(int value) {
+    public void setValueFfStep(int value)
+    {
         mFfStep.setValue(value);
     }
 
-    public int getValueFfStep() {
-        if (mFfStep.getValue() == null) {
+    public int getValueFfStep()
+    {
+        if (mFfStep.getValue() == null)
+        {
             mFfStep.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -352,16 +436,20 @@ public class StatusViewModel extends ViewModel {
     // 비율 구간 0 % (20). 채널당 평균 0~63
     private final MutableLiveData<Integer> mFfRatio0 = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataFfRatio0() {
+    public MutableLiveData<Integer> getLiveDataFfRatio0()
+    {
         return mFfRatio0;
     }
 
-    public void setValueFfRatio0(int value) {
+    public void setValueFfRatio0(int value)
+    {
         mFfRatio0.setValue(value);
     }
 
-    public int getValueFfRatio0() {
-        if (mFfRatio0.getValue() == null) {
+    public int getValueFfRatio0()
+    {
+        if (mFfRatio0.getValue() == null)
+        {
             mFfRatio0.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -371,16 +459,20 @@ public class StatusViewModel extends ViewModel {
     // 비율 구간 1 % (21). 64~127
     private final MutableLiveData<Integer> mFfRatio1 = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataFfRatio1() {
+    public MutableLiveData<Integer> getLiveDataFfRatio1()
+    {
         return mFfRatio1;
     }
 
-    public void setValueFfRatio1(int value) {
+    public void setValueFfRatio1(int value)
+    {
         mFfRatio1.setValue(value);
     }
 
-    public int getValueFfRatio1() {
-        if (mFfRatio1.getValue() == null) {
+    public int getValueFfRatio1()
+    {
+        if (mFfRatio1.getValue() == null)
+        {
             mFfRatio1.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -390,16 +482,20 @@ public class StatusViewModel extends ViewModel {
     // 비율 구간 2 % (22). 128~191
     private final MutableLiveData<Integer> mFfRatio2 = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataFfRatio2() {
+    public MutableLiveData<Integer> getLiveDataFfRatio2()
+    {
         return mFfRatio2;
     }
 
-    public void setValueFfRatio2(int value) {
+    public void setValueFfRatio2(int value)
+    {
         mFfRatio2.setValue(value);
     }
 
-    public int getValueFfRatio2() {
-        if (mFfRatio2.getValue() == null) {
+    public int getValueFfRatio2()
+    {
+        if (mFfRatio2.getValue() == null)
+        {
             mFfRatio2.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -409,16 +505,20 @@ public class StatusViewModel extends ViewModel {
     // 비율 구간 3 % (23). 192~255
     private final MutableLiveData<Integer> mFfRatio3 = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataFfRatio3() {
+    public MutableLiveData<Integer> getLiveDataFfRatio3()
+    {
         return mFfRatio3;
     }
 
-    public void setValueFfRatio3(int value) {
+    public void setValueFfRatio3(int value)
+    {
         mFfRatio3.setValue(value);
     }
 
-    public int getValueFfRatio3() {
-        if (mFfRatio3.getValue() == null) {
+    public int getValueFfRatio3()
+    {
+        if (mFfRatio3.getValue() == null)
+        {
             mFfRatio3.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -428,16 +528,20 @@ public class StatusViewModel extends ViewModel {
     // CFX 가 플래그를 세운 횟수 (24). 하위 8비트라 차분을 mod 256 으로 본다
     private final MutableLiveData<Integer> mFfRaised = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataFfRaised() {
+    public MutableLiveData<Integer> getLiveDataFfRaised()
+    {
         return mFfRaised;
     }
 
-    public void setValueFfRaised(int value) {
+    public void setValueFfRaised(int value)
+    {
         mFfRaised.setValue(value);
     }
 
-    public int getValueFfRaised() {
-        if (mFfRaised.getValue() == null) {
+    public int getValueFfRaised()
+    {
+        if (mFfRaised.getValue() == null)
+        {
             mFfRaised.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -447,16 +551,20 @@ public class StatusViewModel extends ViewModel {
     // CM3 가 실제로 올린 횟수 (25). 24 - 25 가 합쳐진 요청이다
     private final MutableLiveData<Integer> mFfApplied = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataFfApplied() {
+    public MutableLiveData<Integer> getLiveDataFfApplied()
+    {
         return mFfApplied;
     }
 
-    public void setValueFfApplied(int value) {
+    public void setValueFfApplied(int value)
+    {
         mFfApplied.setValue(value);
     }
 
-    public int getValueFfApplied() {
-        if (mFfApplied.getValue() == null) {
+    public int getValueFfApplied()
+    {
+        if (mFfApplied.getValue() == null)
+        {
             mFfApplied.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -466,16 +574,20 @@ public class StatusViewModel extends ViewModel {
     // 현재 채널당 평균 amplitude (26). 비율 구간 판정과 같은 값이다
     private final MutableLiveData<Integer> mFfAvgAmp = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataFfAvgAmp() {
+    public MutableLiveData<Integer> getLiveDataFfAvgAmp()
+    {
         return mFfAvgAmp;
     }
 
-    public void setValueFfAvgAmp(int value) {
+    public void setValueFfAvgAmp(int value)
+    {
         mFfAvgAmp.setValue(value);
     }
 
-    public int getValueFfAvgAmp() {
-        if (mFfAvgAmp.getValue() == null) {
+    public int getValueFfAvgAmp()
+    {
+        if (mFfAvgAmp.getValue() == null)
+        {
             mFfAvgAmp.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -485,16 +597,20 @@ public class StatusViewModel extends ViewModel {
     // 매핑(피팅) 전용 Tx 파워 하한 레벨. 1스텝 = 25mV. 연결 직후 특수 명령(0x59) 옵션 9로 읽어온다.
     private final MutableLiveData<Integer> mMappingTxPowerLevel = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataMappingTxPowerLevel() {
+    public MutableLiveData<Integer> getLiveDataMappingTxPowerLevel()
+    {
         return mMappingTxPowerLevel;
     }
 
-    public void setValueMappingTxPowerLevel(int value) {
+    public void setValueMappingTxPowerLevel(int value)
+    {
         mMappingTxPowerLevel.setValue(value);
     }
 
-    public int getValueMappingTxPowerLevel() {
-        if (mMappingTxPowerLevel.getValue() == null) {
+    public int getValueMappingTxPowerLevel()
+    {
+        if (mMappingTxPowerLevel.getValue() == null)
+        {
             mMappingTxPowerLevel.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -504,16 +620,20 @@ public class StatusViewModel extends ViewModel {
     // 링크 Tx 파워 상승 스텝. 1스텝 = 25mV. 연결 직후 특수 명령(0x59) 옵션 11로 읽어온다.
     private final MutableLiveData<Integer> mTxStepUp = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataTxStepUp() {
+    public MutableLiveData<Integer> getLiveDataTxStepUp()
+    {
         return mTxStepUp;
     }
 
-    public void setValueTxStepUp(int value) {
+    public void setValueTxStepUp(int value)
+    {
         mTxStepUp.setValue(value);
     }
 
-    public int getValueTxStepUp() {
-        if (mTxStepUp.getValue() == null) {
+    public int getValueTxStepUp()
+    {
+        if (mTxStepUp.getValue() == null)
+        {
             mTxStepUp.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -523,16 +643,20 @@ public class StatusViewModel extends ViewModel {
     // 링크 Tx 파워 강제 고정 값. 0 이면 해제 상태. 연결 직후 특수 명령(0x59) 옵션 13으로 읽어온다.
     private final MutableLiveData<Integer> mForceTxPowerLevel = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataForceTxPowerLevel() {
+    public MutableLiveData<Integer> getLiveDataForceTxPowerLevel()
+    {
         return mForceTxPowerLevel;
     }
 
-    public void setValueForceTxPowerLevel(int value) {
+    public void setValueForceTxPowerLevel(int value)
+    {
         mForceTxPowerLevel.setValue(value);
     }
 
-    public int getValueForceTxPowerLevel() {
-        if (mForceTxPowerLevel.getValue() == null) {
+    public int getValueForceTxPowerLevel()
+    {
+        if (mForceTxPowerLevel.getValue() == null)
+        {
             mForceTxPowerLevel.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -542,16 +666,20 @@ public class StatusViewModel extends ViewModel {
     // 현재 Tx 파워(관찰값). 지금 PMIC 에 실제로 쓰인 값이라 설정값들과 성격이 다르다.
     private final MutableLiveData<Integer> mCurTxPowerLevel = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataCurTxPowerLevel() {
+    public MutableLiveData<Integer> getLiveDataCurTxPowerLevel()
+    {
         return mCurTxPowerLevel;
     }
 
-    public void setValueCurTxPowerLevel(int value) {
+    public void setValueCurTxPowerLevel(int value)
+    {
         mCurTxPowerLevel.setValue(value);
     }
 
-    public int getValueCurTxPowerLevel() {
-        if (mCurTxPowerLevel.getValue() == null) {
+    public int getValueCurTxPowerLevel()
+    {
+        if (mCurTxPowerLevel.getValue() == null)
+        {
             mCurTxPowerLevel.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -561,16 +689,20 @@ public class StatusViewModel extends ViewModel {
     // 백텔 1회 실패 재시도(one coin) 사용 여부. 0 = 미사용, 1 = 사용.
     private final MutableLiveData<Integer> mOneCoin = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataOneCoin() {
+    public MutableLiveData<Integer> getLiveDataOneCoin()
+    {
         return mOneCoin;
     }
 
-    public void setValueOneCoin(int value) {
+    public void setValueOneCoin(int value)
+    {
         mOneCoin.setValue(value);
     }
 
-    public int getValueOneCoin() {
-        if (mOneCoin.getValue() == null) {
+    public int getValueOneCoin()
+    {
+        if (mOneCoin.getValue() == null)
+        {
             mOneCoin.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -580,16 +712,20 @@ public class StatusViewModel extends ViewModel {
     // 백텔 무한 재시도(infinite coin) 사용 여부. one coin 보다 우선한다. 0 = 미사용, 1 = 사용.
     private final MutableLiveData<Integer> mInfiniteCoin = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataInfiniteCoin() {
+    public MutableLiveData<Integer> getLiveDataInfiniteCoin()
+    {
         return mInfiniteCoin;
     }
 
-    public void setValueInfiniteCoin(int value) {
+    public void setValueInfiniteCoin(int value)
+    {
         mInfiniteCoin.setValue(value);
     }
 
-    public int getValueInfiniteCoin() {
-        if (mInfiniteCoin.getValue() == null) {
+    public int getValueInfiniteCoin()
+    {
+        if (mInfiniteCoin.getValue() == null)
+        {
             mInfiniteCoin.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -600,28 +736,35 @@ public class StatusViewModel extends ViewModel {
     private final MutableLiveData<Integer> mRcProtocolMajor = new MutableLiveData<>();
     private final MutableLiveData<Integer> mRcProtocolMinor = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataRcProtocolMajor() {
+    public MutableLiveData<Integer> getLiveDataRcProtocolMajor()
+    {
         return mRcProtocolMajor;
     }
 
-    public void setValueRcProtocolMajor(int value) {
+    public void setValueRcProtocolMajor(int value)
+    {
         mRcProtocolMajor.setValue(value);
     }
 
-    public int getValueRcProtocolMajor() {
-        if (mRcProtocolMajor.getValue() == null) {
+    public int getValueRcProtocolMajor()
+    {
+        if (mRcProtocolMajor.getValue() == null)
+        {
             mRcProtocolMajor.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
         return mRcProtocolMajor.getValue();
     }
 
-    public void setValueRcProtocolMinor(int value) {
+    public void setValueRcProtocolMinor(int value)
+    {
         mRcProtocolMinor.setValue(value);
     }
 
-    public int getValueRcProtocolMinor() {
-        if (mRcProtocolMinor.getValue() == null) {
+    public int getValueRcProtocolMinor()
+    {
+        if (mRcProtocolMinor.getValue() == null)
+        {
             mRcProtocolMinor.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -631,16 +774,20 @@ public class StatusViewModel extends ViewModel {
     // 링크 제어 모드. 0 = 전원 상태 기준, 1 = 백텔 수신 기준.
     private final MutableLiveData<Integer> mLinkCtrlMode = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataLinkCtrlMode() {
+    public MutableLiveData<Integer> getLiveDataLinkCtrlMode()
+    {
         return mLinkCtrlMode;
     }
 
-    public void setValueLinkCtrlMode(int value) {
+    public void setValueLinkCtrlMode(int value)
+    {
         mLinkCtrlMode.setValue(value);
     }
 
-    public int getValueLinkCtrlMode() {
-        if (mLinkCtrlMode.getValue() == null) {
+    public int getValueLinkCtrlMode()
+    {
+        if (mLinkCtrlMode.getValue() == null)
+        {
             mLinkCtrlMode.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -650,16 +797,20 @@ public class StatusViewModel extends ViewModel {
     // Tx 파워 상승 가속. 연속 미수신 시 상승 폭을 키운다. 0 = 미사용, 1 = 사용.
     private final MutableLiveData<Integer> mTxPowerAccel = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataTxPowerAccel() {
+    public MutableLiveData<Integer> getLiveDataTxPowerAccel()
+    {
         return mTxPowerAccel;
     }
 
-    public void setValueTxPowerAccel(int value) {
+    public void setValueTxPowerAccel(int value)
+    {
         mTxPowerAccel.setValue(value);
     }
 
-    public int getValueTxPowerAccel() {
-        if (mTxPowerAccel.getValue() == null) {
+    public int getValueTxPowerAccel()
+    {
+        if (mTxPowerAccel.getValue() == null)
+        {
             mTxPowerAccel.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -670,16 +821,20 @@ public class StatusViewModel extends ViewModel {
      * 되읽은 값과 실제 동작 개수가 다를 수 있다. 펌웨어가 프레임 수에 맞춰 매 사이클 잘라내기 때문이다. */
     private final MutableLiveData<Integer> mNopStandbyCount = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataNopStandbyCount() {
+    public MutableLiveData<Integer> getLiveDataNopStandbyCount()
+    {
         return mNopStandbyCount;
     }
 
-    public void setValueNopStandbyCount(int value) {
+    public void setValueNopStandbyCount(int value)
+    {
         mNopStandbyCount.setValue(value);
     }
 
-    public int getValueNopStandbyCount() {
-        if (mNopStandbyCount.getValue() == null) {
+    public int getValueNopStandbyCount()
+    {
+        if (mNopStandbyCount.getValue() == null)
+        {
             mNopStandbyCount.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -692,16 +847,20 @@ public class StatusViewModel extends ViewModel {
      * nOFm 자극 방식은 패킷 수를 3 으로 고정해 펄스폭과 어긋나기 때문이다. */
     private final MutableLiveData<Integer> mPulseWidth = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataPulseWidth() {
+    public MutableLiveData<Integer> getLiveDataPulseWidth()
+    {
         return mPulseWidth;
     }
 
-    public void setValuePulseWidth(int value) {
+    public void setValuePulseWidth(int value)
+    {
         mPulseWidth.setValue(value);
     }
 
-    public int getValuePulseWidth() {
-        if (mPulseWidth.getValue() == null) {
+    public int getValuePulseWidth()
+    {
+        if (mPulseWidth.getValue() == null)
+        {
             mPulseWidth.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -710,16 +869,20 @@ public class StatusViewModel extends ViewModel {
 
     private final MutableLiveData<Integer> mFrameNum = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataFrameNum() {
+    public MutableLiveData<Integer> getLiveDataFrameNum()
+    {
         return mFrameNum;
     }
 
-    public void setValueFrameNum(int value) {
+    public void setValueFrameNum(int value)
+    {
         mFrameNum.setValue(value);
     }
 
-    public int getValueFrameNum() {
-        if (mFrameNum.getValue() == null) {
+    public int getValueFrameNum()
+    {
+        if (mFrameNum.getValue() == null)
+        {
             mFrameNum.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -730,16 +893,20 @@ public class StatusViewModel extends ViewModel {
      * 맵이 바뀌어 계산이 다시 돌면 사운드처리기가 0 으로 되돌린다. */
     private final MutableLiveData<Integer> mNopEnable = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataNopEnable() {
+    public MutableLiveData<Integer> getLiveDataNopEnable()
+    {
         return mNopEnable;
     }
 
-    public void setValueNopEnable(int value) {
+    public void setValueNopEnable(int value)
+    {
         mNopEnable.setValue(value);
     }
 
-    public int getValueNopEnable() {
-        if (mNopEnable.getValue() == null) {
+    public int getValueNopEnable()
+    {
+        if (mNopEnable.getValue() == null)
+        {
             mNopEnable.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -749,16 +916,20 @@ public class StatusViewModel extends ViewModel {
     // 자극 전략. 펄스폭과 패킷 수가 어긋나는 이유를 설명하는 데 쓴다.
     private final MutableLiveData<Integer> mStimStrategy = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataStimStrategy() {
+    public MutableLiveData<Integer> getLiveDataStimStrategy()
+    {
         return mStimStrategy;
     }
 
-    public void setValueStimStrategy(int value) {
+    public void setValueStimStrategy(int value)
+    {
         mStimStrategy.setValue(value);
     }
 
-    public int getValueStimStrategy() {
-        if (mStimStrategy.getValue() == null) {
+    public int getValueStimStrategy()
+    {
+        if (mStimStrategy.getValue() == null)
+        {
             mStimStrategy.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -769,16 +940,20 @@ public class StatusViewModel extends ViewModel {
      * 화면은 이 값을 보고 세대가 모르는 버튼을 잠그고 배지 글자를 바꾼다. */
     private final MutableLiveData<Integer> mFwRelease = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataFwRelease() {
+    public MutableLiveData<Integer> getLiveDataFwRelease()
+    {
         return mFwRelease;
     }
 
-    public void setValueFwRelease(int value) {
+    public void setValueFwRelease(int value)
+    {
         mFwRelease.setValue(value);
     }
 
-    public int getValueFwRelease() {
-        if (mFwRelease.getValue() == null) {
+    public int getValueFwRelease()
+    {
+        if (mFwRelease.getValue() == null)
+        {
             mFwRelease.setValue(Status.FW_RELEASE_UNKNOWN);
         }
 
@@ -788,16 +963,20 @@ public class StatusViewModel extends ViewModel {
     // 링크 백텔 주기. 100msec 단위. 연결 직후 특수 명령(0x59) 옵션 4로 읽어온다.
     private final MutableLiveData<Integer> mBacktelPeriod = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataBacktelPeriod() {
+    public MutableLiveData<Integer> getLiveDataBacktelPeriod()
+    {
         return mBacktelPeriod;
     }
 
-    public void setValueBacktelPeriod(int value) {
+    public void setValueBacktelPeriod(int value)
+    {
         mBacktelPeriod.setValue(value);
     }
 
-    public int getValueBacktelPeriod() {
-        if (mBacktelPeriod.getValue() == null) {
+    public int getValueBacktelPeriod()
+    {
+        if (mBacktelPeriod.getValue() == null)
+        {
             mBacktelPeriod.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
@@ -807,19 +986,41 @@ public class StatusViewModel extends ViewModel {
     // 게이팅(묵음) 활성화 상태. 1 = 활성화, 2 = 비활성화. 연결 직후 특수 명령(0x59) 옵션 1로 읽어온다.
     private final MutableLiveData<Integer> mGatingState = new MutableLiveData<>();
 
-    public MutableLiveData<Integer> getLiveDataGatingState() {
+    public MutableLiveData<Integer> getLiveDataGatingState()
+    {
         return mGatingState;
     }
 
-    public void setValueGatingState(int value) {
+    public void setValueGatingState(int value)
+    {
         mGatingState.setValue(value);
     }
 
-    public int getValueGatingState() {
-        if (mGatingState.getValue() == null) {
+    public int getValueGatingState()
+    {
+        if (mGatingState.getValue() == null)
+        {
             mGatingState.setValue(PacketInfo.LINK_VALUE_UNKNOWN);
         }
 
         return mGatingState.getValue();
     }
+    private final MutableLiveData<Integer> mGatingOffset = new MutableLiveData<>(PacketInfo.LINK_VALUE_UNKNOWN);
+
+    public MutableLiveData<Integer> getLiveDataGatingOffset()
+    {
+        return mGatingOffset;
+    }
+
+    public int getValueGatingOffset()
+    {
+        Integer value = mGatingOffset.getValue();
+        return value == null ? PacketInfo.LINK_VALUE_UNKNOWN : value;
+    }
+
+    public void setValueGatingOffset(int value)
+    {
+        mGatingOffset.setValue(value);
+    }
+
 }

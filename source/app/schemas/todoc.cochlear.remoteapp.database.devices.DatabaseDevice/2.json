@@ -1,0 +1,48 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "df5a7b9b139611dd58a3debf66c6c82b",
+    "entities": [
+      {
+        "tableName": "EntityDevice",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`serialNumber` TEXT NOT NULL, `pairingKey` TEXT, `additionalInformation` TEXT, `isActive` INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(`serialNumber`))",
+        "fields": [
+          {
+            "fieldPath": "serialNumber",
+            "columnName": "serialNumber",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pairingKey",
+            "columnName": "pairingKey",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "additionalInformation",
+            "columnName": "additionalInformation",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "isActive",
+            "columnName": "isActive",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "serialNumber"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'df5a7b9b139611dd58a3debf66c6c82b')"
+    ]
+  }
+}

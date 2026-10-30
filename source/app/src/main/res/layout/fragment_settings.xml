@@ -20,7 +20,7 @@
                 android:text="보안"
                 android:textColor="@color/white_70"
                 android:textSize="@dimen/type_body"
-                android:visibility="gone" android:fontFamily="@font/pretendard" />
+                android:visibility="gone" android:fontFamily="@font/app_sans" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switch_lock_screen"
@@ -39,7 +39,7 @@
                 android:text="등록관리"
                 android:textColor="@color/white_70"
                 android:textSize="@dimen/type_body"
-                android:visibility="gone" android:fontFamily="@font/pretendard" />
+                android:visibility="gone" android:fontFamily="@font/app_sans" />
 
             <Button
                 android:id="@+id/button_user"
@@ -53,7 +53,7 @@
                 android:textSize="@dimen/type_body"
                 app:icon="@drawable/settings_ic_arrow_24dp"
                 app:iconGravity="end"
-                app:iconTint="@color/white_90" android:fontFamily="@font/pretendard"  android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:layout_marginTop="6dp" android:layout_marginBottom="6dp" />
+                app:iconTint="@color/white_90" android:fontFamily="@font/app_sans"  android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:layout_marginTop="6dp" android:layout_marginBottom="6dp" />
 
             <Button
                 android:id="@+id/button_device"
@@ -67,7 +67,7 @@
                 android:textSize="@dimen/type_body"
                 app:icon="@drawable/settings_ic_arrow_24dp"
                 app:iconGravity="end"
-                app:iconTint="@color/white_90" android:fontFamily="@font/pretendard"  android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:layout_marginTop="6dp" android:layout_marginBottom="6dp" />
+                app:iconTint="@color/white_90" android:fontFamily="@font/app_sans"  android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:layout_marginTop="6dp" android:layout_marginBottom="6dp" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -76,7 +76,7 @@
                 android:text="고객지원"
                 android:textColor="@color/white_70"
                 android:textSize="@dimen/type_body"
-                android:visibility="gone" android:fontFamily="@font/pretendard" />
+                android:visibility="gone" android:fontFamily="@font/app_sans" />
 
             <Button
                 android:id="@+id/button_manual"
@@ -89,7 +89,7 @@
                 android:textColor="@color/white_90"
                 app:icon="@drawable/settings_ic_arrow_24dp"
                 app:iconGravity="end"
-                app:iconTint="@color/white_90" android:fontFamily="@font/pretendard"  android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:layout_marginTop="6dp" android:layout_marginBottom="6dp" />
+                app:iconTint="@color/white_90" android:fontFamily="@font/app_sans"  android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:layout_marginTop="6dp" android:layout_marginBottom="6dp" />
 
             <Button
                 android:id="@+id/settings_check_conn_ote_info_button"
@@ -102,7 +102,7 @@
                 android:textColor="@color/white_90"
                 app:icon="@drawable/settings_ic_arrow_24dp"
                 app:iconGravity="end"
-                app:iconTint="@color/white_90" android:fontFamily="@font/pretendard"  android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:layout_marginTop="6dp" android:layout_marginBottom="6dp" />
+                app:iconTint="@color/white_90" android:fontFamily="@font/app_sans"  android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:layout_marginTop="6dp" android:layout_marginBottom="6dp" />
         </LinearLayout>
     </ScrollView>
 </layout>

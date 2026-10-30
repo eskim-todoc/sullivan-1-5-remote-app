@@ -18,9 +18,9 @@ public class EntityLog
     public String toString()
     {
         return "Logging{" +
-                "number=" + number +
-                ", date='" + date + '\'' +
-                ", message='" + message + '\'' +
-                '}';
+            "number=" + number +
+            ", date='" + date + '\'' +
+            ", message='" + message + '\'' +
+            '}';
     }
 }

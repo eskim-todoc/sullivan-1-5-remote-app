@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Decorative glass chrome; status, battery and firmware semantic colors stay separate. -->
+    <color name="glass_accent_text">#E2E6FF</color>
+    <color name="glass_muted_text">#C8CFDF</color>
+    <color name="glass_selected_fill">#FF424D79</color>
+    <color name="glass_selected_stroke">#FFB3BCFF</color>
+    <color name="glass_unselected_fill">#FF303946</color>
+    <color name="glass_unselected_stroke">#7A8998BB</color>
+    <color name="glass_chrome_accent">#B3BCFF</color>
+</resources>

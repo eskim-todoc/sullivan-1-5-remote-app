@@ -116,14 +116,14 @@ public class AddDeviceFragment extends Fragment
 
 
                 Status.instance().lastDialog =
-                        new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
-                                .setTitle("주의")
-                                .setMessage("제조번호를 입력해주세요.")
-                                .setPositiveButton("확인", (dialogInterface, i) ->
-                                {
-                                })
-                                .setCancelable(false)
-                                .create();
+                    new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
+                        .setTitle("주의")
+                        .setMessage("제조번호를 입력해주세요.")
+                        .setPositiveButton("확인", (dialogInterface, i) ->
+                        {
+                        })
+                        .setCancelable(false)
+                        .create();
                 Status.instance().lastDialog.show();
             }
             else if (device.pairingKey == null || device.pairingKey.length() != 6)
@@ -150,14 +150,14 @@ public class AddDeviceFragment extends Fragment
 
 
                 Status.instance().lastDialog =
-                        new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
-                                .setTitle("주의")
-                                .setMessage("페어링 키는 6자리 번호입니다.")
-                                .setPositiveButton("확인", (dialogInterface, i) ->
-                                {
-                                })
-                                .setCancelable(false)
-                                .create();
+                    new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
+                        .setTitle("주의")
+                        .setMessage("페어링 키는 6자리 번호입니다.")
+                        .setPositiveButton("확인", (dialogInterface, i) ->
+                        {
+                        })
+                        .setCancelable(false)
+                        .create();
                 Status.instance().lastDialog.show();
             }
             else
@@ -187,14 +187,14 @@ public class AddDeviceFragment extends Fragment
 
 
                     Status.instance().lastDialog =
-                            new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
-                                    .setTitle("주의")
-                                    .setMessage("이미 등록된 제조번호입니다.")
-                                    .setPositiveButton("확인", (dialogInterface, i) ->
-                                    {
-                                    })
-                                    .setCancelable(false)
-                                    .create();
+                        new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
+                            .setTitle("주의")
+                            .setMessage("이미 등록된 제조번호입니다.")
+                            .setPositiveButton("확인", (dialogInterface, i) ->
+                            {
+                            })
+                            .setCancelable(false)
+                            .create();
                     Status.instance().lastDialog.show();
                 }
                 else
@@ -214,7 +214,7 @@ public class AddDeviceFragment extends Fragment
                     UtilDevice.instance.insert(device);
 
                     UtilLog.instance.writeLog(
-                            "사운드처리기 추가 : 제품번호=" + device.serialNumber + ", 보안코드=" + device.pairingKey + ", 추가정보=" + device.additionalInformation);
+                        "사운드처리기 추가 : 제품번호=" + device.serialNumber + ", 보안코드=" + device.pairingKey + ", 추가정보=" + device.additionalInformation);
 
                     if (UtilDevice.instance.getDeviceBySerialNumber(device.serialNumber) != null)
                     {

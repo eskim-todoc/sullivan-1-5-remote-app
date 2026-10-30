@@ -81,28 +81,28 @@ public class UtilLog
             // TD2-SW-RC-UNIT-Test-ID-16 [DB 시스템 로그 열기 유닛] 순서[2] 끝.
 
             mDatabase = Room.databaseBuilder(context, DatabaseLog.class, DatabaseLog.DATABASE_NAME)
-                    .addCallback(new RoomDatabase.Callback()
+                .addCallback(new RoomDatabase.Callback()
+                {
+                    @Override
+                    public void onCreate(@NonNull SupportSQLiteDatabase db)
                     {
-                        @Override
-                        public void onCreate(@NonNull SupportSQLiteDatabase db)
-                        {
-                            super.onCreate(db);
-                            db.execSQL(DatabaseLog.DATABASE_ENCODING);
-                            Log.d(TAG, "[로그] 데이터베이스 '" + DatabaseLog.DATABASE_NAME + "'를 생성했습니다.");
-                        }
+                        super.onCreate(db);
+                        db.execSQL(DatabaseLog.DATABASE_ENCODING);
+                        Log.d(TAG, "[로그] 데이터베이스 '" + DatabaseLog.DATABASE_NAME + "'를 생성했습니다.");
+                    }
 
-                        @Override
-                        public void onOpen(@NonNull SupportSQLiteDatabase db)
-                        {
-                            super.onOpen(db);
-                            // TD2-SW-RC-UNIT-Test-ID-16 [DB 시스템 로그 열기 유닛] 순서[1] 시작.
-                            Log.d(TAG, "[로그] 데이터베이스 '" + DatabaseLog.DATABASE_NAME + "'를 열었습니다.");
-                            // TD2-SW-RC-UNIT-Test-ID-16 [DB 시스템 로그 열기 유닛] 순서[1] 끝.
-                        }
-                    })
-                    .fallbackToDestructiveMigration()
-                    .allowMainThreadQueries()
-                    .build();
+                    @Override
+                    public void onOpen(@NonNull SupportSQLiteDatabase db)
+                    {
+                        super.onOpen(db);
+                        // TD2-SW-RC-UNIT-Test-ID-16 [DB 시스템 로그 열기 유닛] 순서[1] 시작.
+                        Log.d(TAG, "[로그] 데이터베이스 '" + DatabaseLog.DATABASE_NAME + "'를 열었습니다.");
+                        // TD2-SW-RC-UNIT-Test-ID-16 [DB 시스템 로그 열기 유닛] 순서[1] 끝.
+                    }
+                })
+                .fallbackToDestructiveMigration()
+                .allowMainThreadQueries()
+                .build();
         }
         else
         {
@@ -196,9 +196,9 @@ public class UtilLog
             for (int i = 0; i < entityLogs.size(); i++)
             {
                 Log.d(TAG, "[로그] {인덱스 = " + entityLogs.get(i).number +
-                        "}, {번호 = " + entityLogs.get(i).number +
-                        "}, {일시 = " + entityLogs.get(i).date +
-                        "}, {메시지 = " + entityLogs.get(i).message + "}");
+                    "}, {번호 = " + entityLogs.get(i).number +
+                    "}, {일시 = " + entityLogs.get(i).date +
+                    "}, {메시지 = " + entityLogs.get(i).message + "}");
             }
         }
     }

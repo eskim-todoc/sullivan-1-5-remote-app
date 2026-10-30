@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="device_badge_card" type="id" />
+    <item name="device_badge_photo" type="id" />
+    <item name="device_badge_wearing_position" type="id" />
+    <item name="device_badge_user_name" type="id" />
+    <item name="device_badge_serial_number" type="id" />
+    <item name="device_badge_release" type="id" />
+</resources>

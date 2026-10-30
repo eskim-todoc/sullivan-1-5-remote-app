@@ -15,8 +15,20 @@ public interface DaoUser
     @Query("SELECT * FROM EntityUser")
     List<EntityUser> findAll();
 
+    @Query("SELECT * FROM EntityUser WHERE isActive = 1")
+    List<EntityUser> findActive();
+
+    @Query("UPDATE EntityUser SET isActive = :active WHERE name = :name")
+    int setActive(String name, boolean active);
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(EntityUser entityUser);
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    void insertGroupMember(EntityUser entityUser);
+
+    @Query("DELETE FROM EntityUser WHERE name = :name")
+    int deleteByName(String name);
 
     @Delete
     void delete(EntityUser entityUser);

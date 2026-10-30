@@ -26,4 +26,7 @@ public interface DaoDevice
 
     @Query("SELECT * FROM EntityDevice WHERE serialNumber = :serialNumber")
     EntityDevice getDeviceBySerialNumber(String serialNumber);
+
+    @Query("UPDATE EntityDevice SET isActive = :active WHERE serialNumber = :serialNumber")
+    int setActive(String serialNumber, boolean active);
 }

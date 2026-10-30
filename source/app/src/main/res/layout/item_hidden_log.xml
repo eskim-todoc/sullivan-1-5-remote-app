@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:includeFontPadding="false"
-        android:fontFamily="@font/ibm_plex_sans_kr"
+        android:fontFamily="@font/app_sans"
         android:lineSpacingMultiplier="1.0"
         android:textColor="#AEBEC7"
         android:textSize="10sp" />
@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:includeFontPadding="false"
-        android:fontFamily="@font/ibm_plex_sans_kr"
+        android:fontFamily="@font/app_sans"
         android:lineSpacingMultiplier="1.0"
         android:textColor="#E9F0F2"
         android:textSize="12sp" />

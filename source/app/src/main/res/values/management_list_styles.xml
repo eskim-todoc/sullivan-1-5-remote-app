@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextAppearance.App.ManagementListPrimary" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:fontFamily">@font/app_sans</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/white_90</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="TextAppearance.App.ManagementListAlias" parent="TextAppearance.App.ManagementListPrimary">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/glass_muted_text</item>
+        <item name="android:minHeight">17dp</item>
+    </style>
+
+    <style name="Widget.App.ManagementRegisteredBadge" parent="">
+        <item name="android:fontFamily">@font/app_sans</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/glass_accent_text</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/management_registered_badge</item>
+    </style>
+
+    <style name="Widget.App.ManagementListAdd" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="fabSize">normal</item>
+        <item name="backgroundTint">#FF3B4D72</item>
+        <item name="rippleColor">#38B3BCFF</item>
+        <item name="tint">#EAE2E7</item>
+        <item name="elevation">6dp</item>
+        <item name="pressedTranslationZ">2dp</item>
+        <item name="borderWidth">1dp</item>
+        <item name="useCompatPadding">false</item>
+    </style>
+</resources>

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/remote_control_background_glass"
@@ -19,20 +19,31 @@
                 android:id="@+id/device_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="목록"
+                android:text="등록된 외부기"
                 android:textColor="@color/white_70"
-                android:textSize="14sp" android:fontFamily="@font/ibm_plex_sans_kr"  android:layout_marginBottom="6dp" />
+                android:textSize="14sp"
+                android:fontFamily="@font/app_sans"
+                android:includeFontPadding="false"
+                android:layout_marginBottom="6dp" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/device_recyclerview"
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:overScrollMode="never"
-                android:scrollbars="none"
-                tools:listitem="@layout/item_device"  android:paddingBottom="8dp" android:clipToPadding="false" />
+                android:background="@drawable/remote_glass_panel"
+                android:clipToOutline="true">
 
-        <com.google.android.material.button.MaterialButton android:id="@+id/add_btn" android:layout_width="match_parent" android:layout_height="44dp" android:text="+ 새 등록" android:textSize="14sp" android:fontFamily="@font/ibm_plex_sans_kr" android:textColor="@color/white_90" android:background="@drawable/app_glass_action" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:layout_marginTop="10dp" />
-</LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/device_recyclerview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:overScrollMode="never"
+                    android:scrollbars="none"
+                    android:paddingBottom="16dp"
+                    android:clipToPadding="false"
+                    tools:listitem="@layout/item_device" />
+            </FrameLayout>
+        </LinearLayout>
+
+    </FrameLayout>
 </layout>

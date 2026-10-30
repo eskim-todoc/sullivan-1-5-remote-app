@@ -113,7 +113,7 @@ public class ManualFragment extends Fragment
 
     private final Handler mTouchHandler = new Handler();
     private final Runnable mTouchRunner = () ->
-            mTouchAvailable = true;
+        mTouchAvailable = true;
 
     public void onTouchEvent()
     {

@@ -105,83 +105,43 @@ public class EditDeviceFragment extends Fragment
         mEditDeviceBinding.editDeviceOptionEdittext.setText(mItem.additionalInformation);
     }
 
+    private boolean rejectInUse()
+    {
+        if (!((MainActivity) requireActivity()).isDeviceInUse(mItem.serialNumber))
+        {
+            return false;
+        }
+        new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
+            .setTitle("연결 중인 외부기")
+            .setMessage("연결 장치에서 이 외부기의 연결을 먼저 해제한 뒤 수정하거나 삭제하세요.")
+            .setPositiveButton("확인", null).show();
+        return true;
+    }
+
     private void initDeleteButton()
     {
         mEditDeviceBinding.editDeviceDelButton.setOnClickListener(view ->
         {
-
+            if (rejectInUse())
+            {
+                return;
+            }
             if (Status.instance().lastDialog != null)
             {
-                if (Status.instance().lastDialog.isShowing())
+                Status.instance().lastDialog.dismiss();
+            }
+            Status.instance().lastDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
+                .setTitle("주의").setMessage("외부기 정보를 삭제하시겠습니까?")
+                .setPositiveButton("삭제", (dialog, which) ->
                 {
-                    Status.instance().lastDialog.dismiss();
-                }
-            }
-
-            // 현재 어떠한 사운드처리기와 연결되어 있는 상태라면, 지금 제거하려는 사운드처리기인지 체크한다.
-            if ((Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED
-                    || Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTING)
-                    && Status.instance().connectedDevice.serialNumber.equals(mItem.serialNumber))
-            {
-                Status.instance().lastDialog =
-                        new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
-                                .setTitle("주의")
-                                .setMessage("현재 연결을 해제하고 외부기 정보를 삭제하시겠습니까?")
-                                .setPositiveButton("삭제", (dialogInterface, i) ->
-                                {
-
-                                    UtilDevice.instance.delete(mItem);
-
-                                    UtilLog.instance.writeLog(
-                                            "사운드처리기 제거 : 제품번호=" + mItem.serialNumber + ", 보안코드=" + mItem.pairingKey + ", 추가정보=" + mItem.additionalInformation);
-
-                                    if (Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTED
-                                            || Status.instance().connectionState == Status.CONNECTION_STATE_CONNECTING)
-                                    {
-                                        Status.instance().connectionState = Status.CONNECTION_STATE_DISCONNECTING;
-                                        ((MainActivity) requireActivity()).mBluetoothGatt.disconnect();
-                                    }
-
-                                    requireActivity().onBackPressed();
-                                })
-                                .setNegativeButton("취소", null)
-                                .setCancelable(false)
-                                .create();
-            }
-            else
-            {
-                Status.instance().lastDialog =
-                        new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
-                                .setTitle("주의")
-                                .setMessage("외부기 정보를 삭제하시겠습니까?")
-                                .setPositiveButton("삭제", (dialogInterface, i) ->
-                                {
-
-
-                                    // TD2-SW-RC-UNIT-Test-ID-70 [기기 삭제 유닛] 순서[2] 시작.
-                                    /*
-                                    {
-                                        Log.d(TAG, "serialNumber = " + mItem.serialNumber + ", pairingKey = " + mItem.pairingKey + ", additionalInformation = " + mItem.additionalInformation);
-                                        Log.d(TAG, "delete device information.");
-                                    }
-                                    */
-                                    // TD2-SW-RC-UNIT-Test-ID-70 [기기 삭제 유닛] 순서[2] 끝.
-
-
-
-                                    UtilDevice.instance.delete(mItem);
-
-                                    UtilLog.instance.writeLog(
-                                            "사운드처리기 제거 : 제품번호=" + mItem.serialNumber + ", 보안코드=" + mItem.pairingKey + ", 추가정보=" + mItem.additionalInformation);
-
-                                    requireActivity().onBackPressed();
-                                })
-                                .setNegativeButton("취소", (dialogInterface, i) ->
-                                {
-                                })
-                                .setCancelable(false)
-                                .create();
-            }
+                    if (rejectInUse())
+                    {
+                        return;
+                    }
+                    UtilDevice.instance.delete(mItem);
+                    UtilLog.instance.writeLog("사운드처리기 제거 : 제품번호=" + mItem.serialNumber);
+                    requireActivity().onBackPressed();
+                }).setNegativeButton("취소", null).create();
             Status.instance().lastDialog.show();
         });
     }
@@ -190,6 +150,10 @@ public class EditDeviceFragment extends Fragment
     {
         mEditDeviceBinding.editDeviceEditButton.setOnClickListener(view ->
         {
+            if (rejectInUse())
+            {
+                return;
+            }
             mItem.pairingKey = Objects.requireNonNull(mEditDeviceBinding.editDeviePairingKeyEdittext.getText()).toString();
             mItem.additionalInformation = Objects.requireNonNull(mEditDeviceBinding.editDeviceOptionEdittext.getText()).toString();
 
@@ -216,14 +180,14 @@ public class EditDeviceFragment extends Fragment
 
 
                 Status.instance().lastDialog =
-                        new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
-                                .setTitle("주의")
-                                .setMessage("페어링 키는 6자리 번호입니다.")
-                                .setPositiveButton("확인", (dialogInterface, i) ->
-                                {
-                                })
-                                .setCancelable(false)
-                                .create();
+                    new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(requireContext())
+                        .setTitle("주의")
+                        .setMessage("페어링 키는 6자리 번호입니다.")
+                        .setPositiveButton("확인", (dialogInterface, i) ->
+                        {
+                        })
+                        .setCancelable(false)
+                        .create();
                 Status.instance().lastDialog.show();
             }
             else
@@ -243,7 +207,7 @@ public class EditDeviceFragment extends Fragment
                 UtilDevice.instance.update(mItem);
 
                 UtilLog.instance.writeLog(
-                        "사운드처리기 수정 : 제품번호=" + mItem.serialNumber + ", 보안코드=" + mItem.pairingKey + ", 추가정보=" + mItem.additionalInformation);
+                    "사운드처리기 수정 : 제품번호=" + mItem.serialNumber + ", 보안코드=" + mItem.pairingKey + ", 추가정보=" + mItem.additionalInformation);
 
                 requireActivity().onBackPressed();
             }

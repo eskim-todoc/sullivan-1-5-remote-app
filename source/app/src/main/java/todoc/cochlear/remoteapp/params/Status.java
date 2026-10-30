@@ -12,7 +12,8 @@ import todoc.cochlear.remoteapp.database.users.EntityUser;
 
 public class Status
 {
-    // Instance and getter.
+    // Legacy app-shell state only. Each BLE session owns a separate new Status().
+    // Keep this fixed: lock/service/navigation flags must not follow device selection.
     private final static Status _instance = new Status();
 
     public static Status instance()
@@ -20,9 +21,9 @@ public class Status
         return _instance;
     }
 
-    static public final int CONNECTION_STATE_DISCONNECTED  = 0;
-    static public final int CONNECTION_STATE_CONNECTING    = 1;
-    static public final int CONNECTION_STATE_CONNECTED     = 2;
+    static public final int CONNECTION_STATE_DISCONNECTED = 0;
+    static public final int CONNECTION_STATE_CONNECTING = 1;
+    static public final int CONNECTION_STATE_CONNECTED = 2;
     static public final int CONNECTION_STATE_DISCONNECTING = 3;
 
     static public final int SCAN_STATE_STOPPED = 0;
@@ -35,23 +36,23 @@ public class Status
     static public final int EXIT_CAPTURE_SERVICE_STATE_STARTED = 1;
 
     static public final int ACTIVITY_RUNNING_STATE_NOT_FOREGROUND = 0;
-    static public final int ACTIVITY_RUNNING_STATE_FOREGROUND     = 1;
+    static public final int ACTIVITY_RUNNING_STATE_FOREGROUND = 1;
 
-    static public final int LOCK_SCREEN_STATE_LOCK             = 0;
+    static public final int LOCK_SCREEN_STATE_LOCK = 0;
     static public final int LOCK_SCREEN_STATE_TEMPORARY_UNLOCK = 1;
 
     static public final int RESENDING_PACKET_COUNT = 3;
     /*
-    */
+     */
 
     public int typeOfFragment;
 
-    public int          connectionState;         // BLE 기기 연결 상태
-    public int          scanState;               // BLE 스캔 상태
-    public int          transferState;           // BLE 패킷 전송 상태
-    public int          exitCaptureState;        // 강제 종료 포착 서비스 상태
-    public int          activityRunningState;    // 액티비티 동작 상태
-    public int          lockScreenState;         // 일시적으로 잠금화면 기능을 해제한 상태
+    public int connectionState;         // BLE 기기 연결 상태
+    public int scanState;               // BLE 스캔 상태
+    public int transferState;           // BLE 패킷 전송 상태
+    public int exitCaptureState;        // 강제 종료 포착 서비스 상태
+    public int activityRunningState;    // 액티비티 동작 상태
+    public int lockScreenState;         // 일시적으로 잠금화면 기능을 해제한 상태
 
     /* 사운드처리기 펌웨어의 0x59 프로토콜 세대. 연결 직후 앱이 «물어봐서» 알아낸다.
      *
@@ -67,11 +68,11 @@ public class Status
      *
      * 값의 대소가 곧 세대의 신구다. 기능 지원 여부를 부등호로 판단할 수 있게 이렇게 뒀다. */
     static public final int FW_RELEASE_UNKNOWN = 0;
-    static public final int FW_RELEASE_3       = 3;
-    static public final int FW_RELEASE_4       = 4;
-    static public final int FW_RELEASE_4_PLUS  = 5;
+    static public final int FW_RELEASE_3 = 3;
+    static public final int FW_RELEASE_4 = 4;
+    static public final int FW_RELEASE_4_PLUS = 5;
 
-    public int          fwRelease = FW_RELEASE_UNKNOWN; // 판별된 펌웨어 세대
+    public int fwRelease = FW_RELEASE_UNKNOWN; // 판별된 펌웨어 세대
 
     /* REL4 기기가 실제로 아는 마지막 링크 인덱스.
      *
@@ -85,7 +86,7 @@ public class Status
      *
      * 상수로 못박지 않는 이유가 이것이다. 같은 REL4 라도 시기마다 다르고,
      * 없는 옵션을 보내면 거절당하는데 앱은 그것을 미리 알 수 있다. */
-    public int          rel4LinkIndexMax = 0; // 0 = 아직 일괄 읽기 전
+    public int rel4LinkIndexMax = 0; // 0 = 아직 일괄 읽기 전
 
     /* 사운드처리기 0x59 프로토콜 버전과 지원 옵션 비트맵.
      *
@@ -93,20 +94,20 @@ public class Status
      * 추정을 하지 않는다. 응답이 없거나 에러면 릴리즈 2~3 이하로 보고 묵음만 쓴다.
      *
      * 이 버전은 0x59 만 나타낸다. 펌웨어 전체 버전이 아니다. */
-    public int          rcProtocolMajor = PacketInfo.LINK_VALUE_UNKNOWN;
-    public int          rcProtocolMinor = PacketInfo.LINK_VALUE_UNKNOWN;
-    public byte[]       rcOptionBitmap  = null;
+    public int rcProtocolMajor = PacketInfo.LINK_VALUE_UNKNOWN;
+    public int rcProtocolMinor = PacketInfo.LINK_VALUE_UNKNOWN;
+    public byte[] rcOptionBitmap = null;
 
     /*
-    */
-    public AlertDialog  lastDialog;      // 앱에서 마지막에 출력된 다이얼로그 정보
+     */
+    public AlertDialog lastDialog;      // 앱에서 마지막에 출력된 다이얼로그 정보
     /*
-    */
+     */
     public EntityDevice connectedDevice;// 현재 연결을 시도하거나 연결중이거나 혹은 연결된 상태의 기기 정보
-    public EntityUser   connectedUser;    // 현재 연결을 시도하거나 연결중이거나 혹은 연결된 상태의 사용자 정보
+    public EntityUser connectedUser;    // 현재 연결을 시도하거나 연결중이거나 혹은 연결된 상태의 사용자 정보
 
     // BLE 패킷 전송에 사용되는 바이트 배열
-    public byte[]        sendingPacket;
+    public byte[] sendingPacket;
     public Queue<byte[]> receivedPackets = new LinkedList<>();
 
     public int resendingCount;
@@ -118,6 +119,9 @@ public class Status
     public boolean isEnabledUnlockedToast;
     public boolean isEnabledInternalErrorToast;
 
+    /**
+     * Creates independent device identity, protocol and packet state for one BLE session.
+     */
     public Status()
     {
         isEnabledInvalidPacketToast = false;
@@ -134,16 +138,17 @@ public class Status
 
     static public class TypeOfFragment
     {
-        static public final int NONE           = 0;
+        static public final int NONE = 0;
         static public final int REMOTE_CONTROL = 1;
-        static public final int MENU           = 2;
-        static public final int USER_LIST      = 3;
-        static public final int USER_ADD       = 4;
-        static public final int USER_EDIT      = 5;
-        static public final int DEVICE_LIST    = 6;
-        static public final int DEVICE_ADD     = 7;
-        static public final int DEVICE_EDIT    = 8;
-        static public final int MANUAL         = 9;
-        static public final int HIDDEN_LOG     = 10;
+        static public final int MENU = 2;
+        static public final int USER_LIST = 3;
+        static public final int USER_ADD = 4;
+        static public final int USER_EDIT = 5;
+        static public final int DEVICE_LIST = 6;
+        static public final int DEVICE_ADD = 7;
+        static public final int DEVICE_EDIT = 8;
+        static public final int MANUAL = 9;
+        static public final int HIDDEN_LOG = 10;
+        static public final int REGISTRY = 11;
     }
 }

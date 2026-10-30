@@ -31,17 +31,20 @@ public class EntityUser
     public String ear;
     @ColumnInfo(name = "defaultUser")
     public String defaultUser;
+    @ColumnInfo(defaultValue = "1")
+    public boolean isActive = true;
 
     @NonNull
     @Override
     public String toString()
     {
         return "EntityUser{" +
-                "name='" + name + '\'' +
-                ", passKey='" + passKey + '\'' +
-                ", nickname='" + nickname + '\'' +
-                ", ear='" + ear + '\'' +
-                ", defaultUser='" + defaultUser + '\'' +
-                '}';
+            "name='" + name + '\'' +
+            ", passKey='" + passKey + '\'' +
+            ", nickname='" + nickname + '\'' +
+            ", ear='" + ear + '\'' +
+            ", defaultUser='" + defaultUser + '\'' +
+            ", isActive=" + isActive +
+            '}';
     }
 }
