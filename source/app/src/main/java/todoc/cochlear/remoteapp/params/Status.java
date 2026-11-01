@@ -13,7 +13,7 @@ import todoc.cochlear.remoteapp.database.users.EntityUser;
 public class Status
 {
     // Legacy app-shell state only. Each BLE session owns a separate new Status().
-    // Keep this fixed: lock/service/navigation flags must not follow device selection.
+    // Keep this fixed: service/navigation flags must not follow device selection.
     private final static Status _instance = new Status();
 
     public static Status instance()
@@ -38,8 +38,6 @@ public class Status
     static public final int ACTIVITY_RUNNING_STATE_NOT_FOREGROUND = 0;
     static public final int ACTIVITY_RUNNING_STATE_FOREGROUND = 1;
 
-    static public final int LOCK_SCREEN_STATE_LOCK = 0;
-    static public final int LOCK_SCREEN_STATE_TEMPORARY_UNLOCK = 1;
 
     static public final int RESENDING_PACKET_COUNT = 3;
     /*
@@ -52,7 +50,6 @@ public class Status
     public int transferState;           // BLE 패킷 전송 상태
     public int exitCaptureState;        // 강제 종료 포착 서비스 상태
     public int activityRunningState;    // 액티비티 동작 상태
-    public int lockScreenState;         // 일시적으로 잠금화면 기능을 해제한 상태
 
     /* 사운드처리기 펌웨어의 0x59 프로토콜 세대. 연결 직후 앱이 «물어봐서» 알아낸다.
      *
@@ -133,7 +130,7 @@ public class Status
     @Override
     public String toString()
     {
-        return "Status{" + "typeOfFragment=" + typeOfFragment + ", connectionState=" + connectionState + ", scanState=" + scanState + ", transferState=" + transferState + ", exitCaptureState=" + exitCaptureState + ", activityRunningState=" + activityRunningState + ", lockScreenState=" + lockScreenState + ", lastDialog=" + lastDialog + ", connectedDevice=" + connectedDevice + ", connectedUser=" + connectedUser + ", sendingPacket=" + Arrays.toString(sendingPacket) + ", isEnabledInvalidPacketToast=" + isEnabledInvalidPacketToast + ", isEnabledBusyToast=" + isEnabledBusyToast + ", isEnabledUnlockedToast=" + isEnabledUnlockedToast + ", isEnabledInternalErrorToast=" + isEnabledInternalErrorToast + '}';
+        return "Status{" + "typeOfFragment=" + typeOfFragment + ", connectionState=" + connectionState + ", scanState=" + scanState + ", transferState=" + transferState + ", exitCaptureState=" + exitCaptureState + ", activityRunningState=" + activityRunningState + ", lastDialog=" + lastDialog + ", connectedDevice=" + connectedDevice + ", connectedUser=" + connectedUser + ", sendingPacket=" + Arrays.toString(sendingPacket) + ", isEnabledInvalidPacketToast=" + isEnabledInvalidPacketToast + ", isEnabledBusyToast=" + isEnabledBusyToast + ", isEnabledUnlockedToast=" + isEnabledUnlockedToast + ", isEnabledInternalErrorToast=" + isEnabledInternalErrorToast + '}';
     }
 
     static public class TypeOfFragment

@@ -93,7 +93,6 @@ import todoc.cochlear.remoteapp.fragment.DeviceFragment;
 import todoc.cochlear.remoteapp.fragment.EditDeviceFragment;
 import todoc.cochlear.remoteapp.fragment.EditUserFragment;
 import todoc.cochlear.remoteapp.fragment.LogFragment;
-import todoc.cochlear.remoteapp.fragment.ManualFragment;
 import todoc.cochlear.remoteapp.fragment.RemoteControlFragment;
 import todoc.cochlear.remoteapp.fragment.RegistryFragment;
 import todoc.cochlear.remoteapp.fragment.SettingsFragment;
@@ -112,8 +111,6 @@ import java.nio.charset.StandardCharsets;
 import android.os.SystemClock;
 
 import todoc.cochlear.remoteapp.service.ExitCaptureService;
-import todoc.cochlear.remoteapp.shared_preferences.LockScreen;
-import todoc.cochlear.remoteapp.shared_preferences.ManualScreen;
 import todoc.cochlear.remoteapp.view_model.StatusViewModel;
 
 import android.content.pm.ActivityInfo;
@@ -164,12 +161,6 @@ public class MainActivity extends AppCompatActivity
     public ActivityMainBinding mBinding;
     public Status mStatus;
     private final Status mAppStatus = Status.instance();
-
-    // 잠금화면 관련
-    public LockScreen mLockScreen;
-
-    // 매뉴얼 화면 관련
-    public ManualScreen mManualScreen;
 
     // 뷰모델 관련
     private StatusViewModel mStatusViewModel;
@@ -226,8 +217,6 @@ public class MainActivity extends AppCompatActivity
 
         lastDialogDismiss();
 
-        // Check lock screen password whether registered or not.
-        mLockScreen.resume();
 
     } // End, onResume();
 
@@ -445,7 +434,6 @@ public class MainActivity extends AppCompatActivity
 
         mAppStatus.typeOfFragment = Status.TypeOfFragment.NONE;
 
-        mLockScreen = new LockScreen(getApplicationContext(), MainActivity.this, mBinding); // 잠금화면 객체 생성
 
         initStatusNavigationToolBar(); // 상태바, 네비게이션바, 툴바 초기화
 
@@ -508,10 +496,7 @@ public class MainActivity extends AppCompatActivity
         // 블루투스 관련 객체 획득
         initBluetooth();
 
-        // 생명주기 상 onResume 전에 onCreate가 호출된다. 실핼되는 최초의 한번은 onCreate에서 LockScreen.resume()을 호출해야
-        // 리모컨 프래그먼트에서 LockScreen 활성화 여부에 따른 스캔 시작/정지를 결정한다.
-        Log.d(TAG, "앱 실행 직후에 따른 잠금화면 초기화를 수행합니다.");
-        mLockScreen.resume();
+
 
         // 사용설명서와 잠금 화면 없이 제어 화면에서 시작한다.
         replaceFragment(Status.TypeOfFragment.REMOTE_CONTROL);
@@ -927,8 +912,7 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(this, "OTA 전송 중입니다. 전송을 마친 뒤 이동하세요.", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (fragment instanceof RemoteControlFragment || fragment instanceof SettingsFragment
-            || mBinding.lockScreen.getVisibility() == View.VISIBLE)
+        if (fragment instanceof RemoteControlFragment || fragment instanceof SettingsFragment)
         {
             lastDialogDismiss();
 
@@ -984,25 +968,6 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, new DeviceFragment()).commitAllowingStateLoss();
             */
             replaceFragment(Status.TypeOfFragment.DEVICE_LIST);
-        }
-        // 사용설명서 화면
-        else if (fragment instanceof ManualFragment)
-        {
-            Bundle bundle = ((ManualFragment) fragment).getArguments();
-            if (bundle != null && bundle.getBoolean(ManualFragment.ARG_FIRST_SCREEN))
-            {
-                /*
-                getSupportFragmentManager().beginTransaction().replace(R.id.frame, new RemoteControlFragment()).commitAllowingStateLoss();
-                */
-                replaceFragment(Status.TypeOfFragment.REMOTE_CONTROL);
-            }
-            else
-            {
-                /*
-                getSupportFragmentManager().beginTransaction().replace(R.id.frame, new SettingsFragment()).commitAllowingStateLoss();
-                */
-                replaceFragment(Status.TypeOfFragment.MENU);
-            }
         }
         // 시스템로그 화면
         else if (fragment instanceof todoc.cochlear.remoteapp.fragment.DeviceManagementFragment
@@ -1203,70 +1168,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     //
-    // 잠금화면 버튼 클릭 리스너
-    //
-    public void onLockScreenNumberClickedListener(View view)
-    {
-
-        if (mBinding.lockScreen.getVisibility() == View.VISIBLE)
-        {
-            mLockScreen.numberClickListener(view);
-        }
-    }
-
-    //
-    // 잠금화면 비밀번호 잊어버렸습니다 버튼 리스너
-    //
-    public void onLockScreenForgetPasswordClickedListener(View view)
-    {
-
-        lastDialogDismiss();
-
-        mAppStatus.lastDialog = new todoc.cochlear.remoteapp.ui.GlassAlertDialogBuilder(this).setTitle(getString(R.string.lock_screen_dialog_title)).setMessage(getString(R.string.lock_screen_dialog_message)).setPositiveButton(getString(R.string.lock_screen_dialog_positive), (dialogInterface, i) ->
-        {
-
-            // 현재 연결 중인 사운드처리기가 있을 때
-            for (DeviceSession session : mSessions.all())
-            {
-                session.closeEngine(true);
-            }
-            publishConnections();
-
-            List<EntityUser> users = UtilUser.instance.getUsers();
-            List<EntityDevice> devices = UtilDevice.instance.getDevices();
-
-            for (EntityUser user : users)
-            {
-                UtilUser.instance.delete(user);
-                Log.d(TAG, "사용자 " + user.name + "  삭제됨.");
-            }
-
-            for (EntityDevice device : devices)
-            {
-                UtilDevice.instance.delete(device);
-                Log.d(TAG, "사운드처리기 " + device.serialNumber + "  삭제됨.");
-            }
-
-            /* 암호만 지우고 잠금을 다시 켜지는 않는다.
-             *
-             * 시작 화면에서 잠금을 뺐으므로 초기화 직후만 다시 잠기면 앞뒤가 맞지 않는다.
-             * 지운 암호는 resume() 이 기본 암호로 채운다. 잠금은 설정 화면에서 켠다. */
-            mLockScreen.erasePassword();
-            mLockScreen.resume();
-
-            /* 전체 초기화 뒤에도 설명서를 되살리지 않는다.
-             *
-             * 예전에는 여기서 설명서 표시를 켜고 그 화면으로 보냈다. 시작 화면에서 설명서를
-             * 뺐으므로 초기화 직후만 다시 나오면 앞뒤가 맞지 않는다.
-             * 설명서는 설정 화면에 그대로 있다. */
-            replaceFragment(Status.TypeOfFragment.REMOTE_CONTROL);
-        }).setNegativeButton(getString(R.string.lock_screen_dialog_negative), (dialogInterface, i) ->
-        {
-        }).setCancelable(false).create();
-        mAppStatus.lastDialog.show();
-    }
-
-    //
     // 다이얼로그 없애기
     //
     public void lastDialogDismiss()
@@ -1358,17 +1259,6 @@ public class MainActivity extends AppCompatActivity
             }
 
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, editDeviceFragment).commitAllowingStateLoss();
-        }
-        else if (typeOfFragment == Status.TypeOfFragment.MANUAL)
-        {
-            ManualFragment manualFragment = new ManualFragment();
-
-            if (bundle != null)
-            {
-                manualFragment.setArguments(bundle);
-            }
-
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame, manualFragment).commitAllowingStateLoss();
         }
         else if (typeOfFragment == Status.TypeOfFragment.HIDDEN_LOG)
         {

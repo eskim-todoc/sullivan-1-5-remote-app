@@ -149,20 +149,8 @@
     </style>
 
     <!-- 잠금화면 번호 스타일 -->
-    <style name="RemoteControl.LockScreen.NumberText" parent="Widget.MaterialComponents.Button.TextButton">
-        <item name="android:textColor">@color/white_90</item>
-        <item name="android:textSize">24dp</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-    </style>
 
     <!-- 잠금화면 번호 스타일 -->
-    <style name="RemoteControl.LockScreen.CircleImage" parent="">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginEnd">16dp</item>
-    </style>
 
     <!-- 리모컨 화면 동그란 (ON/OFF) 이미지 버튼 -->
     <style name="RemoteControl.RemoteControl.CircleButton" parent="">

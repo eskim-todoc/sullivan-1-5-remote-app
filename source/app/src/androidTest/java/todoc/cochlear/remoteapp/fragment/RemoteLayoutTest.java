@@ -33,6 +33,26 @@ import static org.junit.Assert.*;
 public class RemoteLayoutTest
 {
     @Test
+    public void activityHasNoLegacyLockOverlayOrManualEntry()
+    {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+        {
+            Context target = InstrumentationRegistry.getInstrumentation().getTargetContext();
+            Context context = new ContextThemeWrapper(target, R.style.app_theme);
+            View root = LayoutInflater.from(context).inflate(R.layout.activity_main, null, false);
+            measure(root, 411, 760);
+            ViewGroup main = root.findViewById(R.id.main_root);
+            assertEquals("Only content and the required BLE pairing prompt remain", 2, main.getChildCount());
+            assertEquals(View.GONE, root.findViewById(R.id.pairing_key_layout).getVisibility());
+            assertTrue(root.findViewById(R.id.frame).getHeight() > 0);
+            for (String removed : new String[]{"lock_screen", "forgot_password", "switch_lock_screen", "button_manual"})
+            {
+                assertEquals(removed, 0, context.getResources().getIdentifier(removed, "id", target.getPackageName()));
+            }
+        });
+    }
+
+    @Test
     public void phoneTabsAndMultiDeviceOtaContentFitAndScroll()
     {
         verify(411, 760, false, 1.0f, "phone");
@@ -60,7 +80,7 @@ public class RemoteLayoutTest
             cfg.densityDpi = 160;
             cfg.fontScale = 1.3f;
             Context context = new ContextThemeWrapper(target.createConfigurationContext(cfg), R.style.app_theme);
-            int[] layouts = {R.layout.fragment_settings, R.layout.fragment_user, R.layout.fragment_add_user,
+            int[] layouts = {R.layout.fragment_user, R.layout.fragment_add_user,
                 R.layout.fragment_edit_user, R.layout.fragment_device, R.layout.fragment_add_device,
                 R.layout.fragment_edit_device};
             for (int layout : layouts)

@@ -89,20 +89,20 @@ public class StatusIsolationTest
         Status shell = Status.instance();
         EntityDevice shellDevice = shell.connectedDevice;
         EntityUser shellUser = shell.connectedUser;
-        int shellLockState = shell.lockScreenState;
+        int shellActivityState = shell.activityRunningState;
         int shellServiceState = shell.exitCaptureState;
 
         Status session = new Status();
         session.connectedDevice = device("1234");
         session.connectedUser = user("Session", EntityUser.EAR_LEFT);
-        session.lockScreenState = shellLockState + 1;
+        session.activityRunningState = shellActivityState + 1;
         session.exitCaptureState = shellServiceState + 1;
 
         assertNotSame(shell, session);
         assertSame(shell, Status.instance());
         assertSame(shellDevice, shell.connectedDevice);
         assertSame(shellUser, shell.connectedUser);
-        assertEquals(shellLockState, shell.lockScreenState);
+        assertEquals(shellActivityState, shell.activityRunningState);
         assertEquals(shellServiceState, shell.exitCaptureState);
     }
 

@@ -3814,25 +3814,19 @@ public class RemoteControlFragment extends Fragment
 
     public void checkRegisteredList_userAndDevice()
     {
-        if (mMainBinding.lockScreen.getVisibility() != View.VISIBLE)
+        if (UtilUser.instance.getUsers().isEmpty())
         {
-            if (UtilUser.instance.getUsers().isEmpty())
-            {
-                makeDialog_noUser();
-            }
-            else
-            {
-                if (UtilDevice.instance.getDevices().isEmpty())
-                {
-                    makeDialog_noDevice();
-                }
-                else
-                {
-                    updateIdentityBadges();
-                    // Searching starts only from the explicit add/search control.
-                    updateConnectionOverlay();
-                }
-            }
+            makeDialog_noUser();
+        }
+        else if (UtilDevice.instance.getDevices().isEmpty())
+        {
+            makeDialog_noDevice();
+        }
+        else
+        {
+            updateIdentityBadges();
+            // Searching starts only from the explicit add/search control.
+            updateConnectionOverlay();
         }
     }
 
