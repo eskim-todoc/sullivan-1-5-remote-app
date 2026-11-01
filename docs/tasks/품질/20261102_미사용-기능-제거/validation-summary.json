@@ -1,0 +1,79 @@
+{
+  "date": "2026-11-02",
+  "baseline": "697eed5",
+  "code_commit": "f76c2d8",
+  "stage_commits": [
+    "957415a",
+    "4511624",
+    "f76c2d8"
+  ],
+  "jvm": {
+    "tests": 138,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "stage3_task": "UP-TO-DATE after source-neutral resource cleanup; passed in stage2"
+  },
+  "android": {
+    "passed": 17,
+    "failures": 0,
+    "physical_phone": "SM-G977N / API31",
+    "includes": "active fragment_user_group form render; no legacy lock/manual entry"
+  },
+  "sqlite": {
+    "passed": 7,
+    "failures": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 288
+  },
+  "build": {
+    "debug": true,
+    "debug_android_test": true
+  },
+  "runtime_font_bytes_unchanged": true,
+  "render_comparison": {
+    "current_captures": 15,
+    "identical": 15,
+    "changed": [],
+    "note": "Only current test output names are counted. The device directory also contains old captures."
+  },
+  "phone_smoke": {
+    "startup": "no lock overlay; scan waits for explicit +",
+    "connected": "TODOC_OTE L FFFF / R4.5 / address suffix65:4A",
+    "received": [
+      "battery80%",
+      "voltage3.987V",
+      "current-0.4mA",
+      "power-1.5mW",
+      "Current PMIC4.325V"
+    ],
+    "registry": {
+      "users": 4,
+      "devices": 2
+    },
+    "ota_slot_read": {
+      "received": true,
+      "current": "FF",
+      "previous": "2"
+    },
+    "settings_or_map_or_key_writes": false,
+    "full_ota_transfer": false
+  },
+  "preserved_core_sources": 40,
+  "gaia_implemented": false,
+  "apk_sha256": "288b1690c6aa4574f81e88c005052a7a20fb24c3ae70d5595d48f5a06b00faf0",
+  "size": {
+    "apk_bytes": 47791345,
+    "font_bytes": 2771431,
+    "runtime_font_sha256": {
+      "app_sans.xml": "35d483d3d032790abca17fe919f5f7b18020c462c89f856553c6bc578b620f0a",
+      "app_sans_500.ttf": "52988d21a6a41c448824e808bad3b8ce94dbab9579dbd1ae5b715985c35c28ed",
+      "app_sans_600.ttf": "93449073aaac877b1094053c9598066aa0e6bb4a94e64549c7a423707763bb04",
+      "app_sans_700.ttf": "4a492661562d1538f19deb5ea4b1be66e22ff10337cb11cd1b0b85061b45f05d"
+    },
+    "apk_removed_bytes": 6222,
+    "apk_reduction_percent": 0.01
+  }
+}

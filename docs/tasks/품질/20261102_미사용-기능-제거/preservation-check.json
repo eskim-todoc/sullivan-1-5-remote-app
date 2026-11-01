@@ -1,0 +1,9 @@
+{
+  "baseline": "697eed5",
+  "checked_files": 40,
+  "changed_files": [],
+  "protected_paths_excluded": [
+    "source/gradle.properties",
+    "source/.idea/deploymentTargetSelector.xml"
+  ]
+}

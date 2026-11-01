@@ -1,0 +1,41 @@
+{
+  "viewports": [
+    {
+      "width": 1440,
+      "scroll": 1440,
+      "anchors": true
+    },
+    {
+      "width": 1024,
+      "scroll": 1024,
+      "anchors": true
+    },
+    {
+      "width": 390,
+      "scroll": 390,
+      "anchors": true
+    }
+  ],
+  "brokenLocalLinks": 0,
+  "libraryOverflow": false,
+  "print_pages": 7,
+  "blank_print_pages": 0,
+  "finalViewports": [
+    {
+      "width": 1440,
+      "scroll": 1440,
+      "commitWrap": "nowrap"
+    },
+    {
+      "width": 1024,
+      "scroll": 1024,
+      "commitWrap": "nowrap"
+    },
+    {
+      "width": 390,
+      "scroll": 390,
+      "commitWrap": "nowrap"
+    }
+  ],
+  "temporary_print_render_removed_after_verification": true
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "weight": 500,
+    "tables_identical": {
+      "cmap": true,
+      "glyf": true,
+      "hmtx": true,
+      "GSUB": true,
+      "GPOS": true,
+      "name": true,
+      "OS/2": true
+    }
+  },
+  {
+    "weight": 600,
+    "tables_identical": {
+      "cmap": true,
+      "glyf": true,
+      "hmtx": true,
+      "GSUB": true,
+      "GPOS": true,
+      "name": true,
+      "OS/2": true
+    }
+  },
+  {
+    "weight": 700,
+    "tables_identical": {
+      "cmap": true,
+      "glyf": true,
+      "hmtx": true,
+      "GSUB": true,
+      "GPOS": true,
+      "name": true,
+      "OS/2": true
+    }
+  }
+]
