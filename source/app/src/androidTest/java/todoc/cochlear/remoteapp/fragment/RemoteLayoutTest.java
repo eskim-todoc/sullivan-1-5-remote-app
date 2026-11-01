@@ -80,8 +80,8 @@ public class RemoteLayoutTest
             cfg.densityDpi = 160;
             cfg.fontScale = 1.3f;
             Context context = new ContextThemeWrapper(target.createConfigurationContext(cfg), R.style.app_theme);
-            int[] layouts = {R.layout.fragment_user, R.layout.fragment_add_user,
-                R.layout.fragment_edit_user, R.layout.fragment_device, R.layout.fragment_add_device,
+            int[] layouts = {R.layout.fragment_user, R.layout.fragment_user_group,
+                R.layout.fragment_device, R.layout.fragment_add_device,
                 R.layout.fragment_edit_device};
             for (int layout : layouts)
             {

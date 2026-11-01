@@ -26,14 +26,4 @@
         <item name="android:background">@drawable/management_registered_badge</item>
     </style>
 
-    <style name="Widget.App.ManagementListAdd" parent="Widget.MaterialComponents.FloatingActionButton">
-        <item name="fabSize">normal</item>
-        <item name="backgroundTint">#FF3B4D72</item>
-        <item name="rippleColor">#38B3BCFF</item>
-        <item name="tint">#EAE2E7</item>
-        <item name="elevation">6dp</item>
-        <item name="pressedTranslationZ">2dp</item>
-        <item name="borderWidth">1dp</item>
-        <item name="useCompatPadding">false</item>
-    </style>
 </resources>

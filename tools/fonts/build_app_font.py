@@ -18,7 +18,7 @@ def build(weight):
         seen = set()
         files = []
         sources = [SOURCES/'inter-variable.ttf', SOURCES/'suit-variable.ttf',
-                   OUT/f'ibm_plex_sans_kr_{ {500:"medium",600:"semibold",700:"bold"}[weight]}.ttf']
+                   SOURCES/f'ibm_plex_sans_kr_{ {500:"medium",600:"semibold",700:"bold"}[weight]}.ttf']
         for index, source in enumerate(sources):
             font = TTFont(source)
             if 'fvar' in font:

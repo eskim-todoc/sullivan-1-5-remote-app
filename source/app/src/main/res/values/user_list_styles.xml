@@ -1,33 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Widget.App.UserEarChip" parent="Widget.MaterialComponents.Chip.Filter">
-        <item name="android:checkable">true</item>
-        <item name="android:minWidth">0dp</item>
-        <item name="android:minHeight">0dp</item>
-        <item name="android:fontFamily">@font/app_sans</item>
-        <item name="android:textSize">12sp</item>
-        <item name="android:textColor">@color/user_ear_chip_text</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:gravity">start|center_vertical</item>
-        <item name="chipMinHeight">32dp</item>
-        <item name="ensureMinTouchTargetSize">true</item>
-        <item name="chipMinTouchTargetSize">44dp</item>
-        <item name="chipCornerRadius">16dp</item>
-        <item name="chipBackgroundColor">@color/user_ear_chip_background</item>
-        <item name="chipStrokeColor">@color/user_ear_chip_stroke</item>
-        <item name="chipStrokeWidth">1dp</item>
-        <item name="rippleColor">#2898C8BF</item>
-        <item name="chipStartPadding">4dp</item>
-        <item name="chipEndPadding">4dp</item>
-        <item name="textStartPadding">0dp</item>
-        <item name="textEndPadding">0dp</item>
-        <item name="iconStartPadding">0dp</item>
-        <item name="iconEndPadding">2dp</item>
-        <item name="chipIconSize">12dp</item>
-        <item name="chipIconVisible">false</item>
-        <item name="checkedIcon">@drawable/user_ear_checked</item>
-        <item name="checkedIconVisible">true</item>
-        <item name="checkedIconTint">#CDE8DF</item>
-        <item name="closeIconVisible">false</item>
-    </style>
 </resources>

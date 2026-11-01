@@ -1,65 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black_100">#FF000000</color>
     <color name="black_90">#FF191919</color>
     <color name="black_80">#FF333333</color>
     <color name="black_70">#FF4C4C4C</color>
-    <color name="black_60">#FF666666</color>
-    <color name="black_50">#FF7F7F7F</color>
-    <color name="black_40">#FF999999</color>
     <color name="black_30">#FFB2B2B2</color>
-    <color name="black_20">#FFCCCCCC</color>
-    <color name="black_10">#FFE5E5E5</color>
 
-    <color name="white_100">#FFFFFFFF</color>
     <color name="white_90">#FFE5E5E5</color>
     <color name="white_80">#FFCCCCCC</color>
     <color name="white_70">#FFB2B2B2</color>
-    <color name="white_60">#FF999999</color>
     <color name="white_50">#FF7F7F7F</color>
     <color name="white_40">#FF666666</color>
-    <color name="white_30">#FF4C4C4C</color>
-    <color name="white_20">#FF333333</color>
-    <color name="white_10">#FF191919</color>
 
-    <color name="accent_100">#8E9BFA</color>
-    <color name="accent_90">#9BA7FC</color>
-    <color name="accent_80">#A7B2FF</color>
     <color name="accent_70">#B3BCFF</color>
-    <color name="accent_60">#BBC3FF</color>
     <color name="accent_50">#C3CAFF</color>
     <color name="accent_40">#CBD1FF</color>
-    <color name="accent_30">#D3D8FF</color>
-    <color name="accent_20">#DBDFFF</color>
-    <color name="accent_10">#E3E6FF</color>
 
     <color name="error_100">#EC407A</color>
-    <color name="error_90">#DA4074</color>
-    <color name="error_80">#C9406E</color>
-    <color name="error_70">#B84068</color>
-    <color name="error_60">#A74062</color>
-    <color name="error_50">#96405D</color>
-    <color name="error_40">#844057</color>
-    <color name="error_30">#734051</color>
-    <color name="error_20">#62404B</color>
-    <color name="error_10">#514045</color>
-
-    <color name="field_100">#FFF296</color>
-    <color name="field_90">#FFF4A0</color>
-    <color name="field_80">#FFF5A9</color>
-    <color name="field_70">#FFF6B2</color>
-    <color name="field_60">#FFF8BB</color>
-    <color name="field_50">#FFF9C4</color>
-    <color name="field_40">#FFFACE</color>
-    <color name="field_30">#FFFCD7</color>
-    <color name="field_20">#FFFDE0</color>
-    <color name="field_10">#FFFEE9</color>
 
 
 
 
-    <color name="black">#000000</color>
-    <color name="white">#FFFFFF</color>
+
 
     <color name="status_bar">@color/black_90</color>
     <color name="toolbar_background">@color/black_80</color>

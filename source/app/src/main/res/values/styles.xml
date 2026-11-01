@@ -71,11 +71,6 @@
         <item name="android:textSize">@dimen/type_caption</item>
     </style>
 
-    <style name="TextAppearance.App.Body2" parent="TextAppearance.MaterialComponents.Body2">
-        <item name="android:fontFamily">@font/app_sans</item>
-        <item name="fontFamily">@font/app_sans</item>
-        <item name="android:textSize">@dimen/type_body</item>
-    </style>
 
     <!-- 다이얼로그 스타일 -->
     <style name="ThemeOverlay.App.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
@@ -153,18 +148,6 @@
     <!-- 잠금화면 번호 스타일 -->
 
     <!-- 리모컨 화면 동그란 (ON/OFF) 이미지 버튼 -->
-    <style name="RemoteControl.RemoteControl.CircleButton" parent="">
-        <item name="android:layout_width">56dp</item>
-        <item name="android:layout_height">56dp</item>
-        <item name="android:elevation">4dp</item>
-        <item name="android:scaleType">center</item>
-        <item name="android:background">
-            @drawable/remote_control_ic_ripple_circle_background
-        </item>
-        <!--
-        <item name="tint">@color/color_on_primary</item>
-        -->
-    </style>
     <!--
     * ****************************************************************************************************
     * ****************************************************************************************************

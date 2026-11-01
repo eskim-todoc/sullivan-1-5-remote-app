@@ -10,17 +10,10 @@
 제어 열이 541dp 가 되어 화면을 넘긴다. 지금(30dp)보다는 나아지므로 타협한 값이다.
 -->
 <resources>
-    <dimen name="tdc_text_size_tiny">11dp</dimen>
-    <dimen name="tdc_text_size_small">12dp</dimen>
-    <dimen name="tdc_text_size_normal">13dp</dimen>
     <dimen name="tdc_text_size_large">15dp</dimen>
-    <dimen name="tdc_text_size_title">19dp</dimen>
 
-    <dimen name="tdc_button_height">32dp</dimen>
 
     <!-- 화면 가장자리 여백. 태블릿에서는 내용이 화면 끝에 붙지 않도록 넉넉히 준다. -->
-    <dimen name="tdc_screen_padding_h">16dp</dimen>
-    <dimen name="tdc_screen_padding_v">10dp</dimen>
 
     <!--
     버튼 사이 간격.
@@ -29,7 +22,6 @@
     (코드가 절반씩 나눠 양쪽에 준다). 두 간격이 같아야 화면이 한 격자로 읽히는데,
     값을 두 곳에 따로 적으면 반드시 어긋난다.
     -->
-    <dimen name="tdc_button_gap">8dp</dimen>
 
     <!--
     상태 격자와 Status of files 의 «한 줄» 높이. 두 격자가 같은 값을 쓴다.
@@ -38,7 +30,6 @@
     (Cur-Status of files, BT-Name, Nop-MFST, Frm-APP0, Prog-APP1).
     글자 크기가 서로 달라 wrap_content 로 두면 아래로 갈수록 어긋난다.
     -->
-    <dimen name="tdc_status_row_height">20dp</dimen>
 
     <!--
     내부기 제조번호 전용 크기.
@@ -47,7 +38,6 @@
     예전에는 연결 화면 제목과 같은 값을 썼는데, 그러면 한쪽을 줄이면
     다른 쪽도 같이 줄어든다.
     -->
-    <dimen name="tdc_text_size_isd_id">14dp</dimen>
 
     <!--
     착용 위치(" - 왼쪽")의 크기. 사용자 이름보다 한 단계 작다.
@@ -55,5 +45,4 @@
     같은 줄에 있지만 이름이 주가 되고 착용 위치는 딸린 정보다.
     크기와 색을 함께 낮춰 그 관계를 보이게 한다.
     -->
-    <dimen name="tdc_text_size_ear">17dp</dimen>
 </resources>
