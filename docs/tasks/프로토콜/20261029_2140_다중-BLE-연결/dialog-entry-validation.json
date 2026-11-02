@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-30",
+  "apkSha256": "f6716698ed70bd576b124fea5bfdc7cb448a0f37521cf473861acdf61a47ab4b",
+  "before": "All 28 decoded source frames in entry interval exposed content shift and delayed blur/border. Previous 50ms sampling conclusion withdrawn.",
+  "fix": "Create dialog contents and blurred snapshot before window attachment; no OnShow/post/pre-draw background mutation; window animation disabled. Existing blur8dp/transparency/shadow retained.",
+  "physicalDialogs": {
+    "연결 해제": {
+      "decodedFrames": 238,
+      "entryInspectedWithoutFrameSubsampling": true,
+      "visiblePositionJumpObserved": false
+    },
+    "외부기 등록": {
+      "decodedFrames": 38,
+      "entryInspectedWithoutFrameSubsampling": true,
+      "visiblePositionJumpObserved": false
+    },
+    "사용자 등록": {
+      "decodedFrames": 33,
+      "entryInspectedWithoutFrameSubsampling": true,
+      "visiblePositionJumpObserved": false
+    },
+    "고정 PMIC 선택": {
+      "decodedFrames": 33,
+      "entryInspectedWithoutFrameSubsampling": true,
+      "visiblePositionJumpObserved": false
+    }
+  },
+  "waveAllArgbColorsAchromatic": true,
+  "waveMotionAndAlpha": "unchanged",
+  "scope": "No settings submitted or registration saved; dialogs cancelled. No full protocol regression."
+}

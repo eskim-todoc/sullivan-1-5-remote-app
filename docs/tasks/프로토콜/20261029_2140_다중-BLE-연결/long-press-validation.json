@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-30",
+  "apkSha256": "90DF3AC447FA8C43560AC962653EAE6689A300229D809501A8B5452CE226142C",
+  "scope": "상단 DeviceRail 터치 롱클릭",
+  "systemTimeoutMs": 500,
+  "touchThresholdMs": 750,
+  "unitTests": 3,
+  "failures": 0,
+  "physical": {
+    "hold600ms": "대화상자 없음",
+    "hold900ms": "연결 해제 대화상자 표시 후 취소",
+    "horizontalDrag900ms": "대화상자 없음",
+    "normalTap": "B 선택 확인 후 A 복원"
+  },
+  "screens": [
+    "671-hold-600ms.png",
+    "672-hold-900ms.png",
+    "674-drag-900ms.png",
+    "675-normal-tap.png"
+  ],
+  "fullRegressionRerun": false
+}

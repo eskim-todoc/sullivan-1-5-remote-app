@@ -1,0 +1,27 @@
+{
+  "apk": "A53F01617BE0976B04EF36C648F5630E8FB76AC75B61FE94D9062E0E1DA8A268",
+  "databases": [
+    {
+      "database": "user_info",
+      "table": "EntityUser",
+      "oldVersion": 1,
+      "newVersion": 2,
+      "beforeRows": 4,
+      "afterRows": 4,
+      "allLegacyFieldsUnchanged": true,
+      "activeRows": 4,
+      "allExistingActive": true
+    },
+    {
+      "database": "DB_DEVICE",
+      "table": "EntityDevice",
+      "oldVersion": 1,
+      "newVersion": 2,
+      "beforeRows": 2,
+      "afterRows": 2,
+      "allLegacyFieldsUnchanged": true,
+      "activeRows": 2,
+      "allExistingActive": true
+    }
+  ]
+}

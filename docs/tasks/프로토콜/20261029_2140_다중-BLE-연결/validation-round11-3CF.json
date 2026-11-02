@@ -1,0 +1,773 @@
+{
+  "updated": "2026-10-30T14:39:51.088430+09:00",
+  "branch": "develop_ota_landscape_multi",
+  "base": "5e259bb",
+  "implementationCommitted": false,
+  "apkSha256": "3CF77FCCE69F5B948DC5672A6F27817787E58289842F3561C1FFC9D67D901A02",
+  "phase": "인라인 목록·버튼 정렬·초기화 배지·단위·연결 물결 최종 UI",
+  "phone": "R3CM7068Y6P / SM-G977N / 1080x2280 / density420 / font_scale1.1",
+  "build": ":app:assembleDebug passed; later UI edits were not followed by a full regression rerun",
+  "install": "adb install -r succeeded; existing registrations retained",
+  "unitTests": {
+    "scope": "135 Android JVM methods executed before subsequent UI-only refinements; not rerun after every visual edit",
+    "total": 135,
+    "failures": 0.0,
+    "errors": 0.0,
+    "suites": [
+      {
+        "name": "todoc.cochlear.remoteapp.activity.ExampleUnitTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.081Z",
+        "methods": [
+          "addition_isCorrect"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.connection.BootReconnectPolicyTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.090Z",
+        "methods": [
+          "threeFreshAttemptsAreBoundedAndUseBootSpecificBackoff",
+          "successfulInitializationOrUserDisconnectStopsFurtherAttempts",
+          "failedAReplacesOnlyItsGenerationAndNeverConsumesOtherDeviceCallbacks"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.connection.GattWriteGateTest",
+        "tests": 14,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.093Z",
+        "methods": [
+          "initializationOtherReadsWritesAndOtaKeepTheirLegacyOneSecondCompletionDeadline",
+          "lateAndroidWriteFailureAfterDeviceAckDoesNotFailTheNextQueuedRequest",
+          "bootInfoMayCompleteAfterOneSecondBeforeItsDeviceAckDeadlineBegins",
+          "missingTelemetryCompletionExpiresAtFiveSecondsWithoutAffectingAnotherSession",
+          "backgroundCallbackPostsOnceAndStillChecksItsCapturedGeneration",
+          "mainLoopAckIsProcessedInlineRatherThanMovedBehindAnExpiredTimer",
+          "telemetryAckBeforeDelayedCompletionCannotArmOrFailTheNextQueuedRequest",
+          "acceptedWriteMustCompleteBeforeAnotherRequestCanEnterAndroid",
+          "periodicTelemetryMayCompleteAfterFourAndHalfSecondsBeforeItsAckTimerStarts",
+          "otaAckAddsSettlingTimeAndCompletionLossIsBounded",
+          "bootInfoAckBeforeAndroidCompletionCannotArmAnOldDeviceAckTimer",
+          "wrongOrRejectedDeviceAckDoesNotOverrideAndroidWriteFailure",
+          "completionTimeoutPoisonsOldGateAndLateCallbackCannotConsumeNewGenerationWrite",
+          "bootSelectAndOtaKeepTheirOriginalOneSecondWriteCompletionLimit"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.connection.OtaHeartbeatPolicyTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.099Z",
+        "methods": [
+          "busyQueueYieldsWithoutLosingDueRequestOrSendingMoreThanOncePerPeriod",
+          "repeatedUiPublicationsCannotPostponeDeadlineAndBootDisarmsIt",
+          "timedOutInfoCannotAttributeLaterOptionlessErrorToAnotherBootRequest",
+          "onlyConfirmedReadyAndCompletePermitHeartbeat",
+          "delayedCallbackAfterCloseCannotSendAndOtherDeviceKeepsItsOwnSchedule"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.connection.OtaSlotPolicyTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.101Z",
+        "methods": [
+          "anApplicationCanOnlyBeReplacedInTheOtherSupportedSlot",
+          "missingOrInvalidBootInformationNeverEnablesWriting",
+          "factoryAndLegacyBootSlotsStillAllowBothBleWritableDestinations"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.connection.RegisteredScanPolicyTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.103Z",
+        "methods": [
+          "cancelledAndPreviousGenerationCallbacksCannotPopulateOrConnectInNewScan",
+          "failedOrCompletedAttemptNeverRepeatsUntilANewExplicitScan",
+          "manualDiscoveryNeverConnectsAndBecomingActiveNeedsAnotherFreshAdvertisement",
+          "onlyFreshActiveRegisteredAdvertisementsCanStartConnections",
+          "liveDeviceIsPreservedAndItsLaterDisconnectDoesNotCauseSameScanReconnect"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.connection.SessionRegistryTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.105Z",
+        "methods": [
+          "selectingAnotherTargetDoesNotRetargetPreviouslyEnqueuedCommands",
+          "busyOrClosedAHasNoEffectOnBTelemetryAndQueue",
+          "reconnectInvalidatesOldCallbacksEvenWhenAddressAndSerialAreIdentical",
+          "closedGenerationCannotBeAttachedAgain"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.connection.SessionUserProfileTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.109Z",
+        "methods": [
+          "exclusiveWorkBlocksDeactivationButAllowsMetadataAndKeyChanges",
+          "removingOneEarOnlyBlocksItsExclusiveWorkAndPreservesTheOtherEarRename",
+          "anUnrelatedProfileIsNotTreatedAsARemovedEarOfTheEditedGroup",
+          "groupRenameMatchesBothEarsByOldMembershipWithoutTouchingAnotherUser",
+          "currentAuthenticationKeepsItsSnapshotWhileTheNextConnectionUsesEditedRegistration"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.database.users.UserGroupEditTest",
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.111Z",
+        "methods": [
+          "absentSideDoesNotBecomeAnActiveProfileWhenNoKeyExists",
+          "explicitAliasEditAppliesToBothEarsWithoutChangingEitherKey",
+          "clearingTheLastKeyRejectsSaveWithoutMutatingTheExistingGroup",
+          "printableAsciiKeysMayMixLettersDigitsAndSymbols",
+          "formAndPlannerShareTheSameWireKeyEligibility",
+          "spacesControlCharactersAndDeleteAreNotWireKeys",
+          "invalidSecondKeyRejectsWholeEditWithoutChangingFirstEar",
+          "renameChangesBothPrimaryKeysAndKeepsTheirSeparateCredentials",
+          "fourKoreanCharactersAreRejectedBeforeAnyProfileCanBeSaved",
+          "groupsOnePersonWithoutCombiningDifferentEarKeysOrInitials",
+          "clearingOneKeyRemovesOnlyThatEarAndPreservesTheOtherEar",
+          "factoryRecordAndKeysSurviveGroupRenameAlongsideBothEars",
+          "editingOneEarPreservesOtherEarKeyAliasAndOriginalSnapshot"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.ff.Ff3SessionTest",
+        "tests": 23,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.116Z",
+        "methods": [
+          "readbackMismatchDoesNotReportSuccess",
+          "saveChangesOnlyDesiredValuesAndStaysOff",
+          "firmwareErrorHasNoIndexAndDoesNotAdvance",
+          "unknownSchemaNeverReadsSettingsOrWrites",
+          "unconfirmedFileCanBeCreatedByModeWrite",
+          "invalidTablesAndMissingValuesNeverWrite",
+          "modeWriteStillRequiresConfirmedFileAfterwards",
+          "timeoutCannotAutomaticallyRetryOrActivate",
+          "wrongWriteEchoStopsBeforeValidate",
+          "ackDelayIsBoundedAndDisconnectCancelsDelayedWork",
+          "unsignedGenerationAndCrcDoNotSignExtend",
+          "schemaAndPaddedReadsPreserveExistingG11WithoutWrites",
+          "capabilityGateDoesNotAssumeFutureCompatibility",
+          "fileFailureIsNotReportedAsSaved",
+          "ackDeadlineStopsAfterTwentyPolls",
+          "runtimePrerequisitesRemainMandatory",
+          "interruptedSettingsReadNeverUnlocksControls",
+          "ackCanArriveLaterWithoutAnyAutomaticModeWrite",
+          "activationRequiresValidLedgerAndSeparateConfirmedModeWrite",
+          "summaryDoesNotFetchSettingsOrUnlockControls",
+          "shortReadDoesNotFillUnknownWithZero",
+          "fullSixteenZonesCanBeEditedWithoutTruncation",
+          "pendingEditIsPreservedAndAbortRestoresExecutionValues"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.ff.Ff3UiTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.129Z",
+        "methods": [
+          "sensitivityDoesNotConfusePowerLimitWithDetection",
+          "categoricalSettingsAreNamesRatherThanProtocolNumbers",
+          "changeReviewShowsOnlyModifiedValuesAndTheirDisplayUnits",
+          "arTimeAppearsOnlyWhenArIsSelected",
+          "decibelsUseAmplitudeRatherThanPowerRatios",
+          "comparisonsDistinguishRiseDropAndStability",
+          "zoneRatiosUsePreviousRealBoundaryAndIgnoreZeroSentinels"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.ota.OtaCoordinatorTest",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.133Z",
+        "methods": [
+          "repeatedRebootKeepsLastCompletedSummaryWithoutAffectingAnotherDeviceTransfer",
+          "liveAvailabilityRecoversFromTemporaryBusyWithoutRecollectingOrReselecting",
+          "finalDataBeingSentIsStillNinetyNineUntilItsAck",
+          "duplicateWrongIndexAndRejectionNeverAdvanceAcknowledgedBytes",
+          "incompleteCollectionAndInvalidSlotCannotBeginOrChangeDenominator",
+          "rebootSnapshotKeepsCompletedFilesAndBytesButDoesNotRestoreMappingMode",
+          "prepareRequiresExactPositiveAckAndNeverStartsDataAutomatically",
+          "latePrepareAckCannotReleaseTheOutstandingFileRequest",
+          "availabilityQueriesDoNotCreateMissingFilesOrChangePreparationState",
+          "lostPrepareAckDoesNotAssumeThatTheInternalLinkIsStillAttached",
+          "sendFailureOrTimeoutHasBoundedFailureAndKeepsConfirmedProgress",
+          "twoDevicesPrepareAndWriteIndependentlyAndCloseDoesNotStopTheOther",
+          "lateFileAckCannotReleaseTheOutstandingPrepareRequest",
+          "buffersAndTargetSlotRemainFrozenWhenAnotherSelectionChangesTheModel",
+          "aggregateProgressCountsAcknowledgedBytesAndFinishesOnlyAfterAllFourFiles"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.ota.OtaFileSelectionTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.141Z",
+        "methods": [
+          "incompleteReadingMalformedAndBusySourcesLeaveExistingTargetUntouched",
+          "completeSelectionCopiesIndependentBuffersWithoutChangingTargetSlotOrTransport",
+          "editingTheRegisteredIdentityKeepsTheCurrentAuthenticationAndOtaTransfer",
+          "changingSharedImagesOrStartingAnotherDeviceCannotAlterInFlightManifest",
+          "copyingFilesKeepsPreparationSeparateAndDoesNotSendOrSelectASlot"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.ota.OtaIsolationTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.143Z",
+        "methods": [
+          "constructingSessionsPreservesTheLegacyShellInstance",
+          "transferStateAndPacketBufferRemainIndependent",
+          "fileBuffersAndProgressBelongToTheirOwningSession",
+          "slotAndFileKeysDoNotAliasWithinOneSession"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.params.BatteryTelemetryTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.145Z",
+        "methods": [
+          "invalidStatusesNeverExposeCachedCurrent",
+          "rel45ExtendedIndexRetainsSignedCurrentAndRejectsLegacyPayload",
+          "legacyKeepsVoltageButDoesNotInventZeroCurrent",
+          "uncalibratedVoltageSuppressesPowerButAllowsValidCurrent",
+          "acceptsAllIndexAndFutureTailWithoutDependingOnReleaseMinor",
+          "chargingRetainsNegativeConsumptionAndLocaleDoesNotChangeUnits",
+          "roundedCurrentDoesNotChangePowerAndTinyChargeDoesNotShowNegativeZero",
+          "decodesFirmwareExampleAndCalculatesUnroundedPower",
+          "sampleAgeBoundaryAndNeverSampledSentinelAreEnforced",
+          "detailedBatteryCanBeProbedFromRel45",
+          "unsignedTimerAndSignedCurrentExtremesDoNotOverflow",
+          "rejectsTruncatedExtensionsHeadersAndOtherTransactions"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.params.DeviceManagementProtocolTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.150Z",
+        "methods": [
+          "requiresExactReadBackRatherThanHeaderOrDisconnect",
+          "mapAcceptanceAndFactoryCompletionUseDifferentContracts",
+          "validatesIdentityAtAsciiBoundary"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.params.StatusIsolationTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.152Z",
+        "methods": [
+          "packetQueuesAndBuffersBelongToOneConnection",
+          "creatingDeviceSessionsDoesNotReplaceTheAppShellAlias",
+          "disconnectingOneDevicePreservesTheOtherIdentityAndProtocolState"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.params.UserControlQueueTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.154Z",
+        "methods": [
+          "telemetryReadDoesNotConsumeOrReplaceQueuedVolumeWrite",
+          "excludesDestructiveManagementAndReadCommands",
+          "boundsCopiesExpiresAndClearsSessionWrites"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.ui.ConnectionSelectorStateTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "timestamp": "2026-10-30T04:58:40.156Z",
+        "methods": [
+          "connectingSelectedTargetShowsItsOwnStateEvenWithAnotherLiveDevice",
+          "aLiveConnectionDoesNotImplyThatATargetHasBeenSelected",
+          "failedTargetStatePrecedesALongEllipsizedName",
+          "pendingUnselectedConnectionIsNotCountedAsLiveOrSelected",
+          "initialEmptyStateHasNoSelectedTargetOrLiveConnections",
+          "healthySelectedTargetKeepsItsCompactName",
+          "disconnectedSelectedTargetIsNotPresentedAsTheOtherLiveConnection"
+        ]
+      }
+    ],
+    "skipped": 0,
+    "base": 49,
+    "additional": 86,
+    "evidence": "jvm-135-results.json"
+  },
+  "sourceSha256": {
+    "activity/MainActivity.java": "9C80115EDA34C6769AA7313C23160C70C0D537799FFFEE48D407592A437B6FA6",
+    "connection/GattWriteGate.java": "3D719CC5A4903F687D98F1B78012F4A822F976A54FFD9EFDF90F9DD2D70C4223",
+    "fragment/RemoteControlFragment.java": "3B3719A9AFCBE12DA567A8047B501ED68058AE2BC9DFE20B3B3C80D6C1098CAF",
+    "fragment/MapManagementFragment.java": "6CFF16D94FF36F08F07659F37CFB27EEB4B9879EF19D76DA3CF4698231E34710",
+    "fragment/UserFragment.java": "CA45CCBC7823F4E0DB176BDBB46884644D98E805FBEFA6CC8DD2CF6D2B2FE3FC",
+    "fragment/DeviceFragment.java": "9F4FF4CF846DD78AA7A7DA05A73F394D911CB5C579550C5EE5D84947093E36D5",
+    "list/UserAdapter.java": "6AD868EA5E3EE53BC17952DB9C5C81E20EDDF7D40520DCFB01C86DF06E7EBECF",
+    "list/DeviceAdapter.java": "FD3DDC8334BD76775B4BF1CE4AFEE48C51DDF4E249C7F91774B9D60382296190",
+    "list/InlineListUi.java": "054CAEC6C9EB26C120D8A57C7726C892875A5DD4480E07512CABDB1D82459032",
+    "ui/GlassControlButton.java": "79FA56CF0E6E6DFCD34EF380D073278738808D7932BE938EB53563954E7D97A9",
+    "ui/GlassConnectionOverlay.java": "A2E994F3A99AEB11C6D204C7786A8133A8BF092DD3F6ABC931DA90E545B625E6",
+    "ui/DeviceRail.java": "A1DB39BDD34E5126AF6DABB5A26DA19A9FBD812A910279BFD9101873E35F503C",
+    "ui/OtaDeviceList.java": "1C318CCC6F98328462E6F9402F88AFE93093A0E59CB666795CFA27D2522D6976"
+  },
+  "physicalLatestUi": {
+    "state": "passed except scopes explicitly listed in remaining",
+    "apkSha256": "3CF77FCCE69F5B948DC5672A6F27817787E58289842F3561C1FFC9D67D901A02",
+    "twoRealDevicesConnected": true,
+    "layout": "176x56dp photo rail; right fixed 44dp main +; plain management lists with aligned inline editors and last-row 48dp +",
+    "screenshots": [
+      "screens/639-final-fixed-main.png",
+      "screens/640-final-fixed-users.png",
+      "screens/645-final-error-fixed.png",
+      "screens/649-final-fixed-map-stable.png",
+      "screens/658-final-targeted-baseline.png"
+    ],
+    "devices": [
+      "TODOC_OTE / EE:94:8D:8B:65:4A / REL4.5 / #196FFFFF",
+      "박의규 / EC:33:E1:59:B8:13 / REL4.6 / #1A5FFFFF"
+    ],
+    "targetedChecks": [
+      "Eight basic buttons use the same capsule surface; actual visible glyph center offsets are 0 to 2 pixels",
+      "User list: new inline draft, three-character key rejected, valid four-character key saved, duplicate initials rejected, rename plus right-ear key saved, temporary group deleted",
+      "Device list: new inline serial/alias/pairing-key saved, alias updated, temporary device deleted",
+      "Input left/right edges and activation checkbox columns align; L/R/F capsule widths do not depend on checked count",
+      "Save error remains visible with keyboard hidden; cancel leaves no draft in the database",
+      "Map reset badges are fixed TODOC_OTE L and TODOC_OTE F; MRI16/32 labels share the left start line; no reset command executed",
+      "Voltage/current/power/step display fullwidth V and compatibility unit glyphs; numeric calculations unchanged",
+      "A-only disconnect/reconnect leaves B connected; final A volume increase/decrease dispatches and returns to baseline"
+    ],
+    "motionEvidence": "motion-review-final.json",
+    "finalRestored": "A selected, A Volume1 and B Volume2; both connected; A factory FF"
+  },
+  "physicalTwoDevices": {
+    "results": [
+      "Independent volume and LED changes with other device values retained and baselines restored",
+      "Confirmed OTA prepare exact 60 01 on both devices",
+      "Prepared idle keep-alive held A308.201s/B277.954s; A10/10 and B9/9 C2 Info requests/ACKs; automatic C3 count0",
+      "More45s and selected target slot preservation",
+      "Explicit B disconnect leaves A connected; manual retry after Android133 reconnects B",
+      "A slot2 and factoryFF automatic fresh-GATT boot restoration while B stays normally connected"
+    ],
+    "evidence": "validation-round8-B31F.json",
+    "state": "passed on B31F deep protocol candidate; later final APK changes rail UI and read-only metadata API",
+    "repeatedDeepHilOnFinalUiApk": false,
+    "apkSha256": "B31FF1A2799BCB8C1B8612575574CD132E8AF913C24DE4D4427A9701B30B6114"
+  },
+  "ota": {
+    "keepAlive": "C2 01 00 every30s only confirmed READY/COMPLETE; no C2 Info in WRITING/PREPARING/FAILED/boot/disconnected",
+    "concurrentProgress": "Independent per-session coordinators; all-device rows show acknowledged aggregate percent/bytes/file; host isolation verified",
+    "trueTwoDeviceCompleteTransfer": "not run: verified REL4.6 complete image bundle unavailable",
+    "fullTransferOnCurrentApk": false,
+    "fullTransferPassed": null,
+    "successfulSingleTransfer": {
+      "acknowledgedBytes": 215373,
+      "totalBytes": 215373,
+      "fileBytes": {
+        "APP0": 205388,
+        "APP1": 8660,
+        "MFST": 45,
+        "APP2": 1280
+      },
+      "scope": "One real REL4.5 device, all four files, ACK-weighted aggregate, More navigation and protections",
+      "finalPercent": 100,
+      "evidence": "validation-round3.json",
+      "apkSha256": "DA7D609F4761A8457387D97BBF041CDBF77646C552490CE87532FD66630D2B51"
+    },
+    "latestScope": "Latest UI and legacy polling changes were checked by targeted tests; full four-file C3 evidence remains the earlier DA7D single-device run"
+  },
+  "physicalInternalLinkRemoval": {
+    "reason": "User said physical internal-device separation is currently difficult; firmware source contract reviewed only",
+    "state": "not run"
+  },
+  "knownObservations": [
+    "A previous 180.483s prepared-idle timeout was reproduced and fixed with bounded safe per-session keep-alive; validated on B31F beyond3min",
+    "Android status133 was seen on initial reconnect; explicit fresh retry succeeded; not claimed eliminated",
+    "Automation check266 was invalid because compressed UI rows flattened; corrected row-bounds helper and enabled-control checks supersede it",
+    "Prior factory boot offline observation recovered today; underlying hardware recovery cause remains unconfirmed"
+  ],
+  "remaining": [
+    "True two-device simultaneous four-file C3 completion with verified matching REL4.6 bundle",
+    "Physical internal-link separation while mapping prepared"
+  ],
+  "previousRounds": [
+    "validation-round1.json",
+    "validation-round2-failed.json",
+    "validation-round3.json",
+    "validation-round4.json",
+    "validation-round5.json",
+    "validation-round6-823B.json",
+    "validation-pek-before-fix.json",
+    "validation-round7-43B2.json",
+    "validation-round8-B31F.json"
+  ],
+  "report": "E:/workspace/html/제품/TD2-Remote-Application/앱-검증/전체-시험-목록/index.html",
+  "targetedJvmRerun": {
+    "total": 18,
+    "suites": [
+      {
+        "name": "todoc.cochlear.remoteapp.connection.SessionUserProfileTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "timestamp": "2026-10-30T05:11:57.866Z",
+        "methods": [
+          "exclusiveWorkBlocksDeactivationButAllowsMetadataAndKeyChanges",
+          "removingOneEarOnlyBlocksItsExclusiveWorkAndPreservesTheOtherEarRename",
+          "anUnrelatedProfileIsNotTreatedAsARemovedEarOfTheEditedGroup",
+          "groupRenameMatchesBothEarsByOldMembershipWithoutTouchingAnotherUser",
+          "currentAuthenticationKeepsItsSnapshotWhileTheNextConnectionUsesEditedRegistration"
+        ]
+      },
+      {
+        "name": "todoc.cochlear.remoteapp.database.users.UserGroupEditTest",
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "timestamp": "2026-10-30T05:11:57.876Z",
+        "methods": [
+          "absentSideDoesNotBecomeAnActiveProfileWhenNoKeyExists",
+          "explicitAliasEditAppliesToBothEarsWithoutChangingEitherKey",
+          "clearingTheLastKeyRejectsSaveWithoutMutatingTheExistingGroup",
+          "printableAsciiKeysMayMixLettersDigitsAndSymbols",
+          "formAndPlannerShareTheSameWireKeyEligibility",
+          "spacesControlCharactersAndDeleteAreNotWireKeys",
+          "invalidSecondKeyRejectsWholeEditWithoutChangingFirstEar",
+          "renameChangesBothPrimaryKeysAndKeepsTheirSeparateCredentials",
+          "fourKoreanCharactersAreRejectedBeforeAnyProfileCanBeSaved",
+          "groupsOnePersonWithoutCombiningDifferentEarKeysOrInitials",
+          "clearingOneKeyRemovesOnlyThatEarAndPreservesTheOtherEar",
+          "factoryRecordAndKeysSurviveGroupRenameAlongsideBothEars",
+          "editingOneEarPreservesOtherEarKeyAliasAndOriginalSnapshot"
+        ]
+      }
+    ],
+    "scope": "18 existing user-group/profile methods rerun for the first inline implementation; final error-scroll refinements received build and focused physical checks only. These overlap the 135 methods."
+  },
+  "sqliteTests": {
+    "total": 7,
+    "failures": 0,
+    "errors": 0,
+    "scope": "Python SQLite migration/transaction methods; separate from Android JVM methods; not repeated for later visual edits"
+  },
+  "registrationPreservation": {
+    "updated": "2026-10-30T14:27:58.459245+09:00",
+    "scope": "Current live registrations preserved; compare original rows against pre-migration v1 private backup, allowing new registrations. No data was deleted by this verification.",
+    "databases": [
+      {
+        "database": "user_info",
+        "legacyColumnsAndValuesUnchanged": false,
+        "originalRowsUnchanged": true,
+        "additionalRows": 2,
+        "originalRows": 4,
+        "finalRows": 6,
+        "activeRows": 6,
+        "schemaVersion": 2
+      },
+      {
+        "database": "DB_DEVICE",
+        "legacyColumnsAndValuesUnchanged": true,
+        "originalRowsUnchanged": true,
+        "additionalRows": 0,
+        "originalRows": 2,
+        "finalRows": 2,
+        "activeRows": 2,
+        "schemaVersion": 2
+      }
+    ]
+  },
+  "inlineRegistrationPreservation": {
+    "scope": "Pre-inline six-row user and two-row device baseline; temporary registrations removed; authentication fields never exported",
+    "databases": [
+      {
+        "database": "user_info",
+        "before": 6,
+        "after": 6,
+        "allValuesAndFlagsUnchanged": true
+      },
+      {
+        "database": "DB_DEVICE",
+        "before": 2,
+        "after": 2,
+        "allValuesAndFlagsUnchanged": true
+      }
+    ]
+  },
+  "basicControlAlignment": {
+    "scope": "Actual visible glyph bounding-box center; 1080x2280 screenshot",
+    "passed": true,
+    "buttons": [
+      {
+        "button": "program_down",
+        "bounds": [
+          64,
+          1539,
+          287,
+          1655
+        ],
+        "inkOffsetPixels": [
+          0.0,
+          0.5
+        ],
+        "passed": true
+      },
+      {
+        "button": "program_up",
+        "bounds": [
+          300,
+          1539,
+          524,
+          1655
+        ],
+        "inkOffsetPixels": [
+          0.0,
+          0.5
+        ],
+        "passed": true
+      },
+      {
+        "button": "volume_down",
+        "bounds": [
+          556,
+          1539,
+          779,
+          1655
+        ],
+        "inkOffsetPixels": [
+          0.0,
+          0.5
+        ],
+        "passed": true
+      },
+      {
+        "button": "volume_up",
+        "bounds": [
+          792,
+          1539,
+          1016,
+          1655
+        ],
+        "inkOffsetPixels": [
+          0.0,
+          0.5
+        ],
+        "passed": true
+      },
+      {
+        "button": "max_output_down",
+        "bounds": [
+          64,
+          1756,
+          287,
+          1872
+        ],
+        "inkOffsetPixels": [
+          0.0,
+          0.5
+        ],
+        "passed": true
+      },
+      {
+        "button": "max_output_up",
+        "bounds": [
+          300,
+          1756,
+          524,
+          1872
+        ],
+        "inkOffsetPixels": [
+          0.0,
+          0.5
+        ],
+        "passed": true
+      },
+      {
+        "button": "led",
+        "bounds": [
+          556,
+          1756,
+          779,
+          1872
+        ],
+        "inkOffsetPixels": [
+          0.5,
+          0.0
+        ],
+        "passed": true
+      },
+      {
+        "button": "alarm",
+        "bounds": [
+          792,
+          1756,
+          1016,
+          1872
+        ],
+        "inkOffsetPixels": [
+          2.0,
+          0.0
+        ],
+        "passed": true
+      }
+    ]
+  },
+  "features": {
+    "registeredScan": "Active users AND active external devices only; no scan dialog; bounded once-per-address attempts in each fresh generation",
+    "userGroups": "One initials group with L/R/F codes and activation; inline alias/initials/key edit, cancel/save/delete, duplicate and stale-snapshot checks",
+    "externalDevices": "Inline alias, six-digit pairing key, activation, cancel/save/delete; existing serial remains read-only",
+    "lists": "Shared glass background, separator rows, equal text columns, scroll-attached round + footer; prior floating FAB superseded",
+    "ota": "Common four-file group, vertical device rows with battery/REL/current-previous slots/ACK percentage, selected border, selected-session actions and slot dialog",
+    "product": "SLVN/SND1 badge derives from actual GATT service evidence; new SOUND1 transport was not implemented",
+    "displayUnits": {
+      "current": "㎃ U+3383",
+      "power": "㎽ U+33BD",
+      "voltage": "Ｖ U+FF36",
+      "step": "㎷ U+33B7"
+    }
+  },
+  "periodicReadFix": {
+    "firstObservation": "96CF: boot authentication succeeded, then 59 20 00 01 Android completion expired at 1002ms",
+    "secondObservation": "DABE: boot/authentication succeeded and remained normal for 128.623s; later REL4.5 59 22 00 02 expired at 1000ms because legacy index2 was omitted",
+    "fiveSecondScope": [
+      "C2 Info",
+      "59 20 00 01",
+      "59 22 00 01",
+      "59 22 00 02"
+    ],
+    "strictScope": "Other reads/writes/authentication/init/status/C3/60/C2 Select retain existing deadlines; no general five-second initialization claim",
+    "verification": "2CA: legacy index2 request/ACK observed from 13:54:56.943 to 14:04:19.449 during ordinary UI review, with no completion timeout in that process",
+    "evidence": [
+      "final-ota-ui-boot-logcat.txt",
+      "dabe-late-state-logcat.txt",
+      "2ca-legacy-index2-polling-logcat.txt"
+    ],
+    "otaRetransmission": "No automatic C3 retransmission added; existing settling time retained"
+  },
+  "testPolicy": "From the user's explicit request onward, only changed-area checks and build verification were performed; do not describe historical full tests as repeated on every edit.",
+  "motion": {
+    "apkSha256": "3CF77FCCE69F5B948DC5672A6F27817787E58289842F3561C1FFC9D67D901A02",
+    "video": "media/connection-glass-flow-scale-one.mp4",
+    "videoSha256": "f6e9c2570646279f579f4429a61c2083353db276c61e63e8d8872c44d168d551",
+    "metadata": {
+      "width": 1080,
+      "height": 2280,
+      "durationSeconds": 9.497267
+    },
+    "decoder": "Installed Edge H.264 through Playwright canvas; no package installation",
+    "environmentChangeProvidedByParent": "Same APK; animator_duration_scale explicitly changed from null to 1.0 before recording. Reviewer performed no ADB or source changes.",
+    "centralMessage": {
+      "visible": false,
+      "state": "passed"
+    },
+    "motion": {
+      "state": "passed with animations explicitly enabled",
+      "connectingFrameTimes": [
+        1.3,
+        1.9
+      ],
+      "photoRoi": [
+        470,
+        260,
+        600,
+        320
+      ],
+      "photoChangedPixels": 5216,
+      "photoMaximumChannelDelta": 100,
+      "photoMeanAbsoluteChannelDelta": 10.1432905983,
+      "bodyRoi": [
+        0,
+        420,
+        1080,
+        1980
+      ],
+      "bodyChangedPixels": 642660,
+      "bodyMaximumChannelDelta": 17,
+      "bodyMeanAbsoluteChannelDelta": 0.4034868629,
+      "staticControlRoi": [
+        620,
+        260,
+        900,
+        330
+      ],
+      "staticControlMaximumChannelDelta": 4,
+      "idleFrameTimes": [
+        0.1,
+        0.7
+      ],
+      "idleBodyChangedPixels": 702337,
+      "idleBodyMaximumChannelDelta": 9,
+      "visualObservation": "Compact wave crests move and rotate continuously from near-horizontal to diagonal between 1.0 and 2.2 seconds. Broad body curves visibly change position.",
+      "randomDirectionLimit": "Movement and changing orientation are observed; stochastic direction reselection at 6-10 seconds cannot be established from this short connecting interval.",
+      "frames": [
+        "screens/3cf-scale-one-motion-frame-1_3.png",
+        "screens/3cf-scale-one-motion-frame-1_9.png",
+        "screens/3cf-scale-one-photo-motion.png",
+        "screens/3cf-scale-one-body-motion.png"
+      ]
+    },
+    "previousFailureEvidence": "motion-review.json",
+    "buttonAlignment": {
+      "all8Within2Pixels": true,
+      "evidence": "basic-control-alignment.json"
+    },
+    "sourceModified": false,
+    "adbUsed": false
+  },
+  "latestRuntime": {
+    "updated": "2026-10-30T14:36:35.9811631+09:00",
+    "pid": "16804",
+    "androidRuntimeFatal": 0,
+    "completionTimeouts": 0,
+    "unexpectedC3": 0,
+    "animatorDurationScale": "1.0"
+  }
+}

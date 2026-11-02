@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-30",
+  "apkSha256": "be4fc9b2541b556feb7df536ec2bce94f1d01a6444a97b57924273a9fa14bccd",
+  "changes": [
+    "On green / Off gray",
+    "registration and edit shared dialogs: centered title and field badges",
+    "registry counts right-aligned with 총 N명 / 총 N대",
+    "shared rail in details, identity and map pages; identity target display updates and key draft clears",
+    "disconnected rail cards dismiss vertically; registry and OTA history retained",
+    "tabs Basic / Special / FF / Details / OTA",
+    "no automatic startup or registration-activation scan; explicit + search",
+    "transparent parent overlay; neutral wave base alpha 96..112/255 after user requested intermediate opacity"
+  ],
+  "checks": [
+    "LongPressGestureTest 3 passed",
+    "assembleDebug passed and installed",
+    "connected card vertical drag retained",
+    "disconnected B vertical drag removed; A remained connected",
+    "explicit + restores hidden address discovery",
+    "identity rail B selection updated MAC and REL4.6 target",
+    "map warning target displayed; cancelled without map write",
+    "OTA last-tab navigation inspected",
+    "user/external registration title and field labels inspected; cancelled",
+    "idle app launch before + and explicit search inspected"
+  ],
+  "evidence": [
+    "730-main.png",
+    "734-identity-b.png",
+    "736-map-warning.png",
+    "738-ota-position.png",
+    "748-connected-drag-kept.png",
+    "751-b-drag-removed.png",
+    "753-registry-counts.png",
+    "754-centered-user-title.png",
+    "756-centered-device-title.png",
+    "757-final-idle.png",
+    "758-final-search-glass.png",
+    "760-restored-connections.png"
+  ],
+  "limits": [
+    "no identity/map command submitted",
+    "no full protocol regression repeated",
+    "editing uses same dialog component; existing private-code forms not captured"
+  ]
+}

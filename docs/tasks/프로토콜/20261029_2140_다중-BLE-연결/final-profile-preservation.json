@@ -1,0 +1,26 @@
+{
+  "updated": "2026-10-30T14:27:58.459245+09:00",
+  "scope": "Current live registrations preserved; compare original rows against pre-migration v1 private backup, allowing new registrations. No data was deleted by this verification.",
+  "databases": [
+    {
+      "database": "user_info",
+      "legacyColumnsAndValuesUnchanged": false,
+      "originalRowsUnchanged": true,
+      "additionalRows": 2,
+      "originalRows": 4,
+      "finalRows": 6,
+      "activeRows": 6,
+      "schemaVersion": 2
+    },
+    {
+      "database": "DB_DEVICE",
+      "legacyColumnsAndValuesUnchanged": true,
+      "originalRowsUnchanged": true,
+      "additionalRows": 0,
+      "originalRows": 2,
+      "finalRows": 2,
+      "activeRows": 2,
+      "schemaVersion": 2
+    }
+  ]
+}

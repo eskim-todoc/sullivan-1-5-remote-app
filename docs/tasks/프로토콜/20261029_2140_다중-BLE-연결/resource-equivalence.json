@@ -1,0 +1,7 @@
+{
+  "baselineApkSha256": "96CFCA243204C0B7685D350B31D9F97FB6C4F1C81A9CF262845C64CB08352699",
+  "currentApkSha256": "DABE0EA3835CE497F48BF3E2244215DF235F942457B5D6F81B7F334D48DBE984",
+  "resourceEntries": 1036,
+  "differentEntries": [],
+  "scope": "Packaged resources/assets/fonts unchanged; Java transport policy differs."
+}

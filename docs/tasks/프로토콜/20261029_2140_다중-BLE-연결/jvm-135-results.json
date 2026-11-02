@@ -1,0 +1,333 @@
+{
+  "scope": "135 Android JVM methods executed before subsequent UI-only refinements; not rerun after every visual edit",
+  "total": 135.0,
+  "failures": 0.0,
+  "errors": 0.0,
+  "suites": [
+    {
+      "name": "todoc.cochlear.remoteapp.activity.ExampleUnitTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.081Z",
+      "methods": [
+        "addition_isCorrect"
+      ]
+    },
+    {
+      "name": "todoc.cochlear.remoteapp.connection.BootReconnectPolicyTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.090Z",
+      "methods": [
+        "threeFreshAttemptsAreBoundedAndUseBootSpecificBackoff",
+        "successfulInitializationOrUserDisconnectStopsFurtherAttempts",
+        "failedAReplacesOnlyItsGenerationAndNeverConsumesOtherDeviceCallbacks"
+      ]
+    },
+    {
+      "name": "todoc.cochlear.remoteapp.connection.GattWriteGateTest",
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.093Z",
+      "methods": [
+        "initializationOtherReadsWritesAndOtaKeepTheirLegacyOneSecondCompletionDeadline",
+        "lateAndroidWriteFailureAfterDeviceAckDoesNotFailTheNextQueuedRequest",
+        "bootInfoMayCompleteAfterOneSecondBeforeItsDeviceAckDeadlineBegins",
+        "missingTelemetryCompletionExpiresAtFiveSecondsWithoutAffectingAnotherSession",
+        "backgroundCallbackPostsOnceAndStillChecksItsCapturedGeneration",
+        "mainLoopAckIsProcessedInlineRatherThanMovedBehindAnExpiredTimer",
+        "telemetryAckBeforeDelayedCompletionCannotArmOrFailTheNextQueuedRequest",
+        "acceptedWriteMustCompleteBeforeAnotherRequestCanEnterAndroid",
+        "periodicTelemetryMayCompleteAfterFourAndHalfSecondsBeforeItsAckTimerStarts",
+        "otaAckAddsSettlingTimeAndCompletionLossIsBounded",
+        "bootInfoAckBeforeAndroidCompletionCannotArmAnOldDeviceAckTimer",
+        "wrongOrRejectedDeviceAckDoesNotOverrideAndroidWriteFailure",
+        "completionTimeoutPoisonsOldGateAndLateCallbackCannotConsumeNewGenerationWrite",
+        "bootSelectAndOtaKeepTheirOriginalOneSecondWriteCompletionLimit"
+      ]
+    },
+    {
+      "name": "todoc.cochlear.remoteapp.connection.OtaHeartbeatPolicyTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.099Z",
+      "methods": [
+        "busyQueueYieldsWithoutLosingDueRequestOrSendingMoreThanOncePerPeriod",
+        "repeatedUiPublicationsCannotPostponeDeadlineAndBootDisarmsIt",
+        "timedOutInfoCannotAttributeLaterOptionlessErrorToAnotherBootRequest",
+        "onlyConfirmedReadyAndCompletePermitHeartbeat",
+        "delayedCallbackAfterCloseCannotSendAndOtherDeviceKeepsItsOwnSchedule"
+      ]
+    },
+    {
+      "name": "todoc.cochlear.remoteapp.connection.OtaSlotPolicyTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.101Z",
+      "methods": [
+        "anApplicationCanOnlyBeReplacedInTheOtherSupportedSlot",
+        "missingOrInvalidBootInformationNeverEnablesWriting",
+        "factoryAndLegacyBootSlotsStillAllowBothBleWritableDestinations"
+      ]
+    },
+    {
+      "name": "todoc.cochlear.remoteapp.connection.RegisteredScanPolicyTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.103Z",
+      "methods": [
+        "cancelledAndPreviousGenerationCallbacksCannotPopulateOrConnectInNewScan",
+        "failedOrCompletedAttemptNeverRepeatsUntilANewExplicitScan",
+        "manualDiscoveryNeverConnectsAndBecomingActiveNeedsAnotherFreshAdvertisement",
+        "onlyFreshActiveRegisteredAdvertisementsCanStartConnections",
+        "liveDeviceIsPreservedAndItsLaterDisconnectDoesNotCauseSameScanReconnect"
+      ]
+    },
+    {
+      "name": "todoc.cochlear.remoteapp.connection.SessionRegistryTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.105Z",
+      "methods": [
+        "selectingAnotherTargetDoesNotRetargetPreviouslyEnqueuedCommands",
+        "busyOrClosedAHasNoEffectOnBTelemetryAndQueue",
+        "reconnectInvalidatesOldCallbacksEvenWhenAddressAndSerialAreIdentical",
+        "closedGenerationCannotBeAttachedAgain"
+      ]
+    },
+    {
+      "name": "todoc.cochlear.remoteapp.connection.SessionUserProfileTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.109Z",
+      "methods": [
+        "exclusiveWorkBlocksDeactivationButAllowsMetadataAndKeyChanges",
+        "removingOneEarOnlyBlocksItsExclusiveWorkAndPreservesTheOtherEarRename",
+        "anUnrelatedProfileIsNotTreatedAsARemovedEarOfTheEditedGroup",
+        "groupRenameMatchesBothEarsByOldMembershipWithoutTouchingAnotherUser",
+        "currentAuthenticationKeepsItsSnapshotWhileTheNextConnectionUsesEditedRegistration"
+      ]
+    },
+    {
+      "name": "todoc.cochlear.remoteapp.database.users.UserGroupEditTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.111Z",
+      "methods": [
+        "absentSideDoesNotBecomeAnActiveProfileWhenNoKeyExists",
+        "explicitAliasEditAppliesToBothEarsWithoutChangingEitherKey",
+        "clearingTheLastKeyRejectsSaveWithoutMutatingTheExistingGroup",
+        "printableAsciiKeysMayMixLettersDigitsAndSymbols",
+        "formAndPlannerShareTheSameWireKeyEligibility",
+        "spacesControlCharactersAndDeleteAreNotWireKeys",
+        "invalidSecondKeyRejectsWholeEditWithoutChangingFirstEar",
+        "renameChangesBothPrimaryKeysAndKeepsTheirSeparateCredentials",
+        "fourKoreanCharactersAreRejectedBeforeAnyProfileCanBeSaved",
+        "groupsOnePersonWithoutCombiningDifferentEarKeysOrInitials",
+        "clearingOneKeyRemovesOnlyThatEarAndPreservesTheOtherEar",
+        "factoryRecordAndKeysSurviveGroupRenameAlongsideBothEars",
+        "editingOneEarPreservesOtherEarKeyAliasAndOriginalSnapshot"
+      ]
+    },
+    {
+      "name": "todoc.cochlear.remoteapp.ff.Ff3SessionTest",
+      "tests": 23,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.116Z",
+      "methods": [
+        "readbackMismatchDoesNotReportSuccess",
+        "saveChangesOnlyDesiredValuesAndStaysOff",
+        "firmwareErrorHasNoIndexAndDoesNotAdvance",
+        "unknownSchemaNeverReadsSettingsOrWrites",
+        "unconfirmedFileCanBeCreatedByModeWrite",
+        "invalidTablesAndMissingValuesNeverWrite",
+        "modeWriteStillRequiresConfirmedFileAfterwards",
+        "timeoutCannotAutomaticallyRetryOrActivate",
+        "wrongWriteEchoStopsBeforeValidate",
+        "ackDelayIsBoundedAndDisconnectCancelsDelayedWork",
+        "unsignedGenerationAndCrcDoNotSignExtend",
+        "schemaAndPaddedReadsPreserveExistingG11WithoutWrites",
+        "capabilityGateDoesNotAssumeFutureCompatibility",
+        "fileFailureIsNotReportedAsSaved",
+        "ackDeadlineStopsAfterTwentyPolls",
+        "runtimePrerequisitesRemainMandatory",
+        "interruptedSettingsReadNeverUnlocksControls",
+        "ackCanArriveLaterWithoutAnyAutomaticModeWrite",
+        "activationRequiresValidLedgerAndSeparateConfirmedModeWrite",
+        "summaryDoesNotFetchSettingsOrUnlockControls",
+        "shortReadDoesNotFillUnknownWithZero",
+        "fullSixteenZonesCanBeEditedWithoutTruncation",
+        "pendingEditIsPreservedAndAbortRestoresExecutionValues"
+      ]
+    },
+    {
+      "name": "todoc.cochlear.remoteapp.ff.Ff3UiTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.129Z",
+      "methods": [
+        "sensitivityDoesNotConfusePowerLimitWithDetection",
+        "categoricalSettingsAreNamesRatherThanProtocolNumbers",
+        "changeReviewShowsOnlyModifiedValuesAndTheirDisplayUnits",
+        "arTimeAppearsOnlyWhenArIsSelected",
+        "decibelsUseAmplitudeRatherThanPowerRatios",
+        "comparisonsDistinguishRiseDropAndStability",
+        "zoneRatiosUsePreviousRealBoundaryAndIgnoreZeroSentinels"
+      ]
+    },
+    {
+      "name": "todoc.cochlear.remoteapp.ota.OtaCoordinatorTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.133Z",
+      "methods": [
+        "repeatedRebootKeepsLastCompletedSummaryWithoutAffectingAnotherDeviceTransfer",
+        "liveAvailabilityRecoversFromTemporaryBusyWithoutRecollectingOrReselecting",
+        "finalDataBeingSentIsStillNinetyNineUntilItsAck",
+        "duplicateWrongIndexAndRejectionNeverAdvanceAcknowledgedBytes",
+        "incompleteCollectionAndInvalidSlotCannotBeginOrChangeDenominator",
+        "rebootSnapshotKeepsCompletedFilesAndBytesButDoesNotRestoreMappingMode",
+        "prepareRequiresExactPositiveAckAndNeverStartsDataAutomatically",
+        "latePrepareAckCannotReleaseTheOutstandingFileRequest",
+        "availabilityQueriesDoNotCreateMissingFilesOrChangePreparationState",
+        "lostPrepareAckDoesNotAssumeThatTheInternalLinkIsStillAttached",
+        "sendFailureOrTimeoutHasBoundedFailureAndKeepsConfirmedProgress",
+        "twoDevicesPrepareAndWriteIndependentlyAndCloseDoesNotStopTheOther",
+        "lateFileAckCannotReleaseTheOutstandingPrepareRequest",
+        "buffersAndTargetSlotRemainFrozenWhenAnotherSelectionChangesTheModel",
+        "aggregateProgressCountsAcknowledgedBytesAndFinishesOnlyAfterAllFourFiles"
+      ]
+    },
+    {
+      "name": "todoc.cochlear.remoteapp.ota.OtaFileSelectionTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.141Z",
+      "methods": [
+        "incompleteReadingMalformedAndBusySourcesLeaveExistingTargetUntouched",
+        "completeSelectionCopiesIndependentBuffersWithoutChangingTargetSlotOrTransport",
+        "editingTheRegisteredIdentityKeepsTheCurrentAuthenticationAndOtaTransfer",
+        "changingSharedImagesOrStartingAnotherDeviceCannotAlterInFlightManifest",
+        "copyingFilesKeepsPreparationSeparateAndDoesNotSendOrSelectASlot"
+      ]
+    },
+    {
+      "name": "todoc.cochlear.remoteapp.ota.OtaIsolationTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.143Z",
+      "methods": [
+        "constructingSessionsPreservesTheLegacyShellInstance",
+        "transferStateAndPacketBufferRemainIndependent",
+        "fileBuffersAndProgressBelongToTheirOwningSession",
+        "slotAndFileKeysDoNotAliasWithinOneSession"
+      ]
+    },
+    {
+      "name": "todoc.cochlear.remoteapp.params.BatteryTelemetryTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.145Z",
+      "methods": [
+        "invalidStatusesNeverExposeCachedCurrent",
+        "rel45ExtendedIndexRetainsSignedCurrentAndRejectsLegacyPayload",
+        "legacyKeepsVoltageButDoesNotInventZeroCurrent",
+        "uncalibratedVoltageSuppressesPowerButAllowsValidCurrent",
+        "acceptsAllIndexAndFutureTailWithoutDependingOnReleaseMinor",
+        "chargingRetainsNegativeConsumptionAndLocaleDoesNotChangeUnits",
+        "roundedCurrentDoesNotChangePowerAndTinyChargeDoesNotShowNegativeZero",
+        "decodesFirmwareExampleAndCalculatesUnroundedPower",
+        "sampleAgeBoundaryAndNeverSampledSentinelAreEnforced",
+        "detailedBatteryCanBeProbedFromRel45",
+        "unsignedTimerAndSignedCurrentExtremesDoNotOverflow",
+        "rejectsTruncatedExtensionsHeadersAndOtherTransactions"
+      ]
+    },
+    {
+      "name": "todoc.cochlear.remoteapp.params.DeviceManagementProtocolTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.150Z",
+      "methods": [
+        "requiresExactReadBackRatherThanHeaderOrDisconnect",
+        "mapAcceptanceAndFactoryCompletionUseDifferentContracts",
+        "validatesIdentityAtAsciiBoundary"
+      ]
+    },
+    {
+      "name": "todoc.cochlear.remoteapp.params.StatusIsolationTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.152Z",
+      "methods": [
+        "packetQueuesAndBuffersBelongToOneConnection",
+        "creatingDeviceSessionsDoesNotReplaceTheAppShellAlias",
+        "disconnectingOneDevicePreservesTheOtherIdentityAndProtocolState"
+      ]
+    },
+    {
+      "name": "todoc.cochlear.remoteapp.params.UserControlQueueTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.154Z",
+      "methods": [
+        "telemetryReadDoesNotConsumeOrReplaceQueuedVolumeWrite",
+        "excludesDestructiveManagementAndReadCommands",
+        "boundsCopiesExpiresAndClearsSessionWrites"
+      ]
+    },
+    {
+      "name": "todoc.cochlear.remoteapp.ui.ConnectionSelectorStateTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "timestamp": "2026-10-30T04:58:40.156Z",
+      "methods": [
+        "connectingSelectedTargetShowsItsOwnStateEvenWithAnotherLiveDevice",
+        "aLiveConnectionDoesNotImplyThatATargetHasBeenSelected",
+        "failedTargetStatePrecedesALongEllipsizedName",
+        "pendingUnselectedConnectionIsNotCountedAsLiveOrSelected",
+        "initialEmptyStateHasNoSelectedTargetOrLiveConnections",
+        "healthySelectedTargetKeepsItsCompactName",
+        "disconnectedSelectedTargetIsNotPresentedAsTheOtherLiveConnection"
+      ]
+    }
+  ]
+}

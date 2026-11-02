@@ -1,0 +1,45 @@
+{
+  "family": "TD Remote UI",
+  "composition": "Inter -> SUIT -> IBM Plex Sans KR fallback",
+  "weights": [
+    {
+      "weight": 500,
+      "sha256": "52988d21a6a41c448824e808bad3b8ce94dbab9579dbd1ae5b715985c35c28ed",
+      "glyphs": 14790,
+      "units": {
+        "㎃": "0x3383",
+        "㎽": "0x33bd",
+        "㎷": "0x33b7",
+        "Ｖ": "0xff36",
+        "㎲": "0x33b2"
+      },
+      "tabular_numbers": true
+    },
+    {
+      "weight": 600,
+      "sha256": "93449073aaac877b1094053c9598066aa0e6bb4a94e64549c7a423707763bb04",
+      "glyphs": 14790,
+      "units": {
+        "㎃": "0x3383",
+        "㎽": "0x33bd",
+        "㎷": "0x33b7",
+        "Ｖ": "0xff36",
+        "㎲": "0x33b2"
+      },
+      "tabular_numbers": true
+    },
+    {
+      "weight": 700,
+      "sha256": "4a492661562d1538f19deb5ea4b1be66e22ff10337cb11cd1b0b85061b45f05d",
+      "glyphs": 14790,
+      "units": {
+        "㎃": "0x3383",
+        "㎽": "0x33bd",
+        "㎷": "0x33b7",
+        "Ｖ": "0xff36",
+        "㎲": "0x33b2"
+      },
+      "tabular_numbers": true
+    }
+  ]
+}

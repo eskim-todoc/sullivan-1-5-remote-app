@@ -1,0 +1,44 @@
+{
+  "checked": "2026-10-30T16:56:38.362557+09:00",
+  "apk_sha256": "9b5714e6be04332fdf9010bd1fb58642ad9d398e2d347ae8d8cdc50527c89bab",
+  "font": "B: Inter Latin/numerals + SUIT Korean + IBM Plex unit fallback; bundled renamed OFL derivative TD Remote UI (500/600/700)",
+  "unit_symbols": [
+    "㎃",
+    "㎽",
+    "㎷",
+    "Ｖ",
+    "㎲"
+  ],
+  "tests": {
+    "OtaCoordinatorTest": 16,
+    "OtaTransferRateTest": 2,
+    "result": "18 passed"
+  },
+  "physical": {
+    "gating_invalid": [
+      "0 rejected",
+      "256 rejected"
+    ],
+    "gating": "TODOC_OTE: Off/default2 -> On/3 ACK badge -> Off/3 preserved -> On/3 preserved -> On/2 badge hidden -> Off/2 restored",
+    "slot_dialog": "shared OTA transfer/boot adapter: available bright, current disabled gray, selected indigo; boot dialog viewed and canceled without reboot",
+    "messages": "battery detail, mapping pause banner, OTA prepare hint removed from layout and update paths",
+    "font": "actual device main/dialog glyph rendering inspected"
+  },
+  "evidence": [
+    "screens/784-gating-invalid-zero.png",
+    "screens/786-gating-invalid-high.png",
+    "screens/789-gating-three-ack.png",
+    "screens/791-gating-off-retained.png",
+    "screens/793-gating-on-retained.png",
+    "screens/797-gating-default-restored.png",
+    "screens/798-final-idle-no-hints.png",
+    "screens/800-final-connected.png",
+    "screens/804-slot-colors-final.png",
+    "screens/805-slot-selected-color.png"
+  ],
+  "limits": [
+    "New live four-file OTA was not repeated. Payload-only recent-window rate, idle decay, file boundaries, completion average and restart reset verified by deterministic tests.",
+    "Maximum255 transmission not exercised on hardware; physical validation tested bounds rejection and value3/default2 round trip.",
+    "Gating HIL used preceding APK with identical Gating code; final APK adds banner removal and remaining FF/tab font replacement."
+  ]
+}
